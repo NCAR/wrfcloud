@@ -2,4 +2,4 @@
 Module containing common AWS operations for NCAR/RAL
 """
 
-__all__ = ['dynamodb']
+__all__ = ['dynamodb', 'imagebuilder']

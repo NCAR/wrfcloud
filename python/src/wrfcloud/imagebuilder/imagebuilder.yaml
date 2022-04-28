@@ -1,0 +1,353 @@
+---
+# Description:
+# This template creates an EC2 Image Builder Pipeline for WRF v4.3.1 and dependencies with Intel
+
+Description: EC2 Image Builder Pipeline for WRF v4.3.1 and dependencies with Intel
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+
+  WrfComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: !Sub wrf-${AWS::StackName}
+      Platform: Linux
+      Version: 4.3.1
+      Data: |
+        name: WRF v4.3.1 and Dependencies
+        description: 'Build and install all WRF dependencies'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: update_os
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo 'H4sIALNR52EAA4vOz0t1DPCM5cpLzE219cwrSc05tE4BIqhQlFqQX5xZkl9UyZWUWJxaWpRjm1FSUlBspa9fWZqrB5bWywTp0UvOz9UH6kosyORKzUtMyklNsTXkSi9IT85ITc4GMkFq45H4QGZ2aiVe48AsXaBCXaDKYn33AHfdgFAnXW/XSF1PvxBXH93gcN2AIH+XUOeQYD2gDBcAamMwicwAAAA=' | base64 -d | gunzip > /etc/yum.repos.d/oneAPI.repo
+                    - rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+                    - yum -y update
+                    - yum -y install intel-oneapi-common-licensing
+                    - yum -y install intel-oneapi-libdpstd-devel intel-oneapi-itac
+                    - yum -y install intel-hpckit
+                    - yum -y install gcc gcc-c++ gcc-gfortran m4 curl-devel git cmake pkgconfig expat-devel libX11-devel libXmu-devel Xaw3d-devel libXaw-devel
+
+              - name: configure_bash
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo 'export MPI="/opt/intel/oneapi/mpi/latest"' | tee -a /etc/bashrc
+                    - echo 'export OPENMPI="${MPI}"' | tee -a /etc/bashrc
+                    - echo 'export INTEL="/opt/intel/oneapi/compiler/latest/linux"' | tee -a /etc/bashrc
+                    - echo 'export PATH="${INTEL}/bin/intel64:${MPI}/bin:${PATH}"' | tee -a /etc/bashrc
+                    - echo 'export I_MPI_CC="icc"' | tee -a /etc/bashrc
+                    - echo 'export I_MPI_CXX="icpc"' | tee -a /etc/bashrc
+                    - echo 'export I_MPI_FC="ifort"' | tee -a /etc/bashrc
+                    - echo 'export I_MPI_F90="ifort"' | tee -a /etc/bashrc
+                    - echo 'export FC="mpifc"' | tee -a /etc/bashrc
+                    - echo 'export F90="mpifc"' | tee -a /etc/bashrc
+                    - echo 'export F77="mpifc"' | tee -a /etc/bashrc
+                    - echo 'export CC="mpicc"' | tee -a /etc/bashrc
+                    - echo 'export CXX="mpicxx"' | tee -a /etc/bashrc
+                    - echo 'export CPP="${CC} -E"' | tee -a /etc/bashrc
+                    - echo 'export CC_FOR_BUILD="${CC}"' | tee -a /etc/bashrc
+                    - echo 'export CPP_FOR_BUILD="${CPP}"' | tee -a /etc/bashrc
+                    - echo 'export CXXCPP="${CXX} -E"' | tee -a /etc/bashrc
+                    - echo 'export ABI="64"' | tee -a /etc/bashrc
+                    - echo 'export FCFLAGS="-I${MPI}/include"' | tee -a /etc/bashrc
+                    - echo 'export CFLAGS="-I${MPI}/include"' | tee -a /etc/bashrc
+                    - echo 'export LDFLAGS="-L${MPI}/lib -L${MPI}/lib/release"' | tee -a /etc/bashrc
+                    - echo 'export LD_LIBRARY_PATH="${MPI}/lib/release:${MPI}/lib"' | tee -a /etc/bashrc
+                    - echo 'export I_MPI_OFI_LIBRARY_INTERNAL=0' | tee -a /etc/bashrc
+                    - echo 'source /opt/intel/oneapi/setvars.sh --force' | tee -a /etc/bashrc
+                    - echo 'export I_MPI_FABRICS=shm:ofi' | tee -a /etc/bashrc
+                    - echo 'export I_MPI_OFI_PROVIDER=efa' | tee -a /etc/bashrc
+                    - echo '*    hard    stack    unlimited' | tee -a /etc/security/limits.conf
+                    - echo '*    soft    stack    unlimited' | tee -a /etc/security/limits.conf
+
+              - name: download_source
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - aws s3 cp s3://wrf-src-tmp/zlib-1.2.11.tar.gz .
+                    - aws s3 cp s3://wrf-src-tmp/szip-2.1.1.tar.gz .
+                    - aws s3 cp s3://wrf-src-tmp/hdf5-1.10.5.tar.gz .
+                    - aws s3 cp s3://wrf-src-tmp/netcdf-4.7.3.tar.gz .
+                    - aws s3 cp s3://wrf-src-tmp/netcdf-cxx-4.3.1.tar.gz .
+                    - aws s3 cp s3://wrf-src-tmp/netcdf-fortran-4.5.2.tar.gz .
+                    - aws s3 cp s3://wrf-src-tmp/libpng-1.2.50.tar.gz .
+                    - aws s3 cp s3://wrf-src-tmp/jasper-1.900.1.tar.gz .
+                    - aws s3 cp s3://wrf-src-tmp/g2clib-1.6.0-patch.tar.gz .
+                    - aws s3 cp s3://wrf-src-tmp/udunits-2.2.28.tar.gz .
+                    - aws s3 cp s3://wrf-src-tmp/ncview-2.1.7.tar.gz .
+
+              - name: build-zlib
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf zlib-1.2.11.tar.gz
+                    - cd zlib-1.2.11
+                    - ./configure --prefix=/opt/zlib 2>&1 | tee configure.log
+                    - make -j 4 install 2>&1 | tee build.log
+                    - echo 'export ZLIB=/opt/zlib' | tee -a /etc/bashrc
+                    - echo 'export LD_LIBRARY_PATH=${ZLIB}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
+
+              - name: build-szip
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf szip-2.1.1.tar.gz
+                    - cd szip-2.1.1
+                    - ./configure --prefix=/opt/szip 2>&1 | tee configure.log
+                    - make -j 4 install 2>&1 | tee build.log
+                    - echo 'export SZIP=/opt/szip' | tee -a /etc/bashrc
+                    - echo 'export LD_LIBRARY_PATH=${SZIP}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
+
+              - name: build-hdf5
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf hdf5-1.10.5.tar.gz
+                    - cd hdf5-hdf5-1_10_5
+                    - ./configure --prefix=/opt/hdf5 --enable-parallel --enable-fortran --with-zlib=${ZLIB} --with-szlib=${SZIP} 2>&1 | tee configure.log
+                    - make -j 4 install 2>&1 | tee build.log
+                    - echo 'export HDF5=/opt/hdf5' | tee -a /etc/bashrc
+                    - echo 'export PATH=${HDF5}/bin:${PATH}' | tee -a /etc/bashrc
+                    - echo 'export LD_LIBRARY_PATH=${HDF5}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
+
+              - name: build-netcdf
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf netcdf-4.7.3.tar.gz
+                    - cd netcdf-c-4.7.3
+                    - export CPPFLAGS="-I${HDF5}/include -I${SZIP}/include -I${ZLIB}/include"
+                    - export LDFLAGS="-L${HDF5}/lib -L${SZIP}/lib -L${ZLIB}/lib"
+                    - ./configure --prefix=/opt/netcdf --disable-dap-remote-tests --enable-mmap --enable-diskless --enable-netcdf4 2>&1 | tee configure.log
+                    - make -j 4 install 2>&1 | tee build.log
+                    - echo 'export NETCDF=/opt/netcdf' | tee -a /etc/bashrc
+                    - echo 'export PATH=${NETCDF}/bin:${PATH}' | tee -a /etc/bashrc
+                    - echo 'export LD_LIBRARY_PATH=${NETCDF}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
+
+              - name: build-netcdf-fortran
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf netcdf-fortran-4.5.2.tar.gz
+                    - cd netcdf-fortran-4.5.2
+                    - export CPPFLAGS="-I${HDF5}/include -I${SZIP}/include -I${NETCDF}/include"
+                    - export LDFLAGS="-L${HDF5}/lib -L${SZIP}/lib -L${NETCDF}/lib"
+                    - ./configure --prefix=/opt/netcdf 2>&1 | tee configure.log
+                    - make install 2>&1 | tee build.log
+
+              - name: build-netcdf-cxx
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf netcdf-cxx-4.3.1.tar.gz
+                    - cd netcdf-cxx4-4.3.1
+                    - export CPPFLAGS="-I${HDF5}/include -I${SZIP}/include -I${NETCDF}/include"
+                    - export LDFLAGS="-L${HDF5}/lib -L${SZIP}/lib -L${NETCDF}/lib"
+                    - ./configure --prefix=/opt/netcdf 2>&1 | tee configure.log
+                    - make install 2>&1 | tee build.log
+
+              - name: build-libpng
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf libpng-1.2.50.tar.gz
+                    - cd libpng-1.2.50
+                    - ./configure --prefix=/opt/libpng 2>&1 | tee configure.log
+                    - make -j 4 install 2>&1 | tee build.log
+                    - echo 'export LIBPNG=/opt/libpng' | tee -a /etc/bashrc
+                    - echo 'export PATH=${LIBPNG}/bin:${PATH}' | tee -a /etc/bashrc
+                    - echo 'export LD_LIBRARY_PATH=${LIBPNG}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
+
+              - name: build-jasper
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf jasper-1.900.1.tar.gz
+                    - cd jasper-1.900.1
+                    - ./configure --prefix=/opt/jasper 2>&1 | tee configure.log
+                    - make -j 4 install 2>&1 | tee build.log
+                    - echo 'export JASPER=/opt/jasper' | tee -a /etc/bashrc
+                    - echo 'export PATH=${JASPER}/bin:${PATH}' | tee -a /etc/bashrc
+                    - echo 'export LD_LIBRARY_PATH=${JASPER}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
+
+              - name: build-g2clib
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf g2clib-1.6.0-patch.tar.gz
+                    - cd g2clib-1.6.0-patch
+                    - cat makefile | sed "s/INC=.*/INC=-I\/opt\/jasper\/include -I\/opt\/libpng\/include/g" > makefile2
+                    - make -f makefile2 2>&1 | tee build.log
+                    - mkdir -p /opt/g2clib/lib
+                    - cp -f libgrib2c.a /opt/g2clib/lib
+                    - echo 'export G2C=/opt/g2clib' | tee -a /etc/bashrc
+                    - echo 'export LD_LIBRARY_PATH=${G2C}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
+
+              - name: build-udunits
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf udunits-2.2.28.tar.gz
+                    - cd udunits-2.2.28
+                    - ./configure --prefix=/opt/udunits 2>&1 | tee configure.log
+                    - make -j 4 install 2>&1 | tee build.log
+                    - echo 'export UDUNITS=/opt/udunits' | tee -a /etc/bashrc
+                    - echo 'export PATH=${UDUNITS}/bin:${PATH}' | tee -a /etc/bashrc
+                    - echo 'export LD_LIBRARY_PATH=${UDUNITS}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
+
+              - name: build-ncview
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf ncview-2.1.7.tar.gz
+                    - cd ncview-2.1.7
+                    - ./configure --prefix=/opt/netcdf --with-udunits2_incdir=${UDUNITS}/include  --with-udunits2_libdir=${UDUNITS}/lib --with-png_incdir=${LIBPNG}/include --with-png_libdir=${LIBPNG}/lib 2>&1 | tee configure.log
+                    - make -j 4 install 2>&1 | tee build.log
+
+              - name: build-wrf
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - cd /home/ec2-user
+                    - git clone https://github.com/wrf-model/WRF
+                    - cd WRF
+                    - git checkout v4.3.1
+                    - ./clean
+                    - ./configure << EOF
+                    - 15
+                    - 1
+                    - EOF
+                    - ./compile em_real 2>&1 | tee build.log
+                    - cd /home/ec2-user
+                    - chown -R ec2-user.ec2-user WRF
+
+              - name: build-wps
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - cd /home/ec2-user
+                    - git clone https://github.com/wrf-model/WPS
+                    - cd WPS
+                    - git checkout v4.3.1
+                    - export JASPERLIB="-L${SZIP}/lib -L${LIBPNG}/lib -L${ZLIB}/lib -L${JASPER}/lib -L${G2C}/lib -ljasper -lpng -lz -lgrib2c"
+                    - export JASPERINC="-I${SZIP}/include -I${LIBPNG}/include -I${ZLIB}/lib -I${JASPER}/include"
+                    - export FCFLAGS="${FCFLAGS} ${JASPERINC}"
+                    - ./clean
+                    - ./configure << EOF
+                    - 19
+                    - EOF
+                    - ./compile 2>&1 | tee build.log
+                    - cd /home/ec2-user
+                    - chown -R ec2-user.ec2-user WPS
+
+          - name: validate
+            steps:
+              - name: check_environment
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mpicc -show
+
+
+  WrfImageRecipe:
+    Type: AWS::ImageBuilder::ImageRecipe
+    Properties:
+      Name: !Sub wrf-${AWS::StackName}
+      Version: 4.3.1
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            DeleteOnTermination: true
+            VolumeType: gp2
+            VolumeSize: 35
+      AdditionalInstanceConfiguration:
+        SystemsManagerAgent:
+          UninstallAfterBuild: true
+      Components:
+        - ComponentArn: !Ref WrfComponent
+      ParentImage: ami-012f43f744e8d1d1a
+
+  WrfImageBuilderInfrastructure:
+    Type: AWS::ImageBuilder::InfrastructureConfiguration
+    Properties:
+      Name: !Sub wrf-${AWS::StackName}
+      InstanceTypes:
+        - c5.xlarge
+      KeyPair: hahnd
+      InstanceProfileName: EC2InstanceProfileForImageBuilder
+      TerminateInstanceOnFailure: false
+
+  WrfImageBuilderPipeline:
+    Type: AWS::ImageBuilder::ImagePipeline
+    Properties:
+      Name: !Sub wrf-${AWS::StackName}
+      ImageRecipeArn: !Ref WrfImageRecipe
+      InfrastructureConfigurationArn: !Ref WrfImageBuilderInfrastructure
+
+  WrfImageBuilderInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: !Sub EC2InstanceProfileForWrfImageBuilder-${AWS::StackName}
+      Roles:
+        - !Ref WrfImageBuilderRole
+
+  WrfImageBuilderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub WrfImageBuilderRole-${AWS::StackName}
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              Service: ec2.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+        - arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds
+        - arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilder
