@@ -1,0 +1,11 @@
+---
+# Table definition for storing the user application data
+table_name_var: USER_TABLE_NAME
+key_fields:
+  - email
+attribute_definitions:
+  - AttributeName: email
+    AttributeType: S
+key_schema:
+  - AttributeName: email
+    KeyType: HASH
