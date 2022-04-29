@@ -9,11 +9,16 @@ setup(
     maintainer='David Hahn',
     maintainer_email='hahnd@ucar.edu',
     packages=['wrfcloud', 'wrfcloud/dynamodb', 'wrfcloud/imagebuilder'],
-    install_requires=['boto3', 'pyyaml', 'argparse'],
+    install_requires=['boto3', 'pyyaml', 'argparse', 'bcrypt', 'PyJWT'],
     package_dir={'wrfcloud': 'wrfcloud'},
     package_data={
         'wrfcloud': [
-          'imagebuilder/imagebuilder.yaml'
+            'resources/env_vars.yaml',
+            'resources/logo.jpg',
+            'resources/password_reset.html',
+            'resources/welcome_email.html',
+            'imagebuilder/imagebuilder.yaml',
+            'user/table.yaml'
         ]
     },
     include_package_data=True,

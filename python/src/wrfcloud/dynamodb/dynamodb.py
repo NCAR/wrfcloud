@@ -1,5 +1,6 @@
 from typing import Union, List, Dict
 import boto3
+from wrfcloud.log import Logger
 
 
 class DynamoDao:
@@ -16,6 +17,7 @@ class DynamoDao:
         self.key_fields = key_fields
         self.endpoint_url = endpoint_url
         self.client = None
+        self.log = Logger()
 
     def put_item(self, data: dict, preserve_list_order=True) -> bool:
         """
@@ -110,6 +112,72 @@ class DynamoDao:
         )
 
         return self._response_ok(res)
+
+    def create_table(self, attribute_definitions: List[Dict], key_schema: List[Dict]) -> bool:
+        """
+        Create a new and empty table resource
+        :return: True if successful, otherwise False
+        """
+        try:
+            # get a dynamodb client
+            client = self._get_client()
+
+            # create the table
+            # TODO: We should not need to include ProvisionedThroughput here since we specify,
+            #       BillingMode is PAY_PER_REQUEST, however, we get errors when not specified.
+            res = client.create_table(
+                TableName=self.table,
+                BillingMode='PAY_PER_REQUEST',
+                ProvisionedThroughput={'ReadCapacityUnits': 10, 'WriteCapacityUnits': 10},
+                TableClass='STANDARD',
+                AttributeDefinitions=attribute_definitions,
+                KeySchema=key_schema
+            )
+
+            # check the response status
+            return self._response_ok(res)
+        except Exception as e:
+            print(e)
+            return False
+
+    def delete_table(self, table: str) -> bool:
+        """
+        CAUTION: This is a destructive operation!
+        Delete the table resource and all of the data contained within
+        :table: Table name must match the table name referenced by this object
+        :return: True if successful, otherwise False
+        """
+        try:
+            # check that the given table name matches the referenced table
+            # this merely makes it a big harder to delete something on accident
+            if self.table != table:
+                self.log.warn(f'Name mismatch, skipping table deletion: {self.table}')
+                return False
+
+            # get a dynamodb client pointing to local dynamodb
+            client = self._get_client()
+
+            # create the table
+            res = client.delete_table(TableName=self.table)
+
+            # return the success flag
+            return self._response_ok(res)
+        except Exception as e:
+            print(e)
+            return False
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def _make_dynamo_key(self, data: dict) -> dict:
         """

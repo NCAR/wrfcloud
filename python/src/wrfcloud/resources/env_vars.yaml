@@ -1,0 +1,100 @@
+test:
+
+  # App
+  APP_NAME: WRF Cloud
+  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
+  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
+  LANGUAGE: en
+
+  # AWS Account Profile
+  AWS_PROFILE: junk
+  AWS_REGION: us-east-1
+
+  # API Gateway Options
+  API_URL: localhost:4201
+  APP_URL: localhost:4200
+  API_STAGE: v1
+  ALLOW_CORS: True
+
+  # DynamoDB Options
+  USER_TABLE_NAME: wrfcloud_users_test
+  ENDPOINT_URL: 'http://localhost:8000'
+
+  # Logging options
+  LOG_LEVEL: DEBUG
+  LOG_FORMAT: text
+
+codebuild:
+
+  # App
+  APP_NAME: WRF Cloud
+  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
+  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
+  LANGUAGE: en
+
+  # AWS Account Profile
+  AWS_PROFILE: None
+  AWS_REGION: None
+
+  # API Gateway Options
+  API_URL: api.domainname.com
+  APP_URL: www.domainname.com
+  API_STAGE: v1
+  ALLOW_CORS: True
+
+  # DynamoDB Options
+  USER_TABLE_NAME: wrfcloud_users_build
+
+  # Logging options
+  LOG_LEVEL: DEBUG
+  LOG_FORMAT: json
+
+production:
+
+  # App
+  APP_NAME: WRF Cloud
+  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
+  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
+  LANGUAGE: en
+
+  # AWS Account Profile
+  AWS_PROFILE: None
+  AWS_REGION: None
+
+  # API Gateway Options
+  API_URL: api.domainname.com
+  APP_URL: www.domainname.com
+  API_STAGE: v1
+  ALLOW_CORS: True
+
+  # DynamoDB Options
+  USER_TABLE_NAME: wrfcloud_users_prod
+
+  # Logging options
+  LOG_LEVEL: INFO
+  LOG_FORMAT: json
+
+development:
+
+  # App
+  APP_NAME: WRF Cloud (development)
+  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
+  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
+  LANGUAGE: en
+
+  # AWS Account Profile
+  AWS_PROFILE: None
+  AWS_REGION: None
+
+  # API Gateway Options
+  API_URL: api-dev.domainname.com
+  APP_URL: www-dev.domainname.com
+  API_STAGE: v1
+  ALLOW_CORS: True
+
+  # DynamoDB Options
+  USER_TABLE_NAME: wrfcloud_users_dev
+
+  # Logging options
+  LOG_LEVEL: DEBUG
+  LOG_FORMAT: json
