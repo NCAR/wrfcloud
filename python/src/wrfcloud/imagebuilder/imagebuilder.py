@@ -23,7 +23,7 @@ def create_stack(stack_name: str) -> bool:
         return False
 
     # load the template body
-    template_body = pkgutil.get_data('imagebuilder', 'wrf/imagebuilder.yaml').decode()
+    template_body = pkgutil.get_data('wrfcloud', 'imagebuilder/imagebuilder.yaml').decode()
 
     # create a new stack
     print(f"Creating stack {stack_name}...")
