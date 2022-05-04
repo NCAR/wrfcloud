@@ -229,27 +229,6 @@ def test_send_user_emails() -> None:
     assert not user.send_password_reset_link()
 
 
-def _test_setup() -> bool:
-    """
-    Setup required test resources (i.e. DynamoDB table in local dynamodb)
-    :return: True if successful, otherwise False
-    """
-    try:
-        # get a data access object
-        dao = UserDao()
-
-        try:
-            # just in case the table already exists, get rid of it
-            dao.delete_table(dao.table)
-        except Exception:
-            pass
-
-        # create the table
-        return dao.create_user_table()
-    except Exception as e:
-        print(e)
-        return False
-
 def test_sanitize() -> None:
     """
     Test the sanitize function
@@ -271,6 +250,28 @@ def test_sanitize() -> None:
     for key in User.SANITIZE_KEYS:
         assert key not in user.data
     assert 'extra_junk' not in user.data
+
+
+def _test_setup() -> bool:
+    """
+    Setup required test resources (i.e. DynamoDB table in local dynamodb)
+    :return: True if successful, otherwise False
+    """
+    try:
+        # get a data access object
+        dao = UserDao()
+
+        try:
+            # just in case the table already exists, get rid of it
+            dao.delete_table(dao.table)
+        except Exception:
+            pass
+
+        # create the table
+        return dao.create_user_table()
+    except Exception as e:
+        print(e)
+        return False
 
 
 def _test_teardown() -> bool:

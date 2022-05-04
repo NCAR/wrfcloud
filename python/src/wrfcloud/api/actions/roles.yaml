@@ -1,0 +1,20 @@
+# Available roles containing a list of which actions may be performed by that role
+---
+anonymous:
+  permitted_actions:
+    - Login
+
+readonly:
+  permitted_actions:
+    - Login
+    - ChangePassword
+
+regular:
+  permitted_actions:
+    - Login
+    - ChangePassword
+
+admin:
+  permitted_actions:
+    - Login
+    - ChangePassword
