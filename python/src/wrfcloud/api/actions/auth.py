@@ -1,10 +1,14 @@
 """
 Contains Action classes related to user authentication and JWT renewal
 """
+import os
+import jwt
 import secrets
-
+from typing import Union
+from datetime import datetime
 from wrfcloud.api.actions import Action
 from wrfcloud.user import User, get_user_from_system, update_user_in_system
+from wrfcloud.log import Logger
 
 
 class Login(Action):
@@ -41,7 +45,7 @@ class Login(Action):
                 Action.JWT_KEY_EMAIL: user.get_email(),
                 Action.JWT_KEY_ROLE: user.get_role_id()
             }
-            self.response[Action.REQ_KEY_JWT] = self._create_jwt(payload)
+            self.response[Action.REQ_KEY_JWT] = create_jwt(payload)
             return True
 
         # return an error response
@@ -94,3 +98,51 @@ class ChangePassword(Action):
         if not updated:
             self.errors.append('Error updating user values')
         return updated
+
+
+def create_jwt(payload: dict, expiration: int = 3600) -> str:
+    """
+    Get a new JSON web token
+    :param payload: Payload to put into the new JWT -- Payload should not include expiration
+    :param expiration: Expiration time in seconds from now
+    :return: Base64-encoded JWT
+    """
+    # add/overwrite expiration field
+    payload[Action.JWT_KEY_EXPIRES] = round(datetime.utcnow().timestamp()) + expiration
+
+    # encode the JWT
+    key = os.environ['JWT_KEY'] if 'JWT_KEY' in os.environ else secrets.token_hex(64)
+    token = jwt.encode(payload, key).decode()
+
+    # maybe log a warning
+    if 'JWT_KEY' not in os.environ:
+        Logger().warn('JWT_KEY is not set.  Issued JWTs will not be valid.')
+
+    return token
+
+
+def validate_jwt(token: str) -> Union[dict, None]:
+    """
+    Validate the token
+    :param token: Token value
+    :return: JWT payload IF valid, otherwise None
+    """
+    try:
+        # No token = anonymous user
+        if token is None:
+            return None
+
+        key = os.environ['JWT_KEY'] if 'JWT_KEY' in os.environ else secrets.token_hex(64)
+        payload = jwt.decode(token, key, verify=True)
+        now = datetime.utcnow().timestamp()
+
+        if Action.JWT_KEY_EXPIRES in payload:
+            if payload[Action.JWT_KEY_EXPIRES] >= now:
+                if Action.JWT_KEY_EMAIL in payload:
+                    return payload
+    except Exception as e:
+        log = Logger()
+        log.error('Failed to validate JWT')
+        log.error(e)
+
+    return None

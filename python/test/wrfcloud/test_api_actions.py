@@ -7,9 +7,11 @@ from wrfcloud.user import User
 from wrfcloud.user import UserDao
 from wrfcloud.user import add_user_to_system
 from wrfcloud.user import get_user_from_system
-from wrfcloud.user import update_user_in_system
 from wrfcloud.user import delete_user_from_system
 from wrfcloud.system import init_environment
+from wrfcloud.api.actions import create_jwt
+from wrfcloud.api.handler import get_user_from_jwt
+
 
 init_environment(env='test')
 os.environ['JWT_KEY'] = secrets.token_hex(64)
@@ -29,8 +31,7 @@ def test_login() -> None:
     request = {'email': 'hahnd+wrfcloudtest@ucar.edu', 'password': '1000$moustacheCOMB'}
     login = Login(run_as_user=None, request=request)
     assert login.run()
-    login.request[Login.REQ_KEY_JWT] = login.response['jwt']
-    user_ = login.get_user_from_request_token()
+    user_ = get_user_from_jwt(login.response['jwt'])
     assert user.get_email() == user_.get_email()
 
     # create the request and run the action - wrong password
@@ -66,8 +67,7 @@ def test_change_password() -> None:
         'password1': 'mys@f#newpasw#rd',
         'password2': 'mys@f#newpasw#rd'
     }
-    chpass = ChangePassword(request=request)
-    _sneak_valid_jwt_into_request(chpass, user)
+    chpass = ChangePassword(run_as_user=user, request=request)
     assert chpass.run()
 
     # check that the password was really changed
@@ -89,8 +89,7 @@ def test_change_password() -> None:
         'password1': 'fdsafdsafdsa',
         'password2': 'asdfasdfasdf'
     }
-    chpass = ChangePassword(request=request)
-    _sneak_valid_jwt_into_request(chpass, user)
+    chpass = ChangePassword(run_as_user=user, request=request)
     assert not chpass.run()
 
     # check that the password was not changed
@@ -103,8 +102,7 @@ def test_change_password() -> None:
         'password1': 'asdfasdfasdf',
         'password2': 'asdfasdfasdf'
     }
-    chpass = ChangePassword(request=request)
-    _sneak_valid_jwt_into_request(chpass, user)
+    chpass = ChangePassword(run_as_user=user, request=request)
     assert not chpass.run()
 
     # check that the password was not changed
@@ -135,31 +133,6 @@ def test_invalid_request_parameters() -> None:
     # teardown the test
     assert delete_user_from_system(user)
     assert _test_teardown()
-
-
-def test_invalid_user_role() -> None:
-    """
-    Set an invalid user role and check the action fails
-    :return: None
-    """
-    assert _test_setup()
-    user = _get_sample_admin_user()
-    user.set_role_id('unknownroleid')
-    assert add_user_to_system(user)
-
-    # create the request and run the action - user with unknown role
-    request = {
-        'password0': '1000$moustacheCOMB',
-        'password1': 'asdfasdfasdf',
-        'password2': 'asdfasdfasdf'
-    }
-    chpass = ChangePassword(request=request)
-    _sneak_valid_jwt_into_request(chpass, user)
-    assert not chpass.run()
-
-    # check that the password was not changed
-    user_ = get_user_from_system(user.get_email())
-    assert user_.validate_password('1000$moustacheCOMB')
 
 
 def _test_setup() -> bool:
@@ -218,15 +191,3 @@ def _get_sample_admin_user() -> User:
     assert user.data[User.KEY_PASSWORD] != passwd
 
     return user
-
-
-def _sneak_valid_jwt_into_request(action: Action, user: User) -> None:
-    """
-    Normally the JWT would already be in the request from the API client, but
-    in the tests, we need to sneak one in to simplify the test system.
-    """
-    payload = {
-        Action.JWT_KEY_EMAIL: user.get_email(),
-        Action.JWT_KEY_ROLE: user.get_role_id()
-    }
-    action.request[Action.REQ_KEY_JWT] = action._create_jwt(payload)
