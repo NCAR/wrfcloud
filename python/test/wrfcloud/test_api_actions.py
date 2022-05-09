@@ -1,6 +1,5 @@
 import os
 import secrets
-from wrfcloud.api.actions import Action
 from wrfcloud.api.actions import Login
 from wrfcloud.api.actions import ChangePassword
 from wrfcloud.user import User
@@ -9,8 +8,7 @@ from wrfcloud.user import add_user_to_system
 from wrfcloud.user import get_user_from_system
 from wrfcloud.user import delete_user_from_system
 from wrfcloud.system import init_environment
-from wrfcloud.api.actions import create_jwt
-from wrfcloud.api.handler import get_user_from_jwt
+from wrfcloud.api.auth import get_user_from_jwt
 
 
 init_environment(env='test')

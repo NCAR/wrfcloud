@@ -23,10 +23,6 @@ class Action:
     REQ_KEY_JWT = 'jwt'
     REQ_KEY_DATA = 'data'
 
-    # available JWT keys
-    JWT_KEY_EMAIL = 'email'
-    JWT_KEY_ROLE = 'role'
-    JWT_KEY_EXPIRES = 'expires'
 
     def __init__(self, run_as_user: Union[User, None] = None, request: dict = None):
         """

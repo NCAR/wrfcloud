@@ -3,25 +3,25 @@
 anonymous:
   permitted_actions:
     - action: Login
-      package: wrfcloud.api.actions.auth
+      package: wrfcloud.api.actions
 
 readonly:
   permitted_actions:
     - action: Login
-      package: wrfcloud.api.actions.auth
+      package: wrfcloud.api.actions
     - action: ChangePassword
-      package: wrfcloud.api.actions.auth
+      package: wrfcloud.api.actions
 
 regular:
   permitted_actions:
     - action: Login
-      package: wrfcloud.api.actions.auth
+      package: wrfcloud.api.actions
     - action: ChangePassword
-      package: wrfcloud.api.actions.auth
+      package: wrfcloud.api.actions
 
 admin:
   permitted_actions:
     - action: Login
-      package: wrfcloud.api.actions.auth
+      package: wrfcloud.api.actions
     - action: ChangePassword
-      package: wrfcloud.api.actions.auth
+      package: wrfcloud.api.actions

@@ -4,9 +4,11 @@ import json
 import yaml
 import pkgutil
 from typing import Union
-from wrfcloud.user import User, get_user_from_system
-from wrfcloud.api.actions import Action, validate_jwt
+
+from wrfcloud.user import User
+from wrfcloud.api.actions import Action
 from wrfcloud.log import Logger
+from wrfcloud.api.auth import get_user_from_jwt
 
 
 def lambda_handler(event: dict, context: any) -> dict:
@@ -25,9 +27,9 @@ def lambda_handler(event: dict, context: any) -> dict:
 
     # parse out the request details
     request = json.loads(event['body'])
-    action = request['action']
+    action = request[Action.REQ_KEY_ACTION]
     jwt = request[Action.REQ_KEY_JWT] if Action.REQ_KEY_JWT in request else None
-    data = request['data']
+    data = request[Action.REQ_KEY_DATA]
     client_ip = event['requestContext']['identity']['sourceIp']
 
     # set a reference ID and the client IP instead of the app name
@@ -89,18 +91,6 @@ def lambda_handler(event: dict, context: any) -> dict:
     add_cors_headers(response)
 
     return response
-
-
-def get_user_from_jwt(jwt: str) -> Union[User, None]:
-    """
-    Get a user from the given JWT
-    :param jwt: The unvalidated JWT
-    :return: User authenticated by the JWT, or None
-    """
-    payload = validate_jwt(jwt)
-    user = None if payload is None else get_user_from_system(payload[Action.JWT_KEY_EMAIL])
-
-    return user
 
 
 def has_required_permissions(action: str, user: Union[User, None] = None) -> bool:

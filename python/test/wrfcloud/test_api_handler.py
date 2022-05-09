@@ -1,12 +1,14 @@
 import os
 import secrets
 import json
+import wrfcloud
 from wrfcloud.user import User
 from wrfcloud.user import UserDao
 from wrfcloud.system import init_environment
 from wrfcloud.api.handler import lambda_handler
-from wrfcloud.api.handler import validate_jwt
-from wrfcloud.api.actions import Action, create_jwt
+from wrfcloud.api.auth import validate_jwt
+from wrfcloud.api.auth import create_jwt
+from wrfcloud.api.auth import KEY_EMAIL, KEY_ROLE
 
 
 init_environment(env='test')
@@ -44,7 +46,7 @@ def test_lambda_handler_valid_request() -> None:
     assert login_response['ok']
     payload = validate_jwt(login_response['data']['jwt'])
     assert payload is not None
-    assert payload[Action.JWT_KEY_EMAIL] == user.get_email()
+    assert payload[wrfcloud.api.auth.KEY_EMAIL] == user.get_email()
 
     # teardown the test
     _test_teardown()
@@ -59,7 +61,6 @@ def test_lambda_handler_insufficient_permissions() -> None:
     _test_setup()
 
     # create a login request
-    user = _get_sample_admin_user()
     chpass_request = {
         'action': 'ChangePassword',
         'data': {
@@ -97,8 +98,8 @@ def test_lambda_handler_action_failed() -> None:
     # create a login request
     user = _get_sample_admin_user()
     jwt = create_jwt({
-        'email': user.get_email(),
-        'role': user.get_role_id()
+        KEY_EMAIL: user.get_email(),
+        KEY_ROLE: user.get_role_id()
     })
     chpass_request = {
         'action': 'ChangePassword',
@@ -183,8 +184,8 @@ def test_lambda_handler_unknown_role() -> None:
 
     # create a login request
     jwt = create_jwt({
-        'email': user.get_email(),
-        'role': user.get_role_id()
+        KEY_EMAIL: user.get_email(),
+        KEY_ROLE: user.get_role_id()
     })
     chpass_request = {
         'action': 'ChangePassword',
