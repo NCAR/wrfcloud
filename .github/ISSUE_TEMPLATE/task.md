@@ -1,6 +1,6 @@
 ---
 name: Task
-about: Describe something that needs to be done
+description: Describe something that needs to be done
 title: ''
 labels: 'alert: NEED MORE DEFINITION, type: task'
 assignees: ''
@@ -22,9 +22,6 @@ Consider breaking the task down into sub-issues.
 
 ### Relevant Deadlines ###
 *List relevant project deadlines here or state NONE.*
-
-### Funding Source ###
-*Define the source of funding and account keys here or state NONE.*
 
 ## Define the Metadata ##
 

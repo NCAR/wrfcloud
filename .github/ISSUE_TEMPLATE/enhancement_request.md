@@ -1,6 +1,6 @@
 ---
 name: Enhancement request
-about: Improve something that it's currently doing
+description: Improve something that it's currently doing
 title: ''
 labels: 'alert: NEED MORE DEFINITION, type: enhancement'
 assignees: ''
@@ -22,9 +22,6 @@ Consider breaking the enhancement down into sub-issues.
 
 ### Relevant Deadlines ###
 *List relevant project deadlines here or state NONE.*
-
-### Funding Source ###
-*Define the source of funding and account keys here or state NONE.*
 
 ## Define the Metadata ##
 

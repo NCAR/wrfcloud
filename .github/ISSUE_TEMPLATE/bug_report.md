@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Fix something that's not working
+description: Fix something that's not working
 title: ''
 labels: 'alert: NEED MORE DEFINITION, type: bug'
 assignees: ''
@@ -30,9 +30,6 @@ Describe the steps to reproduce the behavior:
 
 ### Relevant Deadlines ###
 *List relevant project deadlines here or state NONE.*
-
-### Funding Source ###
-*Define the source of funding and account keys here or state NONE.*
 
 ## Define the Metadata ##
 

@@ -1,6 +1,6 @@
 ---
 name: New feature request
-about: Make it do something new
+description: Make it do something new
 title: ''
 labels: 'alert: NEED MORE DEFINITION, type: feature'
 assignees: ''
@@ -26,9 +26,6 @@ Consider breaking the new feature down into sub-issues.
 
 ### Relevant Deadlines ###
 *List relevant project deadlines here or state NONE.*
-
-### Funding Source ###
-*Define the source of funding and account keys here or state NONE.*
 
 ## Define the Metadata ##
 
