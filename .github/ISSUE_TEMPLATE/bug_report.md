@@ -59,7 +59,7 @@ Branch name: `bugfix_<Issue Number>/main_<Version>_<Description>`
 - [ ] Add/update documentation.
 - [ ] Push local changes to GitHub.
 - [ ] Submit a pull request to merge into **main_\<Version>**.
-Pull request: `bugfix <Issue Number>/main_<Version> <Description>`
+Pull request: `bugfix <Issue Number> main_<Version> <Description>`
 - [ ] Define the pull request metadata, as permissions allow.
 Select: **Reviewer(s)** and **Development** issue
 Select: **Project** for support of the current release
@@ -68,7 +68,7 @@ Select: **Milestone** as the next bugfix version
 - [ ] Delete your fork or branch.
 - [ ] Complete the steps above to fix the bug on the **develop** branch.
 Branch name:  `bugfix_<Issue Number>/develop_<Description>`
-Pull request: `bugfix <Issue Number>/develop <Description>`
+Pull request: `bugfix <Issue Number> develop <Description>`
 Select: **Reviewer(s)** and **Development** issue
 Select: **Project** for the next official release
 Select: **Milestone** as the next official version

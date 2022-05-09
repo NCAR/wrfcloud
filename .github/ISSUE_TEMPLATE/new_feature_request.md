@@ -54,7 +54,7 @@ Branch name: `feature_<Issue Number>/<Description>`
 - [ ] Add/update documentation.
 - [ ] Push local changes to GitHub.
 - [ ] Submit a pull request to merge into **develop**.
-Pull request: `feature <Issue Number>/<Description>`
+Pull request: `feature <Issue Number> <Description>`
 - [ ] Define the pull request metadata, as permissions allow.
 Select: **Reviewer(s)**, **Project**, and **Development** issue
 Select: **Milestone** as the next official version
