@@ -15,7 +15,7 @@ def test_create_and_read_item() -> None:
     Test the operations to create and read an item
     :return: None
     """
-    # setup the test resources
+    # set up the test resources
     assert _test_setup()
 
     # create sample data in item
@@ -42,7 +42,7 @@ def test_update_and_read_item() -> None:
     Test the operations to update and read an item
     :return: None
     """
-    # setup the test resources
+    # set up the test resources
     assert _test_setup()
 
     # create sample data in item
@@ -69,7 +69,7 @@ def test_create_and_delete_item() -> None:
     Test the operations to create and delete an item
     :return: None
     """
-    # setup the test resources
+    # set up the test resources
     assert _test_setup()
 
     # create sample data in item
@@ -99,7 +99,7 @@ def test_create_and_get_all_items() -> None:
     Test the operations to create and delete an item
     :return: None
     """
-    # setup the test resources
+    # set up the test resources
     assert _test_setup()
 
     # create dao
@@ -121,12 +121,13 @@ def test_create_and_get_all_items() -> None:
     # teardown the test resources
     assert _test_teardown()
 
+
 def test_create_complex_item() -> None:
     """
     Test the operations to create a complex item
     :return: None
     """
-    # setup the test resources
+    # set up the test resources
     assert _test_setup()
 
     # create dao
@@ -169,7 +170,7 @@ def _test_setup() -> bool:
     try:
         # just in case the table already exists, get rid of it
         dao.delete_table(TABLE)
-    except Exception as ignore:
+    except Exception:
         pass
 
     try:

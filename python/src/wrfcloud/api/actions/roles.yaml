@@ -1,0 +1,27 @@
+# Available roles containing a list of which actions may be performed by that role
+---
+anonymous:
+  permitted_actions:
+    - action: Login
+      package: wrfcloud.api.actions
+
+readonly:
+  permitted_actions:
+    - action: Login
+      package: wrfcloud.api.actions
+    - action: ChangePassword
+      package: wrfcloud.api.actions
+
+regular:
+  permitted_actions:
+    - action: Login
+      package: wrfcloud.api.actions
+    - action: ChangePassword
+      package: wrfcloud.api.actions
+
+admin:
+  permitted_actions:
+    - action: Login
+      package: wrfcloud.api.actions
+    - action: ChangePassword
+      package: wrfcloud.api.actions
