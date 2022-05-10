@@ -1,16 +1,16 @@
-==========================
-WRFCloud version |version|
-==========================
+===========================
+WRF Cloud version |version|
+===========================
 Developed by the `UCAR/COMET <https://www.comet.ucar.edu/>`_ and `NCAR/RAL <https://ral.ucar.edu/>`_
 Boulder, CO
 
-.. image:: _static/WRFCloud_banner_photo_web.jpeg
+.. image:: _static/wrfcloud_banner_photo_web.jpeg
 
 Welcome
 -------
 
-WRFCloud Concept
-----------------
+WRF Cloud Concept
+-----------------
 
 Acronyms
 --------
@@ -23,7 +23,7 @@ Acronyms
 
 .. toctree::
    :hidden:
-   :caption: WRFCloud
+   :caption: WRF Cloud
 
    Users_Guide/index
 

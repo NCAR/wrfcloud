@@ -17,7 +17,7 @@ print(sys.path)
 
 # -- Project information -----------------------------------------------------
 
-project = 'WRFCloud'
+project = 'WRF Cloud'
 author = 'UCAR/COMET and NCAR/RAL'
 author_list = 'Wolff, J., K. Fossell, D. Hahn, M. Harrold, M. Kavlich, J. Halley Gotway, P. Kucera'
 version = '0.1.0'
@@ -81,7 +81,7 @@ latex_elements = {
 latex_documents = [
     (latex_master_doc, 
      'users_guide.tex', 
-     'WRFCloud User\'s Guide',
+     'WRF Cloud User\'s Guide',
      ' ', 
      'manual')
 ]
