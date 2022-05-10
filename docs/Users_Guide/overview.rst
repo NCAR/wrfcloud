@@ -1,8 +1,8 @@
 .. _overview:
 
-********************
-Overview of WRFCloud 
-********************
+*********************
+Overview of WRF Cloud 
+*********************
 
 Purpose and organization of the User's Guide
 ============================================
@@ -12,11 +12,11 @@ UCAR/COMET and NCAR/RAL
 
 .. _wrfcloud-goals:
 
-WRFCloud goals and design philosophy
-====================================
+WRF Cloud goals and design philosophy
+=====================================
 
-WRFCloud components
-===================
+WRF Cloud components
+====================
 
 .. _overview-figure:
 

@@ -15,9 +15,10 @@ WRF Cloud Concept
 Acronyms
 --------
 
-* **NCAR** - National Center for Atmospheric Research
-* **UCAR** - University Corporation for Atmospheric Research
-* **WRF**  - Weather Research and Forecasting Model
+* **COMET** - Cooperative Program for Operational Meteorology, Education, and Training
+* **NCAR**  - National Center for Atmospheric Research
+* **UCAR**  - University Corporation for Atmospheric Research
+* **WRF**   - Weather Research and Forecasting Model
 
 .. rubric:: Organization
 

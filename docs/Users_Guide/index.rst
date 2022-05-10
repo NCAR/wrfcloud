@@ -2,9 +2,9 @@
 User's Guide
 ############
 
-**Foreword: A note to WRFCloud users**
+**Foreword: A note to WRF Cloud users**
 
-**WRFCloud TERMS OF USE - IMPORTANT!**
+**WRF Cloud TERMS OF USE - IMPORTANT!**
 
 Copyright |copyright|
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@ governing permissions and limitations under the License.
 
 The citation for this User's Guide should be:
 
-|author_list|, |release_year|: WRFCloud Version |version| User's Guide.
+|author_list|, |release_year|: WRF Cloud Version |version| User's Guide.
 UCAR/COMET and NCAR/RAL. Available at: https://github.com/NCAR/wrfcloud/releases
 
 **Acknowledgments**
