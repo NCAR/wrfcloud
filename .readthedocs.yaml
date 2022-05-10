@@ -20,4 +20,4 @@ python:
 # type)
 sphinx:
   builder: html
-  configuration: met/docs/conf.py
+  configuration: docs/conf.py
