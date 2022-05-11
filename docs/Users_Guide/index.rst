@@ -27,7 +27,7 @@ governing permissions and limitations under the License.
 The citation for this User's Guide should be:
 
 |author_list|, |release_year|: WRF Cloud Version |version| User's Guide.
-UCAR/COMET and NCAR/RAL. Available at: https://github.com/NCAR/wrfcloud/releases
+UCAR/UCP/COMET and UCAR/NCAR/RAL. Available at: https://github.com/NCAR/wrfcloud/releases
 
 **Acknowledgments**
 
@@ -51,5 +51,3 @@ UCAR/COMET and NCAR/RAL. Available at: https://github.com/NCAR/wrfcloud/releases
 
    * :ref:`genindex`
    * :ref:`search`
-
-      

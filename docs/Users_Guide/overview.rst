@@ -7,8 +7,8 @@ Overview of WRF Cloud
 Purpose and organization of the User's Guide
 ============================================
 
-UCAR/COMET and NCAR/RAL
-=======================
+UCAR/UCP/COMET and UCAR/NCAR/RAL
+================================
 
 .. _wrfcloud-goals:
 

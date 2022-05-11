@@ -1,7 +1,7 @@
 ===========================
 WRF Cloud version |version|
 ===========================
-Developed by the `UCAR/COMET <https://www.comet.ucar.edu/>`_ and `NCAR/RAL <https://ral.ucar.edu/>`_
+Developed by the `UCAR/UCP/COMET <https://www.comet.ucar.edu/>`_ and `UCAR/NCAR/RAL <https://ral.ucar.edu/>`_
 Boulder, CO
 
 .. image:: _static/wrfcloud_banner_photo_web.jpeg
@@ -15,9 +15,10 @@ WRF Cloud Concept
 Acronyms
 --------
 
-* **COMET** - Cooperative Program for Operational Meteorology, Education, and Training
 * **NCAR**  - National Center for Atmospheric Research
+* **RAL**   - Research Applications Laboratory
 * **UCAR**  - University Corporation for Atmospheric Research
+* **UCP**   - UCAR Community Programs
 * **WRF**   - Weather Research and Forecasting Model
 
 .. rubric:: Organization
