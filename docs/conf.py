@@ -18,7 +18,7 @@ print(sys.path)
 # -- Project information -----------------------------------------------------
 
 project = 'WRF Cloud'
-author = 'UCAR/COMET and NCAR/RAL'
+author = 'UCAR/UCP/COMET and UCAR/NCAR/RAL'
 author_list = 'Wolff, J., K. Fossell, D. Hahn, M. Harrold, M. Kavlich, J. Halley Gotway, P. Kucera'
 version = '0.1.0'
 verinfo = version
