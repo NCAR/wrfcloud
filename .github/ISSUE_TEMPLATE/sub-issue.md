@@ -1,6 +1,6 @@
 ---
 name: Sub-Issue
-description: Break an issue down into smaller parts
+about: Break an issue down into smaller parts
 title: ''
 labels: 'alert: NEED MORE DEFINITION, type: sub-issue'
 assignees: ''

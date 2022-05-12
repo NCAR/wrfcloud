@@ -1,6 +1,6 @@
 ---
 name: New feature request
-description: Make it do something new
+about: Make it do something new
 title: ''
 labels: 'alert: NEED MORE DEFINITION, type: feature'
 assignees: ''

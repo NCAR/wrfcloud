@@ -1,6 +1,6 @@
 ---
 name: Bug report
-description: Fix something that's not working
+about: Fix something that's not working
 title: ''
 labels: 'alert: NEED MORE DEFINITION, type: bug'
 assignees: ''

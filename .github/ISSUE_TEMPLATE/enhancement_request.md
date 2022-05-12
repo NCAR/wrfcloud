@@ -1,6 +1,6 @@
 ---
 name: Enhancement request
-description: Improve something that it's currently doing
+about: Improve something that it's currently doing
 title: ''
 labels: 'alert: NEED MORE DEFINITION, type: enhancement'
 assignees: ''

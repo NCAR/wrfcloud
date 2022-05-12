@@ -1,6 +1,6 @@
 ---
 name: Task
-description: Describe something that needs to be done
+about: Describe something that needs to be done
 title: ''
 labels: 'alert: NEED MORE DEFINITION, type: task'
 assignees: ''
