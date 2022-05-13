@@ -3,14 +3,9 @@
 table_name_var: AUDIT_TABLE_NAME
 key_fields:
   - ref_id
-  - dt
 attribute_definitions:
   - AttributeName: ref_id
     AttributeType: S
-  - AttributeName: start_time
-    AttributeType: N
 key_schema:
   - AttributeName: ref_id
     KeyType: HASH
-  - AttributeName: start_time
-    KeyType: RANGE

@@ -52,7 +52,7 @@ class UserDao(DynamoDao):
         :param email: User ID
         :return: The user with the given email, or None if not found
         """
-        # build the databae key
+        # build the database key
         key = {'email': email}
 
         # get the item with the key
@@ -63,9 +63,7 @@ class UserDao(DynamoDao):
             return None
 
         # build a new user object
-        new_user = User()
-        new_user.data = data
-        return new_user
+        return User(data)
 
     def update_user(self, user: User) -> bool:
         """

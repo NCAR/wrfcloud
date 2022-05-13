@@ -20,7 +20,7 @@ class User:
     # list of fields to remove from the data
     SANITIZE_KEYS = ['role_id', 'password', 'reset_token', 'active', 'activation_key']
 
-    def __init__(self):
+    def __init__(self, data: Union[dict, None] = None):
         """
         Initialize the user data object
         """
@@ -35,6 +35,10 @@ class User:
         self._reset_token: Union[str, None] = None
         self.active: Union[bool, None] = None
         self._activation_key: Union[str, None] = None
+
+        # initialize from data if provided
+        if data is not None:
+            self.data = data
 
     @property
     def data(self):

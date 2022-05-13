@@ -11,13 +11,14 @@ class AuditEntry:
     Audit log entry data object
     """
 
-    def __init__(self):
+    def __init__(self, data: Union[dict, None] = None):
         """
         Initialize the audit data object
         """
         self.log = Logger()
 
         self.ref_id: Union[str, None] = None
+        self.action: Union[str, None] = None
         self.authenticated: Union[bool, None] = None
         self.username: Union[str, None] = None
         self.ip_address: Union[str, None] = None
@@ -26,10 +27,15 @@ class AuditEntry:
         self.duration_ms: Union[int, None] = None
         self.action_success: Union[bool, None] = None
 
+        # initialize from dictionary if provided
+        if data is not None:
+            self.data = data
+
     @property
     def data(self) -> dict:
         return {
             'ref_id': self.ref_id,
+            'action': self.action,
             'authenticated': self.authenticated,
             'username': self.username,
             'ip_address': self.ip_address,
@@ -42,6 +48,7 @@ class AuditEntry:
     @data.setter
     def data(self, data: dict) -> None:
         self.ref_id = data['ref_id'] if 'ref_id' in data else None
+        self.action = data['action'] if 'action' in data else None
         self.authenticated = data['authenticated'] if 'authenticated' in data else None
         self.username = data['username'] if 'username' in data else None
         self.ip_address = data['ip_address'] if 'ip_address' in data else None
