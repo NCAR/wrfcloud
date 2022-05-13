@@ -42,8 +42,7 @@ def get_user_from_system(email: str) -> Union[User, None]:
     dao = UserDao()
 
     # get user by email
-    if email is not None:
-        return dao.get_user_by_email(email)
+    return dao.get_user_by_email(email)
 
 
 def update_user_in_system(update_user: User) -> bool:
@@ -56,13 +55,13 @@ def update_user_in_system(update_user: User) -> bool:
     dao = UserDao()
 
     # get the existing user
-    existing_user = dao.get_user_by_email(update_user.get_email())
+    existing_user = dao.get_user_by_email(update_user.email)
     if existing_user is None:
-        log.error('The user does not exist and cannot be updated: ' + update_user.get_email())
+        log.error('The user does not exist and cannot be updated: ' + update_user.email)
         return False
 
     # update user table
-    update_user.set_email(existing_user.get_email())  # email is immutable
+    update_user.email = existing_user.email  # email is immutable
     updated = dao.update_user(update_user)
 
     return updated
@@ -104,25 +103,23 @@ def activate_user_in_system(email: str, activation_key: str, password: str) -> b
         if u is None:
             log.warn('Cannot validate an unknown user')
             u = User()
-            u.set_activation_key(_generate_salt())
+            u.activation_key = _generate_salt()
 
         # check that verification keys match
-        matches = _secure_compare(
-            activation_key,
-            u.get_activation_key()
-        )
+        matches = _secure_compare(activation_key, u.activation_key)
 
         # if it matches then attempt to update
         if matches:
-            log.info('Verification key matches, updating datastore: %s' % u.get_email())
-            u.set_active(True)
-            u.set_activation_key(_generate_salt())
-            u.set_password(password)
+            log.info('Verification key matches, updating datastore: %s' % u.email)
+            u.active = True
+            u.activation_key = _generate_salt()
+            u.password = password
             return update_user_in_system(u)
 
-        return False
     except Exception as e:
         log.error('Error verifying user: %s' % email, e)
+
+    return False
 
 
 def add_user_reset_token(u: User) -> bool:
@@ -131,7 +128,7 @@ def add_user_reset_token(u: User) -> bool:
     :param u: The user to add a reset token
     :return: {bool} True if added, otherwise False
     """
-    u.set_reset_token(new_reset_token(hours=8))
+    u.reset_token = new_reset_token(hours=8)
     return update_user_in_system(u)
 
 
@@ -156,15 +153,15 @@ def reset_password(email: str, reset_token: str, new_plain_text: str) -> bool:
         # create a fake user if email not found (help to prevent timing attacks)
         if user is None:
             user = User()
-            user.set_reset_token(new_reset_token(-1))
+            user.reset_token = new_reset_token(-1)
 
         # update the password if reset token is valid
-        if secrets.compare_digest(user.get_reset_token(), reset_token):
+        if secrets.compare_digest(user.reset_token, reset_token):
             # change password in user object
-            user.set_password(new_plain_text)
+            user.password = new_plain_text
 
             # set the reset token to None, so it gets removed from the database
-            user.data[User.KEY_RESET_TOKEN] = None
+            user.reset_token = None
 
             # try to update the user in the database
             return dao.update_user(user)

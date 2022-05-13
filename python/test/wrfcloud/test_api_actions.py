@@ -30,7 +30,7 @@ def test_login() -> None:
     login = Login(run_as_user=None, request=request)
     assert login.run()
     user_ = get_user_from_jwt(login.response['jwt'])
-    assert user.get_email() == user_.get_email()
+    assert user.email == user_.email
 
     # create the request and run the action - wrong password
     request = {'email': 'hahnd+wrfcloudtest@ucar.edu', 'password': 'wr0nGP@$Sw0RD!'}
@@ -69,7 +69,7 @@ def test_change_password() -> None:
     assert chpass.run()
 
     # check that the password was really changed
-    user_ = get_user_from_system(user.get_email())
+    user_ = get_user_from_system(user.email)
     assert user_.validate_password('mys@f#newpasw#rd')
 
     # create the request and run the action - change anonymous user password
@@ -91,7 +91,7 @@ def test_change_password() -> None:
     assert not chpass.run()
 
     # check that the password was not changed
-    user_ = get_user_from_system(user.get_email())
+    user_ = get_user_from_system(user.email)
     assert user_.validate_password('mys@f#newpasw#rd')
 
     # create the request and run the action - invalid current password
@@ -104,7 +104,7 @@ def test_change_password() -> None:
     assert not chpass.run()
 
     # check that the password was not changed
-    user_ = get_user_from_system(user.get_email())
+    user_ = get_user_from_system(user.email)
     assert user_.validate_password('mys@f#newpasw#rd')
 
 
@@ -120,7 +120,7 @@ def test_invalid_request_parameters() -> None:
 
     # create the request and run the action - invalid request parameters
     request = {
-        'email': user.get_email(),
+        'email': user.email,
         'wrong_key': '1000$moustacheCOMB'
     }
     login = Login(request=request)
@@ -176,16 +176,16 @@ def _get_sample_admin_user() -> User:
     Get a sample user with an admin role
     """
     # create sample user
-    passwd = '1000$moustacheCOMB'
+    password = '1000$moustacheCOMB'
     user = User()
-    user.set_name('David Hahn')
-    user.set_email('hahnd+wrfcloudtest@ucar.edu')
-    user.set_password(passwd)
-    user.set_role_id('admin')
-    user.set_active(False)
-    user.set_activation_key(secrets.token_urlsafe(33))
+    user.full_name = 'David Hahn'
+    user.email = 'hahnd+wrfcloudtest@ucar.edu'
+    user.password = password
+    user.role_id = 'admin'
+    user.active = False
+    user.activation_key = secrets.token_urlsafe(33)
 
     # make sure the password was hashed
-    assert user.data[User.KEY_PASSWORD] != passwd
+    assert user.password != password
 
     return user

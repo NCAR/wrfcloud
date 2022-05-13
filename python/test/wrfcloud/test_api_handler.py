@@ -9,6 +9,7 @@ from wrfcloud.api.handler import lambda_handler
 from wrfcloud.api.auth import validate_jwt
 from wrfcloud.api.auth import create_jwt
 from wrfcloud.api.auth import KEY_EMAIL, KEY_ROLE
+from wrfcloud.api.audit import AuditDao
 
 
 init_environment(env='test')
@@ -21,14 +22,14 @@ def test_lambda_handler_valid_request() -> None:
     :return: None
     """
     # set up the test
-    _test_setup()
+    assert _test_setup()
 
     # create a login request
     user = _get_sample_admin_user()
     login_request = {
         'action': 'Login',
         'data': {
-            'email': user.get_email(),
+            'email': user.email,
             'password': '1000$moustacheCOMB'
         }
     }
@@ -46,10 +47,10 @@ def test_lambda_handler_valid_request() -> None:
     assert login_response['ok']
     payload = validate_jwt(login_response['data']['jwt'])
     assert payload is not None
-    assert payload[wrfcloud.api.auth.KEY_EMAIL] == user.get_email()
+    assert payload[wrfcloud.api.auth.KEY_EMAIL] == user.email
 
     # teardown the test
-    _test_teardown()
+    assert _test_teardown()
 
 
 def test_lambda_handler_insufficient_permissions() -> None:
@@ -58,7 +59,7 @@ def test_lambda_handler_insufficient_permissions() -> None:
     :return: None
     """
     # set up the test
-    _test_setup()
+    assert _test_setup()
 
     # create a login request
     chpass_request = {
@@ -84,7 +85,7 @@ def test_lambda_handler_insufficient_permissions() -> None:
     assert 'This action is unauthorized' in chpass_response['errors']
 
     # teardown the test
-    _test_teardown()
+    assert _test_teardown()
 
 
 def test_lambda_handler_action_failed() -> None:
@@ -93,13 +94,13 @@ def test_lambda_handler_action_failed() -> None:
     :return: None
     """
     # set up the test
-    _test_setup()
+    assert _test_setup()
 
     # create a login request
     user = _get_sample_admin_user()
     jwt = create_jwt({
-        KEY_EMAIL: user.get_email(),
-        KEY_ROLE: user.get_role_id()
+        KEY_EMAIL: user.email,
+        KEY_ROLE: user.role_id
     })
     chpass_request = {
         'action': 'ChangePassword',
@@ -125,7 +126,7 @@ def test_lambda_handler_action_failed() -> None:
     assert 'Current password is not correct' in chpass_response['errors']
 
     # teardown the test
-    _test_teardown()
+    assert _test_teardown()
 
 
 def test_lambda_handler_expired_token() -> None:
@@ -134,13 +135,13 @@ def test_lambda_handler_expired_token() -> None:
     :return: None
     """
     # set up the test
-    _test_setup()
+    assert _test_setup()
 
     # create a login request
     user = _get_sample_admin_user()
     jwt = create_jwt({
-        'email': user.get_email(),
-        'role': user.get_role_id()
+        'email': user.email,
+        'role': user.role_id
     }, -1)
     chpass_request = {
         'action': 'ChangePassword',
@@ -166,7 +167,7 @@ def test_lambda_handler_expired_token() -> None:
     assert 'Please log in first' in chpass_response['errors']
 
     # teardown the test
-    _test_teardown()
+    assert _test_teardown()
 
 
 def test_lambda_handler_unknown_role() -> None:
@@ -175,17 +176,17 @@ def test_lambda_handler_unknown_role() -> None:
     :return: None
     """
     # set up the test
-    _test_setup()
+    assert _test_setup()
 
     # update the user's role to something unexpected
     user = _get_sample_admin_user()
-    user.set_role_id('doubleadmin')
+    user.role_id = 'doubleadmin'
     assert UserDao().update_user(user)
 
     # create a login request
     jwt = create_jwt({
-        KEY_EMAIL: user.get_email(),
-        KEY_ROLE: user.get_role_id()
+        KEY_EMAIL: user.email,
+        KEY_ROLE: user.role_id
     })
     chpass_request = {
         'action': 'ChangePassword',
@@ -211,7 +212,7 @@ def test_lambda_handler_unknown_role() -> None:
     assert 'This action is unauthorized' in chpass_response['errors']
 
     # teardown the test
-    _test_teardown()
+    assert _test_teardown()
 
 
 def _test_setup() -> bool:
@@ -221,18 +222,24 @@ def _test_setup() -> bool:
     """
     try:
         # get a data access object
-        dao = UserDao()
+        user_dao = UserDao()
+        audit_dao = AuditDao()
 
         try:
             # just in case the table already exists, get rid of it
-            dao.delete_table(dao.table)
+            user_dao.delete_table(user_dao.table)
+            audit_dao.delete_table(audit_dao.table)
         except Exception:
             pass
 
-        # create the table
-        if dao.create_user_table():
-            return dao.add_user(_get_sample_admin_user())
-        return False
+        # create the audit table
+        ok = audit_dao.create_audit_table()
+
+        # create the user table
+        ok = ok and user_dao.create_user_table()
+
+        # create a sample admin user
+        return ok and user_dao.add_user(_get_sample_admin_user())
     except Exception as e:
         print(e)
         return False
@@ -261,14 +268,14 @@ def _get_sample_admin_user() -> User:
     # create sample user
     passwd = '1000$moustacheCOMB'
     user = User()
-    user.set_name('David Hahn')
-    user.set_email('hahnd+wrfcloudtest@ucar.edu')
-    user.set_password(passwd)
-    user.set_role_id('admin')
-    user.set_active(False)
-    user.set_activation_key(secrets.token_urlsafe(33))
+    user.full_name = 'David Hahn'
+    user.email = 'hahnd+wrfcloudtest@ucar.edu'
+    user.password = passwd
+    user.role_id = 'admin'
+    user.active = False
+    user.activation_key = secrets.token_urlsafe(33)
 
     # make sure the password was hashed
-    assert user.data[User.KEY_PASSWORD] != passwd
+    assert user.password != passwd
 
     return user

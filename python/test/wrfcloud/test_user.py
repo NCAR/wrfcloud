@@ -31,7 +31,7 @@ def test_add_user() -> None:
     assert add_user_to_system(user)
 
     # retrieve the user from the database
-    user_ = get_user_from_system(email=user.get_email())
+    user_ = get_user_from_system(email=user.email)
 
     # compare the original and retrieved user data
     for key in user.data:
@@ -63,7 +63,7 @@ def test_update_user() -> None:
     assert add_user_to_system(user)
 
     # retrieve the user from the database
-    user_ = get_user_from_system(email=user.get_email())
+    user_ = get_user_from_system(email=user.email)
 
     # compare the original and retrieved user data
     for key in user.data:
@@ -71,19 +71,19 @@ def test_update_user() -> None:
         assert user.data[key] == user_.data[key]
 
     # update some user attributes
-    user.set_role_id('readonly')
-    user.set_name('dh')
+    user.role_id = 'readonly'
+    user.full_name = 'dh'
     update_user_in_system(user)
 
     # retrieve the user from the database
-    user_ = get_user_from_system(email=user.get_email())
+    user_ = get_user_from_system(email=user.email)
 
     # check the updated fields
-    assert user_.get_role_id() == 'readonly'
-    assert user_.get_name() == 'dh'
+    assert user_.role_id == 'readonly'
+    assert user_.full_name == 'dh'
 
     # update a user that does not exist in the database
-    user.set_email('empty@ucar.edu')
+    user.email = 'empty@ucar.edu'
     assert not update_user_in_system(user)
 
     # teardown the test resources
@@ -105,14 +105,14 @@ def test_delete_user() -> None:
     assert add_user_to_system(user)
 
     # retrieve the user from the database
-    user_ = get_user_from_system(email=user.get_email())
+    user_ = get_user_from_system(email=user.email)
     assert user_ is not None
 
     # delete the user from the database
     assert delete_user_from_system(user)
 
     # make sure the user is gone
-    user_ = get_user_from_system(email=user.get_email())
+    user_ = get_user_from_system(email=user.email)
     assert user_ is None
 
     # teardown the test resources
@@ -131,30 +131,30 @@ def test_activate_user() -> None:
     user = _get_sample_admin_user()
 
     # make sure the state is not active to begin with
-    user.set_active(False)
+    user.active = False
 
     # add the user to the database
     assert add_user_to_system(user)
 
     # try to activate the user with a bogus activation key
     bogus_key = secrets.token_urlsafe(33)
-    assert not activate_user_in_system(user.get_email(), bogus_key, 'new_password')
+    assert not activate_user_in_system(user.email, bogus_key, 'new_password')
 
     # retrieve the user and make sure it is NOT active
-    user_ = get_user_from_system(user.get_email())
-    assert not user_.is_active()
+    user_ = get_user_from_system(user.email)
+    assert not user_.active
 
     # try to activate the user with a valid activation key
-    assert activate_user_in_system(user.get_email(), user.get_activation_key(), 'new_password')
+    assert activate_user_in_system(user.email, user.activation_key, 'new_password')
 
     # retrieve the user and make sure it IS active
-    user_ = get_user_from_system(user.get_email())
-    assert user_.is_active()
+    user_ = get_user_from_system(user.email)
+    assert user_.active
     assert user_.validate_password('new_password')
     assert not user_.validate_password('old_password')
 
     # try to activate a user that does not exist in the database
-    assert not activate_user_in_system('empty@ucar.edu', user.get_activation_key(), 'new_password')
+    assert not activate_user_in_system('empty@ucar.edu', user.activation_key, 'new_password')
 
     # teardown the test resources
     assert _test_teardown()
@@ -190,7 +190,7 @@ def test_password_reset() -> None:
 
     # create sample user
     user = _get_sample_admin_user()
-    user.set_active(True)
+    user.active = True
 
     # add the user to the database
     assert add_user_to_system(user)
@@ -199,15 +199,15 @@ def test_password_reset() -> None:
     assert not reset_password('empty@ucar.edu', new_reset_token(1), 'new_password')
 
     # try to reset password for a user with a bogus reset token
-    assert not reset_password(user.get_email(), new_reset_token(1), 'new_password')
+    assert not reset_password(user.email, new_reset_token(1), 'new_password')
 
     # try to reset password for a user with valid token
     assert add_user_reset_token(user)
-    reset_token = user.get_reset_token()
-    assert reset_password(user.get_email(), reset_token, 'new_password')
+    reset_token = user.reset_token
+    assert reset_password(user.email, reset_token, 'new_password')
 
     # try to re-use the reset token to change password again
-    assert not reset_password(user.get_email(), reset_token, 'another_new_password')
+    assert not reset_password(user.email, reset_token, 'another_new_password')
 
     # teardown the test resources
     assert _test_teardown()
@@ -222,7 +222,7 @@ def test_send_user_emails() -> None:
 
     # create a new user
     user = _get_sample_admin_user()
-    user.set_reset_token(new_reset_token(8))
+    user.reset_token = new_reset_token(8)
 
     # try to send emails
     assert not user.send_welcome_email()
@@ -236,20 +236,18 @@ def test_sanitize() -> None:
     """
     # create a new test user
     user = _get_sample_admin_user()
-    user.set_reset_token(new_reset_token(8))
-    user.data['extra_junk'] = 'evil_laugh'
+    user.reset_token = new_reset_token(8)
 
     # check for all keys present
     for key in User.SANITIZE_KEYS:
         assert key in user.data
 
     # sanitize the user
-    user.sanitize()
+    sanitized_data = user.sanitized_data
 
     # check for all keys not present
     for key in User.SANITIZE_KEYS:
-        assert key not in user.data
-    assert 'extra_junk' not in user.data
+        assert key not in sanitized_data
 
 
 def _test_setup() -> bool:
@@ -297,14 +295,14 @@ def _get_sample_admin_user() -> User:
     # create sample user
     passwd = '1000$moustacheCOMB'
     user = User()
-    user.set_name('David Hahn')
-    user.set_email('hahnd+wrfcloudtest@ucar.edu')
-    user.set_password(passwd)
-    user.set_role_id('admin')
-    user.set_active(False)
-    user.set_activation_key(secrets.token_urlsafe(33))
+    user.full_name = 'David Hahn'
+    user.email = 'hahnd+wrfcloudtest@ucar.edu'
+    user.password = passwd
+    user.role_id = 'admin'
+    user.active = False
+    user.activation_key = secrets.token_urlsafe(33)
 
     # make sure the password was hashed
-    assert user.data[User.KEY_PASSWORD] != passwd
+    assert user.password != passwd
 
     return user

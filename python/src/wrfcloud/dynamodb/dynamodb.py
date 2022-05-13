@@ -1,3 +1,7 @@
+"""
+A base class for generic DynamoDB functions
+"""
+
 from typing import Union, List, Dict
 import boto3
 from wrfcloud.log import Logger
@@ -23,7 +27,8 @@ class DynamoDao:
         """
         Put a new item into a dynamodb table
         :param data: Data value to insert
-        :param preserve_list_order: Use the LIST data type instead of SET to preserve order of items in list (default: True)
+        :param preserve_list_order: Use the LIST data type instead of SET
+                                    to preserve order of items in list (default: True)
         :return: True if successful, otherwise False
         """
         dynamo_data = self._dict_to_dynamo(data, set_ok=(not preserve_list_order))
@@ -40,7 +45,8 @@ class DynamoDao:
         """
         Get a dynamodb item
         :param key: Normal dictionary with key values (may include other values too)
-        :return: Normal data dictionary of item if found, or None if item was not found by provided key
+        :return: Normal data dictionary of item if found, or
+                 None if item was not found by provided key
         """
         dynamo_key = self._make_dynamo_key(key)
 
@@ -249,11 +255,11 @@ class DynamoDao:
         self.client = boto3.client('dynamodb', endpoint_url=self.endpoint_url)
         return self.client
 
-    def _dict_to_dynamo(self, data: dict, set_ok: bool=False, recursed: bool=False) -> dict:
+    def _dict_to_dynamo(self, data: dict, set_ok: bool = False, recursed: bool = False) -> dict:
         """
         Convert a standard python dictionary to a crazy dynamodb dictionary
         :param data: Standard python dictionary to convert
-        :param set_ok: Use the SET types if possible !!SET types do not preserve order, but save a bit of space over LIST!!
+        :param set_ok: Prefer the SET types !!SET types do not preserve order, but save a bit of space over LIST!!
         :param recursed: Caller should not specify this value.  Gets rid of 'M' on root dictionary.
         :return: Crazy dynamodb dictionary
         """
@@ -286,6 +292,7 @@ class DynamoDao:
             return {'B': data}
         if data is None:
             return {'NULL': True}
+        assert False  # we missed a case
 
     def _dynamo_to_dict(self, dynamo: dict, recursed: bool=False) -> any:
         """

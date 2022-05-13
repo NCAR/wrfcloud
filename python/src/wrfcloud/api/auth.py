@@ -1,15 +1,19 @@
+"""
+Functions to create and validate JSON Web Tokens (JWT)
+"""
+
 import os
 import secrets
-import jwt
 from datetime import datetime
 from typing import Union
+import jwt
 from wrfcloud.log import Logger
 from wrfcloud.user import User, get_user_from_system
 
 
-KEY_EMAIL = 'email2'
-KEY_EXPIRES = 'expires2'
-KEY_ROLE = 'role2'
+KEY_EMAIL = 'email'
+KEY_EXPIRES = 'expires'
+KEY_ROLE = 'role'
 
 
 def create_jwt(payload: dict, expiration: int = 3600) -> str:

@@ -2,7 +2,7 @@
 Contains Action classes related to user authentication and JWT renewal
 """
 import wrfcloud
-from wrfcloud.api.actions import Action
+from wrfcloud.api.actions.action import Action
 from wrfcloud.user import User, get_user_from_system
 from wrfcloud.api.auth import create_jwt
 
@@ -38,8 +38,8 @@ class Login(Action):
         # issue a JWT if the password matches
         if user.validate_password(password):
             payload = {
-                wrfcloud.api.auth.KEY_EMAIL: user.get_email(),
-                wrfcloud.api.auth.KEY_ROLE: user.get_role_id()
+                wrfcloud.api.auth.KEY_EMAIL: user.email,
+                wrfcloud.api.auth.KEY_ROLE: user.role_id
             }
             self.response[Action.REQ_KEY_JWT] = create_jwt(payload)
             return True
