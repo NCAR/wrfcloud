@@ -1,14 +1,19 @@
+"""
+Functions to handle API requests and provide a response
+"""
+
 import base64
 import secrets
 import json
-import yaml
 import pkgutil
 from typing import Union
-
+from datetime import datetime
+import yaml
 from wrfcloud.user import User
 from wrfcloud.api.actions import Action
 from wrfcloud.log import Logger
 from wrfcloud.api.auth import get_user_from_jwt
+from wrfcloud.api.audit import AuditEntry, save_audit_log_entry
 
 
 def lambda_handler(event: dict, context: any) -> dict:
@@ -21,6 +26,10 @@ def lambda_handler(event: dict, context: any) -> dict:
     # create a logger
     log = Logger()
 
+    # create an audit log entry
+    audit = AuditEntry()
+    audit.start_time = datetime.timestamp(datetime.utcnow())
+
     # use the context value
     if context is None:
         log.debug('No context provided to Lambda Function')
@@ -31,16 +40,23 @@ def lambda_handler(event: dict, context: any) -> dict:
     jwt = request[Action.REQ_KEY_JWT] if Action.REQ_KEY_JWT in request else None
     data = request[Action.REQ_KEY_DATA]
     client_ip = event['requestContext']['identity']['sourceIp']
+    audit.ip_address = client_ip
 
     # set a reference ID and the client IP instead of the app name
     ref_id = create_reference_id()
-    log.set_application_name('%s %s' % (ref_id, client_ip))
+    audit.ref_id = ref_id
+    log.set_application_name(f'{ref_id} {client_ip}')
     log.info('Starting action: %s' % action)
 
     # verify the session
     user = get_user_from_jwt(jwt)
     if user is None and jwt is not None:
         return create_invalid_session_response(ref_id)
+
+    # update audit log entry with auth info
+    audit.authenticated = user is not None
+    if user is not None:
+        audit.username = user.email
 
     # attempt to run the action
     body = {}
@@ -77,6 +93,18 @@ def lambda_handler(event: dict, context: any) -> dict:
         body['data'] = {}
         body['errors'] = ['General system error: %s' % ref_id]
 
+    # update the audit log entry
+    audit.end_time = datetime.timestamp(datetime.utcnow())
+    audit.duration_ms = int(1000 * (audit.end_time - audit.start_time))
+    audit.action_success = body['ok']
+
+    # save the audit log entry
+    try:
+        if not save_audit_log_entry(audit):
+            log.warn('Failed to save audit log entry: ' + json.dumps(audit.data))
+    except Exception as e:
+        log.warn('Failed to save audit log entry: ' + json.dumps(audit.data), e)
+
     # create a proper lambda response
     response = {
         'isBase64Encoded': False,
@@ -108,7 +136,7 @@ def has_required_permissions(action: str, user: Union[User, None] = None) -> boo
 
     # override the role name if user is authenticated
     if user is not None:
-        role_name = user.get_role_id()
+        role_name = user.role_id
 
     # check for unknown role value in the user
     log = Logger()
@@ -124,10 +152,10 @@ def has_required_permissions(action: str, user: Union[User, None] = None) -> boo
     return False
 
 
-def create_reference_id():
+def create_reference_id() -> str:
     """
     Create a unique reference ID for this request to help find logs, etc
-    :return: {str} A unique 10-character string
+    :return: A unique 10-character string
     """
     random = secrets.token_bytes(5)
     ref_id = base64.b16encode(random).decode()
@@ -142,7 +170,7 @@ def create_action(action: str, user: User, data: dict) -> Union[Action, None]:
     :param data: Request data
     :return: An action object or None
     """
-    import importlib
+    import importlib  # slow deferred import
 
     # create the action object
     try:
@@ -152,6 +180,8 @@ def create_action(action: str, user: User, data: dict) -> Union[Action, None]:
         return action_object
     except Exception as e:
         Logger().error('Error creating action: %s' % action, e)
+
+    return None
 
 
 def create_unauthorized_action_response(ref_id: str) -> dict:

@@ -2,7 +2,7 @@
 Contains Action classes related to user authentication and JWT renewal
 """
 import secrets
-from wrfcloud.api.actions import Action
+from wrfcloud.api.actions.action import Action
 from wrfcloud.user import update_user_in_system
 
 
@@ -45,7 +45,7 @@ class ChangePassword(Action):
             return False
 
         # set the new password and update the user
-        self.run_as_user.set_password(p1)
+        self.run_as_user.password = p1
         updated = update_user_in_system(self.run_as_user)
         if not updated:
             self.errors.append('Error updating user values')

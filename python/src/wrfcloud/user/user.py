@@ -4,9 +4,10 @@ The User class is the data model used to represent a user and associated functio
 
 import base64
 import secrets
-import bcrypt
 import copy
+import pkgutil
 from typing import Union
+import bcrypt
 import wrfcloud.system
 from wrfcloud.log import Logger
 
@@ -16,139 +17,122 @@ class User:
     User data object
     """
 
-    # Constant values
-    USER_ID_LENGTH = 16
-    SALT_LENGTH = 24
-    DEFAULT_ROUNDS = 8
+    # list of fields to remove from the data
+    SANITIZE_KEYS = ['role_id', 'password', 'reset_token', 'active', 'activation_key']
 
-    # Field ID constants
-    KEY_EMAIL = 'email'
-    KEY_PASSWORD = 'pwhash'
-    KEY_ROLE_ID = 'role_id'
-    KEY_FULL_NAME = 'fullname'
-    KEY_RESET_TOKEN = 'reset_token'
-    KEY_ACTIVE = 'active'
-    KEY_ACTIVATION_KEY = 'activation_key'
-
-    # list of all the valid fields
-    ALL_KEYS = [KEY_ROLE_ID, KEY_EMAIL, KEY_PASSWORD, KEY_FULL_NAME, KEY_RESET_TOKEN,
-                KEY_ACTIVATION_KEY, KEY_ACTIVE]
-
-    # Sanitize keys are removed during the sanitize function, which
-    # should be called before the API returns data to any client
-    SANITIZE_KEYS = [KEY_ROLE_ID, KEY_PASSWORD, KEY_RESET_TOKEN, KEY_ACTIVE, KEY_ACTIVATION_KEY]
-
-    def __init__(self, data: dict = None):
+    def __init__(self, data: Union[dict, None] = None):
         """
         Initialize the user data object
         """
+        # get a logger for this object
         self.log = Logger()
-        self.data = {}
+
+        # initialize the properties
+        self.email: Union[str, None] = None
+        self._pwhash: Union[bytes, None] = None
+        self.role_id: Union[str, None] = None
+        self.full_name: Union[str, None] = None
+        self._reset_token: Union[str, None] = None
+        self.active: Union[bool, None] = None
+        self._activation_key: Union[str, None] = None
+
+        # initialize from data if provided
         if data is not None:
-            self.data = copy.deepcopy(data)
-            self.prune()
+            self.data = data
 
-    def get_role_id(self) -> Union[str, None]:
-        """
-        Get the role id
-        :return: {str} The role id
-        """
-        return self.data[User.KEY_ROLE_ID]
+    @property
+    def data(self):
+        return {
+            'email': self.email,
+            'password': self.password,
+            'role_id': self.role_id,
+            'full_name': self.full_name,
+            'reset_token': self.reset_token,
+            'active': self.active,
+            'activation_key': self.activation_key
+        }
 
-    def set_role_id(self, rid: str) -> None:
-        """
-        Set the role ID
-        :param rid: Role ID value
-        """
-        self.data[User.KEY_ROLE_ID] = rid
+    @data.setter
+    def data(self, data: dict):
+        self.email = None if 'email' not in data else data['email']
+        self.password = None if 'password' not in data else data['password']
+        self.role_id = None if 'role_id' not in data else data['role_id']
+        self.full_name = None if 'full_name' not in data else data['full_name']
+        self.reset_token = None if 'reset_token' not in data else data['reset_token']
+        self.active = None if 'active' not in data else data['active']
+        self.activation_key = None if 'activation_key' not in data else data['activation_key']
 
-    def get_name(self) -> Union[str, None]:
-        """
-        Get the user name
-        :return: {str} The user name
-        """
-        return self.data[User.KEY_FULL_NAME]
+    @property
+    def password(self):
+        return self._pwhash
 
-    def set_name(self, name: str) -> None:
-        """
-        Set the user name
-        :return: {str} The user name
-        """
-        self.data[User.KEY_FULL_NAME] = name
-
-    def get_email(self) -> Union[str, None]:
-        """
-        Get the user email
-        :return: {str} The user email
-        """
-        return self.data[User.KEY_EMAIL]
-
-    def set_email(self, email: str) -> None:
-        """
-        Set the user email
-        :return: {str} The user email
-        """
-        self.data[User.KEY_EMAIL] = email
-
-    def set_password(self, plain_text: str) -> None:
+    @password.setter
+    def password(self, plain_text: Union[str, bytes]) -> None:
         """
         Set the password, only salted and hashed will be stored
         :param plain_text: Plain-text password
         """
+        # clear the password if plain text is none or empty
+        if plain_text is None or plain_text == '':
+            self._pwhash = None
+            return
+
         # set the password hash on the data object
-        self.data[User.KEY_PASSWORD] = bcrypt.hashpw(plain_text.encode(), bcrypt.gensalt())
+        if isinstance(plain_text, bytes):
+            # this is a byte array and not a string, so we expect it to be a hash already
+            self._pwhash = plain_text
+        else:
+            self._pwhash = bcrypt.hashpw(plain_text.encode(), bcrypt.gensalt())
 
-    def get_reset_token(self) -> str:
-        """
-        Get the reset token
-        :return Reset token
-        """
-        return self.data[User.KEY_RESET_TOKEN] if User.KEY_RESET_TOKEN in self.data else None
+    @property
+    def reset_token(self):
+        return self._reset_token
 
-    def set_reset_token(self, reset_token: str) -> None:
+    @reset_token.setter
+    def reset_token(self, reset_token: str) -> None:
         """
         Set the reset token
         :param reset_token: Reset token
         """
-        if len(reset_token) < 44:
-            if User.KEY_RESET_TOKEN in self.data:
-                self.data.pop(User.KEY_RESET_TOKEN)
-            return
-        self.data[User.KEY_RESET_TOKEN] = reset_token
+        self._reset_token = None if reset_token is None or len(reset_token) < 44 else reset_token
 
-    def get_activation_key(self) -> str:
+    @property
+    def activation_key(self) -> str:
         """
-        Get the verification key
-        :return Verification key
+        Get the activation key and create a new one if it is not set yet
+        :return Activation key
         """
         # create a verification key if it has not already been set
-        if User.KEY_ACTIVATION_KEY not in self.data:
-            self.data[User.KEY_ACTIVATION_KEY] = base64.b64encode(secrets.token_bytes(32)).decode()
-        return self.data[User.KEY_ACTIVATION_KEY]
+        if self._activation_key is None:
+            self._activation_key = base64.b64encode(secrets.token_bytes(32)).decode()
+        return self._activation_key
 
-    def set_activation_key(self, verification_key: str) -> None:
+    @activation_key.setter
+    def activation_key(self, activation_key: str) -> None:
         """
-        Set the verification key
-        :param verification_key: Verification key
+        Set the activation key
+        :param activation_key: Activation key
         """
-        if len(verification_key) < 44:
-            if User.KEY_ACTIVATION_KEY in self.data:
-                self.data.pop(User.KEY_ACTIVATION_KEY)
-            return
-        self.data[User.KEY_ACTIVATION_KEY] = verification_key
+        self._activation_key = None if activation_key is None or len(activation_key) < 44 \
+            else activation_key
 
-    def is_active(self) -> bool:
+    @property
+    def sanitized_data(self) -> Union[dict, None]:
         """
-        Check active flag
-        :return True if user was activated
+        Remove any fields that should not be passed back to the user client
+        :return True if user is sanitized
         """
-        return False if User.KEY_ACTIVE not in self.data else self.data[User.KEY_ACTIVE]
+        # get a copy of the data dictionary
+        data = copy.deepcopy(self.data)
 
-    def set_active(self, active: bool) -> None:
-        """
-        Set active user flag
-        """
-        self.data[User.KEY_ACTIVE] = active
+        try:
+            # remove all the fields that should not be returned to the user
+            for field in self.SANITIZE_KEYS:
+                if field in data:
+                    data.pop(field)
+        except Exception:
+            return None
+        return data
 
     def validate_password(self, plain_text: str) -> bool:
         """
@@ -157,40 +141,9 @@ class User:
         :return: True if password matches, otherwise False
         """
         try:
-            return bcrypt.checkpw(plain_text.encode(), self.data[User.KEY_PASSWORD])
+            return bcrypt.checkpw(plain_text.encode(), self._pwhash)
         except Exception:
             return False
-
-    def prune(self) -> bool:
-        """
-        Remove any superfluous fields
-        :return True if user is pruned
-        """
-        try:
-            pop_fields = []
-            for key in self.data:
-                if key not in User.ALL_KEYS:
-                    pop_fields.append(key)
-            for pop_field in pop_fields:
-                self.data.pop(pop_field)
-        except Exception:
-            return False
-        return True
-
-    def sanitize(self) -> bool:
-        """
-        Remove any fields that should not be passed back to the user client
-        :return True if user is sanitized
-        """
-        pruned = self.prune()
-
-        try:
-            for field in User.SANITIZE_KEYS:
-                if field in self.data:
-                    self.data.pop(field)
-        except Exception:
-            return False
-        return pruned
 
     def send_password_reset_link(self) -> bool:
         """
@@ -205,10 +158,10 @@ class User:
             html = html.replace('__APP_NAME__', wrfcloud.system.APP_NAME)
             html = html.replace('__IMAGE_DATA__', img)
             html = html.replace('__APP_URL__', wrfcloud.system.APP_URL)
-            html = html.replace('__EMAIL__', urllib.request.quote(self.get_email()))
-            html = html.replace('__RESET_TOKEN__', urllib.request.quote(self.get_reset_token()))
+            html = html.replace('__EMAIL__', urllib.request.quote(self.email))
+            html = html.replace('__RESET_TOKEN__', urllib.request.quote(self.reset_token))
             source = wrfcloud.system.SYSTEM_EMAIL_SENDER
-            dest = {'ToAddresses': [self.get_email()]}
+            dest = {'ToAddresses': [self.email]}
             message = {
                 'Subject': {
                     'Data': 'Password Reset Link',
@@ -235,8 +188,6 @@ class User:
         Send a welcome and activation email
         :return: None
         """
-        import wrfcloud.system
-        import pkgutil
         import urllib.request   # slow deferred import
 
         try:
@@ -245,10 +196,10 @@ class User:
             html = html.replace('__APP_NAME__', wrfcloud.system.APP_NAME)
             html = html.replace('__IMAGE_DATA__', img)
             html = html.replace('__APP_URL__', wrfcloud.system.APP_URL)
-            html = html.replace('__EMAIL__', urllib.request.quote(self.get_email()))
-            html = html.replace('__ACTIVATION_KEY__', urllib.request.quote(self.get_activation_key()))
+            html = html.replace('__EMAIL__', urllib.request.quote(self.email))
+            html = html.replace('__ACTIVATION_KEY__', urllib.request.quote(self.activation_key))
             source = wrfcloud.system.SYSTEM_EMAIL_SENDER
-            dest = {'ToAddresses': [self.get_email()]}
+            dest = {'ToAddresses': [self.email]}
             message = {
                 'Subject': {
                     'Data': 'Verify Email Address',

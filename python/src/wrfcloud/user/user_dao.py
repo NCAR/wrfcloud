@@ -8,7 +8,7 @@ import pkgutil
 from typing import Union
 import yaml
 from wrfcloud.dynamodb import DynamoDao
-from wrfcloud.user import User
+from wrfcloud.user.user import User
 
 
 class UserDao(DynamoDao):
@@ -43,10 +43,6 @@ class UserDao(DynamoDao):
         :param user: User object to store
         :return: True if successful, otherwise False
         """
-        # remove any unexpected attributes before writing to the database
-        if not user.prune():
-            return False
-
         # save the item to the database
         return super().put_item(user.data)
 
@@ -56,9 +52,18 @@ class UserDao(DynamoDao):
         :param email: User ID
         :return: The user with the given email, or None if not found
         """
-        key = {User.KEY_EMAIL: email}
+        # build the database key
+        key = {'email': email}
+
+        # get the item with the key
         data = super().get_item(key)
-        return None if data is None else User(data)
+
+        # handle the case where the key is not found
+        if data is None:
+            return None
+
+        # build a new user object
+        return User(data)
 
     def update_user(self, user: User) -> bool:
         """
@@ -66,9 +71,6 @@ class UserDao(DynamoDao):
         :param user: User data values to update, which must include the key
         :return: True if successful, otherwise False
         """
-        if not user.prune():
-            return False
-
         return super().update_item(user.data)
 
     def delete_user(self, user: User) -> bool:
@@ -77,8 +79,8 @@ class UserDao(DynamoDao):
         :param user: User object
         :return: True if successful, otherwise False
         """
-        email = user.get_email()
-        return super().delete_item({User.KEY_EMAIL: email})
+        email = user.email
+        return super().delete_item({'email': email})
 
     def create_user_table(self) -> bool:
         """
