@@ -57,20 +57,45 @@ class DynamoDao:
         )
         return self._dynamo_to_dict(res['Item']) if 'Item' in res else None
 
-    def get_all_items(self, db_filter: dict = None) -> Union[List[Dict], None]:
+    def get_all_items(self) -> Union[List[Dict], None]:
         """
         Get all items in the dynamodb table
-        :param db_filter: Optional scan filter, passed directly as ScanFilter parameter
         :return: List of zero or more dictionaries
         """
+        # get the client object
         client = self._get_client()
-        res = client.scan(TableName=self.table) if db_filter is None else \
-              client.scan(TableName=self.table, ScanFilter=db_filter)
 
-        if not self._response_ok(res) or 'Items' not in res:
-            return None
+        # create a list to store the results
+        results = []
 
-        return [self._dynamo_to_dict(item) for item in res['Items']]
+        # make sure we get into the while loop at least once
+        first = True
+        last_eval_key = None
+
+        # loop until the response does not have a LastEvaluatedKey attribute
+        while first or last_eval_key:
+            # query all the entries in the table
+            if first:
+                res = client.scan(TableName=self.table)
+            else:
+                res = client.scan(TableName=self.table, ExclusiveStartKey=last_eval_key)
+
+            # mark that we have been in the loop before
+            first = False
+
+            # check for a LastEvaluatedKey attribute, indicating there are more records to search
+            last_eval_key = res['LastEvaluatedKey'] if 'LastEvaluatedKey' in res else None
+
+            # found additional entries, add them to the results
+            if self._response_ok(res) and 'Items' in res:
+                # create a list of AuditEntry objects
+                batch_results = [self._dynamo_to_dict(item) for item in res['Items']]
+
+                # append this batch to the final results
+                results += batch_results
+
+        return results
+
 
     def update_item(self, data) -> bool:
         """

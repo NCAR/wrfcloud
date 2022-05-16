@@ -1,11 +1,12 @@
 from datetime import datetime
 from random import random
 from wrfcloud.system import init_environment
-from wrfcloud.api.audit import AuditEntry, AuditDao
+from wrfcloud.api.audit import AuditEntry
 from wrfcloud.api.audit import save_audit_log_entry
 from wrfcloud.api.audit import get_audit_log_entry
 from wrfcloud.api.audit import get_all_audit_logs
 from wrfcloud.api.handler import create_reference_id
+from helper import _test_setup, _test_teardown
 
 
 init_environment(env='test')
@@ -93,25 +94,3 @@ def test_audit_dao_read_entry() -> None:
 
     # teardown the test resources
     assert _test_teardown()
-
-
-def _test_setup() -> bool:
-    """
-    Create a fresh dynamodb table
-    """
-    dao = AuditDao()
-    try:
-        # delete the table in case it already exists
-        dao.delete_table(dao.table)
-    except Exception:
-        pass  # ignore
-
-    return dao.create_audit_table()
-
-
-def _test_teardown():
-    """
-    Delete the dynamodb table
-    """
-    dao = AuditDao()
-    return dao.delete_table(dao.table)

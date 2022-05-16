@@ -67,42 +67,11 @@ class AuditDao(DynamoDao):
 
     def get_all_entries(self) -> List[AuditEntry]:
         """
-        Get all of the entries in the table
+        Get all entries in the table
         :return: A list of all audit log entries
         """
-        # get the client object
-        client = self._get_client()
-
-        # create a list to store the results
-        results = []
-
-        # make sure we get into the while loop at least once
-        first = True
-        last_eval_key = None
-
-        # loop until the response does not have a LastEvaluatedKey attribute
-        while first or last_eval_key:
-            # query all the entries in the last 24 hours
-            if first:
-                res = client.scan(TableName=self.table)
-            else:
-                res = client.scan(TableName=self.table, ExclusiveStartKey=last_eval_key)
-
-            # mark that we have been in the loop before
-            first = False
-
-            # check for a LastEvaluatedKey attribute, indicating there are more records to search
-            last_eval_key = res['LastEvaluatedKey'] if 'LastEvaluatedKey' in res else None
-
-            # found additional entries, add them to the results
-            if self._response_ok(res) and 'Items' in res:
-                # create a list of AuditEntry objects
-                batch_results = [AuditEntry(self._dynamo_to_dict(item)) for item in res['Items']]
-
-                # append this batch to the final results
-                results += batch_results
-
-        return results
+        # get all items and turn them into a list of AuditEntry objects
+        return [AuditEntry(item) for item in super().get_all_items()]
 
     def create_audit_table(self) -> bool:
         """

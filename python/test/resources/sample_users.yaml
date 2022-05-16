@@ -1,0 +1,34 @@
+users:
+  admin:
+    - full_name: Hermes Conrad
+      email: hermes@example.com
+      password: 1000$moustacheCOMB
+      role_id: admin
+      active: true
+    - full_name: Hubert J. Farnsworth
+      email: hubert@example.com
+      password: giantMedium-sizedANT
+      role_id: admin
+      active: true
+  regular:
+    - full_name: Turanga Leela
+      email: leela@example.com
+      password: ONEi1-eyewonaye
+      role_id: regular
+      active: true
+    - full_name: Amy Wong
+      email: amy@example.com
+      password: MU3001kroker
+      role_id: regular
+      active: true
+  readonly:
+    - full_name: Phillip J. Fry
+      email: fry@example.com
+      password: panucci1079
+      role_id: readonly
+      active: true
+    - full_name: John Zoidberg
+      email: zoidberg@example.com
+      password: '(V) (;,,;) (V)'
+      role_id: readonnly
+      active: false

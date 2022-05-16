@@ -18,7 +18,10 @@ class User:
     """
 
     # list of fields to remove from the data
-    SANITIZE_KEYS = ['role_id', 'password', 'reset_token', 'active', 'activation_key']
+    SANITIZE_KEYS = ['password', 'reset_token', 'active', 'activation_key']
+
+    # list of all fields supported
+    ALL_KEYS = ['email', 'password', 'role_id', 'full_name', 'reset_token', 'active', 'activation_key']
 
     def __init__(self, data: Union[dict, None] = None):
         """
@@ -61,6 +64,18 @@ class User:
         self.reset_token = None if 'reset_token' not in data else data['reset_token']
         self.active = None if 'active' not in data else data['active']
         self.activation_key = None if 'activation_key' not in data else data['activation_key']
+
+    def update(self, data: dict):
+        """
+        Update only the mutable fields provided in the data
+        :param data: Data to update in this object
+        """
+        if 'password' in data:
+            self.password = data['password']
+        if 'role_id' in data:
+            self.role_id = data['role_id']
+        if 'full_name' in data:
+            self.full_name = data['full_name']
 
     @property
     def password(self):
