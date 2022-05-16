@@ -36,7 +36,7 @@ to do.
 
 **Username**: The username or email address of the user that made the request, if authenticated.
 
-**Client IP**: The IP address of the client that sent the request
+**Client IP**: The IP address of the client that sent the request.
 
 **Start Time**: The time that the request was received as seconds since 1970-01-01 00:00:00 UTC.
 
