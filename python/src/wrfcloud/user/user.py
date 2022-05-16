@@ -6,6 +6,8 @@ import base64
 import secrets
 import copy
 import pkgutil
+import sys
+from datetime import datetime
 from typing import Union
 import bcrypt
 import wrfcloud.system
@@ -159,6 +161,38 @@ class User:
             return bcrypt.checkpw(plain_text.encode(), self._pwhash)
         except Exception:
             return False
+
+    def get_seconds_since_reset_token_sent(self) -> float:
+        """
+        Get the number of seconds since the reset token was last sent
+        :return: Number of seconds since last reset token was sent
+        """
+        # if the reset token is none, it has never been sent
+        if self.reset_token is None:
+            return sys.float_info.max
+
+        # calculate the time difference in the reset token and now
+        now = datetime.timestamp(datetime.utcnow())
+        then = float(self.reset_token.split(';')[0])
+        return then - now
+
+    def add_reset_token(self) -> None:
+        """
+        Create a new reset token and add it to this object's data
+        :return: None
+        """
+        token = base64.b64encode(secrets.token_bytes(32)).decode()
+        now = str(datetime.timestamp(datetime.utcnow()))
+        self.reset_token = ';'.join([now, token])
+
+    def validate_reset_token(self, reset_token: str) -> bool:
+        """
+        Validate a given password reset token
+        :param reset_token: Check against this token
+        :return: True if the given token matches the one set on the user
+        """
+        real_token = self.reset_token.split(';')[1]
+        return secrets.compare_digest(real_token, reset_token)
 
     def send_password_reset_link(self) -> bool:
         """

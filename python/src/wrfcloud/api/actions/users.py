@@ -267,3 +267,53 @@ class WhoAmI(Action):
 
         # this action should really never fail
         return True
+
+
+class AddPasswordResetToken(Action):
+    """
+    Add a password reset token to a user
+    """
+    def validate_request(self) -> bool:
+        """
+        Validate the request object
+        :return: True if the request is valid, otherwise False
+        """
+        # make sure the request contains an email field
+        return self.check_request_fields(['email'], [])
+
+    def perform_action(self) -> bool:
+        """
+        Abstract method that performs the action and sets the response field
+        :return: True if the action ran successfully
+        """
+        # get email address from the request
+        email = self.request['email']
+
+        # get user from the database based on email
+        user = get_user_from_system(email)
+
+        # when the last reset token was sent and limit to one per 10 minutes
+        if user.get_seconds_since_reset_token_sent() < 600:
+            self.log.error('Cannot add another reset token for at least 10 minutes')
+            self.errors.append('An email was recently sent.')
+            self.errors.append('Please check your spam folder.')
+            self.errors.append('Another one cannot be sent for 10 minutes.')
+            return False
+
+        # set a new reset token and send an email with the information
+        user.add_reset_token()
+        updated = update_user_in_system(user)
+        # TODO: Enable this once AWS SES is active
+        # sent = user.send_password_reset_link()
+        sent = True
+
+        # check that things worked
+        if not updated:
+            self.log.error('Failed to update user database with a reset token')
+            self.errors.append('General error')
+        if not sent:
+            self.log.error(f'Failed to send email to user at: {user.email}')
+            self.errors.append('General error')
+
+        # return status
+        return updated and sent

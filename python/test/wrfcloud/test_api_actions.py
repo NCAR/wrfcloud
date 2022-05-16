@@ -8,6 +8,7 @@ from wrfcloud.api.actions import ListUsers
 from wrfcloud.api.actions import UpdateUser
 from wrfcloud.api.actions import DeleteUser
 from wrfcloud.api.actions import WhoAmI
+from wrfcloud.api.actions import AddPasswordResetToken
 from wrfcloud.user import User
 from wrfcloud.user import add_user_to_system
 from wrfcloud.user import get_user_from_system
@@ -443,6 +444,36 @@ def test_whoami() -> None:
     assert action.success
     assert 'user' in action.response
     assert 'active' not in action.response['user']
+
+    # teardown the test
+    assert _test_teardown()
+
+
+def test_password_reset() -> None:
+    """
+    Test the password reset process
+    """
+    # set up the test
+    assert _test_setup()
+    user, _ = _get_sample_user('regular')
+    assert add_user_to_system(user)
+
+    # create a request to add a reset token
+    assert user.reset_token is None
+    request = {'email': user.email}
+    action = AddPasswordResetToken(run_as_user=None, request=request)
+    assert action.run()
+    assert action.success
+    user_ = get_user_from_system(user.email)
+    assert user_.get_seconds_since_reset_token_sent() < 10
+    token = user_.reset_token.split(';')[1]
+    assert user_.validate_reset_token(token)
+
+    # try to set another reset token too quickly
+    action = AddPasswordResetToken(run_as_user=None, request=request)
+    assert not action.run()
+    assert not action.success
+    assert 'An email was recently sent.' in action.errors
 
     # teardown the test
     assert _test_teardown()
