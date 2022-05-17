@@ -46,7 +46,11 @@ class User:
             self.data = data
 
     @property
-    def data(self):
+    def data(self) -> dict:
+        """
+        Get the data dictionary
+        :return: A dictionary with all attributes
+        """
         return {
             'email': self.email,
             'password': self.password,
@@ -59,6 +63,9 @@ class User:
 
     @data.setter
     def data(self, data: dict):
+        """
+        Set the full or partial set of attributes
+        """
         self.email = None if 'email' not in data else data['email']
         self.password = None if 'password' not in data else data['password']
         self.role_id = None if 'role_id' not in data else data['role_id']
@@ -81,6 +88,8 @@ class User:
 
     @property
     def password(self):
+        """
+        """
         return self._pwhash
 
     @password.setter
@@ -102,7 +111,10 @@ class User:
             self._pwhash = bcrypt.hashpw(plain_text.encode(), bcrypt.gensalt())
 
     @property
-    def reset_token(self):
+    def reset_token(self) -> Union[str, None]:
+        """
+        Get the reset token
+        """
         return self._reset_token
 
     @reset_token.setter
@@ -191,6 +203,9 @@ class User:
         :param reset_token: Check against this token
         :return: True if the given token matches the one set on the user
         """
+        if self.reset_token is None:
+            return False
+
         real_token = self.reset_token.split(';')[1]
         return secrets.compare_digest(real_token, reset_token)
 
@@ -198,7 +213,6 @@ class User:
         """
         Send a password reset link
         """
-        import pkgutil
         import urllib.request   # slow deferred import
 
         try:

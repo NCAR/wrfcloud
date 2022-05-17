@@ -1,5 +1,5 @@
 import secrets
-from wrfcloud.api.actions import Action
+from wrfcloud.api.actions.action import Action
 from wrfcloud.user import User
 from wrfcloud.user import get_user_from_system
 from wrfcloud.user import get_all_users_in_system
@@ -317,3 +317,53 @@ class AddPasswordResetToken(Action):
 
         # return status
         return updated and sent
+
+
+class ResetPassword(Action):
+    """
+    Reset a forgotten password with an emailed token
+    """
+    def validate_request(self) -> bool:
+        """
+        Validate the request object
+        :return: True if the request is valid, otherwise False
+        """
+        return self.check_request_fields(['email', 'reset_token', 'new_password'], [])
+
+    def perform_action(self) -> bool:
+        """
+        Abstract method that performs the action and sets the response field
+        :return: True if the action ran successfully
+        """
+        # get the request parameters
+        email = self.request['email']
+        reset_token = self.request['reset_token']
+        new_password = self.request['new_password']
+
+        # get the user object from the system
+        user = get_user_from_system(email)
+
+        # make sure we found the user
+        if user is None:
+            self.log.error(f'User not found with email for password reset: {email}')
+            self.errors.append('Password reset failed')
+            return False
+
+        # check the reset token of the user against the request's reset token
+        if not user.validate_reset_token(reset_token):
+            self.log.error(f'Invalid password reset token for user: {email} {reset_token}')
+            self.errors.append('Password reset failed')
+            return False
+
+        # update the user's password
+        user.password = new_password
+        user.reset_token = None
+        updated = update_user_in_system(user)
+
+        # log errors if not updated
+        if not updated:
+            self.log.error(f'Failed to reset password for user: {email}')
+            self.errors.append('Password reset failed')
+
+        # return the status
+        return updated

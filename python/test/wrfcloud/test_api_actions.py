@@ -9,9 +9,11 @@ from wrfcloud.api.actions import UpdateUser
 from wrfcloud.api.actions import DeleteUser
 from wrfcloud.api.actions import WhoAmI
 from wrfcloud.api.actions import AddPasswordResetToken
+from wrfcloud.api.actions import ResetPassword
 from wrfcloud.user import User
 from wrfcloud.user import add_user_to_system
 from wrfcloud.user import get_user_from_system
+from wrfcloud.user import update_user_in_system
 from wrfcloud.user import delete_user_from_system
 from wrfcloud.system import init_environment
 from wrfcloud.api.auth import get_user_from_jwt
@@ -475,5 +477,78 @@ def test_password_reset() -> None:
     assert not action.success
     assert 'An email was recently sent.' in action.errors
 
+    # user the reset token to reset the password
+    request = {
+        'email': user_.email,
+        'reset_token': user_.reset_token.split(';')[1],
+        'new_password': '100shredsOFcabbage'
+    }
+    action = ResetPassword(run_as_user=None, request=request)
+    assert action.run()
+    assert action.success
+
+    # verify the password was changed
+    user_ = get_user_from_system(user_.email)
+    assert user_.validate_password('100shredsOFcabbage')
+
     # teardown the test
+    assert _test_teardown()
+
+
+def test_reset_password_for_unknown_user() -> None:
+    """
+    Try to reset a password for an unknown user
+    """
+    # set up test case
+    assert _test_setup()
+
+    # create a request
+    request = {
+        'email': 'unknown@example.com',
+        'reset_token': User().reset_token,
+        'new_password': '100shredsOFcabbage'
+    }
+    action = ResetPassword(run_as_user=None, request=request)
+    assert not action.run()
+    assert not action.success
+    assert 'Password reset failed' in action.errors
+
+    # teardown test case
+    assert _test_teardown()
+
+
+def test_reset_password_with_invalid_token() -> None:
+    """
+    Try to reset a password with a wrong
+    """
+    # set up test case
+    assert _test_setup()
+    user, _ = _get_sample_user('regular')
+    assert add_user_to_system(user)
+
+    # test with no reset token set in the system user
+    request = {
+        'email': user.email,
+        'reset_token': User().reset_token,
+        'new_password': '100shredsOFcabbage'
+    }
+    action = ResetPassword(run_as_user=None, request=request)
+    assert not action.run()
+    assert not action.success
+    assert 'Password reset failed' in action.errors
+
+    # test with a valid reset token set in the system user
+    user.reset_token = User().reset_token
+    assert update_user_in_system(user)
+    request = {
+        'email': user.email,
+        'reset_token': User().reset_token,  # get a random token value
+        'new_password': '100shredsOFcabbage'
+    }
+    action = ResetPassword(run_as_user=None, request=request)
+    assert not action.run()
+    assert not action.success
+    assert 'Password reset failed' in action.errors
+
+    # teardown test case
     assert _test_teardown()

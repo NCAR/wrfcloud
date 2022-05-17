@@ -8,6 +8,8 @@ anonymous:
       package: wrfcloud.api.actions
     - action: AddPasswordResetToken
       package: wrfcloud.api.actions
+    - action: ResetPassword
+      package: wrfcloud.api.actions
 
 readonly:
   permitted_actions:
