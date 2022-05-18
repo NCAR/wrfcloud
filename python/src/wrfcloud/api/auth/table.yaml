@@ -1,0 +1,11 @@
+---
+# Table definition for storing the user application data
+table_name_var: REFRESH_TOKEN_TABLE_NAME
+key_fields:
+  - refresh_token
+attribute_definitions:
+  - AttributeName: refresh_token
+    AttributeType: S
+key_schema:
+  - AttributeName: refresh_token
+    KeyType: HASH

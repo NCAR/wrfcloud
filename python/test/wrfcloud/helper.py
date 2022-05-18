@@ -1,6 +1,7 @@
 from typing import List
 from wrfcloud.api.audit import AuditDao
 from wrfcloud.user import UserDao, User
+from wrfcloud.api.auth.refresh import RefreshTokenDao
 import yaml
 
 
@@ -13,16 +14,20 @@ def _test_setup() -> bool:
         # get a data access object
         user_dao = UserDao()
         audit_dao = AuditDao()
+        refresh_dao = RefreshTokenDao()
 
         try:
             # just in case the table already exists, get rid of it
             user_dao.delete_table(user_dao.table)
             audit_dao.delete_table(audit_dao.table)
+            refresh_dao.delete_table(refresh_dao.table)
         except Exception:
             pass
 
         # create the table
-        return user_dao.create_user_table() and audit_dao.create_audit_table()
+        return user_dao.create_user_table() and \
+            audit_dao.create_audit_table() and \
+            refresh_dao.create_refresh_table()
     except Exception as e:
         print(e)
         return False
@@ -37,8 +42,10 @@ def _test_teardown() -> bool:
         # delete the table
         user_dao = UserDao()
         audit_dao = AuditDao()
+        refresh_dao = RefreshTokenDao()
         user_dao.delete_table(user_dao.table)
         audit_dao.delete_table(audit_dao.table)
+        refresh_dao.delete_table(refresh_dao.table)
     except Exception as e:
         print(e)
         return False

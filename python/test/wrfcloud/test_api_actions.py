@@ -1,6 +1,7 @@
 import os
 import secrets
 from wrfcloud.api.actions import Login
+from wrfcloud.api.actions import RefreshToken
 from wrfcloud.api.actions import ChangePassword
 from wrfcloud.api.actions import CreateUser
 from wrfcloud.api.actions import ActivateUser
@@ -10,6 +11,8 @@ from wrfcloud.api.actions import DeleteUser
 from wrfcloud.api.actions import WhoAmI
 from wrfcloud.api.actions import AddPasswordResetToken
 from wrfcloud.api.actions import ResetPassword
+from wrfcloud.api.auth import create_jwt, validate_jwt
+from wrfcloud.api.auth import issue_refresh_token, get_refresh_token
 from wrfcloud.user import User
 from wrfcloud.user import add_user_to_system
 from wrfcloud.user import get_user_from_system
@@ -38,6 +41,7 @@ def test_login() -> None:
     login = Login(run_as_user=None, request=request)
     assert login.run()
     user_ = get_user_from_jwt(login.response['jwt'])
+    assert login.REQ_KEY_REFRESH in login.response
     assert user.email == user_.email
 
     # create the request and run the action - wrong password
@@ -82,11 +86,11 @@ def test_change_password() -> None:
 
     # create the request and run the action - change anonymous user password
     request = {
-        'password0': '1000$moustacheCOMB',
+        'password0': plain_text,
         'password1': 'mys@f#newpasw#rd',
         'password2': 'mys@f#newpasw#rd'
     }
-    chpass = ChangePassword(request=request)
+    chpass = ChangePassword(run_as_user=None, request=request)
     assert not chpass.run()
 
     # create the request and run the action - new passwords do not match
@@ -549,6 +553,44 @@ def test_reset_password_with_invalid_token() -> None:
     assert not action.run()
     assert not action.success
     assert 'Password reset failed' in action.errors
+
+    # teardown test case
+    assert _test_teardown()
+
+
+def test_refresh_token() -> None:
+    """
+    Test the action to get a new JWT with a refresh token
+    """
+    # set up test case
+    assert _test_setup()
+    user, _ = _get_sample_user('regular')
+    assert add_user_to_system(user)
+
+    # artificially inject a refresh token into the system and create a valid JWT
+    jwt = create_jwt({'email': user.email, 'role_id': user.role_id})
+    refresh_token = issue_refresh_token(user)
+
+    # create a request to renew a JWT
+    request = {
+        'email': user.email,
+        'refresh_token': refresh_token
+    }
+    action = RefreshToken(run_as_user=user, request=request)
+    assert action.run()
+    new_jwt = action.response['jwt']
+    new_refresh_token = action.response[action.REQ_KEY_REFRESH]
+
+    # make sure we have new jwt and refresh tokens
+    assert new_jwt is not None
+    assert new_refresh_token is not None
+    assert new_jwt != jwt
+    assert new_refresh_token != refresh_token
+    assert validate_jwt(new_jwt)
+
+    # make sure the old refresh token was removed
+    assert get_refresh_token(refresh_token) is None
+    assert get_refresh_token(new_refresh_token) is not None
 
     # teardown test case
     assert _test_teardown()

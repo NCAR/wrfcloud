@@ -19,6 +19,7 @@ test:
   # DynamoDB Options
   USER_TABLE_NAME: wrfcloud_users_test
   AUDIT_TABLE_NAME: wrfcloud_audit_test
+  REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_test
   ENDPOINT_URL: 'http://localhost:8000'
 
   # Logging options
@@ -46,6 +47,7 @@ codebuild:
   # DynamoDB Options
   USER_TABLE_NAME: wrfcloud_users_build
   AUDIT_TABLE_NAME: wrfcloud_audit_build
+  REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_build
 
   # Logging options
   LOG_LEVEL: DEBUG
@@ -72,6 +74,7 @@ production:
   # DynamoDB Options
   USER_TABLE_NAME: wrfcloud_users_prod
   AUDIT_TABLE_NAME: wrfcloud_audit_prod
+  REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_prod
 
   # Logging options
   LOG_LEVEL: INFO
@@ -98,6 +101,7 @@ development:
   # DynamoDB Options
   USER_TABLE_NAME: wrfcloud_users_dev
   AUDIT_TABLE_NAME: wrfcloud_audit_dev
+  REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_dev
 
   # Logging options
   LOG_LEVEL: DEBUG

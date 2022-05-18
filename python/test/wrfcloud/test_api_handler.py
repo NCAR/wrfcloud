@@ -61,12 +61,13 @@ def test_lambda_handler_insufficient_permissions() -> None:
     """
     # set up the test
     assert _test_setup()
+    user, plain_text = _get_sample_user('admin')
 
     # create a login request
     chpass_request = {
         'action': 'ChangePassword',
         'data': {
-            'password0': '1000$moustacheCOMB',
+            'password0': plain_text,
             'password1': 'newpassword',
             'password2': 'newpassword'
         }

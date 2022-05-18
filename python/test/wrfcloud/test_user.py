@@ -58,6 +58,7 @@ def test_update_user() -> None:
 
     # create sample user
     user, plain_text = _get_sample_user('admin')
+    other_user, _ = _get_sample_user('regular')
 
     # add the user to the database
     assert add_user_to_system(user)
@@ -71,19 +72,19 @@ def test_update_user() -> None:
         assert user.data[key] == user_.data[key]
 
     # update some user attributes
-    user.role_id = 'readonly'
-    user.full_name = 'dh'
+    user.role_id = other_user.role_id
+    user.full_name = other_user.full_name
     update_user_in_system(user)
 
     # retrieve the user from the database
     user_ = get_user_from_system(email=user.email)
 
     # check the updated fields
-    assert user_.role_id == 'readonly'
-    assert user_.full_name == 'dh'
+    assert user_.role_id == other_user.role_id
+    assert user_.full_name == other_user.full_name
 
     # update a user that does not exist in the database
-    user.email = 'empty@ucar.edu'
+    user.email = other_user.email
     assert not update_user_in_system(user)
 
     # teardown the test resources
@@ -129,6 +130,7 @@ def test_activate_user() -> None:
 
     # create sample user
     user, plain_text = _get_sample_user('admin')
+    other_user, other_plain_text = _get_sample_user('regular')
 
     # make sure the state is not active to begin with
     user.active = False
@@ -154,7 +156,7 @@ def test_activate_user() -> None:
     assert not user_.validate_password('old_password')
 
     # try to activate a user that does not exist in the database
-    assert not activate_user_in_system('empty@ucar.edu', user.activation_key, 'new_password')
+    assert not activate_user_in_system(other_user.email, user.activation_key, other_plain_text)
 
     # teardown the test resources
     assert _test_teardown()
