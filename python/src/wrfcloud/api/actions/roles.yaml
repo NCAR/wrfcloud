@@ -4,24 +4,37 @@ anonymous:
   permitted_actions:
     - action: Login
       package: wrfcloud.api.actions
+    - action: ActivateUser
+      package: wrfcloud.api.actions
+    - action: AddPasswordResetToken
+      package: wrfcloud.api.actions
+    - action: ResetPassword
+      package: wrfcloud.api.actions
 
 readonly:
   permitted_actions:
-    - action: Login
-      package: wrfcloud.api.actions
     - action: ChangePassword
+      package: wrfcloud.api.actions
+    - action: WhoAmI
       package: wrfcloud.api.actions
 
 regular:
   permitted_actions:
-    - action: Login
-      package: wrfcloud.api.actions
     - action: ChangePassword
       package: wrfcloud.api.actions
-
+    - action: WhoAmI
+      package: wrfcloud.api.actions
 admin:
   permitted_actions:
-    - action: Login
-      package: wrfcloud.api.actions
     - action: ChangePassword
+      package: wrfcloud.api.actions
+    - action: CreateUser
+      package: wrfcloud.api.actions
+    - action: ListUsers
+      package: wrfcloud.api.actions
+    - action: UpdateUser
+      package: wrfcloud.api.actions
+    - action: DeleteUser
+      package: wrfcloud.api.actions
+    - action: WhoAmI
       package: wrfcloud.api.actions

@@ -6,7 +6,7 @@ this file.  Calling other functions and classes may have unexpected results.
 import secrets
 import base64
 import time
-from typing import Union
+from typing import Union, List
 from wrfcloud.user.user import User
 from wrfcloud.user.user_dao import UserDao
 from wrfcloud.log import Logger
@@ -43,6 +43,17 @@ def get_user_from_system(email: str) -> Union[User, None]:
 
     # get user by email
     return dao.get_user_by_email(email)
+
+
+def get_all_users_in_system() -> List[User]:
+    """
+    Get a list of all users in the system
+    :return: A list of all users in the system
+    """
+    # create the data access object
+    dao = UserDao()
+
+    return dao.get_all_users()
 
 
 def update_user_in_system(update_user: User) -> bool:

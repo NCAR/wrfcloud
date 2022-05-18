@@ -1,6 +1,6 @@
 import secrets
 import wrfcloud.system
-from wrfcloud.user import User, UserDao
+from wrfcloud.user import User
 from wrfcloud.user import add_user_to_system
 from wrfcloud.user import get_user_from_system
 from wrfcloud.user import update_user_in_system
@@ -10,7 +10,7 @@ from wrfcloud.user import is_reset_token_expired
 from wrfcloud.user import new_reset_token
 from wrfcloud.user import reset_password
 from wrfcloud.user import add_user_reset_token
-
+from helper import _test_setup, _test_teardown, _get_sample_user
 
 # initialize the test environment
 wrfcloud.system.init_environment(env='test')
@@ -25,7 +25,7 @@ def test_add_user() -> None:
     assert _test_setup()
 
     # create sample user
-    user = _get_sample_admin_user()
+    user, plain_text = _get_sample_user('admin')
 
     # add the user to the database
     assert add_user_to_system(user)
@@ -57,7 +57,7 @@ def test_update_user() -> None:
     assert _test_setup()
 
     # create sample user
-    user = _get_sample_admin_user()
+    user, plain_text = _get_sample_user('admin')
 
     # add the user to the database
     assert add_user_to_system(user)
@@ -99,7 +99,7 @@ def test_delete_user() -> None:
     assert _test_setup()
 
     # create sample user
-    user = _get_sample_admin_user()
+    user, plain_text = _get_sample_user('admin')
 
     # add the user to the database
     assert add_user_to_system(user)
@@ -128,7 +128,7 @@ def test_activate_user() -> None:
     assert _test_setup()
 
     # create sample user
-    user = _get_sample_admin_user()
+    user, plain_text = _get_sample_user('admin')
 
     # make sure the state is not active to begin with
     user.active = False
@@ -189,7 +189,7 @@ def test_password_reset() -> None:
     assert _test_setup()
 
     # create sample user
-    user = _get_sample_admin_user()
+    user, plain_text = _get_sample_user('admin')
     user.active = True
 
     # add the user to the database
@@ -221,7 +221,7 @@ def test_send_user_emails() -> None:
     # Note: This probably will not work until the AWS account is setup, so expecting failure here
 
     # create a new user
-    user = _get_sample_admin_user()
+    user, plain_text = _get_sample_user('admin')
     user.reset_token = new_reset_token(8)
 
     # try to send emails
@@ -235,7 +235,7 @@ def test_sanitize() -> None:
     :return: None
     """
     # create a new test user
-    user = _get_sample_admin_user()
+    user, plain_text = _get_sample_user('admin')
     user.reset_token = new_reset_token(8)
 
     # check for all keys present
@@ -248,61 +248,3 @@ def test_sanitize() -> None:
     # check for all keys not present
     for key in User.SANITIZE_KEYS:
         assert key not in sanitized_data
-
-
-def _test_setup() -> bool:
-    """
-    Setup required test resources (i.e. DynamoDB table in local dynamodb)
-    :return: True if successful, otherwise False
-    """
-    try:
-        # get a data access object
-        dao = UserDao()
-
-        try:
-            # just in case the table already exists, get rid of it
-            dao.delete_table(dao.table)
-        except Exception:
-            pass
-
-        # create the table
-        return dao.create_user_table()
-    except Exception as e:
-        print(e)
-        return False
-
-
-def _test_teardown() -> bool:
-    """
-    Delete resources created by the tests
-    :return: True if successful, otherwise False
-    """
-    try:
-        # delete the table
-        dao = UserDao()
-        dao.delete_table(dao.table)
-    except Exception as e:
-        print(e)
-        return False
-
-    return True
-
-
-def _get_sample_admin_user() -> User:
-    """
-    Get a sample user with an admin role
-    """
-    # create sample user
-    passwd = '1000$moustacheCOMB'
-    user = User()
-    user.full_name = 'David Hahn'
-    user.email = 'hahnd+wrfcloudtest@ucar.edu'
-    user.password = passwd
-    user.role_id = 'admin'
-    user.active = False
-    user.activation_key = secrets.token_urlsafe(33)
-
-    # make sure the password was hashed
-    assert user.password != passwd
-
-    return user

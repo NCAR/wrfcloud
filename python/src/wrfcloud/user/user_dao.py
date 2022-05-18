@@ -5,7 +5,7 @@ The UserDao class is a data access object that performs basic CRUD
 
 import os
 import pkgutil
-from typing import Union
+from typing import Union, List
 import yaml
 from wrfcloud.dynamodb import DynamoDao
 from wrfcloud.user.user import User
@@ -64,6 +64,14 @@ class UserDao(DynamoDao):
 
         # build a new user object
         return User(data)
+
+    def get_all_users(self) -> List[User]:
+        """
+        Get a list of all users in the system
+        :return: List of all users
+        """
+        # Convert a list of items into a list of User objects
+        return [User(item) for item in super().get_all_items()]
 
     def update_user(self, user: User) -> bool:
         """

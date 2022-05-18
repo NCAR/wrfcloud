@@ -6,6 +6,8 @@ import base64
 import secrets
 import copy
 import pkgutil
+import sys
+from datetime import datetime
 from typing import Union
 import bcrypt
 import wrfcloud.system
@@ -18,7 +20,10 @@ class User:
     """
 
     # list of fields to remove from the data
-    SANITIZE_KEYS = ['role_id', 'password', 'reset_token', 'active', 'activation_key']
+    SANITIZE_KEYS = ['password', 'reset_token', 'active', 'activation_key']
+
+    # list of all fields supported
+    ALL_KEYS = ['email', 'password', 'role_id', 'full_name', 'reset_token', 'active', 'activation_key']
 
     def __init__(self, data: Union[dict, None] = None):
         """
@@ -41,7 +46,11 @@ class User:
             self.data = data
 
     @property
-    def data(self):
+    def data(self) -> dict:
+        """
+        Get the data dictionary
+        :return: A dictionary with all attributes
+        """
         return {
             'email': self.email,
             'password': self.password,
@@ -54,6 +63,9 @@ class User:
 
     @data.setter
     def data(self, data: dict):
+        """
+        Set the full or partial set of attributes
+        """
         self.email = None if 'email' not in data else data['email']
         self.password = None if 'password' not in data else data['password']
         self.role_id = None if 'role_id' not in data else data['role_id']
@@ -62,8 +74,22 @@ class User:
         self.active = None if 'active' not in data else data['active']
         self.activation_key = None if 'activation_key' not in data else data['activation_key']
 
+    def update(self, data: dict):
+        """
+        Update only the mutable fields provided in the data
+        :param data: Data to update in this object
+        """
+        if 'password' in data:
+            self.password = data['password']
+        if 'role_id' in data:
+            self.role_id = data['role_id']
+        if 'full_name' in data:
+            self.full_name = data['full_name']
+
     @property
     def password(self):
+        """
+        """
         return self._pwhash
 
     @password.setter
@@ -85,7 +111,10 @@ class User:
             self._pwhash = bcrypt.hashpw(plain_text.encode(), bcrypt.gensalt())
 
     @property
-    def reset_token(self):
+    def reset_token(self) -> Union[str, None]:
+        """
+        Get the reset token
+        """
         return self._reset_token
 
     @reset_token.setter
@@ -145,11 +174,45 @@ class User:
         except Exception:
             return False
 
+    def get_seconds_since_reset_token_sent(self) -> float:
+        """
+        Get the number of seconds since the reset token was last sent
+        :return: Number of seconds since last reset token was sent
+        """
+        # if the reset token is none, it has never been sent
+        if self.reset_token is None:
+            return sys.float_info.max
+
+        # calculate the time difference in the reset token and now
+        now = datetime.timestamp(datetime.utcnow())
+        then = float(self.reset_token.split(';')[0])
+        return then - now
+
+    def add_reset_token(self) -> None:
+        """
+        Create a new reset token and add it to this object's data
+        :return: None
+        """
+        token = base64.b64encode(secrets.token_bytes(32)).decode()
+        now = str(datetime.timestamp(datetime.utcnow()))
+        self.reset_token = ';'.join([now, token])
+
+    def validate_reset_token(self, reset_token: str) -> bool:
+        """
+        Validate a given password reset token
+        :param reset_token: Check against this token
+        :return: True if the given token matches the one set on the user
+        """
+        if self.reset_token is None:
+            return False
+
+        real_token = self.reset_token.split(';')[1]
+        return secrets.compare_digest(real_token, reset_token)
+
     def send_password_reset_link(self) -> bool:
         """
         Send a password reset link
         """
-        import pkgutil
         import urllib.request   # slow deferred import
 
         try:
