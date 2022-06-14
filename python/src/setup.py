@@ -13,9 +13,8 @@ setup(
         'boto3==1.24.8',
         'botocore==1.27.8',
         'pyyaml==5.3.1',
-        'argparse',
         'bcrypt==3.2.0',
-        'PyJWT==1.7.1',
+        'PyJWT==2.4.0',
         'aws-parallelcluster==3.0.2'
     ],
     package_dir={'wrfcloud': 'wrfcloud'},

@@ -1,13 +1,17 @@
+"""
+This is the command line interface to simplify running the ParallelCluster steps
+"""
+
 from typing import Union
 import os
 import sys
 import json
 import pkgutil
 import tempfile
-import boto3
 import time
 from datetime import datetime
 from pcluster.cli.entrypoint import run as pcluster
+from wrfcloud.system import init_environment, get_aws_session
 
 
 class WrfCloudCluster:
@@ -109,7 +113,7 @@ class WrfCloudCluster:
         Get the AWS client object for the CloudFormation service
         """
         if not self.cf_client:
-            session = boto3.Session(region_name=self.region, profile_name=self.profile)
+            session = get_aws_session()
             self.cf_client = session.client('cloudformation')
         return self.cf_client
 
@@ -118,7 +122,7 @@ class WrfCloudCluster:
         Use pcluster to update an existing cluster for the current user
         """
         status = self._get_stack_status()
-        if status != 'CREATE_COMPLETE' and status != 'UPDATE_COMPLETE':
+        if status not in ['CREATE_COMPLETE', 'UPDATE_COMPLETE']:
             print(f'Cluster {self.cluster_name} is not ready for an update. Check its status.')
             return
 
@@ -202,13 +206,16 @@ def _print_usage_and_exit() -> None:
     print('Script to help start up the WRF Cloud Cluster with ParallelCluster')
     print('Usage:')
     print(f'   {sys.argv[0]} <status|create|delete|update|connect|dashboard>')
-    exit(0)
+    sys.exit(0)
 
 
 def main() -> None:
     """
     Command line interface main function -- use as entrypoint
     """
+    # initialize the production environment
+    init_environment('production')
+
     # check the command line parameter usage
     if len(sys.argv) != 2:
         _print_usage_and_exit()

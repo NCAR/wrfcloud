@@ -1,11 +1,15 @@
+"""
+This is the command line interface to simplify running the ImageBuilder steps
+"""
+
 import pkgutil
 from typing import Union
 from datetime import datetime
 import time
 import os
 import sys
-import boto3
 import botocore.exceptions
+from wrfcloud.system import init_environment, get_aws_session
 
 
 class WrfCloudImageBuilder:
@@ -129,7 +133,7 @@ class WrfCloudImageBuilder:
         Get the AWS client object for the CloudFormation service
         """
         if not self.cf_client:
-            session = boto3.Session(region_name=self.region, profile_name=self.profile)
+            session = get_aws_session()
             self.cf_client = session.client('cloudformation')
         return self.cf_client
 
@@ -138,7 +142,7 @@ class WrfCloudImageBuilder:
         Get the AWS client object for the ImageBuilder service
         """
         if not self.ib_client:
-            session = boto3.Session(region_name=self.region, profile_name=self.profile)
+            session = get_aws_session()
             self.ib_client = session.client('imagebuilder')
         return self.ib_client
 
@@ -147,7 +151,7 @@ class WrfCloudImageBuilder:
         Get the AWS client object for the EC2 service
         """
         if not self.ec2_client:
-            session = boto3.Session(region_name=self.region, profile_name=self.profile)
+            session = get_aws_session()
             self.ec2_client = session.client('ec2')
         return self.ec2_client
 
@@ -205,6 +209,9 @@ def main() -> None:
     """
     Command line interface main function -- use as entrypoint
     """
+    # initialize the production environment
+    init_environment('production')
+
     # check the command line parameter usage
     if len(sys.argv) != 2:
         _print_usage_and_exit()
