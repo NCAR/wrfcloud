@@ -12,7 +12,7 @@ setup(
     install_requires=[
         'boto3==1.24.8',
         'botocore==1.27.8',
-        'pyyaml==5.3.1',
+        'pyyaml==5.4',
         'bcrypt==3.2.0',
         'PyJWT==2.4.0',
         'aws-parallelcluster==3.0.2'
