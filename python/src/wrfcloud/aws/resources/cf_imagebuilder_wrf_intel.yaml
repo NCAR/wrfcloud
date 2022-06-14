@@ -1,8 +1,8 @@
 ---
 # Description:
-# This template creates an EC2 Image Builder Pipeline for WRF v4.4 and dependencies with Intel
+# This template creates an EC2 Image Builder Pipeline for WRF v4.4.0 and dependencies with Intel
 
-Description: EC2 Image Builder Pipeline for WRF v4.4 and dependencies with Intel
+Description: EC2 Image Builder Pipeline for WRF v4.4.0 and dependencies with Intel
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
@@ -10,11 +10,11 @@ Resources:
   WrfComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: !Sub wrf-${AWS::StackName}
+      Name: wrf-4-3-1
       Platform: Linux
       Version: 4.4.0
       Data: |
-        name: WRF v4.4 and Dependencies
+        name: WRF v4.4.0 and Dependencies
         description: 'Build and install all WRF dependencies'
         schemaVersion: 1.0
 
@@ -72,17 +72,17 @@ Resources:
                   commands:
                     - mkdir -p /opt/src
                     - cd /opt/src
-                    - aws s3 cp s3://wrf-src-tmp/zlib-1.2.11.tar.gz .
-                    - aws s3 cp s3://wrf-src-tmp/szip-2.1.1.tar.gz .
-                    - aws s3 cp s3://wrf-src-tmp/hdf5-1.10.5.tar.gz .
-                    - aws s3 cp s3://wrf-src-tmp/netcdf-4.7.3.tar.gz .
-                    - aws s3 cp s3://wrf-src-tmp/netcdf-cxx-4.3.1.tar.gz .
-                    - aws s3 cp s3://wrf-src-tmp/netcdf-fortran-4.5.2.tar.gz .
-                    - aws s3 cp s3://wrf-src-tmp/libpng-1.2.50.tar.gz .
-                    - aws s3 cp s3://wrf-src-tmp/jasper-1.900.1.tar.gz .
-                    - aws s3 cp s3://wrf-src-tmp/g2clib-1.6.0-patch.tar.gz .
-                    - aws s3 cp s3://wrf-src-tmp/udunits-2.2.28.tar.gz .
-                    - aws s3 cp s3://wrf-src-tmp/ncview-2.1.7.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/zlib-1.2.11.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/szip-2.1.1.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/hdf5-1.10.5.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/netcdf-4.7.3.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/netcdf-cxx-4.3.1.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/netcdf-fortran-4.5.2.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/libpng-1.2.50.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/jasper-1.900.1.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/g2clib-1.6.0-patch.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/udunits-2.2.28.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/ncview-2.1.7.tar.gz .
 
               - name: build-zlib
                 action: ExecuteBash
@@ -244,6 +244,7 @@ Resources:
                     - cd ncview-2.1.7
                     - ./configure --prefix=/opt/netcdf --with-udunits2_incdir=${UDUNITS}/include  --with-udunits2_libdir=${UDUNITS}/lib --with-png_incdir=${LIBPNG}/include --with-png_libdir=${LIBPNG}/lib 2>&1 | tee configure.log
                     - make -j 4 install 2>&1 | tee build.log
+                    - echo 'X11Forwarding yes' | tee -a /etc/ssh/sshd_config
 
               - name: build-wrf
                 action: ExecuteBash
@@ -283,20 +284,10 @@ Resources:
                     - cd /home/ec2-user
                     - chown -R ec2-user.ec2-user WPS
 
-          - name: validate
-            steps:
-              - name: check_environment
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - source /etc/bashrc
-                    - mpicc -show
-
-
   WrfImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
     Properties:
-      Name: !Sub wrf-${AWS::StackName}
+      Name: wrf-4-4-0
       Version: 4.4.0
       BlockDeviceMappings:
         - DeviceName: /dev/xvda
@@ -309,12 +300,12 @@ Resources:
           UninstallAfterBuild: true
       Components:
         - ComponentArn: !Ref WrfComponent
-      ParentImage: ami-012f43f744e8d1d1a
+      ParentImage: ami-088034fea7c4afffb  # ParallelCluster - USE2 - Amazon Linux 2 - x86_64
 
   WrfImageBuilderInfrastructure:
     Type: AWS::ImageBuilder::InfrastructureConfiguration
     Properties:
-      Name: !Sub wrf-${AWS::StackName}
+      Name: wrf-4-4-0
       InstanceTypes:
         - c5.xlarge
       KeyPair: hahnd
@@ -324,30 +315,6 @@ Resources:
   WrfImageBuilderPipeline:
     Type: AWS::ImageBuilder::ImagePipeline
     Properties:
-      Name: !Sub wrf-${AWS::StackName}
+      Name: wrf-4-4-0
       ImageRecipeArn: !Ref WrfImageRecipe
       InfrastructureConfigurationArn: !Ref WrfImageBuilderInfrastructure
-
-  WrfImageBuilderInstanceProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      InstanceProfileName: !Sub EC2InstanceProfileForWrfImageBuilder-${AWS::StackName}
-      Roles:
-        - !Ref WrfImageBuilderRole
-
-  WrfImageBuilderRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub WrfImageBuilderRole-${AWS::StackName}
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action: sts:AssumeRole
-            Principal:
-              Service: ec2.amazonaws.com
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-        - arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds
-        - arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilder

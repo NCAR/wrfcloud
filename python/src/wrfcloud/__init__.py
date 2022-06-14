@@ -2,4 +2,11 @@
 Module containing common AWS operations for NCAR/RAL
 """
 
-__all__ = ['dynamodb', 'imagebuilder', 'user', 'log']
+__all__ = [
+    'api',
+    'aws',
+    'dynamodb',
+    'user',
+    'log',
+    'system'
+]
