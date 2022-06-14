@@ -161,7 +161,7 @@ class WrfCloudCluster:
             print(f'Cluster {self.cluster_name} is not running.')
             return
 
-        params = f'delete-cluster --region {self.region} --cluster-name {self.cluster_name}'.split
+        params = f'delete-cluster --region {self.region} --cluster-name {self.cluster_name}'.split()
         ret = pcluster(params)
         if ret:
             output_str = json.dumps(ret, indent=2)
