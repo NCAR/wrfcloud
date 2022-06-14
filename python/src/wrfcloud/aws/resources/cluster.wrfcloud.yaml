@@ -1,0 +1,48 @@
+Region: __REGION__
+Image:
+  Os: alinux2
+  CustomAmi: __AMI_ID__
+HeadNode:
+  InstanceType: c5.xlarge
+  Networking:
+    SubnetId: __SUBNET_ID__
+  Ssh:
+    KeyName: __USER__
+    AllowedIps: 128.117.0.0/16
+  LocalStorage:
+    RootVolume:
+      Size: 50
+  Iam:
+    AdditionalIamPolicies:
+      - Policy: arn:aws:iam::aws:policy/AmazonS3FullAccess
+Scheduling:
+  Scheduler: slurm
+  SlurmSettings:
+    Dns:
+      DisableManagedDns: true
+  SlurmQueues:
+  - Name: wrf
+    Image:
+      CustomAmi: __AMI_ID__
+    ComputeResources:
+    - Name: c6i
+      InstanceType: c6i.2xlarge  # 8-cores 16-gb-memory
+      Efa:
+        Enabled: false
+      MinCount: 0
+      MaxCount: 1
+    Networking:
+      SubnetIds:
+      - __SUBNET_ID__
+      PlacementGroup:
+        Enabled: true
+SharedStorage:
+  - MountDir: /data
+    Name: ebs
+    StorageType: Ebs
+    EbsSettings:
+      VolumeType: gp3
+      DeletionPolicy: Delete
+      Size: 50
+      Encrypted: false
+      Throughput: 720

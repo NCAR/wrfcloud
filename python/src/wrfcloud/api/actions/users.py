@@ -1,3 +1,7 @@
+"""
+Actions related to users
+"""
+
 import secrets
 from wrfcloud.api.actions.action import Action
 from wrfcloud.user import User
