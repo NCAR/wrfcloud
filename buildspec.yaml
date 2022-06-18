@@ -1,0 +1,40 @@
+version: 0.0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo "Starting DynamoDBLocal..."
+      - java -jar /opt/dynamodb/DynamoDBLocal.jar -inMemory &
+
+  build:
+    commands:
+      - cd python/src
+      - echo "Installing package dependencies"
+      - pip3 install .
+      - pip3 uninstall -y wrfcloud
+      - echo "Checking for Python code errors"
+      - pylint -E wrfcloud
+      - pylint wrfcloud
+      - echo "Running unit tests and code coverage"
+      - cd ..
+      - ./coverage.sh
+
+  post_build:
+    commands:
+      - echo "Publishing code coverage report to codecov.io"
+      - curl -s https://codecov.io/bash > codecov_temp.sh
+      - CODECOV_TOKEN=$(aws secretsmanager get-secret-value --secret-id CodeCovToken | jq -r .SecretString)
+      - /bin/bash ./codecov_temp.sh -t ${CODECOV_TOKEN} -f test/coverage.xml -R $CODEBUILD_SRC_DIR
+      - cd $CODEBUILD_SRC_DIR/build
+
+  install:
+    commands:
+      - echo "Building ZIP for Lambda API deployment"
+      - mkdir -p $CODEBUILD_SRC_DIR/python/build
+      - cd $CODEBUILD_SRC_DIR/python/build
+      - pip3 install -t . ../src
+      - zip -r ../wrfcloud_api_lambda.zip .
+
+artifacts:
+  files:
+    - wrfcloud_api_lambda.zip

@@ -1,0 +1,122 @@
+---
+Description: WRF Cloud Framework - CodeBuild
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+
+  ProjectName:
+    Type: String
+    Default: wrfcloud
+    Description: Short project name to name AWS resources
+    AllowedPattern: '[A-Za-z0-9]+'
+
+  CodeCovToken:
+    Type: String
+    Description: Token provided by codecov.io used to publish coverage reports
+
+  S3Bucket:
+    Type: String
+    Default: wrfcloud-codebuild
+    Description: Name of the S3 bucket to hold build artifacts
+
+
+Resources:
+
+  ServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-codebuild-role'
+      Description: Provide permissions required to build and test from codebuild
+      MaxSessionDuration: 7200  # 2 hours
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: AllowCloudWatchLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}:*'
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+              - Effect: Allow
+                Resource:
+                  - !Sub 'arn:aws:s3:::codepipeline-${AWS::Region}-*'
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketAcl
+                  - s3:GetBucketLocation
+        - PolicyName: AllowReadCodeCovToken
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:CodeCovToken'
+        - PolicyName: AllowPullDockerContainer
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ProjectName}-codebuild'
+                Action:
+                  - ecr:GetAuthorizationToken
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    DependsOn:
+      - ServiceRole
+    Properties:
+      Name: !Sub '${ProjectName}'
+      Description: !Sub 'Automated build and test for ${ProjectName}'
+      BadgeEnabled: true
+      Artifacts:
+        Type: S3
+        Location: !Sub '${S3Bucket}'
+        Path: artifacts/api
+        Name: wrfcloud_api_lambda.zip
+        NamespaceType: BUILD_ID
+        EncryptionDisabled: true
+        Packaging: ZIP
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-codebuild:latest'
+        ImagePullCredentialsType: SERVICE_ROLE
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      LogsConfig:
+        CloudWatchLogs:
+          Status: ENABLED
+      QueuedTimeoutInMinutes: 360  # 6 hours
+      ServiceRole: !Ref ServiceRole
+      Source:
+        BuildSpec: buildspec.yaml
+        Type: GITHUB
+        Location: https://github.com/NCAR/wrfcloud
+        ReportBuildStatus: true
+      TimeoutInMinutes: 120  # 2 hours
+      Triggers:
+        Webhook: true
+
+  CodecovToken:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Token to submit coverage reports to CodeCov.io
+      Name: CodeCovToken
+      SecretString: !Sub '${CodeCovToken}'
