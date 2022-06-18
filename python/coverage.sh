@@ -16,5 +16,10 @@ if [[ -e htmlcov ]]; then
     rm -Rf htmlcov
 fi
 coverage run "$(which py.test)" .
-coverage html --include=../src/wrfcloud/\*.py
-open htmlcov/index.html
+coverage xml --include=../src/wrfcloud/\*.py
+
+# open results in a browser window if we're on macOS
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  coverage html --include=../src/wrfcloud/\*.py
+  open htmlcov/index.html
+fi
