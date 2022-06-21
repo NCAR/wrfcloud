@@ -1,0 +1,82 @@
+---
+Description: WRF Cloud API Data
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  AppName:
+    Description: Application name (alphanumeric and underscores only)
+    Type: String
+    AllowedPattern: '[A-Za-z0-9_]+'
+  DeploymentType:
+    Description: May be PRODUCTION or DEVELOPMENT
+    Type: String
+    Default: development
+    AllowedValues:
+      - production
+      - development
+
+Conditions:
+  IsDev: !Equals [ !Ref DeploymentType, 'development' ]
+  IsProd: !Equals [ !Ref DeploymentType, 'production' ]
+
+Resources:
+
+  AuditTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${DeploymentType}_${AppName}_audit'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: ref_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ref_id
+          KeyType: HASH
+
+  RefreshTokenTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${DeploymentType}_${AppName}_refresh_tokens'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: refresh_token
+          AttributeType: S
+      KeySchema:
+        - AttributeName: refresh_token
+          KeyType: HASH
+
+  UserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${DeploymentType}_${AppName}_users'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: email
+          KeyType: HASH
+
+
+Outputs:
+  AuditTable:
+    Description: DynamoDB Table - Audit
+    Value: !GetAtt AuditTable.Arn
+    Export:
+      Name: !Sub 'dynamodb-table-audit-${DeploymentType}-${AppName}'
+  RefreshTokenTable:
+    Description: DynamoDB Table - Refresh Tokens
+    Value: !GetAtt RefreshTokenTable.Arn
+    Export:
+      Name: !Sub 'dynamodb-table-refresh-tokens-${DeploymentType}-${AppName}'
+  UserTable:
+    Description: DynamoDB Table - Users
+    Value: !GetAtt UserTable.Arn
+    Export:
+      Name: !Sub 'dynamodb-table-users-${DeploymentType}-${AppName}'

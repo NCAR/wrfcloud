@@ -1,0 +1,539 @@
+---
+# Description:
+# This template creates a basic stack for a web application with API and static content.  The API can be selected
+# to be either a Websocket or REST API.
+#
+# CloudFront using Price Class 100 (North America, Europe, and Israel; https://aws.amazon.com/cloudfront/pricing/)
+#
+# Stack Creation Checklist:
+# 1. Look for TODO items this template to customize your application
+# 2. Create a new stack from the web console (https://console.aws.amazon.com/cloudformation)
+# 3. During stack creation, add DNS entries for certificate verification (https://console.aws.amazon.com/acm)
+
+Description: WRF Cloud Web Application
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  AdminUserEmail:
+    Description: Email address of the administrative user for this web application
+    Type: String
+  AppName:
+    Description: Application name (alphanumeric and underscores only)
+    Type: String
+    AllowedPattern: '[A-Za-z0-9_]+'
+  DeploymentType:
+    Description: May be PRODUCTION or DEVELOPMENT
+    Type: String
+    Default: development
+    AllowedValues:
+      - production
+      - development
+  DomainName:
+    Description: Domain name for the web application (e.g. mydomain.com)
+    Type: String
+  WebHostName:
+    Description: Hostname for the web page (e.g. www.mydomain.com)
+    Type: String
+  ApiHostName:
+    Description: Hostname for the REST or Websocket API (e.g. api.mydomain.com)
+    Type: String
+  ApiType:
+    Description: May be WEBSOCKET or REST
+    Type: String
+    Default: rest
+    AllowedValues:
+      - websocket
+      - rest
+  StageName:
+    Description: API Gateway Stage (may be version number)
+    Type: String
+    Default: v1
+  WebAccessLogBucket:
+    Description: Bucket name that will hold the web access logs (e.g. logs.mydomain.com)
+    Type: String
+  HostedZoneId:
+    Description: Hosted Zone ID of the Route 53 Domain Name Service for desired domain (https://console.aws.amazon.com/route53)
+    Type: String
+
+
+Conditions:
+  IsDev: !Equals [!Ref DeploymentType, 'development']
+  IsProd: !Equals [!Ref DeploymentType, 'production']
+  UseRest: !Equals [!Ref ApiType, 'rest']
+  UseWebsocket: !Equals [!Ref ApiType, 'websocket']
+
+Resources:
+
+  # SSL Certificate
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Sub '${DomainName}'
+      SubjectAlternativeNames:
+        - !Sub '${WebHostName}'
+        - !Sub '${ApiHostName}'
+        - !Sub '*.${DomainName}'  # TODO: This may not be desired, but cannot be changed after creation
+      ValidationMethod: DNS
+
+  # Lambda Function (Front Controller)
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      RoleName: !Sub '${DeploymentType}_${AppName}_lambda_role'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: !Sub '${DeploymentType}_${AppName}_lambda_role_policy'
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: ses:SendEmail
+                Resource: !Sub 'arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*'
+              - Effect: Allow
+                Action: sns:Publish
+                Resource: !Ref HelpTopic
+              - Effect: Allow
+                Action:
+                  - dynamodb:BatchGetItem
+                  - dynamodb:PutItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:GetItem
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                  - dynamodb:UpdateItem
+                Resource:
+                  - Fn::ImportValue: !Sub 'dynamodb-table-audit-${DeploymentType}-${AppName}'
+                  - Fn::ImportValue: !Sub 'dynamodb-table-refresh-tokens-${DeploymentType}-${AppName}'
+                  - Fn::ImportValue: !Sub 'dynamodb-table-users-${DeploymentType}-${AppName}'
+  LambdaLayerPythonDeps:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      Description: Python dependencies
+      LayerName: !Sub '${DeploymentType}_python_deps'
+      CompatibleRuntimes:
+        - python3.9
+      Content:
+        S3Bucket: !Sub '${DeploymentType}-${AppName}-deploy'
+        S3Key: lambda_layer.zip
+  LambdaFunctionFrontController:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${DeploymentType}_${AppName}_handler'
+      Handler: lambda_wrapper.handle_event
+      MemorySize: 1024
+      Timeout: 30
+      Role: !GetAtt LambdaRole.Arn
+      Runtime: python3.9
+      Layers:
+        - !Ref LambdaLayerPythonDeps
+      Environment:
+        Variables:
+          API_TYPE: !Ref ApiType
+          API_HOSTNAME: !Ref ApiHostName
+          DEPLOYMENT_TYPE: !Ref DeploymentType
+          STAGE: !Ref StageName
+          HELP_TOPIC_ARN: !Ref HelpTopic
+          PYTHONPATH: /opt/python/lib
+      InlineCode: |
+        import os
+        import json
+        def handler(event, context):
+            """
+            Sample function
+            """
+            # create a response
+            print(event)  # goes to CloudWatch Logs
+            response = {'ok': True, 'event': event}
+
+            # return response
+            return {
+              'isBase64Encoded': False,
+              'headers': {'Content-Type': 'text/json'},
+              'body': json.dumps(response)
+            }
+  LambdaInvokePermissionFromWebsocketApi:
+    Type: AWS::Lambda::Permission
+    Condition: UseWebsocket
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LambdaFunctionFrontController
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        !Join
+          - ''
+          - - 'arn:aws:execute-api:'
+            - !Sub '${AWS::Region}:'
+            - !Sub '${AWS::AccountId}:'
+            - !Ref WebsocketApi
+            - /*
+  LambdaInvokePermissionFromRestApi:
+    Type: AWS::Lambda::Permission
+    Condition: UseRest
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LambdaFunctionFrontController
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        !Join
+          - ''
+          - - 'arn:aws:execute-api:'
+            - !Sub '${AWS::Region}:'
+            - !Sub '${AWS::AccountId}:'
+            - !Ref RestApi
+            - /*
+
+  # Websocket API
+  WebsocketApi:
+    Type: AWS::ApiGatewayV2::Api
+    Condition: UseWebsocket
+    Properties:
+      Name: !Sub '${DeploymentType} ${AppName} Websocket API Gateway'
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: "\\$default"
+  WebsocketConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Condition: UseWebsocket
+    DependsOn: WebsocketApi
+    Properties:
+      ApiId: !Ref WebsocketApi
+      RouteKey: $connect
+      AuthorizationType: NONE
+      OperationName: Default
+  WebsocketDefaultRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Condition: UseWebsocket
+    DependsOn: WebsocketApi
+    Properties:
+      ApiId: !Ref WebsocketApi
+      RouteKey: $default
+      AuthorizationType: NONE
+      OperationName: Default
+      Target: !Join
+        - /
+        - - integrations
+          - !Ref WebsocketDefaultIntegration
+  WebsocketDefaultIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Condition: UseWebsocket
+    DependsOn:
+      - WebsocketApi
+      - LambdaFunctionFrontController
+    Properties:
+      ApiId: !Ref WebsocketApi
+      Description: Forward to Lambda function
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${DeploymentType}_${AppName}_handler/invocations'
+  WebsocketDeployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    Condition: UseWebsocket
+    DependsOn:
+      - WebsocketApi
+      - WebsocketConnectRoute
+      - WebsocketDefaultRoute
+    Properties:
+      ApiId: !Ref WebsocketApi
+  WebsocketApiDomainName:
+    Type: AWS::ApiGatewayV2::DomainName
+    Condition: UseWebsocket
+    DependsOn: WebsocketDeployment
+    Properties:
+      DomainName: !Ref ApiHostName
+      DomainNameConfigurations:
+        - CertificateArn: !Ref Certificate
+          SecurityPolicy: TLS_1_2
+  WebsocketApiBasePathMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Condition: UseWebsocket
+    DependsOn:
+      - WebsocketApi
+      - WebsocketApiDomainName
+    Properties:
+      ApiId: !Ref WebsocketApi
+      ApiMappingKey: !Sub '${StageName}'
+      DomainName: !Ref WebsocketApiDomainName
+      Stage: !Sub '${StageName}'
+  WebsocketApiDnsEntry:
+    Type: AWS::Route53::RecordSet
+    Condition: UseWebsocket
+    DependsOn: WebsocketApi
+    Properties:
+      Name: !Ref ApiHostName
+      HostedZoneId: !Ref HostedZoneId
+      Type: CNAME
+      TTL: 300
+      ResourceRecords:
+        - !GetAtt WebsocketApiDomainName.RegionalDomainName
+  WebsocketStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Condition: UseWebsocket
+    DependsOn: WebsocketApi
+    Properties:
+      StageName: !Sub '${StageName}'
+      DeploymentId: !Ref WebsocketDeployment
+      ApiId: !Ref WebsocketApi
+  WebsocketAllowPostExecuteApi:
+    Type: AWS::IAM::Policy
+    Condition: UseWebsocket
+    Properties:
+      PolicyName: !Sub '${DeploymentType}_${AppName}_allow_api_client_response'
+      Roles:
+        - !Ref LambdaRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: execute-api:*
+            Resource: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/*/*'
+
+  # REST API
+  RestApi:
+    Type: AWS::ApiGateway::RestApi
+    Condition: UseRest
+    Properties:
+      Name: !Sub '${DeploymentType}_${AppName}'
+      EndpointConfiguration:
+        Types:
+          - EDGE
+      Body:
+        openapi: "3.0.1"
+        info:
+          title: !Ref AppName
+        servers:
+          - url: !Sub 'https://${ApiHostName}/{basePath}'
+            variables:
+              basePath:
+                default: !Ref StageName
+        paths:
+          /action:
+            get:
+              x-amazon-apigateway-integration:
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${DeploymentType}_${AppName}_handler/invocations'
+                responses:
+                  default:
+                    statusCode: "200"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                contentHandling: "CONVERT_TO_TEXT"
+                type: "aws_proxy"
+            post:
+              x-amazon-apigateway-integration:
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${DeploymentType}_${AppName}_handler/invocations'
+                responses:
+                  default:
+                    statusCode: "200"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                contentHandling: "CONVERT_TO_TEXT"
+                type: "aws_proxy"
+            options:
+              responses:
+                '200':
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Methods:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Headers:
+                      schema:
+                        type: "string"
+                  content: {}
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                passthroughBehavior: "when_no_match"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                type: "mock"
+        components: {}
+  RestApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Condition: UseRest
+    DependsOn: RestApi
+    Properties:
+      RestApiId: !Ref RestApi
+      StageName: !Sub '${StageName}'
+  RestApiDomainName:
+    Type: AWS::ApiGateway::DomainName
+    Condition: UseRest
+    DependsOn: RestApiDeployment
+    Properties:
+      CertificateArn: !Ref Certificate
+      DomainName: !Ref ApiHostName
+      SecurityPolicy: TLS_1_2
+      EndpointConfiguration:
+        Types:
+          - EDGE
+  RestApiBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Condition: UseRest
+    DependsOn:
+      - RestApi
+      - RestApiDomainName
+    Properties:
+      BasePath: !Sub '${StageName}'
+      DomainName: !Ref RestApiDomainName
+      RestApiId: !Ref RestApi
+      Stage: !Sub '${StageName}'
+  RestApiDnsEntry:
+    Type: AWS::Route53::RecordSet
+    Condition: UseRest
+    DependsOn: RestApi
+    Properties:
+      Name: !Ref ApiHostName
+      HostedZoneId: !Ref HostedZoneId
+      Type: CNAME
+      TTL: 300
+      ResourceRecords:
+        - !GetAtt RestApiDomainName.DistributionDomainName
+
+  # CloudFront and Origins
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - CloudFormationOriginBucket
+      - CloudFormationAccessLogsBucket
+    Properties:
+      DistributionConfig:
+        Comment: !Sub '${DeploymentType} ${AppName}'
+        Aliases:
+          - !Sub '${WebHostName}'
+        DefaultRootObject: index.html
+        Enabled: true
+        IPV6Enabled: true
+        Logging:
+          Bucket: !Sub '${WebAccessLogBucket}'
+          IncludeCookies: true
+          Prefix: ''
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          DefaultTTL: 10800  # 3 hours
+          ForwardedValues:
+            Cookies:
+              Forward: all
+            QueryString: true
+          TargetOriginId: !Ref CloudFrontOriginAccessIdentity
+          ViewerProtocolPolicy: redirect-to-https
+        CacheBehaviors:
+          - AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            Compress: true
+            DefaultTTL: 10800  # 3 hours
+            ForwardedValues:
+              Cookies:
+                Forward: all
+              QueryString: true
+            PathPattern: '*'
+            TargetOriginId: !Ref CloudFrontOriginAccessIdentity
+            ViewerProtocolPolicy: redirect-to-https
+        Origins:
+          - Id: !Ref CloudFrontOriginAccessIdentity
+            DomainName: !Sub '${WebHostName}.s3.amazonaws.com'
+            S3OriginConfig:
+              OriginAccessIdentity:
+                Fn::Join:
+                  - '/'
+                  - - origin-access-identity
+                    - cloudfront
+                    - !Ref CloudFrontOriginAccessIdentity
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: !Ref Certificate
+          MinimumProtocolVersion: TLSv1.2_2018
+          SslSupportMethod: sni-only
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+  CloudFrontOriginAppBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    DependsOn: CloudFormationOriginBucket
+    Properties:
+      Bucket: !Sub '${WebHostName}'
+      PolicyDocument:
+        Version: 2008-10-17
+        Id: PolicyForCloudFrontPrivateContent
+        Statement:
+          - Sid: Allow CloudFront Origin Access Identity to access bucket content
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ' '
+                  - - arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity
+                    - !Ref CloudFrontOriginAccessIdentity
+            Action: 's3:GetObject'
+            Resource: !Sub 'arn:aws:s3:::${WebHostName}/*'
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'S3-${WebHostName}'
+  CloudFrontDnsEntry:
+    Type: AWS::Route53::RecordSet
+    DependsOn:
+      - CloudFrontDistribution
+    Properties:
+      Name: !Sub '${WebHostName}'
+      HostedZoneId: !Sub '${HostedZoneId}'
+      Type: CNAME
+      TTL: 300
+      ResourceRecords:
+        - !GetAtt CloudFrontDistribution.DomainName
+  CloudFormationAccessLogsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref WebAccessLogBucket
+  CloudFormationOriginBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref WebHostName
+
+  # SNS Topic
+  HelpTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub '${AppName} Help ${DeploymentType}'
+      TopicName: !Sub 'help_${DeploymentType}_${AppName}'
+      Subscription:
+        - Endpoint: !Ref AdminUserEmail
+          Protocol: EMAIL
+
+
+Outputs:
+  # Export SSL certificate arn
+  Certificate:
+    Description: SSL certificate ARN
+    Value: !Ref Certificate
+    Export:
+      Name: !Sub '${AWS::StackName}-certificate-arn'
