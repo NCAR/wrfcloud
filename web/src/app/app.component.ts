@@ -51,6 +51,14 @@ export class AppComponent
 
 
   /**
+   * Route to the currently selected page when initialization is finished
+   */
+  public ngOnInit(): void
+  {
+  }
+
+
+  /**
    * Build the menu options based on user status (e.g., logged in, role, etc)
    * @private
    */
@@ -62,16 +70,12 @@ export class AppComponent
       {title: 'Manage Users', route: 'users', icon: 'account_circle'},
       {title: 'Preferences', route: 'prefs', icon: 'settings'}
     ];
-    this.routeTo(this.menuOptions[0].route);
+    if (!this.loggedIn)
+      this.routeTo('login');
+    else
+      this.routeTo(this.menuOptions[0].route);
   }
 
-
-  /**
-   * Route to the currently selected page when initialization is finished
-   */
-  public ngOnInit(): void
-  {
-  }
 
   /**
    * Set the route value
