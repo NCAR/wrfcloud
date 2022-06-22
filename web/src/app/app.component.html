@@ -1,0 +1,22 @@
+<div class="app-header">
+
+  <mat-grid-list [cols]="menuOptions.length + 2" rowHeight="100px">
+    <mat-grid-tile class="app-menubar-item">
+      <img class="app-cloud-icon" src="../assets/cloud.png">
+    </mat-grid-tile>
+    <mat-grid-tile
+      class="app-menubar-item"
+      *ngFor="let menuOption of menuOptions"
+      colspan="1"
+      rowspan="1"
+      (click)="routeTo(menuOption.route)">
+      {{menuOption.title}}
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <button class="app-login-button" mat-raised-button (click)="routeTo('login')">
+        Login
+      </button>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>
+<router-outlet></router-outlet>
