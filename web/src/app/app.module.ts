@@ -13,6 +13,8 @@ import {LaunchWrfComponent} from './launch-wrf/launch-wrf.component';
 import {ViewJobsComponent} from './view-jobs/view-jobs.component';
 import {PreferencesComponent} from './preferences/preferences.component';
 import {LogoutComponent} from './logout/logout.component';
+import {MatMenuModule} from "@angular/material/menu";
+import {MatIconModule} from "@angular/material/icon";
 
 @NgModule({
   declarations: [
@@ -30,7 +32,9 @@ import {LogoutComponent} from './logout/logout.component';
     AppRoutingModule,
     BrowserAnimationsModule,
     MatButtonModule,
-    MatGridListModule
+    MatGridListModule,
+    MatMenuModule,
+    MatIconModule
   ],
   providers: [],
   bootstrap: [AppComponent]

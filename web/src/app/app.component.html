@@ -1,22 +1,62 @@
-<div class="app-header">
-
-  <mat-grid-list [cols]="menuOptions.length + 2" rowHeight="100px">
-    <mat-grid-tile class="app-menubar-item">
-      <img class="app-cloud-icon" src="../assets/cloud.png">
-    </mat-grid-tile>
-    <mat-grid-tile
-      class="app-menubar-item"
-      *ngFor="let menuOption of menuOptions"
-      colspan="1"
-      rowspan="1"
-      (click)="routeTo(menuOption.route)">
-      {{menuOption.title}}
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <button class="app-login-button" mat-raised-button (click)="routeTo('login')">
-        Login
-      </button>
-    </mat-grid-tile>
-  </mat-grid-list>
+<div class="app-desktop-menu">
+  <div class="app-header">
+    <mat-grid-list [cols]="menuOptions.length + 2" rowHeight="100px">
+      <mat-grid-tile class="app-menubar-item">
+        <img class="app-cloud-icon" src="../assets/cloud.png">
+      </mat-grid-tile>
+      <mat-grid-tile
+        class="app-menubar-item"
+        *ngFor="let menuOption of menuOptions"
+        colspan="1"
+        rowspan="1"
+        (click)="routeTo(menuOption.route)">
+        <span [class]="currentPage === menuOption.route ? 'app-menubar-item-selected' : ''">
+          {{menuOption.title}}
+        </span>
+      </mat-grid-tile>
+      <mat-grid-tile *ngIf="loggedIn">
+        <button class="app-login-button" mat-raised-button (click)="routeTo('logout')">
+          Logout
+        </button>
+      </mat-grid-tile>
+      <mat-grid-tile *ngIf="!loggedIn">
+        <button class="app-login-button" mat-raised-button (click)="routeTo('login')">
+          Login
+        </button>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </div>
 </div>
+
+<div class="app-mobile-menu">
+  <div class="app-header">
+    <span>
+      <img src="assets/cloud.png" class="app-cloud-icon">
+    </span>
+    <button mat-button [matMenuTriggerFor]="menu" class="app-hamburger-menu">
+      <mat-icon>
+        menu
+      </mat-icon>
+    </button>
+  </div>
+</div>
+
+<mat-menu #menu="matMenu">
+  <button mat-menu-item
+          *ngFor="let menuOption of menuOptions"
+          (click)="routeTo(menuOption.route)">
+    <mat-icon>{{menuOption.icon}}</mat-icon>
+    <span>{{menuOption.title}}</span>
+  </button>
+  <button mat-menu-item (click)="routeTo('logout')" *ngIf="loggedIn">
+    <mat-icon>logout</mat-icon>
+    <span>Logout</span>
+  </button>
+  <button mat-menu-item (click)="routeTo('login')" *ngIf="!loggedIn">
+    <mat-icon>login</mat-icon>
+    <span>Login</span>
+  </button>
+</mat-menu>
+
+
 <router-outlet></router-outlet>

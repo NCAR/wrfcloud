@@ -1,12 +1,30 @@
-$bg1: rgba(0.8*255, 0.8*255, 0.8*255, 0.8)
-$bg2: rgba(0.7*255, 0.7*255, 0.7*255, 0.8)
+@use 'sass:color'
 
-$bg-dark-1: rgba(0.3*255, 0.3*255, 0.3*255, 0.8)
-$bg-dark-2: rgba(0.2*255, 0.2*255, 0.2*255, 0.8)
 
-$text-color: #f8f8f8
-$accent-green: rgb(134, 203, 98)
-$accent-orange: rgb(240, 180, 96)
+// color palette
+$light-gray: #e0ecec
+$medium-gray: #d0dbdb
+$dark-gray: #9ca3a5
+$green: #86cb62
+$blue: #1dafec
+$gold: #fabf58
+
+// assign colors from the palette
+$text-color: $light-gray
+$accent-green: $green
+$accent-blue: $blue
+$accent-gold: $gold
+
+$bg1: color.adjust($light-gray, $alpha: -0.2)
+$bg2: color.adjust($dark-gray, $alpha: -0.2)
+$bg-dark-1: color.adjust($dark-gray, $alpha: -0.2, $blackness: 40%)
+$bg-dark-2: color.adjust($dark-gray, $alpha: -0.2)
+
+//$bg1: rgba(0.8*255, 0.8*255, 0.8*255, 0.8)
+//$bg2: rgba(0.7*255, 0.7*255, 0.7*255, 0.8)
+//$bg-dark-1: rgba(0.3*255, 0.3*255, 0.3*255, 0.8)
+//$bg-dark-2: rgba(0.2*255, 0.2*255, 0.2*255, 0.8)
+
 
 // Serve our material icons from this project rather than rely on external google server
 @font-face
@@ -40,3 +58,4 @@ $accent-orange: rgb(240, 180, 96)
   font-size: 4.0rem
   text-align: center
   margin-top: 20vh
+  line-height: 6.5rem
