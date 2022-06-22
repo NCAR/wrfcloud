@@ -1,10 +1,11 @@
 <div class="app-desktop-menu">
   <div class="app-header">
     <mat-grid-list [cols]="menuOptions.length + 2" rowHeight="100px">
-      <mat-grid-tile class="app-menubar-item">
+      <mat-grid-tile class="app-menubar-item" (click)="routeTo('')" mat-ripple>
         <img class="app-cloud-icon" src="../assets/cloud.png">
       </mat-grid-tile>
       <mat-grid-tile
+        mat-ripple
         class="app-menubar-item"
         *ngFor="let menuOption of menuOptions"
         colspan="1"

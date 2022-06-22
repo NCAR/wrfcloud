@@ -17,6 +17,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {FormsModule} from "@angular/forms";
+import {MatRippleModule} from "@angular/material/core";
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import {FormsModule} from "@angular/forms";
     MatMenuModule,
     MatIconModule,
     MatInputModule,
-    FormsModule
+    FormsModule,
+    MatRippleModule
   ],
   providers: [],
   bootstrap: [AppComponent]
