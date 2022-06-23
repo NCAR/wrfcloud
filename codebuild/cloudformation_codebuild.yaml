@@ -10,6 +10,10 @@ Parameters:
     Description: Short project name to name AWS resources
     AllowedPattern: '[A-Za-z0-9]+'
 
+  GitHubOAuthToken:
+    Type: String
+    Description: OAuth token for access to GitHub
+
   CodeCovToken:
     Type: String
     Description: Token provided by codecov.io used to publish coverage reports
@@ -106,10 +110,13 @@ Resources:
       QueuedTimeoutInMinutes: 360  # 6 hours
       ServiceRole: !Ref ServiceRole
       Source:
-        BuildSpec: buildspec.yaml
+        BuildSpec: codebuild/buildspec.yaml
         Type: GITHUB
         Location: https://github.com/NCAR/wrfcloud
         ReportBuildStatus: true
+        Auth:
+          Type: OAUTH
+          Resource: !Ref GitHubOAuthToken
       TimeoutInMinutes: 120  # 2 hours
       Triggers:
         Webhook: true
