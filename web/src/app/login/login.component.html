@@ -1,0 +1,38 @@
+<div class="login-container">
+
+  <div class="login-title">
+    WRF Cloud Login
+  </div>
+  <div class="login-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Email Address</mat-label>
+      <input matInput type="email" [(ngModel)]="req.email">
+    </mat-form-field>
+  </div>
+
+  <div [class]="'login-input-container' + (iForgot ? ' login-hidden' : '')" >
+    <mat-form-field appearance="fill">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" [(ngModel)]="req.password">
+      <button *ngIf="req.password" matSuffix mat-icon-button (click)="req.password=''">
+        <mat-icon>clear</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <div class="login-input-container" *ngIf="!iForgot">
+    <button mat-raised-button class="login-button" (click)="doLogin()">
+      Login
+    </button>
+  </div>
+
+  <div class="login-input-container" *ngIf="iForgot">
+    <button mat-raised-button class="login-button" (click)="doRecover()">
+      Recover Password
+    </button>
+  </div>
+
+  <div class="login-forgot" (click)="iForgot = !iForgot">
+    {{!iForgot ? 'I forgot my password!' : 'I remembered!'}}
+  </div>
+</div>

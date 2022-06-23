@@ -1,0 +1,50 @@
+@import ../globals
+
+
+.app-desktop-menu
+  display: none
+
+.app-mobile-menu
+  display: block
+
+.app-header
+  width: 100%
+  min-height: 50px
+  background-image: linear-gradient($bg-dark-1, $bg-dark-2)
+  box-shadow: 0 2px 12px black
+
+.app-hamburger-menu
+  font-size: 2.0rem
+  position: relative
+  top: 9px
+  float: right
+
+.app-menubar-item
+  font-size: 1.5rem
+  color: $text-color
+
+.app-menubar-item-selected
+  border-bottom: 5px solid $accent-gold
+
+.app-cloud-icon
+  width: 50px
+  margin: 10px auto 0 auto
+  padding-left: 8px
+
+.app-login-button
+  background: $accent-green
+  width: 70%
+  padding: 7px 0
+  font-weight: bold
+  font-size: 1.25rem
+
+
+@media screen and ( min-width : 840px )
+  .app-cloud-icon
+    width: 70px
+
+  .app-mobile-menu
+    display: none
+
+  .app-desktop-menu
+    display: block

@@ -1,0 +1,46 @@
+@import ../../globals
+
+
+.login-container
+  width: 90vw
+  margin: 30px auto 0 auto
+  font-size: 1.5rem
+
+.login-title
+  font-size: 2.0rem
+  text-align: center
+  margin-bottom: 20px
+
+.login-input-container
+  width: 100%
+  display: grid
+
+.login-button
+  background-color: $blue
+  font-size: 1.5rem
+  padding: 5px 0 5px 0
+
+.login-forgot
+  margin-top: 20px
+  text-align: center
+
+.login-hidden
+  visibility: hidden
+
+@media screen and ( min-width : 840px )
+
+  .login-container
+    max-width: 800px
+    border: 2px solid $dark-gray
+    border-radius: 20px
+    padding: 40px
+    background-image: linear-gradient($bg1, $bg2)
+    margin-top: 15vh
+
+  .login-input-container
+    width: 80%
+    margin: auto
+
+  .login-button
+    width: 350px
+    margin: auto

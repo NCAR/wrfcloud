@@ -1,0 +1,55 @@
+@use 'sass:color'
+
+
+// color palette
+$light-gray: #e0ecec
+$medium-gray: #d0dbdb
+$dark-gray: #9ca3a5
+$green: #86cb62
+$blue: #1dafec
+$gold: #fabf58
+
+// assign colors from the palette
+$text-color: $light-gray
+$accent-green: $green
+$accent-blue: $blue
+$accent-gold: $gold
+
+$bg1: color.adjust($light-gray, $alpha: -0.2)
+$bg2: color.adjust($dark-gray, $alpha: -0.2)
+$bg-dark-1: color.adjust($dark-gray, $alpha: -0.2, $blackness: 40%)
+$bg-dark-2: color.adjust($dark-gray, $alpha: -0.2)
+
+// Serve our material icons from this project rather than rely on external google server
+@font-face
+  font-family: 'Material Icons'
+  font-style: normal
+  font-weight: 400
+  src: url('assets/maticons.ttf') format('truetype')
+
+.material-icons
+  font-family: 'Material Icons'
+  font-weight: normal
+  font-style: normal
+  font-size: 24px
+  line-height: 1
+  letter-spacing: normal
+  text-transform: none
+  display: inline-block
+  white-space: nowrap
+  word-wrap: normal
+  direction: ltr
+
+// Override the Roboto font that Angular Material uses everywhere
+@font-face
+  font-family: 'Roboto'
+  font-style: normal
+  font-size: 48px
+  src: url('assets/JosefinSans.ttf') format('truetype')
+
+
+.placeholder-style
+  font-size: 4.0rem
+  text-align: center
+  margin-top: 20vh
+  line-height: 6.5rem
