@@ -1,0 +1,28 @@
+---
+Description: WRF Cloud Web Certificates (must launch in us-east-1)
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  DomainName:
+    Description: Domain name for the web application (e.g. mydomain.com)
+    Type: String
+  WebHostName:
+    Description: Hostname for the web page (e.g. www.mydomain.com)
+    Type: String
+  ApiHostName:
+    Description: Hostname for the REST or Websocket API (e.g. api.mydomain.com)
+    Type: String
+
+
+Resources:
+
+  # SSL Certificate
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Sub '${DomainName}'
+      SubjectAlternativeNames:
+        - !Sub '${WebHostName}'
+        - !Sub '${ApiHostName}'
+        - !Sub '*.${DomainName}'  # TODO: This may not be desired, but cannot be changed after creation
+      ValidationMethod: DNS

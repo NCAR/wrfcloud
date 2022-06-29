@@ -100,9 +100,9 @@ development:
   ALLOW_CORS: True
 
   # DynamoDB Options
-  USER_TABLE_NAME: wrfcloud_users_dev
-  AUDIT_TABLE_NAME: wrfcloud_audit_dev
-  REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_dev
+  USER_TABLE_NAME: development_wrfcloud_users
+  AUDIT_TABLE_NAME: development_wrfcloud_audit
+  REFRESH_TOKEN_TABLE_NAME: development_wrfcloud_refresh_tokens
 
   # Logging options
   LOG_LEVEL: DEBUG

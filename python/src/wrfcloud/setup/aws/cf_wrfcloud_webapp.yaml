@@ -55,7 +55,9 @@ Parameters:
   HostedZoneId:
     Description: Hosted Zone ID of the Route 53 Domain Name Service for desired domain (https://console.aws.amazon.com/route53)
     Type: String
-
+  CertificateArn:
+    Description: Amazon resource name (ARN) for the certificate to use
+    Type: String
 
 Conditions:
   IsDev: !Equals [!Ref DeploymentType, 'development']
@@ -64,17 +66,6 @@ Conditions:
   UseWebsocket: !Equals [!Ref ApiType, 'websocket']
 
 Resources:
-
-  # SSL Certificate
-  Certificate:
-    Type: AWS::CertificateManager::Certificate
-    Properties:
-      DomainName: !Sub '${DomainName}'
-      SubjectAlternativeNames:
-        - !Sub '${WebHostName}'
-        - !Sub '${ApiHostName}'
-        - !Sub '*.${DomainName}'  # TODO: This may not be desired, but cannot be changed after creation
-      ValidationMethod: DNS
 
   # Lambda Function (Front Controller)
   LambdaRole:
@@ -250,7 +241,7 @@ Resources:
     Properties:
       DomainName: !Ref ApiHostName
       DomainNameConfigurations:
-        - CertificateArn: !Ref Certificate
+        - CertificateArn: !Sub '${CertificateArn}'
           SecurityPolicy: TLS_1_2
   WebsocketApiBasePathMapping:
     Type: AWS::ApiGatewayV2::ApiMapping
@@ -376,7 +367,7 @@ Resources:
     Condition: UseRest
     DependsOn: RestApiDeployment
     Properties:
-      CertificateArn: !Ref Certificate
+      CertificateArn: !Sub '${CertificateArn}'
       DomainName: !Ref ApiHostName
       SecurityPolicy: TLS_1_2
       EndpointConfiguration:
@@ -419,10 +410,6 @@ Resources:
         DefaultRootObject: index.html
         Enabled: true
         IPV6Enabled: true
-        Logging:
-          Bucket: !Sub '${WebAccessLogBucket}'
-          IncludeCookies: true
-          Prefix: ''
         DefaultCacheBehavior:
           AllowedMethods:
             - GET
@@ -468,7 +455,7 @@ Resources:
                     - !Ref CloudFrontOriginAccessIdentity
         PriceClass: PriceClass_100
         ViewerCertificate:
-          AcmCertificateArn: !Ref Certificate
+          AcmCertificateArn: !Sub '${CertificateArn}'
           MinimumProtocolVersion: TLSv1.2_2018
           SslSupportMethod: sni-only
         CustomErrorResponses:
@@ -528,12 +515,3 @@ Resources:
       Subscription:
         - Endpoint: !Ref AdminUserEmail
           Protocol: EMAIL
-
-
-Outputs:
-  # Export SSL certificate arn
-  Certificate:
-    Description: SSL certificate ARN
-    Value: !Ref Certificate
-    Export:
-      Name: !Sub '${AWS::StackName}-certificate-arn'
