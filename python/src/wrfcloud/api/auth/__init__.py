@@ -6,7 +6,8 @@ __all__ = ['refresh',
            'create_jwt',
            'issue_refresh_token',
            'get_refresh_token',
-           'delete_refresh_token'
+           'delete_refresh_token',
+           'get_user_from_jwt'
            ]
 
 
