@@ -1,4 +1,6 @@
 import {Component, OnInit} from '@angular/core';
+import {AppComponent} from "../app.component";
+import {LoginResponse} from "../wrfcloud-api";
 
 @Component({
   selector: 'app-login',
@@ -7,6 +9,9 @@ import {Component, OnInit} from '@angular/core';
 })
 export class LoginComponent implements OnInit
 {
+  public app: AppComponent;
+
+
   /**
    * Initialize an empty login request
    */
@@ -20,10 +25,17 @@ export class LoginComponent implements OnInit
 
 
   /**
+   * Flag that tells the display components to wait
+   */
+  wait: boolean = false;
+
+
+  /**
    * Default constructor
    */
   constructor()
   {
+    this.app = AppComponent.singleton;
   }
 
 
@@ -40,6 +52,31 @@ export class LoginComponent implements OnInit
    */
   public doLogin(): void
   {
+    this.wait = true;
+    AppComponent.singleton.api.sendLoginRequest(this.req, this.handleLoginResponse.bind(this));
+  }
+
+
+  /**
+   * Handle a login response
+   */
+  public handleLoginResponse(response: LoginResponse): void
+  {
+    this.wait = false;
+
+    if (response.ok)
+    {
+      /* save the JWT and refresh token */
+      if (response.data)
+        this.app.api.setCredentials(response.data.jwt, response.data?.refresh);
+    }
+    else
+    {
+      /* show any error messages to the user */
+      // TODO: Show errors in a dialog
+      console.log(response.errors);
+    }
+
   }
 
 

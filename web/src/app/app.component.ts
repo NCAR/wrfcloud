@@ -1,5 +1,7 @@
 import {Component} from '@angular/core';
 import {Router} from "@angular/router";
+import {WrfCloudApi} from "./wrfcloud-api";
+import {HttpClient} from "@angular/common/http";
 
 
 @Component({
@@ -13,6 +15,12 @@ export class AppComponent
    * AppComponent singleton
    */
   public static singleton: AppComponent;
+
+
+  /**
+   * Reference to the API object
+   */
+  public api: WrfCloudApi;
 
 
   /**
@@ -39,11 +47,15 @@ export class AppComponent
    * Default constructor grabs the singleton instance
    *
    * @param router Inject the angular router
+   * @param http Inject the angular http client
    */
-  constructor(public router: Router)
+  constructor(public router: Router, public http: HttpClient)
   {
     /* store a reference to the singleton object */
     AppComponent.singleton = this;
+
+    /* create the API */
+    this.api = new WrfCloudApi(http);
 
     /* set the menu options based on current user status */
     this.buildMenu();
