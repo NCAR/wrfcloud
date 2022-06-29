@@ -1,3 +1,56 @@
-<div class="placeholder-style">
-  Manage WRF Cloud Users
+<div class="manage-container">
+
+  <!-- action panel -->
+  <div class="manage-action-panel">
+    <mat-grid-list [cols]="2" rowHeight="75px">
+      <mat-grid-tile>
+        <button mat-stroked-button class="manage-action-button" (click)="loadUserList()">
+          <mat-icon class="manage-action-button-icon">autorenew</mat-icon>
+          Refresh
+        </button>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <button mat-stroked-button class="manage-action-button" (click)="addUser()">
+          <mat-icon class="manage-action-button-icon">person_add</mat-icon>
+          Add User
+        </button>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </div>
+
+  <!-- user table -->
+  <div class="manage-table-container">
+    <div class="manage-filter-container">
+      <mat-form-field class="manage-filter-input" appearance="fill">
+        <mat-label>Filter Results</mat-label>
+        <input matInput type="text" [(ngModel)]="filter" (keyup)="filterModified()">
+        <button mat-button matSuffix *ngIf="filter.length > 0" (click)="filter=''; filterModified()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+
+    <table mat-table [dataSource]="dataSource" matSort class="manage-user-table mat-elevation-z8">
+
+      <ng-container matColumnDef="full_name" class="manage-user-table-cell">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+        <td mat-cell *matCellDef="let item"> {{item.full_name}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="email" class="manage-user-table-cell">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
+        <td mat-cell *matCellDef="let item"> {{item.email}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="role_id" class="manage-user-table-cell">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Role </th>
+        <td mat-cell *matCellDef="let item"> {{item.role_id}} </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="userClicked(row)"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[10]" showFirstLastButtons #paginator>
+    </mat-paginator>
+  </div>
 </div>

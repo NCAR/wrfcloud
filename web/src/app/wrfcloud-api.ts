@@ -229,6 +229,45 @@ export class WrfCloudApi
 
 
   /**
+   * Send a list user request
+   *
+   * @param responseHandler
+   */
+  public sendListUsersRequest(responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'ListUsers',
+      jwt: this.jwt,
+      data: {}
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler);
+  }
+
+
+  /**
+   * Send an update user request
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendUpdateUserRequest(requestData: UpdateUserRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'UpdateUser',
+      jwt: this.jwt,
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler);
+  }
+
+
+  /**
    * Send a refresh token request
    * @param requestData
    * @param responseHandler
@@ -268,6 +307,7 @@ export interface User
   email: string;
   full_name: string;
   role_id: string;
+  active?: boolean;
 }
 
 
@@ -360,6 +400,26 @@ export interface ChangePasswordResponse extends ApiResponse
 export interface WhoAmIResponse extends ApiResponse
 {
   data: {
-    user: User;
+    user: User
   }
+}
+
+
+/**
+ * List user response
+ */
+export interface ListUsersResponse extends ApiResponse
+{
+  data: {
+    users: Array<User>
+  }
+}
+
+export interface UpdateUserRequest
+{
+  user: User
+}
+
+export interface UpdateUserResponse extends ApiResponse
+{
 }

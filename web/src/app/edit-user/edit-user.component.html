@@ -1,0 +1,37 @@
+<div class="edit-user-title">
+  Edit User Information
+</div>
+<div class="edit-user-container">
+  <div class="edit-user-field-continer">
+    <mat-form-field class="edit-user-field" appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput type="text" [(ngModel)]="user.email" disabled>
+    </mat-form-field>
+  </div>
+  <div class="edit-user-field-container">
+    <mat-form-field class="edit-user-field" appearance="fill">
+      <mat-label>Name</mat-label>
+      <input matInput type="text" [(ngModel)]="user.full_name">
+    </mat-form-field>
+  </div>
+  <div class="edit-user-field-container">
+    <mat-form-field class="edit-user-field" appearance="fill">
+      <mat-label>Name</mat-label>
+      <mat-select [(value)]="user.role_id">
+        <mat-option *ngFor="let option of roles" [value]="option.value">
+          {{option.displayName}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="error-button-panel" mat-dialog-actions>
+    <button mat-stroked-button [mat-dialog-close]="">
+      Cancel
+    </button>
+    <button mat-raised-button class="edit-user-button" (click)="updateUserData()">
+      Update
+    </button>
+  </div>
+
+</div>

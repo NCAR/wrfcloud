@@ -20,7 +20,7 @@ class User:
     """
 
     # list of fields to remove from the data
-    SANITIZE_KEYS = ['password', 'reset_token', 'active', 'activation_key']
+    SANITIZE_KEYS = ['password', 'reset_token', 'activation_key']
 
     # list of all fields supported
     ALL_KEYS = ['email', 'password', 'role_id', 'full_name', 'reset_token', 'active', 'activation_key']

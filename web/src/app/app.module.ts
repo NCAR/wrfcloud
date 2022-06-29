@@ -23,6 +23,11 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import {MatDialogModule} from "@angular/material/dialog";
 import {ErrorDialogComponent} from './error-dialog/error-dialog.component';
 import {MatDividerModule} from "@angular/material/divider";
+import {MatTableModule} from "@angular/material/table";
+import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatSortModule} from "@angular/material/sort";
+import {EditUserComponent} from './edit-user/edit-user.component';
+import {MatSelectModule} from "@angular/material/select";
 
 @NgModule({
   declarations: [
@@ -34,7 +39,8 @@ import {MatDividerModule} from "@angular/material/divider";
     ViewJobsComponent,
     PreferencesComponent,
     LogoutComponent,
-    ErrorDialogComponent
+    ErrorDialogComponent,
+    EditUserComponent
   ],
   imports: [
     BrowserModule,
@@ -50,7 +56,11 @@ import {MatDividerModule} from "@angular/material/divider";
     MatRippleModule,
     MatExpansionModule,
     MatDialogModule,
-    MatDividerModule
+    MatDividerModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatSelectModule
   ],
   providers: [],
   bootstrap: [AppComponent]
