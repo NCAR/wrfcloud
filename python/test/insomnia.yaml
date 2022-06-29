@@ -1,0 +1,455 @@
+_type: export
+__export_format: 4
+__export_date: 2022-06-29T01:12:37.136Z
+__export_source: insomnia.desktop.app:v2022.4.2
+resources:
+  - _id: req_dba224a6b8a74d4ab21801650a6d2ec8
+    parentId: fld_b8f71928f30646039f78f3d78f524628
+    modified: 1656465049800
+    created: 1656458293872
+    url: "{{protocol}}://{{host}}/{{stage}}/action"
+    name: Activate User
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        	"action": "ActivateUser",
+        	"data": {
+        		"email": "{{email_reg}}",
+        		"new_password": "",
+        		"activation_key": "1Y1vxrKhUSDjzPkJaqtyCUgfh/tGKghxYqxqemaARCs="
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_422dde5bde8e4b819c042a40fa89015c
+    authentication: {}
+    metaSortKey: -1656451765786
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: fld_b8f71928f30646039f78f3d78f524628
+    parentId: wrk_ee77bc3afc9547f393013ae28a22b053
+    modified: 1656457918963
+    created: 1656457918963
+    name: User Basics
+    description: ""
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -1656457918963
+    _type: request_group
+  - _id: wrk_ee77bc3afc9547f393013ae28a22b053
+    parentId: null
+    modified: 1656451651365
+    created: 1656451651365
+    name: WRF Cloud API
+    description: ""
+    scope: collection
+    _type: workspace
+  - _id: req_fe6c3b6b3204468a9ebd5712738229cc
+    parentId: fld_b8f71928f30646039f78f3d78f524628
+    modified: 1656464804362
+    created: 1656451765736
+    url: "{{protocol}}://{{host}}/{{stage}}/action"
+    name: Login
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        	"action": "Login",
+        	"data": {
+        		"email": "{{email_admin}}",
+        		"password": ""
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_78a615a9b8c04a8ab5008fa4234a4b1e
+    authentication: {}
+    metaSortKey: -1656451765736
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_b7bc0495ebdd4ac1961167529d6c31e0
+    parentId: fld_b8f71928f30646039f78f3d78f524628
+    modified: 1656464809949
+    created: 1656462175357
+    url: "{{protocol}}://{{host}}/{{stage}}/action"
+    name: Refresh Token
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        	"action": "RefreshToken",
+        	"data": {
+        		"email": "{{email_admin}}",
+        		"refresh_token": "{{refresh}}"
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_78a615a9b8c04a8ab5008fa4234a4b1e
+    authentication: {}
+    metaSortKey: -1656451765711
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_4731f1434a06436a85139c9e9148bb1f
+    parentId: fld_b8f71928f30646039f78f3d78f524628
+    modified: 1656464814543
+    created: 1656457760896
+    url: "{{protocol}}://{{host}}/{{stage}}/action"
+    name: Who Am I
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        	"action": "WhoAmI",
+        	"jwt": "{{jwt}}",
+        	"data": {}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_613d47a56b484e578256b2a7ea1f9e5a
+    authentication: {}
+    metaSortKey: -1656451765686
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_fdd94eea975e439f9f0356ccbdf309e0
+    parentId: fld_b8f71928f30646039f78f3d78f524628
+    modified: 1656464819569
+    created: 1656457227066
+    url: "{{protocol}}://{{host}}/{{stage}}/action"
+    name: Change Password
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        	"action": "ChangePassword",
+        	"jwt": "{{jwt}}",
+        	"data": {
+        		"password0": "",
+        		"password1": "",
+        		"password2": ""
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_4aa1ff1e6bf54be88e5e8196abe63bae
+    authentication: {}
+    metaSortKey: -1656451765636
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_e2c608a2463347d5953acc4daf83bb79
+    parentId: fld_b8f71928f30646039f78f3d78f524628
+    modified: 1656464819051
+    created: 1656458579318
+    url: "{{protocol}}://{{host}}/{{stage}}/action"
+    name: Add Password Reset Token
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        	"action": "AddPasswordResetToken",
+        	"data": {
+        		"email": "{{email_reg}}"
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_4aa1ff1e6bf54be88e5e8196abe63bae
+    authentication: {}
+    metaSortKey: -1651745955524.75
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_6c7708cf4d8648c3ab06a82cc325c212
+    parentId: fld_b8f71928f30646039f78f3d78f524628
+    modified: 1656463706790
+    created: 1656458657850
+    url: "{{protocol}}://{{host}}/{{stage}}/action"
+    name: Reset Password
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        	"action": "ResetPassword",
+        	"data": {
+        		"email": "{{email_reg}}",
+        		"reset_token": "d7VcTj0b9ZvCQIbGSM/DjFBReA65TpvxBp588bcyQx8=",
+        		"new_password": ""
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_4aa1ff1e6bf54be88e5e8196abe63bae
+    authentication: {}
+    metaSortKey: -1649393050469.125
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_ecd7a94356474657af1fd2565ce93c61
+    parentId: fld_d541702a034741df9f73ecaee1463646
+    modified: 1656465097820
+    created: 1656457894696
+    url: "{{protocol}}://{{host}}/{{stage}}/action"
+    name: Create User
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        	"action": "CreateUser",
+        	"jwt": "{{jwt}}",
+        	"data": {
+        		"user": {
+        			"email": "{{email_reg}}",
+        			"full_name": "Regular User",
+        			"role_id": "regular"
+        		}
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_4aa1ff1e6bf54be88e5e8196abe63bae
+    authentication: {}
+    metaSortKey: -1647040145413.5
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: fld_d541702a034741df9f73ecaee1463646
+    parentId: wrk_ee77bc3afc9547f393013ae28a22b053
+    modified: 1656457963523
+    created: 1656457954320
+    name: Admin User Management
+    description: ""
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -1656457918913
+    _type: request_group
+  - _id: req_131912fc57b24495917615190f099950
+    parentId: fld_d541702a034741df9f73ecaee1463646
+    modified: 1656463643888
+    created: 1656458908546
+    url: "{{protocol}}://{{host}}/{{stage}}/action"
+    name: Update User
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        	"action": "UpdateUser",
+        	"jwt": "{{jwt}}",
+        	"data": {
+        		"user": {
+        			"email": "{{email_reg}}",
+        			"full_name": "Demetri Martin",
+        			"role_id": "regular"
+        		}
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_4aa1ff1e6bf54be88e5e8196abe63bae
+    authentication: {}
+    metaSortKey: -1644687240345.375
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_d13bcb2251fa4f369e9ed6ea62410555
+    parentId: fld_d541702a034741df9f73ecaee1463646
+    modified: 1656463642277
+    created: 1656458137626
+    url: "{{protocol}}://{{host}}/{{stage}}/action"
+    name: Delete User
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        	"action": "DeleteUser",
+        	"jwt": "{{jwt}}",
+        	"data": {
+        		"email": "{{email_reg}}"
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_4aa1ff1e6bf54be88e5e8196abe63bae
+    authentication: {}
+    metaSortKey: -1642334335277.25
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_909d7c56679f41a68d9208414bc5b982
+    parentId: fld_d541702a034741df9f73ecaee1463646
+    modified: 1656463629881
+    created: 1656458792957
+    url: "{{protocol}}://{{host}}/{{stage}}/action"
+    name: List All Users
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+        	"action": "ListUsers",
+        	"jwt": "{{jwt}}",
+        	"data": {}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_4aa1ff1e6bf54be88e5e8196abe63bae
+    authentication: {}
+    metaSortKey: -1639981430209.125
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: env_e3accb45dea6d29160febbedde31d5c01a179797
+    parentId: wrk_ee77bc3afc9547f393013ae28a22b053
+    modified: 1656451659664
+    created: 1656451651386
+    name: Base Environment
+    data: {}
+    dataPropertyOrder: {}
+    color: null
+    isPrivate: false
+    metaSortKey: 1656451651386
+    _type: environment
+  - _id: jar_e3accb45dea6d29160febbedde31d5c01a179797
+    parentId: wrk_ee77bc3afc9547f393013ae28a22b053
+    modified: 1656451651388
+    created: 1656451651388
+    name: Default Jar
+    cookies: []
+    _type: cookie_jar
+  - _id: spc_255778cd0fb64917a55a9e463c307b67
+    parentId: wrk_ee77bc3afc9547f393013ae28a22b053
+    modified: 1656451651372
+    created: 1656451651372
+    fileName: WRF Cloud API
+    contents: ""
+    contentType: yaml
+    _type: api_spec
+  - _id: env_e1b216bed5bf4f8c8165adedd40f8a33
+    parentId: env_e3accb45dea6d29160febbedde31d5c01a179797
+    modified: 1656463482820
+    created: 1656451671121
+    name: Development
+    data:
+      protocol: https
+      host: apidev.wrfcloud.com
+      stage: v1
+      jwt: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImhhaG5kQHVjYXIuZWR1Iiwicm9sZSI6ImFkbWluIiwiZXhwaXJlcyI6MTY1NjQ2NzA2Mn0.NTFSavwrw861pGkxujIKOXRAP5XB3NLmzmyhKafxm08
+      refresh: ab33f9294d1d38be4cb0068641989de84fc5475f727cca5032783d991ea26afd
+      email_reg: ""
+      email_admin: ""
+    dataPropertyOrder:
+      "&":
+        - protocol
+        - host
+        - stage
+        - jwt
+        - refresh
+        - email_reg
+        - email_admin
+    color: null
+    isPrivate: false
+    metaSortKey: 1656451671121
+    _type: environment

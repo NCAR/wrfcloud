@@ -21,7 +21,7 @@ class RefreshTokenDao(DynamoDao):
         :param endpoint_url: (optional) Specifying the endpoint URL can be useful for testing
         """
         # load the user table definition
-        self.table_definition = yaml.load(pkgutil.get_data('wrfcloud', 'api/auth/table.yaml'))
+        self.table_definition = yaml.safe_load(pkgutil.get_data('wrfcloud', 'api/auth/table.yaml'))
 
         # get the table name
         table_name = os.environ[self.table_definition['table_name_var']]
