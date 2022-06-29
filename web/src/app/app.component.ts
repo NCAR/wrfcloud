@@ -24,12 +24,6 @@ export class AppComponent
 
 
   /**
-   * Flag to tell us if we are logged in or not
-   */
-  public loggedIn: boolean = false;
-
-
-  /**
    * List of menu options to render the menus
    */
   public menuOptions: Array<MenuOption> = [
@@ -82,10 +76,8 @@ export class AppComponent
       {title: 'Manage Users', route: 'users', icon: 'account_circle'},
       {title: 'Preferences', route: 'prefs', icon: 'settings'}
     ];
-    if (!this.loggedIn)
+    if (!this.api.loggedIn)
       this.routeTo('login');
-    else
-      this.routeTo(this.menuOptions[0].route);
   }
 
 
@@ -98,6 +90,33 @@ export class AppComponent
   {
     this.currentPage = path;
     const ignore = this.router.navigateByUrl('/' + path);
+  }
+
+
+  /**
+   * Perform an action if the key pressed is enter
+   *
+   * @param event Key press event
+   * @param action The function to call if the key press is enter
+   */
+  public onEnter(event: any, action: Function): void
+  {
+    if (event.keyCode === 13)
+      action();
+  }
+
+
+  /**
+   * Logout the user
+   */
+  public logout(): void
+  {
+    /* clear the credentials */
+    if (this.api.loggedIn)
+      this.api.logout();
+
+    /* route to the login page again */
+    this.routeTo('login');
   }
 }
 

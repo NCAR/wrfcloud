@@ -15,14 +15,9 @@
           {{menuOption.title}}
         </span>
       </mat-grid-tile>
-      <mat-grid-tile *ngIf="loggedIn">
-        <button class="app-login-button" mat-raised-button (click)="routeTo('logout')">
-          Logout
-        </button>
-      </mat-grid-tile>
-      <mat-grid-tile *ngIf="!loggedIn">
-        <button class="app-login-button" mat-raised-button (click)="routeTo('login')">
-          Login
+      <mat-grid-tile>
+        <button class="app-login-button" mat-raised-button (click)="routeTo(api.loggedIn ? 'logout' : 'login')">
+          {{api.loggedIn ? 'Logout' : 'Login'}}
         </button>
       </mat-grid-tile>
     </mat-grid-list>
@@ -49,13 +44,9 @@
     <mat-icon>{{menuOption.icon}}</mat-icon>
     <span>{{menuOption.title}}</span>
   </button>
-  <button mat-menu-item (click)="routeTo('logout')" *ngIf="loggedIn">
-    <mat-icon>logout</mat-icon>
-    <span>Logout</span>
-  </button>
-  <button mat-menu-item (click)="routeTo('login')" *ngIf="!loggedIn">
-    <mat-icon>login</mat-icon>
-    <span>Login</span>
+  <button mat-menu-item (click)="routeTo(api.loggedIn ? 'logout' : 'login')">
+    <mat-icon>{{api.loggedIn ? 'logout' : 'login'}}</mat-icon>
+    <span>{{api.loggedIn ? 'Logout' : 'Login'}}</span>
   </button>
 </mat-menu>
 

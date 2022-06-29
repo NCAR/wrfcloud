@@ -1,3 +1,42 @@
-<div class="placeholder-style">
-  Change your user preferences
+<div class="prefs-container">
+  <mat-accordion class="prefs-accordion">
+    <mat-expansion-panel expanded>
+      <mat-expansion-panel-header>
+        <mat-panel-title class="prefs-section-header">
+          Change Password
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="prefs-password-update">
+        <mat-form-field class="prefs-input-field" appearance="fill">
+          <mat-label>Current Password</mat-label>
+          <input matInput type="password" [(ngModel)]="chpassReq.password0">
+        </mat-form-field>
+        <mat-form-field class="prefs-input-field" appearance="fill">
+          <mat-label>New Password</mat-label>
+          <input matInput type="password" [(ngModel)]="chpassReq.password1">
+        </mat-form-field>
+        <mat-form-field class="prefs-input-field" appearance="fill">
+          <mat-label>Confirm Password</mat-label>
+          <input matInput type="password" [(ngModel)]="chpassReq.password2">
+        </mat-form-field>
+        <div class="prefs-button-container">
+          <button mat-raised-button class="prefs-button" (click)="doChangePassword()" [disabled]="busy || chpassReq.password1 !== chpassReq.password2 || chpassReq.password1.length < 8">
+            Change Password
+          </button>
+        </div>
+        <div class="prefs-error" *ngIf="chpassReq.password1 !== chpassReq.password2">
+          New passwords do not match
+        </div>
+        <div class="prefs-error" *ngIf="chpassReq.password1.length > 0 && chpassReq.password1.length < 8">
+          Minimum length must be 8 characters
+        </div>
+        <div class="prefs-spinner" *ngIf="busy">
+          <mat-icon class="spin">autorenew</mat-icon>
+        </div>
+        <div class="prefs-success" *ngIf="passwordChanged">
+          Password changed successfully
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
 </div>

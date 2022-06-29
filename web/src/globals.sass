@@ -8,12 +8,14 @@ $dark-gray: #9ca3a5
 $green: #86cb62
 $blue: #1dafec
 $gold: #fabf58
+$orangered: #e7454b
 
 // assign colors from the palette
 $text-color: $light-gray
 $accent-green: $green
 $accent-blue: $blue
 $accent-gold: $gold
+$warn: $orangered
 
 $bg1: color.adjust($light-gray, $alpha: -0.2)
 $bg2: color.adjust($dark-gray, $alpha: -0.2)
@@ -53,3 +55,13 @@ $bg-dark-2: color.adjust($dark-gray, $alpha: -0.2)
   text-align: center
   margin-top: 20vh
   line-height: 6.5rem
+
+.spin
+  animation-timing-function: linear
+  animation-name: animation-spin
+  animation-duration: 2s
+  animation-iteration-count: infinite
+
+@keyframes animation-spin
+  100%
+    transform: rotate(360deg)
