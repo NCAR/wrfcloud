@@ -71,18 +71,19 @@ export class LoginComponent implements OnInit
     {
       /* save the JWT and refresh token */
       if (response.data)
+      {
         this.app.api.setCredentials(response.data.jwt, response.data?.refresh);
+        this.app.user = response.data.user;
+      }
 
-      /* route to the jobs page */
-      this.app.routeTo('jobs');
+      /* rebuild the menus */
+      this.app.buildMenu();
     }
     else
     {
       /* show any error messages to the user */
-      // TODO: Show errors in a dialog
-      console.log(response.errors);
+      this.app.showErrorDialog(response.errors);
     }
-
   }
 
 

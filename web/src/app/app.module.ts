@@ -20,6 +20,9 @@ import {FormsModule} from "@angular/forms";
 import {MatRippleModule} from "@angular/material/core";
 import {HttpClientModule} from "@angular/common/http";
 import {MatExpansionModule} from "@angular/material/expansion";
+import {MatDialogModule} from "@angular/material/dialog";
+import {ErrorDialogComponent} from './error-dialog/error-dialog.component';
+import {MatDividerModule} from "@angular/material/divider";
 
 @NgModule({
   declarations: [
@@ -30,7 +33,8 @@ import {MatExpansionModule} from "@angular/material/expansion";
     LaunchWrfComponent,
     ViewJobsComponent,
     PreferencesComponent,
-    LogoutComponent
+    LogoutComponent,
+    ErrorDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -44,7 +48,9 @@ import {MatExpansionModule} from "@angular/material/expansion";
     MatInputModule,
     FormsModule,
     MatRippleModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatDialogModule,
+    MatDividerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

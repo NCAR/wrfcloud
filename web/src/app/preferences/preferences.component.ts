@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {ApiResponse, ChangePasswordRequest, ChangePasswordResponse} from "../wrfcloud-api";
+import {ChangePasswordRequest, ChangePasswordResponse} from "../wrfcloud-api";
 
 @Component({
   selector: 'app-preferences',
@@ -51,6 +51,10 @@ export class PreferencesComponent implements OnInit
   constructor()
   {
     this.app = AppComponent.singleton;
+
+    /* make sure we have user data */
+    if (this.app.user === undefined)
+      this.app.refreshUserData();
   }
 
 
@@ -91,6 +95,10 @@ export class PreferencesComponent implements OnInit
       this.chpassReq.password1 = '';
       this.chpassReq.password2 = '';
       setTimeout(() => {this.passwordChanged = false;}, 7000);
+    }
+    else
+    {
+      this.app.showErrorDialog(response.errors);
     }
   }
 }

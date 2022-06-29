@@ -5,12 +5,13 @@
         <img class="app-cloud-icon" src="../assets/cloud.png">
       </mat-grid-tile>
       <mat-grid-tile
+        *ngFor="let menuOption of menuOptions"
         mat-ripple
         class="app-menubar-item"
-        *ngFor="let menuOption of menuOptions"
         colspan="1"
         rowspan="1"
-        (click)="routeTo(menuOption.route)">
+        [style]="'display:' + (menuOption.title.length == 0 ? 'none' : 'block')"
+        (click)="menuOption.title.length > 0 ? routeTo(menuOption.route) : menuOption.title = ''">
         <span [class]="currentPage === menuOption.route ? 'app-menubar-item-selected' : ''">
           {{menuOption.title}}
         </span>
