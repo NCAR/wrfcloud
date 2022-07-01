@@ -51,9 +51,15 @@ export class ManageUsersComponent implements OnInit, AfterViewInit
 
 
   /**
-   * Column names to display
+   * Column names to display on a desktop computer
    */
-  public displayedColumns: Array<string> = ['full_name', 'email', 'role_id'];
+  public desktopColumns: Array<string> = ['active', 'full_name', 'email', 'role_id'];
+
+
+  /**
+   * Column names to display on a mobile device
+   */
+  public mobileColumns: Array<string> = ['full_name', 'email'];
 
 
   /**
@@ -127,7 +133,12 @@ export class ManageUsersComponent implements OnInit, AfterViewInit
    */
   public userClicked(user: User): void
   {
-    this.dialog.open(EditUserComponent, {data: user}).afterClosed().subscribe(
+    const editData: {user: User, edit: boolean} = {
+      user: user,
+      edit: true
+    };
+
+    this.dialog.open(EditUserComponent, {data: editData}).afterClosed().subscribe(
       () => { this.loadUserList(); }
     );
   }
@@ -147,6 +158,13 @@ export class ManageUsersComponent implements OnInit, AfterViewInit
    */
   public addUser(): void
   {
-    alert('TODO');
+    const editData: {user: User, edit: boolean} = {
+      user: {full_name: '', email: '', role_id: 'readonly'},
+      edit: false
+    };
+
+    this.dialog.open(EditUserComponent, {data: editData}).afterClosed().subscribe(
+      () => { this.loadUserList(); }
+    );
   }
 }

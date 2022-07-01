@@ -1,4 +1,4 @@
-<div class="app-desktop-menu">
+<div class="app-desktop-menu" (window:resize)="windowResized($event)">
   <div class="app-header">
     <mat-grid-list [cols]="menuOptions.length + 2" rowHeight="100px">
       <mat-grid-tile class="app-menubar-item" (click)="routeTo('')" mat-ripple>
@@ -40,7 +40,7 @@
 
 <mat-menu #menu="matMenu">
   <button mat-menu-item
-          *ngFor="let menuOption of menuOptions"
+          *ngFor="let menuOption of getActiveMenuOptions()"
           (click)="routeTo(menuOption.route)">
     <mat-icon>{{menuOption.icon}}</mat-icon>
     <span>{{menuOption.title}}</span>

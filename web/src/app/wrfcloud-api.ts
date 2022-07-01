@@ -268,6 +268,46 @@ export class WrfCloudApi
 
 
   /**
+   * Send a delete user request
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendDeleteUserRequest(requestData: DeleteUserRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'DeleteUser',
+      jwt: this.jwt,
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler);
+  }
+
+
+  /**
+   * Send a create user request
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendCreateUserRequest(requestData: CreateUserRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'CreateUser',
+      jwt: this.jwt,
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler);
+  }
+
+
+  /**
    * Send a refresh token request
    * @param requestData
    * @param responseHandler
@@ -417,9 +457,27 @@ export interface ListUsersResponse extends ApiResponse
 
 export interface UpdateUserRequest
 {
-  user: User
+  user: User;
 }
 
 export interface UpdateUserResponse extends ApiResponse
+{
+}
+
+export interface DeleteUserRequest
+{
+  email: string;
+}
+
+export interface DeleteUserResponse extends ApiResponse
+{
+}
+
+export interface CreateUserRequest
+{
+  user: User
+}
+
+export interface CreateUserResponse extends ApiResponse
 {
 }

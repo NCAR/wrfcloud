@@ -2,10 +2,10 @@
   Edit User Information
 </div>
 <div class="edit-user-container">
-  <div class="edit-user-field-continer">
+  <div class="edit-user-field-container">
     <mat-form-field class="edit-user-field" appearance="fill">
       <mat-label>Email</mat-label>
-      <input matInput type="text" [(ngModel)]="user.email" disabled>
+      <input matInput type="text" [(ngModel)]="user.email" [disabled]="edit">
     </mat-form-field>
   </div>
   <div class="edit-user-field-container">
@@ -25,13 +25,32 @@
     </mat-form-field>
   </div>
 
-  <div class="error-button-panel" mat-dialog-actions>
+  <div class="edit-user-button-panel" mat-dialog-actions *ngIf="edit">
     <button mat-stroked-button [mat-dialog-close]="">
       Cancel
     </button>
     <button mat-raised-button class="edit-user-button" (click)="updateUserData()">
       Update
     </button>
+    <button mat-raised-button class="remove-user-button" (click)="deleteUser()">
+      Remove
+    </button>
+    <div class="edit-user-busy-spinner">
+      <mat-icon class="spin" *ngIf="busy">autorenew</mat-icon>
+    </div>
   </div>
+
+  <div class="edit-user-button-panel" mat-dialog-actions *ngIf="create">
+    <button mat-stroked-button [mat-dialog-close]="">
+      Cancel
+    </button>
+    <button mat-raised-button class="edit-user-button" (click)="createUser()">
+      Create
+    </button>
+    <div class="edit-user-busy-spinner">
+      <mat-icon class="spin" *ngIf="busy">autorenew</mat-icon>
+    </div>
+  </div>
+
 
 </div>

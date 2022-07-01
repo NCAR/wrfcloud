@@ -4,6 +4,7 @@ import {User, WhoAmIResponse, WrfCloudApi} from "./wrfcloud-api";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
+import {Menu} from "@angular/cdk/menu";
 
 
 @Component({
@@ -17,6 +18,18 @@ export class AppComponent
    * AppComponent singleton
    */
   public static singleton: AppComponent;
+
+
+  /**
+   * Switch to mobile view on screens smaller than this
+   */
+  public mobileWidthBreakpoint: number = 840;
+
+
+  /**
+   * Mobile screen size flag
+   */
+  public isMobile: boolean = window.innerWidth < this.mobileWidthBreakpoint;
 
 
   /**
@@ -68,6 +81,30 @@ export class AppComponent
   {
     /* set the menu options based on current user status */
     this.buildMenu();
+  }
+
+
+  /**
+   * The window was resized -- update for mobile/tablet/desktop
+   */
+  public windowResized(event: any): void
+  {
+    this.isMobile = event.target.innerWidth < this.mobileWidthBreakpoint;
+  }
+
+
+  /**
+   * Get only the active menu options (not place holders)
+   * @return List of menu options
+   */
+  public getActiveMenuOptions(): Array<MenuOption>
+  {
+    const activeOptions: Array<MenuOption> = [];
+    for (let option of this.menuOptions)
+      if (option.title !== '')
+        activeOptions[activeOptions.length] = option;
+
+    return activeOptions;
   }
 
 

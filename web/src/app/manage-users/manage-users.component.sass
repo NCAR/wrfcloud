@@ -4,15 +4,29 @@
 .manage-container
   width: 100vw
   margin: auto
+  font-size: 1.25rem
 
 .manage-filter-container
+  display: grid
   width: 90vw
   max-width: 800px
   margin: auto
 
+.manage-hide
+  visibility: hidden
+
+.manage-overlay
+  grid-column: 1
+  grid-row: 1
+
 .manage-filter-input
   width: 100%
   margin: 15px auto 0 auto
+
+.manage-busy-spinner
+  width: 100%
+  text-align: center
+  margin-top: 30px
 
 .manage-table-container
   width: 100%
@@ -20,10 +34,17 @@
   margin: auto
 
 .manage-user-table
+  font-size: 1.25rem
   width: 100%
 
 .manage-user-table-cell
   max-width: 30%
+
+.manage-inactive-icon
+  color: $warn
+
+.manage-active-icon
+  color: $accent-green
 
 .manage-hover-highlight :hover
   background-color: $accent-gold
@@ -34,11 +55,31 @@
   margin: auto
 
 .manage-action-button
-  width: 75%
+  font-size: 1.25rem
+  width: 85%
 
 .manage-action-button-icon
   font-size: 1rem
   position: relative
   top: 3px
 
+.mat-header-cell
+  font-size: 1.25rem
+  font-weight: bold
 
+.mat-cell
+  font-size: 1.25rem
+
+@media screen and (min-width: 840px)
+
+  .manage-action-button
+    font-size: 1.0rem
+
+  .manage-action-button-icon
+    font-size: 1.0rem
+
+  .mat-header-cell
+    font-size: 1.0rem
+
+  .mat-cell
+    font-size: 1.0rem
