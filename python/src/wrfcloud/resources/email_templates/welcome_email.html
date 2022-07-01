@@ -1,46 +1,71 @@
 <html>
 <head>
-<style>
-    body
-    {
-        font-family: Avenir sans-serif;
-    }
-    .title
-    {
-        font-size: 1.2em;
-        max-width: 400px;
-        margin: auto;
-        text-align: center;
-    }
-    .logo
-    {
-        max-width: 400px;
-        margin: 30px auto auto auto;
-        text-align: center;
-    }
-    .button
-    {
-        max-width: 400px;
-        margin: 30px auto auto auto;
-        text-align: center;
-        border: 1px solid #aaaaff;
-        padding: 10px;
-        background-color: #fff0cc;
-        box-shadow: #444 4px 4px 4px;
-        border-radius: 8px;
-    }
-</style>
+    <style>
+
+      body
+      {
+        font-family       : 'Avenir Next', 'Avenir', sans-serif;
+        font-size         : 1.2em;
+        background-image  : linear-gradient(#e0ececcc, #9ca3a5cc), url('https://__APP_URL__/assets/bg.jpg');
+        background-size   : cover;
+        background-repeat : no-repeat;
+        min-height        : 98vh;
+        color             : #000000dd;
+        margin            : 0;
+      }
+
+      a
+      {
+        text-decoration: none;
+        color: unset;
+      }
+
+      .title
+      {
+        width             : 100%;
+        background-image  : linear-gradient(#9ca3a5cc, #d0dbdbcc);
+        background-size   : cover;
+        background-repeat : no-repeat;
+        font-size         : 1.5em;
+        text-align        : center;
+        padding           : 20px 0;
+        box-shadow        : 0 5px 10px #000;
+      }
+
+      .text
+      {
+        width         : 100%;
+        max-width     : 500px;
+        margin        : 20vh auto 10px auto;
+        padding       : 50px;
+        border        : 1px solid #00000088;
+        border-radius : 12px;
+
+      }
+
+      .button
+      {
+        max-width        : 400px;
+        margin           : 30px auto auto auto;
+        text-align       : center;
+        padding          : 10px;
+        background-color : #fabf5888;
+        border-radius    : 6px;
+      }
+
+    </style>
 </head>
 <body>
 <div class="title">
     __APP_NAME__
 </div>
-<div class="logo">
-    <img src="__IMAGE_DATA__">
+<div class="text">
+    You have been invited to join __APP_NAME__ by your organization. Follow the link below to activate your
+    account and set up a new password.
 </div>
-<a href="https://__APP_URL__/activate?email=__EMAIL__&token=__ACTIVATION_KEY__">
+<a href="https://__APP_URL__/activate?email=__EMAIL__&activation_key=__ACTIVATION_KEY__">
     <div class="button">
-        Welcome to WRF Cloud.  Click here to activate your account.
+        Activate New Account
     </div>
 </a>
 

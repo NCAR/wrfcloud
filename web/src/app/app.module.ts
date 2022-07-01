@@ -28,6 +28,7 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSortModule} from "@angular/material/sort";
 import {EditUserComponent} from './edit-user/edit-user.component';
 import {MatSelectModule} from "@angular/material/select";
+import { ActivateComponent } from './activate/activate.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import {MatSelectModule} from "@angular/material/select";
     PreferencesComponent,
     LogoutComponent,
     ErrorDialogComponent,
-    EditUserComponent
+    EditUserComponent,
+    ActivateComponent
   ],
   imports: [
     BrowserModule,

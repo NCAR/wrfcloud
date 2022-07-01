@@ -7,6 +7,7 @@ import {LaunchWrfComponent} from "./launch-wrf/launch-wrf.component";
 import {ManageUsersComponent} from "./manage-users/manage-users.component";
 import {PreferencesComponent} from "./preferences/preferences.component";
 import {ViewJobsComponent} from "./view-jobs/view-jobs.component";
+import {ActivateComponent} from "./activate/activate.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -15,7 +16,8 @@ const routes: Routes = [
   {path: 'users', component: ManageUsersComponent},
   {path: 'launch', component: LaunchWrfComponent},
   {path: 'jobs', component: ViewJobsComponent},
-  {path: 'prefs', component: PreferencesComponent}
+  {path: 'prefs', component: PreferencesComponent},
+  {path: 'activate', component: ActivateComponent}
 ];
 
 @NgModule({

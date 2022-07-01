@@ -265,7 +265,7 @@ class User:
             dest = {'ToAddresses': [self.email]}
             message = {
                 'Subject': {
-                    'Data': 'Verify Email Address',
+                    'Data': f'Activate New Account for {wrfcloud.system.APP_NAME}',
                     'Charset': 'utf-8'
                 },
                 'Body': {
@@ -275,7 +275,10 @@ class User:
                 }
             }
 
-            session = wrfcloud.system.get_aws_session()
+            # TODO: SES Sandbox in us-east-2
+            # session = wrfcloud.system.get_aws_session()
+            import boto3
+            session = boto3.Session(region_name='us-east-1')
             ses = session.client('ses')
             ses.send_email(Source=source, Destination=dest, Message=message)
 

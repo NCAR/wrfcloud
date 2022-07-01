@@ -308,7 +308,27 @@ export class WrfCloudApi
 
 
   /**
+   * Send a create user request
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendActivateUserRequest(requestData: ActivateUserRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'ActivateUser',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler);
+  }
+
+
+  /**
    * Send a refresh token request
+   *
    * @param requestData
    * @param responseHandler
    */
@@ -479,5 +499,16 @@ export interface CreateUserRequest
 }
 
 export interface CreateUserResponse extends ApiResponse
+{
+}
+
+export interface ActivateUserRequest
+{
+  email: string;
+  activation_key: string;
+  new_password: string;
+}
+
+export interface ActivateUserResponse extends ApiResponse
 {
 }

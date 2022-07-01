@@ -90,7 +90,9 @@ Resources:
             Statement:
               - Effect: Allow
                 Action: ses:SendEmail
-                Resource: !Sub 'arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*'
+                Resource:
+                  - !Sub 'arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*'
+                  - !Sub 'arn:aws:ses:us-east-1:${AWS::AccountId}:identity/*'        # TODO: Not us-east-1 after SES sandbox
               - Effect: Allow
                 Action: sns:Publish
                 Resource: !Ref HelpTopic
@@ -515,3 +517,9 @@ Resources:
       Subscription:
         - Endpoint: !Ref AdminUserEmail
           Protocol: EMAIL
+
+  # Email
+  EmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Sub '${AdminUserEmail}'
