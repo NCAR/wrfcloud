@@ -6,14 +6,14 @@
   <div class="login-input-container">
     <mat-form-field appearance="fill">
       <mat-label>Email Address</mat-label>
-      <input matInput type="email" [(ngModel)]="req.email">
+      <input matInput type="email" [(ngModel)]="req.email" autofocus>
     </mat-form-field>
   </div>
 
   <div [class]="'login-input-container' + (iForgot ? ' login-hidden' : '')" >
     <mat-form-field appearance="fill">
       <mat-label>Password</mat-label>
-      <input matInput type="password" [(ngModel)]="req.password">
+      <input matInput type="password" [(ngModel)]="req.password" (keyup)="app.onEnter($event, doLogin.bind(this))">
       <button *ngIf="req.password" matSuffix mat-icon-button (click)="req.password=''">
         <mat-icon>clear</mat-icon>
       </button>
@@ -21,7 +21,7 @@
   </div>
 
   <div class="login-input-container" *ngIf="!iForgot">
-    <button mat-raised-button class="login-button" (click)="doLogin()">
+    <button mat-raised-button class="login-button" (click)="doLogin()" [disabled]="busy">
       Login
     </button>
   </div>
@@ -34,5 +34,9 @@
 
   <div class="login-forgot" (click)="iForgot = !iForgot">
     {{!iForgot ? 'I forgot my password!' : 'I remembered!'}}
+  </div>
+
+  <div class="login-forgot" *ngIf="busy">
+    <mat-icon class="spin">autorenew</mat-icon>
   </div>
 </div>

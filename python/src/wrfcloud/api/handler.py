@@ -40,6 +40,7 @@ def lambda_handler(event: dict, context: any) -> dict:
     jwt = request[Action.REQ_KEY_JWT] if Action.REQ_KEY_JWT in request else None
     data = request[Action.REQ_KEY_DATA]
     client_ip = event['requestContext']['identity']['sourceIp']
+    audit.action = action
     audit.ip_address = client_ip
 
     # set a reference ID and the client IP instead of the app name

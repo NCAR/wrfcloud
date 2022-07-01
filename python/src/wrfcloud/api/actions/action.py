@@ -16,6 +16,7 @@ class Action:
     REQ_KEY_ACTION = 'action'
     REQ_KEY_JWT = 'jwt'
     REQ_KEY_REFRESH = 'refresh'
+    REQ_KEY_USER = 'user'
     REQ_KEY_DATA = 'data'
 
 

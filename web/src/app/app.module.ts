@@ -19,6 +19,15 @@ import {MatInputModule} from "@angular/material/input";
 import {FormsModule} from "@angular/forms";
 import {MatRippleModule} from "@angular/material/core";
 import {HttpClientModule} from "@angular/common/http";
+import {MatExpansionModule} from "@angular/material/expansion";
+import {MatDialogModule} from "@angular/material/dialog";
+import {ErrorDialogComponent} from './error-dialog/error-dialog.component';
+import {MatDividerModule} from "@angular/material/divider";
+import {MatTableModule} from "@angular/material/table";
+import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatSortModule} from "@angular/material/sort";
+import {EditUserComponent} from './edit-user/edit-user.component';
+import {MatSelectModule} from "@angular/material/select";
 
 @NgModule({
   declarations: [
@@ -29,7 +38,9 @@ import {HttpClientModule} from "@angular/common/http";
     LaunchWrfComponent,
     ViewJobsComponent,
     PreferencesComponent,
-    LogoutComponent
+    LogoutComponent,
+    ErrorDialogComponent,
+    EditUserComponent
   ],
   imports: [
     BrowserModule,
@@ -42,7 +53,14 @@ import {HttpClientModule} from "@angular/common/http";
     MatIconModule,
     MatInputModule,
     FormsModule,
-    MatRippleModule
+    MatRippleModule,
+    MatExpansionModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatSelectModule
   ],
   providers: [],
   bootstrap: [AppComponent]

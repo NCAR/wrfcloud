@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {LoginResponse} from "../wrfcloud-api";
+import {LoginRequest, LoginResponse} from "../wrfcloud-api";
 
 @Component({
   selector: 'app-login',
@@ -9,6 +9,9 @@ import {LoginResponse} from "../wrfcloud-api";
 })
 export class LoginComponent implements OnInit
 {
+  /**
+   * Reference to the main application singleton
+   */
   public app: AppComponent;
 
 
@@ -25,9 +28,9 @@ export class LoginComponent implements OnInit
 
 
   /**
-   * Flag that tells the display components to wait
+   * Flag that tells us if we are waiting for a response from the API
    */
-  wait: boolean = false;
+  busy: boolean = false;
 
 
   /**
@@ -52,7 +55,7 @@ export class LoginComponent implements OnInit
    */
   public doLogin(): void
   {
-    this.wait = true;
+    this.busy = true;
     AppComponent.singleton.api.sendLoginRequest(this.req, this.handleLoginResponse.bind(this));
   }
 
@@ -62,21 +65,25 @@ export class LoginComponent implements OnInit
    */
   public handleLoginResponse(response: LoginResponse): void
   {
-    this.wait = false;
+    this.busy = false;
 
     if (response.ok)
     {
       /* save the JWT and refresh token */
       if (response.data)
+      {
         this.app.api.setCredentials(response.data.jwt, response.data?.refresh);
+        this.app.user = response.data.user;
+      }
+
+      /* rebuild the menus */
+      this.app.buildMenu();
     }
     else
     {
       /* show any error messages to the user */
-      // TODO: Show errors in a dialog
-      console.log(response.errors);
+      this.app.showErrorDialog(response.errors);
     }
-
   }
 
 
@@ -86,14 +93,4 @@ export class LoginComponent implements OnInit
   public doRecover(): void
   {
   }
-}
-
-
-/**
- * Login request interface
- */
-export interface LoginRequest
-{
-  email: string;
-  password: string;
 }

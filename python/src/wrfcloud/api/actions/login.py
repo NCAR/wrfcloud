@@ -44,10 +44,11 @@ class Login(Action):
         if user.validate_password(password):
             payload = {
                 wrfcloud.api.auth.KEY_EMAIL: user.email,
-                wrfcloud.api.auth.KEY_ROLE: user.role_id
+                wrfcloud.api.auth.KEY_ROLE: user.role_id,
             }
             self.response[Action.REQ_KEY_JWT] = create_jwt(payload)
             self.response[Action.REQ_KEY_REFRESH] = issue_refresh_token(user)
+            self.response[Action.REQ_KEY_USER] = user.sanitized_data
             return True
 
         # return an error response
