@@ -82,10 +82,26 @@ Resources:
                 Action:
                   - ecr:GetAuthorizationToken
 
+  CodeBuildSourceCredential:
+    Type: AWS::CodeBuild::SourceCredential
+    Properties:
+      AuthType: PERSONAL_ACCESS_TOKEN
+      ServerType: GITHUB
+      Token: !Ref GitHubOAuthToken
+
+  CodecovToken:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Token to submit coverage reports to CodeCov.io
+      Name: CodeCovToken
+      SecretString: !Sub '${CodeCovToken}'
+
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
     DependsOn:
       - ServiceRole
+      - CodeBuildSourceCredential
+      - CodecovToken
     Properties:
       Name: !Sub '${ProjectName}'
       Description: !Sub 'Automated build and test for ${ProjectName}'
@@ -116,14 +132,7 @@ Resources:
         ReportBuildStatus: true
         Auth:
           Type: OAUTH
-          Resource: !Ref GitHubOAuthToken
+          Resource: !Ref CodeBuildSourceCredential
       TimeoutInMinutes: 120  # 2 hours
       Triggers:
         Webhook: true
-
-  CodecovToken:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Description: Token to submit coverage reports to CodeCov.io
-      Name: CodeCovToken
-      SecretString: !Sub '${CodeCovToken}'
