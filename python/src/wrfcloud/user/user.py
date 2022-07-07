@@ -265,7 +265,7 @@ class User:
             dest = {'ToAddresses': [self.email]}
             message = {
                 'Subject': {
-                    'Data': 'Verify Email Address',
+                    'Data': f'Activate New Account for {wrfcloud.system.APP_NAME}',
                     'Charset': 'utf-8'
                 },
                 'Body': {

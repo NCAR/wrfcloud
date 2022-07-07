@@ -52,20 +52,16 @@ class CreateUser(Action):
 
         # try to add the new user to the system and send a welcome email
         added = add_user_to_system(user)
-        # TODO: Enable once AWS SES is active
-        # emailed = added and user.send_welcome_email()
+        emailed = added and user.send_welcome_email()
 
         # maybe log error messages
         if not added:
             self.log.error(f'Failed to add user to the system: {user.email}')
-        # TODO: Enable once AWS SES is active
-        # if not emailed:
-        #     self.log.error(f'Failed to send welcome email to new user: {user.email}')
+        if not emailed:
+            self.log.error(f'Failed to send welcome email to new user: {user.email}')
 
         # return success status
-        # TODO: Enable once AWS SES is active
-        # return added and emailed
-        return added
+        return added and emailed
 
 
 class ActivateUser(Action):

@@ -90,7 +90,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Action: ses:SendEmail
-                Resource: !Sub 'arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*'
+                Resource:
+                  - !Sub 'arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*'
               - Effect: Allow
                 Action: sns:Publish
                 Resource: !Ref HelpTopic
@@ -515,3 +516,9 @@ Resources:
       Subscription:
         - Endpoint: !Ref AdminUserEmail
           Protocol: EMAIL
+
+  # Email
+  EmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Sub '${AdminUserEmail}'

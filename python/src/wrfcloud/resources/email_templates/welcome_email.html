@@ -1,48 +1,91 @@
 <html>
 <head>
-<style>
-    body
-    {
-        font-family: Avenir sans-serif;
-    }
-    .title
-    {
-        font-size: 1.2em;
-        max-width: 400px;
-        margin: auto;
-        text-align: center;
-    }
-    .logo
-    {
-        max-width: 400px;
-        margin: 30px auto auto auto;
-        text-align: center;
-    }
-    .button
-    {
-        max-width: 400px;
-        margin: 30px auto auto auto;
-        text-align: center;
-        border: 1px solid #aaaaff;
-        padding: 10px;
-        background-color: #fff0cc;
-        box-shadow: #444 4px 4px 4px;
-        border-radius: 8px;
-    }
-</style>
+    <title>WRF Cloud Account Activation</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=0">
+    <style>
+
+      body
+      {
+        font-family       : 'Avenir Next', 'Avenir', sans-serif;
+        font-size         : 1.2em;
+        background-image  : linear-gradient(#e0ececcc, #9ca3a5cc), url('https://__APP_URL__/assets/bg.jpg');
+        background-size   : cover;
+        background-repeat : no-repeat;
+        min-height        : 98vh;
+        width             : 100vw;
+        color             : #000000dd;
+        margin            : 0;
+        padding           : 0;
+      }
+
+      a
+      {
+        text-decoration: none;
+        color: unset;
+      }
+
+      .title
+      {
+        width             : 100vw;
+        background-image  : linear-gradient(#9ca3a5cc, #d0dbdbcc);
+        background-size   : cover;
+        background-repeat : no-repeat;
+        font-size         : 1.5em;
+        text-align        : center;
+        box-shadow        : 0 5px 10px #000;
+        margin-bottom     : 50px;
+        padding           : 20px 0;
+      }
+
+      .text
+      {
+        width         : calc(90vw - 100px);
+        max-width     : 500px;
+        margin        : auto;
+        text-align    : center;
+        padding       : 15px 50px;
+        border        : 1px solid #00000088;
+        border-radius : 12px;
+      }
+
+      .button
+      {
+        max-width        : 400px;
+        margin           : 20px auto auto auto;
+        text-align       : center;
+        padding          : 10px;
+        background-color : #fabf5888;
+        border-radius    : 6px;
+      }
+
+      .instructable
+      {
+        font-size: 0.9rem;
+        margin: 10px auto;
+        width: 90vw;
+        max-width: 500px;
+      }
+
+    </style>
 </head>
 <body>
 <div class="title">
     __APP_NAME__
 </div>
-<div class="logo">
-    <img src="__IMAGE_DATA__">
+<div class="text">
+    You have been invited to join __APP_NAME__ by your organization. Follow the link below to activate your
+    account and set up a new password.
 </div>
-<a href="https://__APP_URL__/activate?email=__EMAIL__&token=__ACTIVATION_KEY__">
+<a href="https://__APP_URL__/activate?email=__EMAIL__&activation_key=__ACTIVATION_KEY__">
     <div class="button">
-        Welcome to WRF Cloud.  Click here to activate your account.
+        Activate New Account
     </div>
 </a>
+<div class="instructable">
+    If the above link does not work, please copy and paste the following URL into your browser:<br/>
+    https://__APP_URL__/activate?email=__EMAIL__&activation_key=__ACTIVATION_KEY__
+</div>
 
 </body>
 </html>

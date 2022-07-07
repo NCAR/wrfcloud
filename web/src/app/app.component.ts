@@ -4,7 +4,6 @@ import {User, WhoAmIResponse, WrfCloudApi} from "./wrfcloud-api";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
-import {Menu} from "@angular/cdk/menu";
 
 
 @Component({
@@ -63,6 +62,7 @@ export class AppComponent
    *
    * @param router Inject the angular router
    * @param http Inject the angular http client
+   * @param dialog Inject the material dialog object
    */
   constructor(public router: Router, public http: HttpClient, public dialog: MatDialog)
   {
@@ -71,6 +71,9 @@ export class AppComponent
 
     /* create the API */
     this.api = new WrfCloudApi(http);
+
+    /* set the menu options based on current user status */
+    this.buildMenu();
   }
 
 
@@ -79,8 +82,6 @@ export class AppComponent
    */
   public ngOnInit(): void
   {
-    /* set the menu options based on current user status */
-    this.buildMenu();
   }
 
 
@@ -123,7 +124,6 @@ export class AppComponent
         {title: '', route: '', icon: ''},
         {title: '', route: '', icon: ''}
       ];
-      this.routeTo('login');
     }
 
     /* make sure we have user info */
@@ -167,8 +167,10 @@ export class AppComponent
       ];
     }
 
-    /* route to first menu item */
-    if (this.menuOptions.length === 0)
+    /* route to an appropriate screen */
+    if (this.router.url === '/' || this.router.url === '/activate')
+      return;  /* do not interfere with account activation */
+    else if (this.menuOptions.length === 0)
       this.routeTo('login');
     else
       this.routeTo(this.menuOptions[0].route);
