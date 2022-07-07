@@ -1,0 +1,15 @@
+---
+#This section specifies settings about the user who created the run
+user:
+    name: testuser
+#This section specifies settings about what job is to be run
+run:
+    configuration: test
+    start: 2022-06-01_00:00:00
+    end: 2022-06-02_00:00:00
+    input_freq_sec: 10800
+    output_freq_sec: 3600
+#This section specifies settings about how the job is to be run
+settings:
+    queue: debug
+    cores: 1
