@@ -275,10 +275,7 @@ class User:
                 }
             }
 
-            # TODO: SES Sandbox in us-east-2
-            # session = wrfcloud.system.get_aws_session()
-            import boto3
-            session = boto3.Session(region_name='us-east-1')
+            session = wrfcloud.system.get_aws_session()
             ses = session.client('ses')
             ses.send_email(Source=source, Destination=dest, Message=message)
 

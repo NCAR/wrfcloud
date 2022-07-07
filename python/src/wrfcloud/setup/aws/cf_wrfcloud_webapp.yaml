@@ -92,7 +92,6 @@ Resources:
                 Action: ses:SendEmail
                 Resource:
                   - !Sub 'arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*'
-                  - !Sub 'arn:aws:ses:us-east-1:${AWS::AccountId}:identity/*'        # TODO: Not us-east-1 after SES sandbox
               - Effect: Allow
                 Action: sns:Publish
                 Resource: !Ref HelpTopic

@@ -51,8 +51,7 @@ export class WrfCloudApi
    * A URL to the API
    */
   // public API_URL = 'https://api-dev.wrfcloud.com/v1/action';
-  // public API_URL = 'https://api.wrfcloud.com/v1/action';
-  public API_URL = 'https://wrfcloudapi.superlazy.org/v1/action';
+  public API_URL = 'https://api.wrfcloud.com/v1/action';
 
 
   /**

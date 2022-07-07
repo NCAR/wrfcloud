@@ -94,8 +94,8 @@ development:
   AWS_REGION: None
 
   # API Gateway Options
-  API_URL: api-dev.domainname.com
-  APP_URL: www-dev.domainname.com
+  API_URL: api.wrfcloud.com
+  APP_URL: www.wrfcloud.com
   API_STAGE: v1
   ALLOW_CORS: True
 
