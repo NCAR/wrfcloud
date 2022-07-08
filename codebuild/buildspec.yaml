@@ -14,7 +14,6 @@ phases:
       - echo "Checking for Python code errors"
       - pylint -E $CODEBUILD_SRC_DIR/python/src/wrfcloud
       - echo "Running unit tests and code coverage"
-      - cd ..
       - $CODEBUILD_SRC_DIR/python/coverage.sh
 
   post_build:
@@ -22,13 +21,12 @@ phases:
       - echo "Publishing code coverage report to codecov.io"
       - curl -s https://codecov.io/bash > codecov_temp.sh
       - CODECOV_TOKEN=$(aws secretsmanager get-secret-value --secret-id CodeCovToken | jq -r .SecretString)
-      - /bin/bash ./codecov_temp.sh -t ${CODECOV_TOKEN} -f test/coverage.xml -R $CODEBUILD_SRC_DIR
+      - /bin/bash ./codecov_temp.sh -t ${CODECOV_TOKEN} -f ${CODEBUILD_SRC_DIR}/python/test/coverage.xml -R $CODEBUILD_SRC_DIR
       - echo "Building ZIP for Lambda API deployment"
       - mkdir -p $CODEBUILD_SRC_DIR/python/build
-      - cd $CODEBUILD_SRC_DIR/python/build
-      - pip3 install -t . ../src
-      - zip -r ../wrfcloud_api_lambda.zip .
+      - pip3 install -t $CODEBUILD_SRC_DIR/python/build $CODEBUILD_SRC_DIR/python/src
+      - cd ${CODEBUILD_SRC_DIR}/python/build; zip -r ${CODEBUILD_SRC_DIR}/wrfcloud_api_lambda.zip .
 
 artifacts:
   files:
-    - wrfcloud_api_lambda.zip
+    - ${CODEBUILD_SRC_DIR}/wrfcloud_api_lambda.zip
