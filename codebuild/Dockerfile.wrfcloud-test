@@ -1,0 +1,25 @@
+FROM amazonlinux:latest
+
+# install required os packages
+RUN yum -y install zip gzip tar java-11-amazon-corretto python3 git which procps-ng jq
+
+# install the local dynamodb service
+RUN mkdir -p /opt/dynamodb
+WORKDIR /opt/dynamodb
+RUN curl https://s3.us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.tar.gz > dynamodb_local_latest.tar.gz
+RUN tar -xzf dynamodb_local_latest.tar.gz
+
+# install required python packages
+RUN pip3 install awscli coverage pytest pylint boto3 bcrypt PyJWT
+
+# configure the AWS CLI with a junk account
+# Note: Profile name must match what is found in python/src/wrfcloud/resources/env_vars.yaml -> codebuild.AWS_PROFILE
+RUN mkdir -p ~/.aws && touch ~/.aws/credentials && chmod -R go-rwx ~/.aws
+RUN echo "[junk]" >> ~/.aws/credentials
+RUN echo "aws_access_key_id = XXXXXXXXXXXXXXXXXXXX" >> ~/.aws/credentials
+RUN echo "aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" >> ~/.aws/credentials
+RUN echo "region = us-east-1" >> ~/.aws/credentials
+RUN echo "output = json" >> ~/.aws/credentials
+
+# start the local dynamodb service when the container starts
+#CMD java -jar /opt/dynamodb/DynamoDBLocal.jar -inMemory &
