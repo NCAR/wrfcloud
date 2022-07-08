@@ -8,7 +8,9 @@ phases:
 
   build:
     commands:
+      - pwd
       - cd $CODEBUILD_SRC_DIR/python/src
+      - pwd
       - echo "Installing package dependencies"
       - pip3 install .
       - pip3 uninstall -y wrfcloud
