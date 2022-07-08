@@ -56,7 +56,8 @@ Resources:
                   - logs:PutLogEvents
               - Effect: Allow
                 Resource:
-                  - !Sub 'arn:aws:s3:::codepipeline-${AWS::Region}-*'
+                  - !Sub 'arn:aws:s3:::${S3Bucket}'
+                  - !Sub 'arn:aws:s3:::${S3Bucket}/*'
                 Action:
                   - s3:PutObject
                   - s3:GetObject
