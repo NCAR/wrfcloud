@@ -8,13 +8,12 @@ phases:
 
   build:
     commands:
-      - cd python/src
+      - cd $CODEBUILD_SRC_DIR/python/src
       - echo "Installing package dependencies"
       - pip3 install .
       - pip3 uninstall -y wrfcloud
       - echo "Checking for Python code errors"
       - pylint -E wrfcloud
-      - pylint wrfcloud
       - echo "Running unit tests and code coverage"
       - cd ..
       - ./coverage.sh
