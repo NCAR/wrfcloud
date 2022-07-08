@@ -78,9 +78,13 @@ Resources:
             Statement:
               - Effect: Allow
                 Resource:
-                  - !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ProjectName}-codebuild'
+                  - '*'
                 Action:
                   - ecr:GetAuthorizationToken
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:DescribeImages
+                  - ecr:BatchCheckLayerAvailability
 
   CodeBuildSourceCredential:
     Type: AWS::CodeBuild::SourceCredential
@@ -116,7 +120,7 @@ Resources:
         Packaging: ZIP
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-codebuild:latest'
+        Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}:latest'
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -133,6 +137,7 @@ Resources:
         Auth:
           Type: OAUTH
           Resource: !Ref CodeBuildSourceCredential
+      SourceVersion: feature-2/codebuild
       TimeoutInMinutes: 120  # 2 hours
       Triggers:
         Webhook: true
