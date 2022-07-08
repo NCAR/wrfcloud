@@ -3,7 +3,7 @@
 """
 Wrapper script for creating, submitting, and monitoring runs of the wrfcloud framework.
 
-This script takes a single argument: 'name' should be set to a unique alphanumeric name
+This script takes a single argument: --name='name' should be set to a unique alphanumeric name
 for this particular run of the system. If no name is given, a test configuration will be
 run.
 """
@@ -13,6 +13,9 @@ import logging
 import os
 import yaml
 
+# Import our custom modules
+import ungrib
+
 # Define our Classes
 class RunInfoObj:
     """
@@ -20,6 +23,8 @@ class RunInfoObj:
     """
     def __init__(self, name):
         self.name = name
+        self.wd = os.getcwd() + '/' + name
+        logging.debug(f'Working directory set to {self.wd}')
         self.read_config(name)
 
     def read_config(self, name):
@@ -28,7 +33,7 @@ class RunInfoObj:
         for this class.
         """
         config_file=name + '.yml'
-        logging.debug('reading config file {config_file}')
+        logging.debug(f'reading config file {config_file}')
         with open(config_file, 'r', encoding='utf-8') as file:
             config = yaml.safe_load(file)
         logging.debug(f'Read {config_file} successfully, values are:')
@@ -62,13 +67,15 @@ def setup_logging(logdir=''):
     logging.getLogger().addHandler(console)
     logging.debug('Logging set up successfully')
 
-
 def main(name):
     """Main routine that creates a new run and monitors it through completion"""
     setup_logging(name)
     logging.info(f'Starting new run "{name}"')
     logging.debug('Creating new RunInfoObj')
     runinfo = RunInfoObj(name)
+
+    logging.debug('Starting ungrib task')
+    ungrib.main(runinfo,logging.getLogger('root.ungrib'))
 
     logging.critical("This script isn't finished yet!")
 
