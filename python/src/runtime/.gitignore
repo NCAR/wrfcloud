@@ -1,0 +1,9 @@
+# Filenames and wildcards added below will not be tracked by git in any      #
+# directory underneath this one                                              #
+#                                                                            #
+# Ignored file types should include executables, python temporary files,     #
+# and other files which should not ever be added to the code repository.     #
+##############################################################################
+__pycache__
+*.log
+test/

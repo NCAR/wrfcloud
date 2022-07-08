@@ -4,8 +4,6 @@
 Functions for setting up, executing, and monitoring a run of the WPS program ungrib
 """
 
-import logging
-
 # Import our custom modules
 from tools.make_wps_namelist import make_wps_namelist
 
@@ -21,4 +19,3 @@ def main(runinfo, logger):
 
 if __name__ == "__main__":
     print('Script not yet set up for standalone run, exiting...')
-    
