@@ -14,12 +14,19 @@ def main(runinfo, logger):
     """Main routine that sets up, runs, and monitors metgrid end-to-end"""
     logger.info(f'Setting up metgrid for "{runinfo.name}"')
 
+    # Stop execution if experiment working directory already exists
+    if os.path.isdir(runinfo.metgriddir):
+        errmsg = (f"Metgrid directory \n                 {runinfo.metgriddir}\n                 "
+                   "already exists. Move or remove this directory before continuing.")
+        logger.critical(errmsg)
+        raise FileExistsError(errmsg)
+
     os.mkdir(runinfo.metgriddir)
     os.chdir(runinfo.metgriddir)
     logger.debug('Creating WPS namelist')
     make_wps_namelist(runinfo, logger)
 
-    logger.critical("This script isn't finished yet!")
+    logger.warning("This script isn't finished yet!")
 
 if __name__ == "__main__":
     print('Script not yet set up for standalone run, exiting...')

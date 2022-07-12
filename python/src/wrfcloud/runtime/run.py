@@ -30,6 +30,8 @@ class RunInfo:
         self.topdir = os.getcwd()
         self.wd = self.topdir + '/' + name
         logging.debug(f'Working directory set to {self.wd}')
+        self.staticdir = self.topdir + '/domains/' + name
+        logging.debug(f'Static data directory is {self.staticdir}')
         self.read_config(name)
 
         self.ungribdir = self.wd + '/ungrib'
@@ -51,6 +53,7 @@ class RunInfo:
         self.enddate = config['run']['end']
         self.input_freq_sec = config['run']['output_freq_sec']
         self.output_freq_sec = config['run']['output_freq_sec']
+        self.local_data = config['run']['local_data']
 
 # Define our functions
 def setup_logging(logdir=''):
@@ -66,7 +69,7 @@ def setup_logging(logdir=''):
     logging.basicConfig(level = logging.DEBUG,
                         format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                         filename = logdir + '/debug.log',
-                        filemode='w')
+                        filemode='a')
     logging.debug('Finished setting up debug file logging')
     if mkdir_fail:
         logging.warning(f'Could not create directory {logdir}')
@@ -102,4 +105,5 @@ if __name__ == "__main__":
     parser.add_argument('--name', type=str, default='test',
                         help='"name" should be a unique alphanumeric name for this particular run')
     args = parser.parse_args()
+
     main(args.name)

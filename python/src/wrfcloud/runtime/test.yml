@@ -5,10 +5,13 @@ user:
 #This section specifies settings about what job is to be run
 run:
     configuration: test
-    start: 2022-07-01_00:00:00
-    end: 2022-07-02_00:00:00
+    start: 2022-06-01_06:00:00
+    end: 2022-06-01_18:00:00
     input_freq_sec: 10800
     output_freq_sec: 3600
+    # local_data is the name of the grib files needed, if not pulling from AWS bucket. Multiple
+    # entries and wildcards are accepted.
+    local_data: /glade/p/ral/jntp/CCproject/wrfcloud/input_data/gfs/2022060100/gfs.t00z.pgrb2.0p25.f*
 #This section specifies settings about how the job is to be run
 settings:
     queue: debug
