@@ -15,17 +15,25 @@ import yaml
 
 # Import our custom modules
 import ungrib
+import metgrid
+import real
+import wrf
+import postproc
 
 # Define our Classes
-class RunInfoObj:
+class RunInfo:
     """
     This class keeps info about the run
     """
     def __init__(self, name):
         self.name = name
-        self.wd = os.getcwd() + '/' + name
+        self.topdir = os.getcwd()
+        self.wd = self.topdir + '/' + name
         logging.debug(f'Working directory set to {self.wd}')
         self.read_config(name)
+
+        self.ungribdir = self.wd + '/ungrib'
+        self.metgriddir = self.wd + '/metgrid'
 
     def read_config(self, name):
         """
@@ -71,13 +79,23 @@ def main(name):
     """Main routine that creates a new run and monitors it through completion"""
     setup_logging(name)
     logging.info(f'Starting new run "{name}"')
-    logging.debug('Creating new RunInfoObj')
-    runinfo = RunInfoObj(name)
+    logging.debug('Creating new RunInfo')
+    runinfo = RunInfo(name)
 
     logging.debug('Starting ungrib task')
     ungrib.main(runinfo,logging.getLogger('root.ungrib'))
 
-    logging.critical("This script isn't finished yet!")
+    logging.debug('Starting metgrid task')
+    metgrid.main(runinfo,logging.getLogger('root.metgrid'))
+
+    logging.debug('Starting real task')
+    real.main(runinfo,logging.getLogger('root.real'))
+
+    logging.debug('Starting wrf task')
+    wrf.main(runinfo,logging.getLogger('root.wrf'))
+
+    logging.debug('Starting postproc task')
+    postproc.main(runinfo,logging.getLogger('root.postproc'))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
