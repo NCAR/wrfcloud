@@ -105,5 +105,4 @@ if __name__ == "__main__":
     parser.add_argument('--name', type=str, default='test',
                         help='"name" should be a unique alphanumeric name for this particular run')
     args = parser.parse_args()
-
     main(args.name)

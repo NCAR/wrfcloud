@@ -6,6 +6,8 @@ Functions for setting up, executing, and monitoring a run of the WPS program ung
 
 import os
 import glob
+import itertools
+from string import ascii_uppercase
 
 # Import our custom modules
 from tools.make_wps_namelist import make_wps_namelist
@@ -20,9 +22,12 @@ def get_grib_input(runinfo, logger, namelist):
     Otherwise, will attempt to grab data from NOAA S3 bucket
     https://registry.opendata.aws/noaa-gfs-bdp-pds/
     """
+    logger.debug(f'test')
+
     if runinfo.local_data:
-        logger.debug('Getting geo_em file(s) from local source')
-        griblink = 'GRIBFILE.AAA'
+        logger.debug('Getting GRIB file(s) from local source')
+        # Iterator for generating letter strings for GRIBFILE suffixes. Don't blame me, this is ungrib's fault
+        suffixes = itertools.product(ascii_uppercase, repeat=3)
         filelist = []
         # If runinfo.local_data is a string, convert it to a list
         if isinstance(runinfo.local_data, str):
@@ -33,12 +38,14 @@ def get_grib_input(runinfo, logger, namelist):
         for entry in data:
             #Since there may be multiple string entries in runinfo.local_data, we need to parse
             #each one individually using glob.glob, then append them all together
-            filelist.extend(glob.glob(entry))
+            filelist.extend(sorted(glob.glob(entry)))
         for gribfile in filelist:
-            logger.debug(f'Linking input GRIB file {gribfile}')
-            os.symlink(gribfile,os.path.basename(gribfile))
+            # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
+            griblink = 'GRIBFILE.' + "".join(suffixes.__next__())
+            logger.debug(f'Linking input GRIB file {gribfile} to {griblink}')
+            os.symlink(gribfile,griblink)
     else:
-        logger.debug('Getting geo_em file(s) from S3 bucket')
+        logger.debug('Getting GRIB file(s) from S3 bucket')
         logger.warning('Not yet implemented!')
 
 def get_files(runinfo, logger, namelist):
