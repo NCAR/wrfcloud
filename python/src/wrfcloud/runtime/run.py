@@ -25,7 +25,8 @@ class RunInfo:
     """
     This class keeps info about the run
     """
-    def __init__(self, name):
+
+    def __init__(self, name: str):
         self.name = name
         self.topdir = os.getcwd()
         self.wd = self.topdir + '/' + name
@@ -37,7 +38,7 @@ class RunInfo:
         self.ungribdir = self.wd + '/ungrib'
         self.metgriddir = self.wd + '/metgrid'
 
-    def read_config(self, name):
+    def read_config(self, name: str) -> None:
         """
         This method reads the config file for this run, and sets the appropriate variables
         for this class.
@@ -55,20 +56,21 @@ class RunInfo:
         self.output_freq_sec = config['run']['output_freq_sec']
         self.local_data = config['run']['local_data']
 
+
 # Define our functions
-def setup_logging(logdir=''):
+def setup_logging(logdir: str = '') -> None:
     """
     Sets up logging for a new run. This should be the first action in main() to ensure
     that all actions are properly logged.
     """
-    mkdir_fail=False
+    mkdir_fail = False
     try:
         os.mkdir(logdir)
     except:
-        mkdir_fail=True
-    logging.basicConfig(level = logging.DEBUG,
-                        format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                        filename = logdir + '/debug.log',
+        mkdir_fail = True
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        filename=logdir + '/debug.log',
                         filemode='a')
     logging.debug('Finished setting up debug file logging')
     if mkdir_fail:
@@ -78,7 +80,8 @@ def setup_logging(logdir=''):
     logging.getLogger().addHandler(console)
     logging.debug('Logging set up successfully')
 
-def main(name):
+
+def main(name: str) -> None:
     """Main routine that creates a new run and monitors it through completion"""
     setup_logging(name)
     logging.info(f'Starting new run "{name}"')
@@ -86,19 +89,20 @@ def main(name):
     runinfo = RunInfo(name)
 
     logging.debug('Starting ungrib task')
-    ungrib.main(runinfo,logging.getLogger('root.ungrib'))
+    ungrib.main(runinfo, logging.getLogger('root.ungrib'))
 
     logging.debug('Starting metgrid task')
-    metgrid.main(runinfo,logging.getLogger('root.metgrid'))
+    metgrid.main(runinfo, logging.getLogger('root.metgrid'))
 
     logging.debug('Starting real task')
-    real.main(runinfo,logging.getLogger('root.real'))
+    real.main(runinfo, logging.getLogger('root.real'))
 
     logging.debug('Starting wrf task')
-    wrf.main(runinfo,logging.getLogger('root.wrf'))
+    wrf.main(runinfo, logging.getLogger('root.wrf'))
 
     logging.debug('Starting postproc task')
-    postproc.main(runinfo,logging.getLogger('root.postproc'))
+    postproc.main(runinfo, logging.getLogger('root.postproc'))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

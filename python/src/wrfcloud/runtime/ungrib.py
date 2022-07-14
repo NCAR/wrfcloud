@@ -8,12 +8,15 @@ import os
 import glob
 import itertools
 from string import ascii_uppercase
+from logging import Logger
+from f90nml.namelist import Namelist
 
 # Import our custom modules
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
+from wrfcloud.runtime.run import RunInfo
 
 
-def get_grib_input(runinfo, logger):
+def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
     """
     Gets GRIB files for processing by ungrib
 
@@ -50,7 +53,7 @@ def get_grib_input(runinfo, logger):
         logger.warning('Not yet implemented!')
 
 
-def get_files(runinfo, logger, namelist):
+def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     """Gets all input files necessary for running ungrib"""
 
     logger.debug('Getting GRIB input files')
@@ -64,7 +67,7 @@ def get_files(runinfo, logger, namelist):
     logger.debug('Getting VTable')
 
 
-def main(runinfo, logger):
+def main(runinfo: RunInfo, logger: Logger) -> None:
     """Main routine that sets up, runs, and monitors ungrib end-to-end"""
     logger.info(f'Setting up ungrib for "{runinfo.name}"')
 

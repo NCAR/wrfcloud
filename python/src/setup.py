@@ -15,7 +15,8 @@ setup(
         'pyyaml==5.4',
         'bcrypt==3.2.0',
         'PyJWT==2.4.0',
-        'aws-parallelcluster==3.0.2'
+        'aws-parallelcluster==3.0.2',
+        'f90nml>=1.4'
     ],
     package_dir={'wrfcloud': 'wrfcloud'},
     package_data={

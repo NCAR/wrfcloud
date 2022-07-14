@@ -5,12 +5,14 @@ Functions for setting up, executing, and monitoring a run of the WPS program met
 """
 
 import os
+from logging import Logger
 
 # Import our custom modules
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
+from wrfcloud.runtime.run import RunInfo
 
 
-def main(runinfo, logger):
+def main(runinfo: RunInfo, logger: Logger) -> None:
     """Main routine that sets up, runs, and monitors metgrid end-to-end"""
     logger.info(f'Setting up metgrid for "{runinfo.name}"')
 
@@ -27,6 +29,7 @@ def main(runinfo, logger):
     make_wps_namelist(runinfo, logger)
 
     logger.warning(f"{__name__} isn't fully implemented yet!")
+
 
 if __name__ == "__main__":
     print('Script not yet set up for standalone run, exiting...')

@@ -8,5 +8,6 @@ __all__ = [
     'dynamodb',
     'user',
     'log',
-    'system'
+    'system',
+    'runtime'
 ]
