@@ -9,7 +9,7 @@ from logging import Logger
 
 # Import our custom modules
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
-from wrfcloud.runtime.run import RunInfo
+from wrfcloud.runtime import RunInfo
 
 
 def main(runinfo: RunInfo, logger: Logger) -> None:

@@ -13,7 +13,7 @@ from f90nml.namelist import Namelist
 
 # Import our custom modules
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
-from wrfcloud.runtime.run import RunInfo
+from wrfcloud.runtime import RunInfo
 
 
 def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:

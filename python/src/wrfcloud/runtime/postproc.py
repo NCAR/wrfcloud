@@ -7,7 +7,7 @@ Functions for setting up, executing, and monitoring a run of WRF post-processing
 from logging import Logger
 
 # Import our custom modules
-from wrfcloud.runtime.run import RunInfo
+from wrfcloud.runtime import RunInfo
 
 
 def main(runinfo: RunInfo, logger: Logger) -> None:
