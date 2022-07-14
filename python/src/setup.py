@@ -36,7 +36,8 @@ setup(
     entry_points={
         'console_scripts': [
             'wrfcloud-imagebuilder=wrfcloud.aws.imagebuilder:main',
-            'wrfcloud-cluster=wrfcloud.aws.pcluster:main'
+            'wrfcloud-cluster=wrfcloud.aws.pcluster:main',
+            'wrfcloud-run=wrfcloud.runtime.run:main'
         ]
     }
 )

@@ -45,8 +45,14 @@ def setup_logging(logdir: str = '') -> None:
     logging.debug('Logging set up successfully')
 
 
-def main(name: str) -> None:
+def main() -> None:
     """Main routine that creates a new run and monitors it through completion"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--name', type=str, default='test',
+                        help='"name" should be a unique alphanumeric name for this particular run')
+    args = parser.parse_args()
+    name = args.name
+
     setup_logging(name)
     logging.info(f'Starting new run "{name}"')
     logging.debug('Creating new RunInfo')
@@ -69,8 +75,4 @@ def main(name: str) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--name', type=str, default='test',
-                        help='"name" should be a unique alphanumeric name for this particular run')
-    args = parser.parse_args()
-    main(args.name)
+    main()
