@@ -7,7 +7,7 @@ Functions for setting up, executing, and monitoring a run of the WPS program met
 import os
 
 # Import our custom modules
-from tools.make_wps_namelist import make_wps_namelist
+from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
 
 
 def main(runinfo, logger):

@@ -14,11 +14,11 @@ import os
 import yaml
 
 # Import our custom modules
-import ungrib
-import metgrid
-import real
-import wrf
-import postproc
+from wrfcloud.runtime import ungrib
+from wrfcloud.runtime import metgrid
+from wrfcloud.runtime import real
+from wrfcloud.runtime import wrf
+from wrfcloud.runtime import postproc
 
 # Define our Classes
 class RunInfo:

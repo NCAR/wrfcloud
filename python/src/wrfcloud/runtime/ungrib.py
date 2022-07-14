@@ -10,7 +10,7 @@ import itertools
 from string import ascii_uppercase
 
 # Import our custom modules
-from tools.make_wps_namelist import make_wps_namelist
+from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
 
 def get_grib_input(runinfo, logger, namelist):
     """
