@@ -11,7 +11,7 @@ def main(runinfo, logger):
     """Main routine that sets up, runs, and monitors post-processing end-to-end"""
     logger.info(f'Setting up post-processing for "{runinfo.name}"')
 
-    logger.warning("This script isn't finished yet!")
+    logger.warning(f"{__name__} isn't fully implemented yet!")
 
 if __name__ == "__main__":
     print('Script not yet set up for standalone run, exiting...')

@@ -26,7 +26,7 @@ def main(runinfo, logger):
     logger.debug('Creating WPS namelist')
     make_wps_namelist(runinfo, logger)
 
-    logger.warning("This script isn't finished yet!")
+    logger.warning(f"{__name__} isn't fully implemented yet!")
 
 if __name__ == "__main__":
     print('Script not yet set up for standalone run, exiting...')

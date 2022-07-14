@@ -10,7 +10,8 @@ run:
     input_freq_sec: 10800
     output_freq_sec: 3600
     # local_data is the name of the grib files needed, if not pulling from AWS bucket. Multiple
-    # entries and wildcards are accepted.
+    # entries and wildcards are accepted. Must be in date order (e.g. initial file location must be
+    # listed before forecast file location.
     local_data: /glade/p/ral/jntp/CCproject/wrfcloud/input_data/gfs/2022060100/gfs.t00z.pgrb2.0p25.f*
 #This section specifies settings about how the job is to be run
 settings:

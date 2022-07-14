@@ -1,4 +1,4 @@
-name: /glade/p/ral/jntp/CCproject/wrfcloud/conda/wrfcloud
+name: wrfcloud
 channels:
   - conda-forge
   - ncar

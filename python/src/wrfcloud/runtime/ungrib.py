@@ -81,7 +81,7 @@ def main(runinfo, logger):
     logger.debug('Getting ungrib input files')
     get_files(runinfo, logger, namelist)
 
-    logger.warning("This script isn't finished yet!")
+    logger.warning(f"{__name__} isn't fully implemented yet!")
 
 if __name__ == "__main__":
     print('Script not yet set up for standalone run, exiting...')
