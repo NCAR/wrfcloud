@@ -4,9 +4,13 @@
 Functions for setting up and creating namelist.wps
 """
 
+from logging import Logger
 import f90nml
+from f90nml.namelist import Namelist
+from wrfcloud.runtime import RunInfo
 
-def make_wps_namelist(runinfo, logger, nml_file=None):
+
+def make_wps_namelist(runinfo: RunInfo, logger: Logger, nml_file: str = None) -> Namelist:
     """Main routine that sets up and creates namelist.wps"""
     logger.debug(f'Setting up WPS namelist for "{runinfo.name}"')
 
