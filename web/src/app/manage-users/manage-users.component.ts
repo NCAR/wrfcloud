@@ -1,6 +1,6 @@
 import {Component, AfterViewInit, OnInit, ViewChild} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {ListUsersResponse, User} from "../wrfcloud-api";
+import {ListUsersResponse, User} from "../client-api";
 import {MatSort} from "@angular/material/sort";
 import {MatTableDataSource} from "@angular/material/table";
 import {MatPaginator} from "@angular/material/paginator";

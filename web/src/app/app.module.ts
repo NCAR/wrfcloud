@@ -28,7 +28,9 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSortModule} from "@angular/material/sort";
 import {EditUserComponent} from './edit-user/edit-user.component';
 import {MatSelectModule} from "@angular/material/select";
-import { ActivateComponent } from './activate/activate.component';
+import {WrfViewerComponent} from './wrf-viewer/wrf-viewer.component';
+import {ActivateComponent} from "./activate/activate.component";
+import {MatSliderModule} from "@angular/material/slider";
 
 @NgModule({
   declarations: [
@@ -42,7 +44,8 @@ import { ActivateComponent } from './activate/activate.component';
     LogoutComponent,
     ErrorDialogComponent,
     EditUserComponent,
-    ActivateComponent
+    ActivateComponent,
+    WrfViewerComponent
   ],
   imports: [
     BrowserModule,
@@ -62,7 +65,8 @@ import { ActivateComponent } from './activate/activate.component';
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
-    MatSelectModule
+    MatSelectModule,
+    MatSliderModule
   ],
   providers: [],
   bootstrap: [AppComponent]
