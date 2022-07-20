@@ -31,6 +31,8 @@ import {MatSelectModule} from "@angular/material/select";
 import {WrfViewerComponent} from './wrf-viewer/wrf-viewer.component';
 import {ActivateComponent} from "./activate/activate.component";
 import {MatSliderModule} from "@angular/material/slider";
+import {LayerComponent} from './layer/layer.component';
+import {MatCheckboxModule} from "@angular/material/checkbox";
 
 @NgModule({
   declarations: [
@@ -45,7 +47,8 @@ import {MatSliderModule} from "@angular/material/slider";
     ErrorDialogComponent,
     EditUserComponent,
     ActivateComponent,
-    WrfViewerComponent
+    WrfViewerComponent,
+    LayerComponent
   ],
   imports: [
     BrowserModule,
@@ -66,7 +69,8 @@ import {MatSliderModule} from "@angular/material/slider";
     MatPaginatorModule,
     MatSortModule,
     MatSelectModule,
-    MatSliderModule
+    MatSliderModule,
+    MatCheckboxModule
   ],
   providers: [],
   bootstrap: [AppComponent]

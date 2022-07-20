@@ -1,0 +1,62 @@
+@import ../../globals
+@import ../../palette
+
+
+.layer-container
+  padding: 10px
+
+.layer-visibility
+  display: grid
+
+.layer-opacity
+  display: grid
+  width: 80%
+  margin: auto
+
+.layer-color-legend
+  width: 80%
+  margin: auto
+  min-height: 20px
+
+.layer-color-legend-min
+  display: inline-block
+  min-width: 33%
+  text-align: left
+
+.layer-color-legend-max
+  display: inline-block
+  min-width: 33%
+  text-align: right
+
+.layer-color-legend-units
+  display: inline-block
+  min-width: 33%
+  text-align: center
+
+
+.layer-details-closed
+  animation-timing-function: linear
+  animation-name: layer-collapse
+  animation-duration: 0.25s
+  animation-iteration-count: 1
+  overflow: hidden
+  max-height: 0
+
+.layer-details-open
+  animation-timing-function: linear
+  animation-name: layer-expand
+  animation-duration: 0.25s
+  animation-iteration-count: 1
+  overflow: hidden
+
+@keyframes layer-collapse
+  from
+    max-height: 95px
+  to
+    max-height: 0
+
+@keyframes layer-expand
+  from
+    max-height: 0
+  to
+    max-height: 95px
