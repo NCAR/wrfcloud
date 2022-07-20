@@ -1,0 +1,92 @@
+@use 'sass:color'
+@import ../../globals
+
+
+table
+  border-spacing: 0
+
+.viewer-mobile-container
+  font-size: 1.2rem
+  width: 90vw
+  margin: calc(30vh - 100px) auto 0 auto
+
+.viewer-mobile-text
+  line-height: 1.4
+  text-align: justify
+  padding: 15px
+  border: 1px solid $medium-gray
+  border-radius: 8px
+  background-image: linear-gradient($bg-dark-2, $bg-dark-1)
+
+.viewer-mobile-button-container
+  margin-top: 20px
+  display: grid
+
+.viewer-mobile-button
+  font-size: 1.2rem
+
+.viewer-container
+  margin-top: 20px
+  width: 100vw
+  overflow: hidden
+
+.viewer-header
+  margin: 0 10em
+
+.viewer-title
+  font-size: 2.0rem
+  width: 50%
+  display: inline-block
+  text-align: right
+
+.viewer-init-time-select
+  margin-left: 40px
+  font-size: 1.2rem
+
+.viewer-init-time-select-mat
+  min-width: 225px
+
+.viewer-mid-panel
+  width: 98vw
+  margin-left: 1vw
+  display: inline-flex
+
+.viewer-height-selector
+  max-width: 70px
+  display: inline-block
+  background-image: linear-gradient(90deg, $bg1, $bg2)
+  border-top-left-radius: 12px
+
+.viewer-height-selector-widget
+  margin-top: 25px
+  min-height: calc(100vh - 400px)
+
+.map
+  width: calc(98vw - 400px)
+  min-height: calc(100vh - 350px)
+  float: top
+
+.viewer-layers
+  min-width: 350px
+  background-image: linear-gradient(180deg, $bg1, $bg2)
+  border-top-right-radius: 12px
+
+.viewer-lower-panel
+  width: 98vw
+  margin-left: 1vw
+  display: inline-flex
+  border-bottom-left-radius: 12px
+  border-bottom-right-radius: 12px
+  background-image: linear-gradient(90deg, $bg1, $bg2)
+
+.viewer-animate-tool
+  margin-left: 70px
+  width: 300px
+  min-height: 90px
+  text-align: center
+
+.viewer-timeline
+  width: calc(100% - 370px)
+  min-height: 90px
+  text-align: center
+
