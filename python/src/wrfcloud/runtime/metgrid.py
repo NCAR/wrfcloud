@@ -33,6 +33,7 @@ def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
         print(ungribfile)
         os.symlink(ungribfile, f'{runinfo.metgriddir}/' + os.path.basename(ungribfile))
 
+
 def run_metgrid(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     """Executes the metgrid.exe program"""
 
@@ -40,7 +41,7 @@ def run_metgrid(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     os.symlink(f'{runinfo.wpsdir}/metgrid/metgrid.exe', 'metgrid.exe')
 
     logger.debug('Executing metgrid.exe')
-    ungrib_cmd ='./metgrid.exe >& metgrid.log'
+    ungrib_cmd = './metgrid.exe >& metgrid.log'
     os.system(ungrib_cmd)
 
 
@@ -67,6 +68,7 @@ def main(runinfo: RunInfo, logger: Logger) -> None:
 
     logger.debug('Calling run_metgrid')
     run_metgrid(runinfo, logger, namelist)
+
 
 if __name__ == "__main__":
     print('Script not yet set up for standalone run, exiting...')
