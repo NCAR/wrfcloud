@@ -5,7 +5,6 @@ Functions for setting up, executing, and monitoring a run of the WPS program met
 """
 
 import os
-import sys
 import glob
 from logging import Logger
 from f90nml.namelist import Namelist
