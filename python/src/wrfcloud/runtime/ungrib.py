@@ -69,13 +69,12 @@ def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     os.symlink(f'{runinfo.wpsdir}/ungrib/Variable_Tables/Vtable.GFS', 'Vtable')
 
 
+def run_ungrib(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
+    """Executes the ungrib.exe program"""
     logger.debug('Linking ungrib.exe to ungrib working directory')
     os.symlink(f'{runinfo.wpsdir}/ungrib/ungrib.exe', 'ungrib.exe')
 
-def run_ungrib(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
-    """Executes the ungrib.exe program"""
     logger.debug('Executing ungrib.exe')
-
     ungrib_cmd ='./ungrib.exe >& ungrib.log'
     os.system(ungrib_cmd)
  
