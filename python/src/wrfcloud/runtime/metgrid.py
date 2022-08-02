@@ -41,8 +41,8 @@ def run_metgrid(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     os.symlink(f'{runinfo.wpsdir}/metgrid/metgrid.exe', 'metgrid.exe')
 
     logger.debug('Executing metgrid.exe')
-    ungrib_cmd = './metgrid.exe >& metgrid.log'
-    os.system(ungrib_cmd)
+    metgrid_cmd = './metgrid.exe >& metgrid.log'
+    os.system(metgrid_cmd)
 
 
 def main(runinfo: RunInfo, logger: Logger) -> None:
