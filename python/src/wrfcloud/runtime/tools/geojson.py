@@ -6,6 +6,7 @@ Module to convert WRF output to GeoJSON
 from typing import Union
 import json
 import netCDF4
+from matplotlib import colors
 from matplotlib import contour
 from matplotlib import pyplot
 import numpy
@@ -36,7 +37,7 @@ class GeoJson:
                          GeoJSON data returned as a dictionary
         """
         # open the NetCDF file and get the requested horizontal slice
-        # pylint: disable=E1101
+        # pylint thinks that the Dataset class does not exist pylint: disable=E1101
         wrf = netCDF4.Dataset(self.wrf_file)
         data = wrf[self.variable]
         time_index = 0
@@ -49,34 +50,65 @@ class GeoJson:
         # create a set of contours from the data grid
         contours: contour.QuadContourSet = pyplot.contourf(grid)
 
+        # # create an array of contour levels, each of which contains a set of multi-polygons
+        # levels = []
+        # for contour_line in contours.collections:
+        #     multi_polygon = []
+        #     for path in contour_line.get_paths():
+        #         path_polygons = path.to_polygons()
+        #         if len(path_polygons) == 0:
+        #             continue
+        #         polygon = self.polygon_to_coord_array(path_polygons[0])
+        #         holes = []
+        #         for hole in path_polygons[1:]:
+        #             holes.append(self.polygon_to_coord_array(hole))
+        #         multi_polygon.append({'p': polygon, 'h': holes})
+        #     levels.append(multi_polygon)
+        #
+        # # create a list of MultiPolygon features to put in the GeoJSON file
+        # features = []
+        # for (i, level) in enumerate(levels):
+        #     # get the hex color code for this level's color
+        #     level_color = colors.rgb2hex(contours.tcolors[i][0])
+        #
+        #     # Add all the MultiPolygon features for this contour level
+        #     for multi_polygon in level:
+        #         polygon_string = self.polygon_and_holes_to_multi_polygon(
+        #             multi_polygon['p'],
+        #             multi_polygon['h']
+        #         )
+        #
+        #         feature = {
+        #             "type": "Feature",
+        #             "geometry": {
+        #                 "type": "MultiPolygon",
+        #                 "coordinates": [json.loads(polygon_string)]
+        #             },
+        #             "properties": {
+        #                 "stroke-width": 0,
+        #                 "fill": level_color,
+        #                 "fill-opacity": 1
+        #             }
+        #         }
+        #         features.append(feature)
+
         # create an array of contour levels, each of which contains a set of multi-polygons
         levels = []
-        for contour_line in contours.collections:
+        features = []
+        for i, contour_line in enumerate(contours.collections):
+            level_color = colors.rgb2hex(contours.tcolors[i][0])
             multi_polygon = []
             for path in contour_line.get_paths():
-                polygon = self.polygon_to_coord_array(path.to_polygons()[0])
+                path_polygons = path.to_polygons()
+                if len(path_polygons) == 0:
+                    continue
+                polygon = self.polygon_to_coord_array(path_polygons[0])
                 holes = []
-                for hole in path.to_polygons()[1:]:
+                for hole in path_polygons[1:]:
                     holes.append(self.polygon_to_coord_array(hole))
                 multi_polygon.append({'p': polygon, 'h': holes})
-            levels.append(multi_polygon)
 
-        # create a list of MultiPolygon features to put in the GeoJSON file
-        features = []
-        for (i, level) in enumerate(levels):
-            # get the hex color code for this level's color
-            r = ('00' + hex(int(contours.tcolors[i][0][0] * 255))[2:])[-2:]
-            g = ('00' + hex(int(contours.tcolors[i][0][1] * 255))[2:])[-2:]
-            b = ('00' + hex(int(contours.tcolors[i][0][2] * 255))[2:])[-2:]
-            level_color = f'#{r}{g}{b}'
-
-            # Add all the MultiPolygon features for this contour level
-            for multi_polygon in level:
-                polygon_string = self.polygon_and_holes_to_multi_polygon(
-                    multi_polygon['p'],
-                    multi_polygon['h']
-                )
-
+                polygon_string = self.polygon_and_holes_to_multi_polygon(polygon, holes)
                 feature = {
                     "type": "Feature",
                     "geometry": {
@@ -102,12 +134,10 @@ class GeoJson:
             return doc
 
         # write the data to a file or return as a string if no data were
-        print(f'Writing to {out_file}.')
-        with open(out_file, 'w') as f:
-            f.write(json.dumps(doc))
-            f.flush()
-            f.close()
-        print('Done.')
+        with open(out_file, 'w') as file:
+            file.write(json.dumps(doc))
+            file.flush()
+            file.close()
         return None
 
     def grid_to_lonlat(self, x: float, y: float) -> (float, float):
@@ -169,13 +199,12 @@ def main():
     Command line entry point to run the converter
     """
     from argparse import ArgumentParser
-    from argparse import ArgumentDefaultsHelpFormatter as HelpFormatter
 
     # parse the command line parameters
-    parser = ArgumentParser(description='Convert WRF to GeoJSON format', formatter_class=HelpFormatter)
+    parser = ArgumentParser(description='Convert WRF to GeoJSON format')
     parser.add_argument('--in-file', type=str, help='Full path to the WRF file', required=True)
     parser.add_argument('--out-file', type=str, help='Full path to the output file', required=False)
-    parser.add_argument('--variable', type=str, help='Variable name from the WRF file', required=True)
+    parser.add_argument('--variable', type=str, help='Variable from the WRF file', required=True)
     parser.add_argument('--z-level', type=int, help='Z-level if a 3D field', required=False)
     args = parser.parse_args()
 
