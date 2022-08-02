@@ -37,7 +37,7 @@ class GeoJson:
                          GeoJSON data returned as a dictionary
         """
         # open the NetCDF file and get the requested horizontal slice
-        # pylint thinks that the Dataset class does not exist pylint: disable=E1101
+        # pylint thinks that the Dataset class does not exist in netCDF4 pylint: disable=E1101
         wrf = netCDF4.Dataset(self.wrf_file)
         data = wrf[self.variable]
         time_index = 0
@@ -50,65 +50,34 @@ class GeoJson:
         # create a set of contours from the data grid
         contours: contour.QuadContourSet = pyplot.contourf(grid)
 
-        # # create an array of contour levels, each of which contains a set of multi-polygons
-        # levels = []
-        # for contour_line in contours.collections:
-        #     multi_polygon = []
-        #     for path in contour_line.get_paths():
-        #         path_polygons = path.to_polygons()
-        #         if len(path_polygons) == 0:
-        #             continue
-        #         polygon = self.polygon_to_coord_array(path_polygons[0])
-        #         holes = []
-        #         for hole in path_polygons[1:]:
-        #             holes.append(self.polygon_to_coord_array(hole))
-        #         multi_polygon.append({'p': polygon, 'h': holes})
-        #     levels.append(multi_polygon)
-        #
-        # # create a list of MultiPolygon features to put in the GeoJSON file
-        # features = []
-        # for (i, level) in enumerate(levels):
-        #     # get the hex color code for this level's color
-        #     level_color = colors.rgb2hex(contours.tcolors[i][0])
-        #
-        #     # Add all the MultiPolygon features for this contour level
-        #     for multi_polygon in level:
-        #         polygon_string = self.polygon_and_holes_to_multi_polygon(
-        #             multi_polygon['p'],
-        #             multi_polygon['h']
-        #         )
-        #
-        #         feature = {
-        #             "type": "Feature",
-        #             "geometry": {
-        #                 "type": "MultiPolygon",
-        #                 "coordinates": [json.loads(polygon_string)]
-        #             },
-        #             "properties": {
-        #                 "stroke-width": 0,
-        #                 "fill": level_color,
-        #                 "fill-opacity": 1
-        #             }
-        #         }
-        #         features.append(feature)
-
-        # create an array of contour levels, each of which contains a set of multi-polygons
-        levels = []
+        # create a set of features for the GeoJSON file
         features = []
+
+        # loop over each contour level
         for i, contour_line in enumerate(contours.collections):
+            # get the hex color for this level
             level_color = colors.rgb2hex(contours.tcolors[i][0])
-            multi_polygon = []
+
+            # loop over each outer polygon and set of interior holes
             for path in contour_line.get_paths():
+
+                # get the list of polygons for this set
                 path_polygons = path.to_polygons()
+
+                # skip if there are no polygons
                 if len(path_polygons) == 0:
                     continue
-                polygon = self.polygon_to_coord_array(path_polygons[0])
-                holes = []
-                for hole in path_polygons[1:]:
-                    holes.append(self.polygon_to_coord_array(hole))
-                multi_polygon.append({'p': polygon, 'h': holes})
 
-                polygon_string = self.polygon_and_holes_to_multi_polygon(polygon, holes)
+                # the first polygon in the list is the outer polygon
+                outer_polygon = self.polygon_to_coord_array(path_polygons[0])
+
+                # the remaining polygons are holes in the outer polygon
+                holes = [self.polygon_to_coord_array(hole) for hole in path_polygons[1:]]
+
+                # get the string of the MultiPolygon coordinates for outer polygon and holes
+                polygon_string = self.polygon_and_holes_to_multi_polygon(outer_polygon, holes)
+
+                # create a GeoJSON feature as a dictionary
                 feature = {
                     "type": "Feature",
                     "geometry": {
@@ -121,6 +90,8 @@ class GeoJson:
                         "fill-opacity": 1
                     }
                 }
+
+                # add this MultiPolygon feature to the set of features
                 features.append(feature)
 
         # create the GeoJSON document
