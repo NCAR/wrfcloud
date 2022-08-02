@@ -30,7 +30,6 @@ def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     logger.debug('Linking FILEs from ungrib step')
     filelist = glob.glob(f'{runinfo.ungribdir}/FILE*') 
     for ungribfile in filelist:
-        print(ungribfile)
         os.symlink(ungribfile, f'{runinfo.metgriddir}/' + os.path.basename(ungribfile))
 
 
