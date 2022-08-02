@@ -26,7 +26,7 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
     Otherwise, will attempt to grab data from NOAA S3 bucket
     https://registry.opendata.aws/noaa-gfs-bdp-pds/
     """
-    logger.debug(f'test')
+    logger.debug('test')
 
     if runinfo.local_data:
         logger.debug('Getting GRIB file(s) from local source')
@@ -66,11 +66,11 @@ def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
         os.symlink(f'{runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
 
     logger.debug('Getting VTable.GFS')
-    os.symlink(f'{runinfo.wpsdir}/ungrib/Variable_Tables/Vtable.GFS', f'Vtable')
+    os.symlink(f'{runinfo.wpsdir}/ungrib/Variable_Tables/Vtable.GFS', 'Vtable')
 
 
     logger.debug('Linking ungrib.exe to ungrib working directory')
-    os.symlink(f'{runinfo.wpsdir}/ungrib/ungrib.exe', f'ungrib.exe')
+    os.symlink(f'{runinfo.wpsdir}/ungrib/ungrib.exe', 'ungrib.exe')
 
 def run_ungrib(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     """Executes the ungrib.exe program"""

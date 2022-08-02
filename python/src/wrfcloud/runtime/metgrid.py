@@ -24,7 +24,7 @@ def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
         os.symlink(f'{runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
 
     logger.debug('Linking metgrid dir for tables')
-    os.symlink(f'{runinfo.wpsdir}/metgrid', f'metgrid')
+    os.symlink(f'{runinfo.wpsdir}/metgrid', 'metgrid')
 
     # Link in the FILES from ungrib
     logger.debug('Linking FILEs from ungrib step')
@@ -37,7 +37,7 @@ def run_metgrid(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     """Executes the metgrid.exe program"""
 
     logger.debug('Linking metgrid.exe to metgrid working directory')
-    os.symlink(f'{runinfo.wpsdir}/metgrid/metgrid.exe', f'metgrid.exe')
+    os.symlink(f'{runinfo.wpsdir}/metgrid/metgrid.exe', 'metgrid.exe')
 
     logger.debug('Executing metgrid.exe')
     ungrib_cmd ='./metgrid.exe >& metgrid.log'
