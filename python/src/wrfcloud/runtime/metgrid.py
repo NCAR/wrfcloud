@@ -33,7 +33,7 @@ def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
         os.symlink(ungribfile, f'{runinfo.metgriddir}/' + os.path.basename(ungribfile))
 
 
-def run_metgrid(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
+def run_metgrid(runinfo: RunInfo, logger: Logger) -> None:
     """Executes the metgrid.exe program"""
 
     logger.debug('Linking metgrid.exe to metgrid working directory')
@@ -66,7 +66,7 @@ def main(runinfo: RunInfo, logger: Logger) -> None:
     get_files(runinfo, logger, namelist)
 
     logger.debug('Calling run_metgrid')
-    run_metgrid(runinfo, logger, namelist)
+    run_metgrid(runinfo, logger)
 
 
 if __name__ == "__main__":
