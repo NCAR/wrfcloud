@@ -14,6 +14,8 @@ import os
 import urllib.error
 import urllib.request
 import requests
+from botocore import UNSIGNED
+from botocore.config import Config
 from string import ascii_uppercase
 from logging import Logger
 from f90nml.namelist import Namelist
@@ -101,56 +103,45 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
             get_method = 'S3'
 
         # Beef this up to include cycle date and forecast length.        
-        logger.debug(f'Attempting to get from from {get_method}.')
+        logger.debug(f'Attempting to get GFS input data from {get_method}.')
 
         # Set base URLs for NOMADS and S3 bucket with GFS data.
         nomads_base_url = 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
-        aws_base_url = 'https://noaa-gfs-bdp-pds.s3.amazonaws.com/index.html#'
+        aws_base_url = 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
 
-        #bucket_name = 'noaa-gfs-bdp-pds' # replace with your bucket name
-        #s3 = boto3.resource('s3')
+        # For more info on GFS data on S3: https://registry.opendata.aws/noaa-gfs-bdp-pds/
+        #s3 = boto3.resource('s3', config=Config(signature_version=UNSIGNED))
+        #bucket_name = 'noaa-gfs-bdp-pds'
 
-        #try:
-        #    s3.Bucket(buket_name).download_file(KEY, 'my_local_image.jpg')
-        #except botocore.exceptions.ClientError as e:
-        #    if e.response['Error']['Code'] == "404":
-        #    print("The object does not exist.")
-        #else:
-        #    raise
-
-        # check if URL is valid (and add logging)
+        # check if URL is valid (and add logging) - this not fully mature!!
+        # future: add check on S3 bucket with boto3 (e.g., botocore.exceptions.ClientError)
         if get_method == 'NOMADS':
             try:
                 url_dir = nomads_base_url
                 ret = urllib.request.urlopen(url_dir)
             except urllib.error.URLError as e:
-                logger.warning('URL does not exist!') 
+                logger.warning('NOMADS URL does not exist!') 
+        else:
+            try:
+                url_dir = aws_base_url
+                ret = urllib.request.urlopen(url_dir)
+            except urllib.error.URLError as e:
+                logger.warning('S3 URL does not exist!')
 
-
-        #try:
-        #    # Get the remote size
-        #    ret = urllib.request.urlopen(remote_path)
-        #    file_size_at_server = int(ret.info().get('content-length', '0'))
-        #    ret.close()
-        #except:
-        #    logging.debug('File size retrieval failed.')
-           
-        
-
-        for fhr in range (cycle_start.hour, cycle_dt_h, int(input_freq_h)):
+        for fhr in range (cycle_start.hour, cycle_dt_h + 1, int(input_freq_h)):
             gfs_file = f"gfs.{cycle_start_ymd}/{cycle_start_h}/atmos/gfs.t{cycle_start_h}z.pgrb2.0p25.f{fhr:03d}"
             gfs_local = f"gfs.t{cycle_start_h}z.pgrb2.0p25.f{fhr:03d}"
-            full_url = os.path.join(nomads_base_url, gfs_file)
-            #print(full_url)
-            #data = requests.get(full_url)
-            urllib.request.urlretrieve(full_url, gfs_local)
-
-            #s3.Bucket(BUCKET_NAME).download_file(gfs_file, gfs_local)
+            if get_method == 'NOMADS':
+                full_url = os.path.join(nomads_base_url, gfs_file)
+                urllib.request.urlretrieve(full_url, gfs_local)
+            else: # get_method = 'S3'
+                full_url = os.path.join(aws_base_url, gfs_file)
+                # Can specify using urllib or boto3 for S3 retrieval -- what should be the default?
+                urllib.request.urlretrieve(full_url, gfs_local)
+                #s3 = boto3.resource('s3', config=Config(signature_version=UNSIGNED))
+                #bucket_name = 'noaa-gfs-bdp-pds'
+                #s3.Bucket(bucket_name).download_file(gfs_file, gfs_local)
             
-        
-        #logger.warning('Not yet implemented!')
-
-
 def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     """Gets all input files necessary for running ungrib"""
 
