@@ -18,6 +18,10 @@ class RunInfo:
         logging.debug(f'Working directory set to {self.wd}')
         self.staticdir = self.topdir + '/domains/' + name
         logging.debug(f'Static data directory is {self.staticdir}')
+        self.wpsdir = self.topdir + '/WPSV4/'
+        logging.debug(f'WPS directory is {self.wpsdir}')
+        self.wrfdir = self.topdir + '/WRFV4/' 
+        logging.debug(f'WRF directory is {self.wrfdir}')
         self.read_config(name)
 
         self.ungribdir = self.wd + '/ungrib'

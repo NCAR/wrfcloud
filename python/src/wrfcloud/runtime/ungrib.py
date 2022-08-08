@@ -38,7 +38,7 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
     If there is a data outage or are running a retrospective case >10 days old, will attempt to pull from NOAA S3 bucket
     https://registry.opendata.aws/noaa-gfs-bdp-pds/
     """
-    logger.debug(f'test')
+    logger.debug('test')
 
     if runinfo.local_data:
         logger.debug('Getting GRIB file(s) from local source')
@@ -150,11 +150,23 @@ def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
 
     logger.debug('Getting geo_em file(s)')
     # Get the number of domains from namelist
+    # Assumes geo_em files are in local path/domains/expn_name. TODO: Make pull from S3
     for domain in range(1, namelist['share']['max_dom'] + 1):
         os.symlink(f'{runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
 
-    logger.debug('Getting VTable')
+    logger.debug('Getting VTable.GFS')
+    os.symlink(f'{runinfo.wpsdir}/ungrib/Variable_Tables/Vtable.GFS', 'Vtable')
 
+
+def run_ungrib(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
+    """Executes the ungrib.exe program"""
+    logger.debug('Linking ungrib.exe to ungrib working directory')
+    os.symlink(f'{runinfo.wpsdir}/ungrib/ungrib.exe', 'ungrib.exe')
+
+    logger.debug('Executing ungrib.exe')
+    ungrib_cmd ='./ungrib.exe >& ungrib.log'
+    os.system(ungrib_cmd)
+ 
 
 def main(runinfo: RunInfo, logger: Logger) -> None:
     """Main routine that sets up, runs, and monitors ungrib end-to-end"""
@@ -169,13 +181,15 @@ def main(runinfo: RunInfo, logger: Logger) -> None:
 
     os.mkdir(runinfo.ungribdir)
     os.chdir(runinfo.ungribdir)
+
     logger.debug('Creating WPS namelist')
     namelist = make_wps_namelist(runinfo, logger)
 
     logger.debug('Getting ungrib input files')
     get_files(runinfo, logger, namelist)
 
-    logger.warning(f"{__name__} isn't fully implemented yet!")
+    logger.debug('Calling run_ungrib')
+    run_ungrib(runinfo, logger, namelist)
 
 
 if __name__ == "__main__":
