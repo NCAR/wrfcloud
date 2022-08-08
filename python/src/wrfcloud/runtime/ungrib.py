@@ -10,10 +10,9 @@ import glob
 import itertools
 import math
 import os
-#import urllib3
+import requests
 import urllib.error
 import urllib.request
-import requests
 from botocore import UNSIGNED
 from botocore.config import Config
 from string import ascii_uppercase
@@ -92,22 +91,18 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
 
         # Set base URLs for NOMADS and S3 bucket with GFS data.
         nomads_base_url = 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
-        aws_base_url = 'https://noaa-gfs-bdp-pds.s3.amazonaws.com/index.html#'
+        aws_base_url = 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
 
         # Check to see if the requested initialization time is greater than NOMADS retention.
-        request_dt = datetime.datetime.now() - cycle_start
-        request_dt_s = request_dt.total_seconds()
-        if request_dt_s <= nomads_retention*86400:
-            get_method = 'NOMADS'
-        else:
-            get_method = 'S3'
+        #request_dt = datetime.datetime.now() - cycle_start
+        #request_dt_s = request_dt.total_seconds()
+        #if request_dt_s <= nomads_retention*86400:
+        #    get_method = 'NOMADS'
+        #else:
+        #    get_method = 'S3'
 
         # Beef this up to include cycle date and forecast length.        
         logger.debug(f'Attempting to get GFS input data from {get_method}.')
-
-        # Set base URLs for NOMADS and S3 bucket with GFS data.
-        nomads_base_url = 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
-        aws_base_url = 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
 
         # For more info on GFS data on S3: https://registry.opendata.aws/noaa-gfs-bdp-pds/
         #s3 = boto3.resource('s3', config=Config(signature_version=UNSIGNED))
@@ -115,18 +110,19 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
 
         # check if URL is valid (and add logging) - this not fully mature!!
         # future: add check on S3 bucket with boto3 (e.g., botocore.exceptions.ClientError)
-        if get_method == 'NOMADS':
-            try:
-                url_dir = nomads_base_url
-                ret = urllib.request.urlopen(url_dir)
-            except urllib.error.URLError as e:
-                logger.warning('NOMADS URL does not exist!') 
-        else:
+        try:
+            url_dir = nomads_base_url
+            ret = urllib.request.urlopen(url_dir)
+            get_method = 'NOMADS'
+        except urllib.error.URLError as e:
+            logger.warning('NOMADS URL does not exist, trying AWS S3 bucket!') 
+        
+        if ret_nomads = 'e':
             try:
                 url_dir = aws_base_url
                 ret = urllib.request.urlopen(url_dir)
             except urllib.error.URLError as e:
-                logger.warning('S3 URL does not exist!')
+                logger.warning('AWS S3 URL does not exist, exiting!')
 
         for fhr in range (cycle_start.hour, cycle_dt_h + 1, int(input_freq_h)):
             gfs_file = f"gfs.{cycle_start_ymd}/{cycle_start_h}/atmos/gfs.t{cycle_start_h}z.pgrb2.0p25.f{fhr:03d}"
