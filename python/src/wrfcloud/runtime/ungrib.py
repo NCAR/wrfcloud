@@ -63,11 +63,9 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
         logger.debug('Getting GRIB file(s) from external source (NOMADS or S3 bucket)')
 
         # NOMADS provides data in realtime with a retention preiod of ~10 days. We will
-        # first look at NOMADS for data. If data does not exist, or initialization 
-        # requested is greater than the retention period, we will pull data from S3 bucket.
+        # first look at NOMADS for data. If data does not exist, we will pull data from S3.
         # Data on the S3 bucket is avaialble after the full model run is complete (i.e.,
         # not quite real time), but the archive is for several years.
-        nomads_retention = 10. # in days
 
         # Get requested input data frequency (in sec) from namelist and convert to hours.
         input_freq_sec = runinfo.input_freq_sec
@@ -92,52 +90,45 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
         # Set base URLs for NOMADS and S3 bucket with GFS data.
         nomads_base_url = 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
         aws_base_url = 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
-
-        # Check to see if the requested initialization time is greater than NOMADS retention.
-        #request_dt = datetime.datetime.now() - cycle_start
-        #request_dt_s = request_dt.total_seconds()
-        #if request_dt_s <= nomads_retention*86400:
-        #    get_method = 'NOMADS'
-        #else:
-        #    get_method = 'S3'
-
-        # Beef this up to include cycle date and forecast length.        
-        logger.debug(f'Attempting to get GFS input data from {get_method}.')
-
         # For more info on GFS data on S3: https://registry.opendata.aws/noaa-gfs-bdp-pds/
         #s3 = boto3.resource('s3', config=Config(signature_version=UNSIGNED))
         #bucket_name = 'noaa-gfs-bdp-pds'
 
-        # check if URL is valid (and add logging) - this not fully mature!!
-        # future: add check on S3 bucket with boto3 (e.g., botocore.exceptions.ClientError)
-        try:
-            url_dir = nomads_base_url
-            ret = urllib.request.urlopen(url_dir)
-            get_method = 'NOMADS'
-        except urllib.error.URLError as e:
-            logger.warning('NOMADS URL does not exist, trying AWS S3 bucket!') 
-        
-        if ret_nomads = 'e':
-            try:
-                url_dir = aws_base_url
-                ret = urllib.request.urlopen(url_dir)
-            except urllib.error.URLError as e:
-                logger.warning('AWS S3 URL does not exist, exiting!')
-
-        for fhr in range (cycle_start.hour, cycle_dt_h + 1, int(input_freq_h)):
+        # Check if URL is valid (and add logging) - this not fully mature!!
+        # Future: If we use boto3, add check on S3 bucket with boto3 functionality (e.g., botocore.exceptions.ClientError)
+        for fhr in range (0, cycle_dt_h + 1, int(input_freq_h)):
             gfs_file = f"gfs.{cycle_start_ymd}/{cycle_start_h}/atmos/gfs.t{cycle_start_h}z.pgrb2.0p25.f{fhr:03d}"
             gfs_local = f"gfs.t{cycle_start_h}z.pgrb2.0p25.f{fhr:03d}"
-            if get_method == 'NOMADS':
+
+            try:
                 full_url = os.path.join(nomads_base_url, gfs_file)
-                urllib.request.urlretrieve(full_url, gfs_local)
-            else: # get_method = 'S3'
-                full_url = os.path.join(aws_base_url, gfs_file)
-                # Can specify using urllib or boto3 for S3 retrieval -- what should be the default?
-                urllib.request.urlretrieve(full_url, gfs_local)
-                #s3 = boto3.resource('s3', config=Config(signature_version=UNSIGNED))
-                #bucket_name = 'noaa-gfs-bdp-pds'
-                #s3.Bucket(bucket_name).download_file(gfs_file, gfs_local)
-            
+                status_nomads = requests.get(full_url)
+                if status_nomads.status_code < 400:
+                    logger.debug(f'Pulling forecast hour {fhr} from NOMADS.')
+                    urllib.request.urlretrieve(full_url, gfs_local)
+                else:
+                    logger.debug(f'NOMADS URL does not exist for forecast hour {fhr}, trying AWS S3 bucket.')
+                    full_url = os.path.join(aws_base_url, gfs_file)
+                    status_aws = requests.get(full_url)
+                    if status_aws.status_code < 400:
+                        logger.debug(f'Pulling forecast hour {fhr} from AWS S3 bucket.')
+                        # Can specify using urllib or boto3 for S3 retrieval -- what should be the default?
+                        urllib.request.urlretrieve(full_url, gfs_local)
+                        #s3.Bucket(bucket_name).download_file(gfs_file, gfs_local)
+            except:
+                logger.warning('NOMADS and AWS S3 bucket URLs do not exist; this is bad!')
+
+        # Iterator for generating letter strings for GRIBFILE suffixes. Don't blame me, this is ungrib's fault
+        # Note: For pulling data from NOMADS or S3, we assume files start with gfs*
+        suffixes = itertools.product(ascii_uppercase, repeat=3)
+        filelist = glob.glob(os.path.join(runinfo.ungribdir,'gfs.*'))
+
+        for gribfile in filelist:
+            # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
+            griblink = 'GRIBFILE.' + "".join(suffixes.__next__())
+            logger.debug(f'Linking input GRIB file {gribfile} to {griblink}')
+            os.symlink(gribfile, griblink)
+
 def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     """Gets all input files necessary for running ungrib"""
 
