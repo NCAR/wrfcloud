@@ -471,7 +471,8 @@ def test_password_reset() -> None:
     assert action.run()
     assert action.success
     user_ = get_user_from_system(user.email)
-    assert user_.get_seconds_since_reset_token_sent() < 10
+    token_age = user_.get_seconds_since_reset_token_sent()
+    assert 10 > token_age > 0
     token = user_.reset_token.split(';')[1]
     assert user_.validate_reset_token(token)
 

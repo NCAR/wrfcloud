@@ -229,7 +229,7 @@ class User:
         # calculate the time difference in the reset token and now
         now = datetime.timestamp(datetime.utcnow())
         then = float(self.reset_token.split(';')[0])
-        return then - now
+        return now - then
 
     def add_reset_token(self) -> None:
         """
