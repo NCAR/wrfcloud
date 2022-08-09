@@ -1,13 +1,14 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-import {HomeComponent} from "./home/home.component";
-import {LoginComponent} from "./login/login.component";
-import {LogoutComponent} from "./logout/logout.component";
-import {LaunchWrfComponent} from "./launch-wrf/launch-wrf.component";
-import {ManageUsersComponent} from "./manage-users/manage-users.component";
-import {PreferencesComponent} from "./preferences/preferences.component";
-import {ViewJobsComponent} from "./view-jobs/view-jobs.component";
-import {ActivateComponent} from "./activate/activate.component";
+import {HomeComponent} from './home/home.component';
+import {LoginComponent} from './login/login.component';
+import {LogoutComponent} from './logout/logout.component';
+import {LaunchWrfComponent} from './launch-wrf/launch-wrf.component';
+import {ManageUsersComponent} from './manage-users/manage-users.component';
+import {PreferencesComponent} from './preferences/preferences.component';
+import {ViewJobsComponent} from './view-jobs/view-jobs.component';
+import {ActivateComponent} from './activate/activate.component';
+import {ResetPasswordComponent} from './reset-password/reset-password.component';
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -17,7 +18,8 @@ const routes: Routes = [
   {path: 'launch', component: LaunchWrfComponent},
   {path: 'jobs', component: ViewJobsComponent},
   {path: 'prefs', component: PreferencesComponent},
-  {path: 'activate', component: ActivateComponent}
+  {path: 'activate', component: ActivateComponent},
+  {path: 'reset', component: ResetPasswordComponent}
 ];
 
 @NgModule({

@@ -227,8 +227,8 @@ def test_send_user_emails() -> None:
     user.reset_token = new_reset_token(8)
 
     # try to send emails
-    assert not user.send_welcome_email()
-    assert not user.send_password_reset_link()
+    assert user.send_welcome_email()
+    assert user.send_password_reset_link()
 
 
 def test_sanitize() -> None:

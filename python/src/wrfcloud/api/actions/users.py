@@ -74,14 +74,15 @@ class ActivateUser(Action):
         :return: True if the request is valid, otherwise False
         """
         # check for required parameters
-        ok = self.check_request_fields(['email', 'activation_key', 'new_password'], [])
+        fields_ok = self.check_request_fields(['email', 'activation_key', 'new_password'], [])
 
-        # TODO: verify minimum password requirements -- overlaps with ChangePassword action
-        if len(self.request['new_password']) < 10:
-            ok = False
-            self.errors.append('Password must be at least 10 characters long')
+        # check for minimum password complexity requirements
+        pw_ok, errors = User.check_minimum_password_requirements(self.request['new_password'])
+        if errors:
+            for error in errors:
+                self.errors.append(error)
 
-        return ok
+        return fields_ok and pw_ok
 
     def perform_action(self) -> bool:
         """
@@ -118,6 +119,9 @@ class ActivateUser(Action):
                 self.log.error('Failed to update user in system.')
                 self.errors.append('General error')
             return updated
+
+        # successful case would have returned true by now
+        return False
 
 
 class ListUsers(Action):
@@ -269,54 +273,65 @@ class WhoAmI(Action):
         return True
 
 
-class AddPasswordResetToken(Action):
+class RequestPasswordRecoveryToken(Action):
     """
-    Add a password reset token to a user
+    Request that a password recovery token is sent to the email address
     """
     def validate_request(self) -> bool:
         """
         Validate the request object
         :return: True if the request is valid, otherwise False
         """
-        # make sure the request contains an email field
         return self.check_request_fields(['email'], [])
 
     def perform_action(self) -> bool:
         """
-        Abstract method that performs the action and sets the response field
+        Send a password reset token to the email address
         :return: True if the action ran successfully
         """
-        # get email address from the request
+        # get the request parameters
         email = self.request['email']
 
-        # get user from the database based on email
+        # time interval in seconds that the user must wait to request another token
+        wait_interval_seconds = 600
+
+        # get the user object from the system
         user = get_user_from_system(email)
 
-        # when the last reset token was sent and limit to one per 10 minutes
-        if user.get_seconds_since_reset_token_sent() < 600:
-            self.log.error('Cannot add another reset token for at least 10 minutes')
-            self.errors.append('An email was recently sent.')
-            self.errors.append('Please check your spam folder.')
-            self.errors.append('Another one cannot be sent for 10 minutes.')
+        # make sure we found the user
+        if user is None:
+            self.log.error(f'User not found with email for request password recovery token: {email}')
+            self.errors.append('Email address not found')
             return False
 
-        # set a new reset token and send an email with the information
+        # check that the reset token is at least 10 minutes old to prevent email abuse
+        token_age = user.get_seconds_since_reset_token_sent()
+        if token_age < wait_interval_seconds:
+            self.log.error(f'User attempting to request additional reset tokens by email in less than 10 minutes: {email}')
+            self.errors.append('You must wait at least 10 minutes before requesting another reset email')
+            return False
+
+        # add a reset token
         user.add_reset_token()
         updated = update_user_in_system(user)
-        # TODO: Enable this once AWS SES is active
-        # sent = user.send_password_reset_link()
-        sent = True
 
-        # check that things worked
+        # set the wait interval for the client
+        if updated:
+            self.response['wait_interval_seconds'] = wait_interval_seconds
+
+        # send an email if the reset token was successfully added
+        email_sent = updated and user.send_password_reset_link()
+
+        # maybe log errors
         if not updated:
-            self.log.error('Failed to update user database with a reset token')
-            self.errors.append('General error')
-        if not sent:
-            self.log.error(f'Failed to send email to user at: {user.email}')
-            self.errors.append('General error')
+            self.log.error(f'Failed to add a reset token for user: {email}')
+        if not email_sent:
+            self.log.error(f'Failed to send email to user: {email}')
+        if not updated or not email_sent:
+            self.errors.append('Account recovery failed, please contact your administrator.')
 
-        # return status
-        return updated and sent
+        # return the status
+        return updated and email_sent
 
 
 class ResetPassword(Action):
@@ -355,7 +370,7 @@ class ResetPassword(Action):
             self.errors.append('Password reset failed')
             return False
 
-        # update the user's password
+        # update the user's password and remove the reset token
         user.password = new_password
         user.reset_token = None
         updated = update_user_in_system(user)
