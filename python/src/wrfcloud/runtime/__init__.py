@@ -32,11 +32,17 @@ class RunInfo:
         This method reads the config file for this run, and sets the appropriate variables
         for this class.
         """
-        config_file = name + '.yml'
+        config_file = 'run.yml'
         logging.debug(f'reading config file {config_file}')
-        with open(config_file, 'r', encoding='utf-8') as file:
-            config = yaml.safe_load(file)
-        logging.debug(f'Read {config_file} successfully, values are:')
+        try:
+            with open(config_file, 'r', encoding='utf-8') as file:
+                config = yaml.safe_load(file)
+            logging.debug(f'Read {config_file} successfully, values are:')
+        except IOError:
+            logging.warning(f'Could not read config file {config_file}, trying test.yml')
+            with open('test.yml', 'r', encoding='utf-8') as file:
+                config = yaml.safe_load(file)
+            logging.debug(f'Read test.yml successfully, values are:')
         logging.debug(f'{config}')
         self.configuration = config['run']['configuration']
         self.startdate = config['run']['start']
