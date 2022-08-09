@@ -16,7 +16,7 @@ class RunInfo:
         self.topdir = os.getcwd()
         self.wd = self.topdir + '/' + name
         logging.debug(f'Working directory set to {self.wd}')
-        self.staticdir = self.topdir + '/domains/' + name
+        self.staticdir = self.topdir + '/configurations/' + name
         logging.debug(f'Static data directory is {self.staticdir}')
         self.wpsdir = self.topdir + '/WPSV4/'
         logging.debug(f'WPS directory is {self.wpsdir}')
