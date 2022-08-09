@@ -9,7 +9,7 @@ from wrfcloud.api.actions import ListUsers
 from wrfcloud.api.actions import UpdateUser
 from wrfcloud.api.actions import DeleteUser
 from wrfcloud.api.actions import WhoAmI
-from wrfcloud.api.actions import AddPasswordResetToken
+from wrfcloud.api.actions import RequestPasswordRecoveryToken
 from wrfcloud.api.actions import ResetPassword
 from wrfcloud.api.auth import create_jwt, validate_jwt
 from wrfcloud.api.auth import issue_refresh_token, get_refresh_token
@@ -449,7 +449,7 @@ def test_whoami() -> None:
     assert action.run()
     assert action.success
     assert 'user' in action.response
-    assert 'active' not in action.response['user']
+    assert 'active' in action.response['user']
 
     # teardown the test
     assert _test_teardown()
@@ -467,7 +467,7 @@ def test_password_reset() -> None:
     # create a request to add a reset token
     assert user.reset_token is None
     request = {'email': user.email}
-    action = AddPasswordResetToken(run_as_user=None, request=request)
+    action = RequestPasswordRecoveryToken(run_as_user=None, request=request)
     assert action.run()
     assert action.success
     user_ = get_user_from_system(user.email)
@@ -476,10 +476,10 @@ def test_password_reset() -> None:
     assert user_.validate_reset_token(token)
 
     # try to set another reset token too quickly
-    action = AddPasswordResetToken(run_as_user=None, request=request)
+    action = RequestPasswordRecoveryToken(run_as_user=None, request=request)
     assert not action.run()
     assert not action.success
-    assert 'An email was recently sent.' in action.errors
+    assert 'You must wait at least 10 minutes before requesting another reset email' in action.errors
 
     # user the reset token to reset the password
     request = {

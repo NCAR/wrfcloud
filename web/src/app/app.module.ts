@@ -28,7 +28,9 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSortModule} from "@angular/material/sort";
 import {EditUserComponent} from './edit-user/edit-user.component';
 import {MatSelectModule} from "@angular/material/select";
-import { ActivateComponent } from './activate/activate.component';
+import {ActivateComponent} from './activate/activate.component';
+import {MatProgressBarModule} from "@angular/material/progress-bar";
+import {ResetPasswordComponent} from './reset-password/reset-password.component';
 
 @NgModule({
   declarations: [
@@ -42,28 +44,30 @@ import { ActivateComponent } from './activate/activate.component';
     LogoutComponent,
     ErrorDialogComponent,
     EditUserComponent,
-    ActivateComponent
+    ActivateComponent,
+    ResetPasswordComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-    BrowserAnimationsModule,
-    MatButtonModule,
-    MatGridListModule,
-    MatMenuModule,
-    MatIconModule,
-    MatInputModule,
-    FormsModule,
-    MatRippleModule,
-    MatExpansionModule,
-    MatDialogModule,
-    MatDividerModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatSelectModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        HttpClientModule,
+        BrowserAnimationsModule,
+        MatButtonModule,
+        MatGridListModule,
+        MatMenuModule,
+        MatIconModule,
+        MatInputModule,
+        FormsModule,
+        MatRippleModule,
+        MatExpansionModule,
+        MatDialogModule,
+        MatDividerModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatSelectModule,
+        MatProgressBarModule
+    ],
   providers: [],
   bootstrap: [AppComponent]
 })

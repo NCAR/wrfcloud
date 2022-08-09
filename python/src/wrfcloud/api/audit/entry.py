@@ -33,6 +33,10 @@ class AuditEntry:
 
     @property
     def data(self) -> dict:
+        """
+        Get the full dictionary representing this object
+        :return: Dictionary of values
+        """
         return {
             'ref_id': self.ref_id,
             'action': self.action,
