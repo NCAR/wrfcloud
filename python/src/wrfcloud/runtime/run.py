@@ -60,7 +60,10 @@ def main() -> None:
     logging.info(f'Starting new run "{name}"')
     logging.debug('Creating new RunInfo')
     runinfo = RunInfo(name)
-    setup_logging(logdir=name, logfile='debug.log')
+    logging.info(f'Setting up working directory {runinfo.wd}')
+    setup_logging(logdir=runinfo.wd, logfile='debug.log')
+    logging.debug(f'Moving setup.log to {runinfo.wd}')
+    os.rename('setup.log', runinfo.wd + '/setup.log')
 
     logging.debug('Initialize environment variables for specified configuration')
     init_environment(runinfo.configuration)
