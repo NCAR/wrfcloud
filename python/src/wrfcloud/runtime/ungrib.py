@@ -4,130 +4,15 @@
 Functions for setting up, executing, and monitoring a run of the WPS program ungrib
 """
 
-import boto3
 import datetime
-import glob
-import itertools
-import math
 import os
-import requests
-import urllib.error
-import urllib.request
-from botocore import UNSIGNED
-from botocore.config import Config
-from string import ascii_uppercase
 from logging import Logger
 from f90nml.namelist import Namelist
 
 # Import our custom modules
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
+from wrfcloud.runtime.tools.get_grib_input import get_grib_input
 from wrfcloud.runtime import RunInfo
-
-
-def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
-    """
-    Gets GRIB files for processing by ungrib
-
-    If user has specified local data (or this is the test case), will attempt to read from that
-    local data.
-
-    Otherwise, will attempt to first grab data from NOMADS
-    https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod
-
-    If there is a data outage or are running a retrospective case >10 days old, will attempt to pull from NOAA S3 bucket
-    https://registry.opendata.aws/noaa-gfs-bdp-pds/
-    """
-    logger.debug('test')
-
-    if runinfo.local_data:
-        logger.debug('Getting GRIB file(s) from local source')
-        # Iterator for generating letter strings for GRIBFILE suffixes. Don't blame me, this is ungrib's fault
-        suffixes = itertools.product(ascii_uppercase, repeat=3)
-        filelist = []
-        # If runinfo.local_data is a string, convert it to a list
-        if isinstance(runinfo.local_data, str):
-            data = [runinfo.local_data]
-        else:
-            data = runinfo.local_data
-
-        for entry in data:
-            # Since there may be multiple string entries in runinfo.local_data, we need to parse
-            # each one individually using glob.glob, then append them all together
-            filelist.extend(sorted(glob.glob(entry)))
-        for gribfile in filelist:
-            # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
-            griblink = 'GRIBFILE.' + "".join(suffixes.__next__())
-            logger.debug(f'Linking input GRIB file {gribfile} to {griblink}')
-            os.symlink(gribfile, griblink)
-    else:
-        logger.debug('Getting GRIB file(s) from external source (NOMADS or S3 bucket)')
-
-        # NOMADS provides data in realtime with a retention preiod of ~10 days. We will
-        # first look at NOMADS for data. If data does not exist, we will pull data from S3.
-        # Data on the S3 bucket is avaialble after the full model run is complete (i.e.,
-        # not quite real time), but the archive is for several years.
-
-        # Get requested input data frequency (in sec) from namelist and convert to hours.
-        input_freq_sec = runinfo.input_freq_sec
-        input_freq_h = input_freq_sec / 3600.
-
-        # Get requested initialization start time and set/format necessary start time info.
-        cycle_start = runinfo.startdate
-        cycle_start = datetime.datetime.strptime(cycle_start, '%Y-%m-%d_%H:%M:%S')
-        cycle_start_ymd = cycle_start.strftime('%Y%m%d')
-        cycle_start_h = cycle_start.strftime('%H')
-
-        # Get requested end time of initialization and set/format necessary end time info.
-        cycle_end = runinfo.enddate
-        cycle_end = datetime.datetime.strptime(cycle_end, '%Y-%m-%d_%H:%M:%S')
-        cycle_end_h = cycle_end.strftime('%H')
-
-        # Calculate the forecast length in seconds and hours. Hours must be an integer.
-        cycle_dt = cycle_end - cycle_start
-        cycle_dt_s = cycle_dt.total_seconds()
-        cycle_dt_h = math.ceil(cycle_dt_s / 3600.)
-
-        # Set base URLs for NOMADS and S3 bucket with GFS data.
-        nomads_base_url = 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
-        aws_base_url = 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
-        # For more info on GFS data on S3: https://registry.opendata.aws/noaa-gfs-bdp-pds/
-        #s3 = boto3.resource('s3', config=Config(signature_version=UNSIGNED))
-        #bucket_name = 'noaa-gfs-bdp-pds'
-
-        # Check if URL is valid (and add logging) - this not fully mature!!
-        # Future: If we use boto3, add check on S3 bucket with boto3 functionality (e.g., botocore.exceptions.ClientError)
-        for fhr in range (0, cycle_dt_h + 1, int(input_freq_h)):
-            gfs_file = f"gfs.{cycle_start_ymd}/{cycle_start_h}/atmos/gfs.t{cycle_start_h}z.pgrb2.0p25.f{fhr:03d}"
-            gfs_local = f"gfs.t{cycle_start_h}z.pgrb2.0p25.f{fhr:03d}"
-
-            try:
-                full_url = os.path.join(nomads_base_url, gfs_file)
-                status_nomads = requests.get(full_url)
-                if status_nomads.status_code < 400:
-                    logger.debug(f'Pulling forecast hour {fhr} from NOMADS.')
-                    urllib.request.urlretrieve(full_url, gfs_local)
-                else:
-                    logger.debug(f'NOMADS URL does not exist for forecast hour {fhr}, trying AWS S3 bucket.')
-                    full_url = os.path.join(aws_base_url, gfs_file)
-                    status_aws = requests.get(full_url)
-                    if status_aws.status_code < 400:
-                        logger.debug(f'Pulling forecast hour {fhr} from AWS S3 bucket.')
-                        # Can specify using urllib or boto3 for S3 retrieval -- what should be the default?
-                        urllib.request.urlretrieve(full_url, gfs_local)
-                        #s3.Bucket(bucket_name).download_file(gfs_file, gfs_local)
-            except:
-                logger.warning('NOMADS and AWS S3 bucket URLs do not exist; this is bad!')
-
-        # Iterator for generating letter strings for GRIBFILE suffixes. Don't blame me, this is ungrib's fault
-        # Note: For pulling data from NOMADS or S3, we assume files start with gfs*
-        suffixes = itertools.product(ascii_uppercase, repeat=3)
-        filelist = glob.glob(os.path.join(runinfo.ungribdir,'gfs.*'))
-
-        for gribfile in filelist:
-            # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
-            griblink = 'GRIBFILE.' + "".join(suffixes.__next__())
-            logger.debug(f'Linking input GRIB file {gribfile} to {griblink}')
-            os.symlink(gribfile, griblink)
 
 def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     """Gets all input files necessary for running ungrib"""
