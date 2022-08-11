@@ -19,6 +19,7 @@ from wrfcloud.runtime import real
 from wrfcloud.runtime import wrf
 from wrfcloud.runtime import postproc
 from wrfcloud.runtime import RunInfo
+from wrfcloud.system import init_environment
 
 
 # Define our functions
@@ -57,6 +58,9 @@ def main() -> None:
     logging.info(f'Starting new run "{name}"')
     logging.debug('Creating new RunInfo')
     runinfo = RunInfo(name)
+
+    logging.debug('Initialize enviroment variables for specified configuration')
+    init_environment(runinfo.configuration)
 
     logging.debug('Starting ungrib task')
     ungrib.main(runinfo, logging.getLogger('root.ungrib'))

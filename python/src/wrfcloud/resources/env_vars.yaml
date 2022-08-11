@@ -26,6 +26,10 @@ test:
   LOG_LEVEL: DEBUG
   LOG_FORMAT: text
 
+  # Location of input data
+  NOAMDS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
+  AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
+
 codebuild:
 
   # App
@@ -52,6 +56,10 @@ codebuild:
   # Logging options
   LOG_LEVEL: DEBUG
   LOG_FORMAT: json
+
+  # Location of input data
+  NOAMDS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
+  AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
 
 production:
 
@@ -81,6 +89,10 @@ production:
   LOG_LEVEL: INFO
   LOG_FORMAT: json
 
+  # Location of input data
+  NOAMDS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
+  AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
+
 development:
 
   # App
@@ -107,3 +119,7 @@ development:
   # Logging options
   LOG_LEVEL: DEBUG
   LOG_FORMAT: json
+
+  # Location of input data
+  NOAMDS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
+  AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'

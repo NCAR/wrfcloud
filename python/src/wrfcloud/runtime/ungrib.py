@@ -5,9 +5,12 @@ Functions for setting up, executing, and monitoring a run of the WPS program ung
 """
 
 import datetime
+import glob
+import itertools
 import os
 from logging import Logger
 from f90nml.namelist import Namelist
+from string import ascii_uppercase
 
 # Import our custom modules
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
@@ -17,8 +20,34 @@ from wrfcloud.runtime import RunInfo
 def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     """Gets all input files necessary for running ungrib"""
 
-    logger.debug('Getting GRIB input files')
-    get_grib_input(runinfo, logger)
+    suffixes = itertools.product(ascii_uppercase, repeat=3)
+    if runinfo.local_data:
+        logger.debug('Getting GRIB file(s) from local source')
+        # Iterator for generating letter strings for GRIBFILE suffixes.
+        #suffixes = itertools.product(ascii_uppercase, repeat=3)
+        filelist = []
+        # If runinfo.local_data is a string, convert it to a list
+        if isinstance(runinfo.local_data, str):
+            data = [runinfo.local_data]
+        else:
+            data = runinfo.local_data
+
+        for entry in data:
+            # Since there may be multiple string entries in runinfo.local_data, we need to parse
+            # each one individually using glob.glob, then append them all together
+            filelist.extend(sorted(glob.glob(entry)))
+    else:
+        logger.debug('Getting GRIB file(s) from remote source')
+        get_grib_input(runinfo, logger)
+        # Iterator for generating letter strings for GRIBFILE suffixes.
+        #suffixes = itertools.product(ascii_uppercase, repeat=3)
+        filelist = glob.glob(os.path.join(runinfo.ungribdir, 'gfs.*'))
+
+    for gribfile in filelist:
+        # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
+        griblink = 'GRIBFILE.' + "".join(suffixes.__next__())
+        logger.debug(f'Linking input GRIB file {gribfile} to {griblink}')
+        os.symlink(gribfile, griblink)
 
     logger.debug('Getting geo_em file(s)')
     # Get the number of domains from namelist

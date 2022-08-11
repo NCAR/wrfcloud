@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Functions for setting up and creating namelist.wps
+Functions for getting input GRIB data from remote sources.
 """
 
 import datetime
@@ -10,6 +10,7 @@ import itertools
 import math
 import os
 import requests
+import yaml
 from string import ascii_uppercase
 
 from logging import Logger
@@ -17,53 +18,14 @@ from wrfcloud.runtime import RunInfo
 
 def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
     """
-    Gets GRIB files for processing by ungrib
+    Gets GRIB files from external source for processing by ungrib
 
-    If user has specified local data (or this is the test case), will attempt to read from that
-    local data.
-
-    Otherwise, will attempt to first grab data from NOMADS
+    The first attempt will be to grab data from NOMADS:
     https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod
 
-    If there is a data outage or are running a retrospective case >10 days old, will attempt to pull from NOAA S3 bucket
+    If there is a data outage or are running a retrospective case >10 days old, will attempt to pull from NOAA S3 bucket:
     https://registry.opendata.aws/noaa-gfs-bdp-pds/
-    """
-    if runinfo.local_data:
-        get_grib_files_from_local_source(runinfo, logger)
-    else:
-        get_grib_files_from_remote_source(runinfo, logger)
 
-
-def get_grib_files_from_local_source(runinfo: RunInfo, logger: Logger) -> None:
-    """
-    Get GRIB files from a local source
-    :param runinfo: Run information object
-    :param logger: Logging object
-    :return: None
-    """
-    logger.debug('Getting GRIB file(s) from local source')
-    # Iterator for generating letter strings for GRIBFILE suffixes. Don't blame me, this is ungrib's fault
-    suffixes = itertools.product(ascii_uppercase, repeat=3)
-    filelist = []
-    # If runinfo.local_data is a string, convert it to a list
-    if isinstance(runinfo.local_data, str):
-        data = [runinfo.local_data]
-    else:
-        data = runinfo.local_data
-
-    for entry in data:
-        # Since there may be multiple string entries in runinfo.local_data, we need to parse
-        # each one individually using glob.glob, then append them all together
-        filelist.extend(sorted(glob.glob(entry)))
-    for gribfile in filelist:
-        # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
-        griblink = 'GRIBFILE.' + "".join(suffixes.__next__())
-        logger.debug(f'Linking input GRIB file {gribfile} to {griblink}')
-        os.symlink(gribfile, griblink)
-
-def get_grib_files_from_remote_source(runinfo: RunInfo, logger: Logger) -> None:
-    """
-    Get GRIB files from a remote source (NOMADS or AWS S3)
     :param runinfo: Run information object
     :param logger: Logging object
     :return: None
@@ -91,8 +53,12 @@ def get_grib_files_from_remote_source(runinfo: RunInfo, logger: Logger) -> None:
     cycle_dt_h = math.ceil(cycle_dt_s / 3600.)
 
     # Set base URLs for NOMADS and S3 bucket with GFS data.
-    nomads_base_url = 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
-    aws_base_url = 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
+    #nomads_base_url = os.environ['NOMADS_BASE_URL']
+    nomads_base_url = os.environ['NOAMDS_BASE_URL']
+    aws_base_url = os.environ['AWS_BASE_URL']
+    #nomads_base_url = 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
+    #aws_base_url = 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
+    #aws_base_url = os.environ['AWS_BASE_URL'] 
 
     # Check if URL is valid (need to add logging).
     for fhr in range(0, cycle_dt_h + 1, int(input_freq_h)):
@@ -111,20 +77,10 @@ def get_grib_files_from_remote_source(runinfo: RunInfo, logger: Logger) -> None:
                 if aws_ok:
                     logger.debug(f'Pulled forecast hour {fhr} from AWS S3.')
                 if not nomads_ok and not aws_ok:
-                    raise RuntimeError(f'GFS data not found for forecast hour {fhr}')
+                    raise RuntimeError(f'GFS data not found for forecast hour {fhr}.')
         except:
+            # Should this be a critical error that exits?
             logger.warning('NOMADS and AWS S3 URLs do not exist; this is bad!')
-
-    # Iterator for generating letter strings for GRIBFILE suffixes. Don't blame me, this is ungrib's fault
-    # Note: For pulling data from NOMADS or S3, we assume files start with gfs*
-    suffixes = itertools.product(ascii_uppercase, repeat=3)
-    filelist = glob.glob(os.path.join(runinfo.ungribdir, 'gfs.*'))
-
-    for gribfile in filelist:
-        # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
-        griblink = 'GRIBFILE.' + "".join(suffixes.__next__())
-        logger.debug(f'Linking input GRIB file {gribfile} to {griblink}')
-        os.symlink(gribfile, griblink)
 
 def download_to_file(url: str, local_file: str) -> bool:
     """
