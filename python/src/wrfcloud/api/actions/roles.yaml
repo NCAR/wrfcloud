@@ -6,7 +6,7 @@ anonymous:
       package: wrfcloud.api.actions
     - action: ActivateUser
       package: wrfcloud.api.actions
-    - action: AddPasswordResetToken
+    - action: RequestPasswordRecoveryToken
       package: wrfcloud.api.actions
     - action: ResetPassword
       package: wrfcloud.api.actions

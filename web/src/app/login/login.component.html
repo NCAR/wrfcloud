@@ -3,37 +3,52 @@
   <div class="login-title">
     WRF Cloud Login
   </div>
-  <div class="login-input-container">
-    <mat-form-field appearance="fill">
-      <mat-label>Email Address</mat-label>
-      <input matInput type="email" [(ngModel)]="req.email" autofocus>
-    </mat-form-field>
-  </div>
 
-  <div [class]="'login-input-container' + (iForgot ? ' login-hidden' : '')" >
-    <mat-form-field appearance="fill">
-      <mat-label>Password</mat-label>
-      <input matInput type="password" [(ngModel)]="req.password" (keyup)="app.onEnter($event, doLogin.bind(this))">
-      <button *ngIf="req.password" matSuffix mat-icon-button (click)="req.password=''">
-        <mat-icon>clear</mat-icon>
+  <div *ngIf="!showRecoveryInstructions">
+    <div class="login-input-container">
+      <mat-form-field appearance="fill">
+        <mat-label>Email Address</mat-label>
+        <input matInput type="email" [(ngModel)]="req.email" autofocus>
+      </mat-form-field>
+    </div>
+
+    <div [class]="'login-input-container' + (iForgot ? ' login-hidden' : '')" >
+      <mat-form-field appearance="fill">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" [(ngModel)]="req.password" (keyup)="app.onEnter($event, doLogin.bind(this))">
+        <button *ngIf="req.password" matSuffix mat-icon-button (click)="req.password=''">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+
+    <div class="login-input-container" *ngIf="!iForgot">
+      <button mat-raised-button class="login-button" (click)="doLogin()" [disabled]="busy">
+        Login
       </button>
-    </mat-form-field>
+    </div>
+
+    <div class="login-input-container" *ngIf="iForgot">
+      <button mat-raised-button class="login-button" (click)="doRecover()">
+        Recover Password
+      </button>
+    </div>
+
+    <div class="login-forgot" (click)="iForgot = !iForgot">
+      {{!iForgot ? 'I forgot my password!' : 'I remembered!'}}
+    </div>
   </div>
 
-  <div class="login-input-container" *ngIf="!iForgot">
-    <button mat-raised-button class="login-button" (click)="doLogin()" [disabled]="busy">
-      Login
-    </button>
-  </div>
+  <div class="login-recovery-instructions" *ngIf="showRecoveryInstructions">
+    An email has been sent, which contains a link to reset your password.
+    If you do not find the email, check your spam folder.
+    If it is still not found, you must wait {{recoveryWaitSeconds/60}} minutes to try again.
 
-  <div class="login-input-container" *ngIf="iForgot">
-    <button mat-raised-button class="login-button" (click)="doRecover()">
-      Recover Password
-    </button>
-  </div>
-
-  <div class="login-forgot" (click)="iForgot = !iForgot">
-    {{!iForgot ? 'I forgot my password!' : 'I remembered!'}}
+    <mat-progress-bar class="login-recovery-progress-bar" mode="determinate" [value]="recoveryWaitProgress">
+    </mat-progress-bar>
+    <div class="login-recovery-time-remaining">
+      {{recoveryRemainingMinutes}} minute{{recoveryRemainingMinutes > 1 ? 's' : ''}}
+    </div>
   </div>
 
   <div class="login-forgot" *ngIf="busy">
