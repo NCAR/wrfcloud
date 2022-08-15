@@ -16,11 +16,7 @@ jobs:
         python-version: 3.9
     - name: Run code coverage script
       run: |
-        pip install coverage pytest
-        pwd
-        ls ./python/coverage.sh
-        which coverage
-        which py.test
+        pip3 install awscli coverage pytest pylint boto3 bcrypt PyJWT
         ./python/coverage.sh
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
