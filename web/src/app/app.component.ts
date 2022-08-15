@@ -122,7 +122,6 @@ export class AppComponent
         {title: '', route: '', icon: ''},
         {title: '', route: '', icon: ''}
       ];
-      this.routeTo('login');
     }
 
     /* make sure we have user info */
@@ -166,10 +165,12 @@ export class AppComponent
       ];
     }
 
-    /* route to first menu item */
-    if (this.menuOptions.length === 0)
+    /* route to an appropriate screen */
+    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset')
+      return;  /* do not interfere with these routes */
+    else if (this.menuOptions.length === 0)
       this.routeTo('login');
-    else if (this.router.url.length <= 1 || this.router.url === '/login')
+    else
       this.routeTo(this.menuOptions[0].route);
   }
 

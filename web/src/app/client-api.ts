@@ -106,7 +106,6 @@ export class ClientApi
       return false;
 
     /* check if JWT is already expired */
-    console.log(this.expires + ' < ' + now);
     if (this.expires < now)
       return true;
 
@@ -365,6 +364,44 @@ export class ClientApi
 
 
   /**
+   * Send a request for a password recovery token by email
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendPasswordRecoveryTokenRequest(requestData: PasswordRecoveryTokenRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'RequestPasswordRecoveryToken',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, false);
+  }
+
+
+  /**
+   * Send a reset password request
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendResetPasswordRequest(requestData: ResetPasswordRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'ResetPassword',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, false);
+  }
+
+
+  /**
    * Send a refresh token request
    *
    * @param requestData
@@ -552,7 +589,6 @@ export interface ActivateUserResponse extends ApiResponse
 {
 }
 
-
 export interface LatLonPoint
 {
   latitude: number;
@@ -585,8 +621,30 @@ export interface WrfJob
   initializationTime: string[];
 }
 
-
 export interface LayerRequest
 {
   height: number;
+}
+
+export interface PasswordRecoveryTokenRequest
+{
+  email: string;
+}
+
+export interface PasswordRecoveryTokenResponse extends ApiResponse
+{
+  data: {
+    wait_interval_seconds: number
+  }
+}
+
+export interface ResetPasswordRequest
+{
+  email: string;
+  reset_token: string;
+  new_password: string;
+}
+
+export interface ResetPasswordResponse extends ApiResponse
+{
 }

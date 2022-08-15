@@ -1,0 +1,36 @@
+&share
+ wrf_core = 'ARW',
+ max_dom = 1
+ start_date = '2022-06-01_00:00:00',
+ end_date   = '2022-06-02_00:00:00',
+ interval_seconds = 10800
+/
+
+&geogrid
+ parent_id         =   1,
+ parent_grid_ratio =   1,
+ i_parent_start    =   1,
+ j_parent_start    =   1,
+ e_we              =  700,
+ e_sn              =  500,
+ geog_data_res = 'default',
+ dx = 6000,
+ dy = 6000,
+ map_proj = 'mercator',
+ ref_lat   =  19.0,
+ ref_lon   = -75.0,
+ truelat1  =  19.0,
+ truelat2  =  19.0,
+ stand_lon = -75.0,
+ geog_data_path = '/glade/work/wrfhelp/WPS_GEOG/'
+ opt_geogrid_tbl_path = '/glade/p/ral/jntp/CCproject/wrfcloud/WPSV4.3.1_intel_serial_large-file/geogrid/'
+/
+
+&ungrib
+ out_format = 'WPS',
+ prefix = 'FILE',
+/
+
+&metgrid
+ fg_name = 'FILE'
+/

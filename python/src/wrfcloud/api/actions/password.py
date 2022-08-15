@@ -3,7 +3,7 @@ Contains Action classes related to user authentication and JWT renewal
 """
 import secrets
 from wrfcloud.api.actions.action import Action
-from wrfcloud.user import update_user_in_system
+from wrfcloud.user import User, update_user_in_system
 
 
 class ChangePassword(Action):
@@ -16,8 +16,17 @@ class ChangePassword(Action):
         Validate the request
         :return: True if valid, otherwise False
         """
+        # check for required fields
         required_fields = ['password0', 'password1', 'password2']
-        return self.check_request_fields(required_fields, [])
+        fields_ok = self.check_request_fields(required_fields, [])
+
+        # check for minimum password complexity
+        pw_ok, errors = User.check_minimum_password_requirements(self.request['password1'])
+        if errors:
+            for error in errors:
+                self.errors.append(error)
+
+        return fields_ok and pw_ok
 
     def perform_action(self):
         """

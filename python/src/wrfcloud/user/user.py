@@ -2,13 +2,14 @@
 The User class is the data model used to represent a user and associated functions
 """
 
+import os
 import base64
 import secrets
 import copy
 import pkgutil
 import sys
 from datetime import datetime
-from typing import Union
+from typing import Union, List
 import bcrypt
 import wrfcloud.system
 from wrfcloud.log import Logger
@@ -117,6 +118,17 @@ class User:
         """
         return self._reset_token
 
+    @property
+    def reset_token_bare(self) -> Union[str, None]:
+        """
+        Get the reset token without the expiration time
+        """
+        if self.reset_token is None:
+            return None
+
+        # strip off the creation timestamp
+        return self.reset_token.split(';')[1]
+
     @reset_token.setter
     def reset_token(self, reset_token: str) -> None:
         """
@@ -163,6 +175,37 @@ class User:
             return None
         return data
 
+    @staticmethod
+    def _send_email_enabled() -> bool:
+        """
+        Check if the environment has email disabled (i.e., for testing)
+        :return: True if email should be sent
+        """
+        # send email if not otherwise disabled
+        if 'SEND_EMAIL' not in os.environ:
+            return True
+
+        # determine if email is enabled
+        send_email_enabled = os.environ['SEND_EMAIL'].lower() in ['true', 'yes', 'on']
+
+        return send_email_enabled
+
+    @staticmethod
+    def check_minimum_password_requirements(candidate: str) -> (bool, List[str]):
+        """
+        Check that a password meets minimum requirements in length and complexity
+        :param candidate: Candidate value for a password
+        """
+        ok: bool = True
+        errors: List[str] = []
+
+        # check the length requirement
+        if len(candidate) < 10:
+            ok = False
+            errors.append('Password must be at least 10 characters long')
+
+        return ok, errors
+
     def validate_password(self, plain_text: str) -> bool:
         """
         Validate the user's password
@@ -186,7 +229,7 @@ class User:
         # calculate the time difference in the reset token and now
         now = datetime.timestamp(datetime.utcnow())
         then = float(self.reset_token.split(';')[0])
-        return then - now
+        return now - then
 
     def add_reset_token(self) -> None:
         """
@@ -206,13 +249,23 @@ class User:
         if self.reset_token is None:
             return False
 
-        real_token = self.reset_token.split(';')[1]
+        # split up the creation time of the token and the token
+        create_time, real_token = self.reset_token.split(';')
+
+        # check if the token is expired
+        now = datetime.timestamp(datetime.utcnow())
+        if now - float(create_time) > 3600:
+            return False
+
         return secrets.compare_digest(real_token, reset_token)
 
     def send_password_reset_link(self) -> bool:
         """
         Send a password reset link
         """
+        if not self._send_email_enabled():
+            return True
+
         import urllib.request   # slow deferred import
 
         try:
@@ -222,7 +275,7 @@ class User:
             html = html.replace('__IMAGE_DATA__', img)
             html = html.replace('__APP_URL__', wrfcloud.system.APP_URL)
             html = html.replace('__EMAIL__', urllib.request.quote(self.email))
-            html = html.replace('__RESET_TOKEN__', urllib.request.quote(self.reset_token))
+            html = html.replace('__RESET_TOKEN__', urllib.request.quote(self.reset_token_bare))
             source = wrfcloud.system.SYSTEM_EMAIL_SENDER
             dest = {'ToAddresses': [self.email]}
             message = {
@@ -251,6 +304,9 @@ class User:
         Send a welcome and activation email
         :return: None
         """
+        if not self._send_email_enabled():
+            return True
+
         import urllib.request   # slow deferred import
 
         try:

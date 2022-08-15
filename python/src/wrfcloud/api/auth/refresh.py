@@ -29,7 +29,7 @@ class RefreshTokenDao(DynamoDao):
         # get the key fields for the table
         key_fields = self.table_definition['key_fields']
 
-        # get the endpoint URL, but do not overwrite the local argument
+        # get the endpoint URL, but do not override the local argument
         if endpoint_url is None and 'ENDPOINT_URL' in os.environ:
             endpoint_url = os.environ['ENDPOINT_URL']
 
