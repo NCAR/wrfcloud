@@ -1,12 +1,6 @@
 name: Code Coverage
-on:
-  push:
-    branches:
-      - develop
-      - feature*
-      - main*
-  pull_request:
-    types: [opened, reopened, synchronize]
+
+on: [push, pull_request]
 
 jobs:
   Codecov:
