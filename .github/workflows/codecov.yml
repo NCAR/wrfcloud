@@ -16,7 +16,7 @@ jobs:
         python-version: 3.9
     - name: Run code coverage script
       run: |
-        pip install coverage py.test
+        pip install coverage pytest
         pwd
         ls ./python/coverage.sh
         which coverage
