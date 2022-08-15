@@ -7,15 +7,14 @@ jobs:
       OS: ubuntu-latest
       PYTHON: '3.8'
     steps:
-    - uses: checkout@v2
+    - uses: checkout@v3
       with:
         fetch-depth: ‘2’
-
     - name: Setup Python
-      uses: actions/setup-python@master
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
-    - name: Generate Report
+    - name: Run code coverage script
       run: |
         pip install coverage
         python/coverage.sh
