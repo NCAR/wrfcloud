@@ -16,8 +16,4 @@ jobs:
       run: |
         pip install coverage
         python/coverage.sh
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        files: ./python/test/coverage.xml
-        verbose: true
+
