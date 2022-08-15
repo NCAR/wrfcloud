@@ -1,13 +1,21 @@
 name: Codecov
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - develop
+      - feature*
+      - main*
+  pull_request:
+    types: [opened, reopened, synchronize]
+
 jobs:
-  run:
+  Codecov:
     runs-on: ubuntu-latest
     env:
       OS: ubuntu-latest
       PYTHON: '3.9'
     steps:
-    - uses: checkout@v3
+    - uses: actions/checkout@v3
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
@@ -16,4 +24,8 @@ jobs:
       run: |
         pip install coverage
         python/coverage.sh
-
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./python/test/coverage.xml
+        verbose: true
