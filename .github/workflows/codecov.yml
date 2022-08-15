@@ -17,6 +17,9 @@ jobs:
     - name: Run code coverage script
       run: |
         pip install coverage
+        pwd
+        ls ./python/coverage.sh
+        cat ./python/coverage.sh
         ./python/coverage.sh
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
