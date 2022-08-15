@@ -16,10 +16,11 @@ jobs:
         python-version: 3.9
     - name: Run code coverage script
       run: |
-        pip install coverage
+        pip install coverage py.test
         pwd
         ls ./python/coverage.sh
-        cat ./python/coverage.sh
+        which coverage
+        which py.test
         ./python/coverage.sh
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
