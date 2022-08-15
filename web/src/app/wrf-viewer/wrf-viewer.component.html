@@ -53,10 +53,38 @@
   </div>
   <div class="viewer-lower-panel">
     <span class="viewer-animate-tool">
-      ANIMATE
+      <mat-grid-list [cols]="animationControls.length" rowHeight="40px">
+        <mat-grid-tile
+          [id]="button"
+          *ngFor="let button of animationControls"
+          [class]="'viewer-anim-button viewer-anim-button-' + button"
+          (click)="doAnimate($event, button)"
+          matRipple
+        >
+        </mat-grid-tile>
+      </mat-grid-list>
+      <mat-slider
+        invert="true"
+        max="3000"
+        min="100"
+        step="100"
+        [(ngModel)]="animationDelayMs"
+        aria-labelledby="Animation speed">
+    </mat-slider>
+      <span class="viewer-anim-speed-label viewer-left">SLOW</span>
+      <span class="viewer-anim-speed-label viewer-right">FAST</span>
     </span>
-    <span class="viewer-timeline">
-      TIMELINE
+    <span class="viewer-anim-time-slider">
+      <div>{{selectedFrameMs | date:'yyyy-MM-dd HH:mm:ss OOO'}}</div>
+      <mat-slider *ngIf="animationFrames.length > 0"
+        class="viewer-wide-center"
+        [min]="animationFrames[0].getTime()"
+        [max]="animationFrames[animationFrames.length - 1].getTime()"
+        step="100"
+        [(ngModel)]="selectedFrameMs"
+        (change)="doSelectNearestFrame()"
+        aria-labelledby="Animation speed">
+    </mat-slider>
     </span>
   </div>
 </div>

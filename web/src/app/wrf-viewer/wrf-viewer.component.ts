@@ -33,6 +33,36 @@ export class WrfViewerComponent implements OnInit
 
 
   /**
+   * List of visible animation controls
+   */
+  public animationControls: string[] = ['back', 'play', 'forward'];
+
+
+  /**
+   * Flag to tell us if we are animating
+   */
+  public playing: boolean = false;
+
+
+  /**
+   * Delay in milliseconds between
+   */
+  public animationDelayMs: number = 100;
+
+
+  /**
+   * List of animation frames
+   */
+  public animationFrames: Date[] = [];
+
+
+  /**
+   * The selected animation frame
+   */
+  public selectedFrameMs: number;
+
+
+  /**
    * WRF job definition
    */
   public job: WrfJob = {
@@ -98,6 +128,11 @@ export class WrfViewerComponent implements OnInit
   {
     WrfViewerComponent.singleton = this;
     this.app = AppComponent.singleton;
+
+    /* TODO: Get frame list from API */
+    for (let t = new Date(2022, 4, 20, 12, 0, 0, 0).getTime(); t < new Date(2022, 4, 21, 12, 0, 0, 0).getTime(); t += 1200000)
+      this.animationFrames.push(new Date(t));
+    this.selectedFrameMs = this.animationFrames[0].getTime();
   }
 
 
@@ -176,5 +211,129 @@ export class WrfViewerComponent implements OnInit
 
     /* set the slider value to the closest valid height */
     setTimeout(() => {this.req.height = closest;}, 50);
+  }
+
+
+  /**
+   * Handle animate action
+   */
+  public doAnimate(event: any, action: string): void
+  {
+    if (action === 'play')
+    {
+      this.doTogglePlay();
+      this.doPlayAnimation();
+    }
+    else if (action === 'pause')
+    {
+      this.doTogglePlay();
+      this.doPauseAnimation();
+    }
+    else if (action === 'back')
+    {
+      this.doStepAnimation(-1);
+    }
+    else if (action === 'forward')
+    {
+      this.doStepAnimation(1);
+    }
+  }
+
+
+  /**
+   * Updated the 'selectedFrame' value to be the nearest available frame
+   */
+  public doSelectNearestFrame(): void
+  {
+    /* skip if there are no animation frames loaded */
+    if (this.animationFrames.length === 0)
+      return;
+
+    /* if there is no frame selected, then select one */
+
+    /* initialize values */
+    let nearest: Date = this.animationFrames[0];
+    let diff: number = Number.MAX_VALUE;
+
+    /* loop over all animation frames */
+    for (let frame of this.animationFrames)
+    {
+      /* calculate the difference between the selected frame and this frame */
+      const thisDiff = Math.abs(frame.getTime() - this.selectedFrameMs);
+
+      /* maybe update the nearest frame */
+      if (thisDiff < diff)
+      {
+        nearest = frame;
+        diff = thisDiff;
+      }
+    }
+
+    /* update the selected frame to be the nearest frame */
+    this.selectedFrameMs = nearest.getTime();
+  }
+
+
+  public doTogglePlay(): void
+  {
+    this.animationControls[1] = this.animationControls[1] === 'play' ? 'pause' : 'play';
+  }
+
+
+  private doPlayAnimation()
+  {
+    this.playing = true;
+    this.runAnimation();
+  }
+
+
+  private doPauseAnimation()
+  {
+    this.playing = false;
+  }
+
+
+  /**
+   * Run the animation
+   * @private
+   */
+  private runAnimation(): void
+  {
+    if (this.playing)
+    {
+      this.doStepAnimation();
+      setTimeout(this.runAnimation.bind(this), this.animationDelayMs);
+    }
+  }
+
+
+  /**
+   * Advance the time selected by the given number of steps
+   *
+   * @param stepSize Number of steps by which to advance the current frame
+   * @private
+   */
+  private doStepAnimation(stepSize: number = 1)
+  {
+    /* find the currently selected frame's index */
+    let selectedIndex: number = 0;
+    for (let i = 0; i < this.animationFrames.length; i++)
+      if (this.selectedFrameMs === this.animationFrames[i].getTime())
+      {
+        selectedIndex = i;
+        break;
+      }
+
+    /* calculate the new index */
+    selectedIndex += stepSize;
+
+    /* adjust the frame index to be within array index bounds */
+    while (selectedIndex < 0)
+      selectedIndex += this.animationFrames.length;
+    while (selectedIndex >= this.animationFrames.length)
+      selectedIndex -= this.animationFrames.length;
+
+    /* update the selected frame */
+    this.selectedFrameMs = this.animationFrames[selectedIndex].getTime();
   }
 }
