@@ -5,18 +5,19 @@ jobs:
     runs-on: ubuntu-latest
     env:
       OS: ubuntu-latest
-      PYTHON: '3.8'
+      PYTHON: '3.9'
     steps:
     - uses: checkout@v3
-      with:
-        fetch-depth: ‘2’
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.8
+        python-version: 3.9
     - name: Run code coverage script
       run: |
         pip install coverage
         python/coverage.sh
-    - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v2
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./python/test/coverage.xml
+        verbose: true
