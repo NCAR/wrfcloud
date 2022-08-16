@@ -41,6 +41,6 @@ class RunInfo:
         self.configuration = config['run']['configuration']
         self.startdate = config['run']['start']
         self.enddate = config['run']['end']
-        self.input_freq_sec = config['run']['output_freq_sec']
+        self.input_freq_sec = config['run']['input_freq_sec']
         self.output_freq_sec = config['run']['output_freq_sec']
         self.local_data = config['run']['local_data']

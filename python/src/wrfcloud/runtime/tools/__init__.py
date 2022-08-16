@@ -1,1 +1,1 @@
-__all__ = ['geojson', 'make_wps_namelist']
+__all__ = ['geojson', 'get_grib_input', 'make_wps_namelist']

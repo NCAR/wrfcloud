@@ -4,34 +4,27 @@
 Functions for setting up, executing, and monitoring a run of the WPS program ungrib
 """
 
-import os
 import glob
 import itertools
-from string import ascii_uppercase
+import os
 from logging import Logger
 from f90nml.namelist import Namelist
+from string import ascii_uppercase
 
 # Import our custom modules
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
+from wrfcloud.runtime.tools.get_grib_input import get_grib_input
 from wrfcloud.runtime import RunInfo
 
 
-def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
-    """
-    Gets GRIB files for processing by ungrib
+def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
+    """Gets all input files necessary for running ungrib"""
 
-    If user has specified local data (or this is the test case), will attempt to read from that
-    local data.
-
-    Otherwise, will attempt to grab data from NOAA S3 bucket
-    https://registry.opendata.aws/noaa-gfs-bdp-pds/
-    """
-    logger.debug('test')
-
+    suffixes = itertools.product(ascii_uppercase, repeat=3)
     if runinfo.local_data:
         logger.debug('Getting GRIB file(s) from local source')
-        # Iterator for generating letter strings for GRIBFILE suffixes. Don't blame me, this is ungrib's fault
-        suffixes = itertools.product(ascii_uppercase, repeat=3)
+        # Iterator for generating letter strings for GRIBFILE suffixes.
+        #suffixes = itertools.product(ascii_uppercase, repeat=3)
         filelist = []
         # If runinfo.local_data is a string, convert it to a list
         if isinstance(runinfo.local_data, str):
@@ -43,21 +36,18 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
             # Since there may be multiple string entries in runinfo.local_data, we need to parse
             # each one individually using glob.glob, then append them all together
             filelist.extend(sorted(glob.glob(entry)))
-        for gribfile in filelist:
-            # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
-            griblink = 'GRIBFILE.' + "".join(suffixes.__next__())
-            logger.debug(f'Linking input GRIB file {gribfile} to {griblink}')
-            os.symlink(gribfile, griblink)
     else:
-        logger.debug('Getting GRIB file(s) from S3 bucket')
-        logger.warning('Not yet implemented!')
+        logger.debug('Getting GRIB file(s) from remote source')
+        get_grib_input(runinfo, logger)
+        # Iterator for generating letter strings for GRIBFILE suffixes.
+        #suffixes = itertools.product(ascii_uppercase, repeat=3)
+        filelist = glob.glob(os.path.join(runinfo.ungribdir, 'gfs.*'))
 
-
-def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
-    """Gets all input files necessary for running ungrib"""
-
-    logger.debug('Getting GRIB input files')
-    get_grib_input(runinfo, logger)
+    for gribfile in filelist:
+        # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
+        griblink = 'GRIBFILE.' + "".join(suffixes.__next__())
+        logger.debug(f'Linking input GRIB file {gribfile} to {griblink}')
+        os.symlink(gribfile, griblink)
 
     logger.debug('Getting geo_em file(s)')
     # Get the number of domains from namelist
@@ -75,7 +65,7 @@ def run_ungrib(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     os.symlink(f'{runinfo.wpsdir}/ungrib/ungrib.exe', 'ungrib.exe')
 
     logger.debug('Executing ungrib.exe')
-    ungrib_cmd ='./ungrib.exe >& ungrib.log'
+    ungrib_cmd = './ungrib.exe >& ungrib.log'
     os.system(ungrib_cmd)
  
 
