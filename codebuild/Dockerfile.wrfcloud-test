@@ -1,7 +1,18 @@
 FROM amazonlinux:latest
 
 # install required os packages
-RUN yum -y install zip gzip tar java-11-amazon-corretto python3 git which procps-ng jq
+RUN yum -y update
+RUN yum -y install zip gzip tar java-11-amazon-corretto git which procps-ng jq
+
+# download, build, and install python3
+RUN yum -y install gcc-c++ make openssl-devel bzip2-devel libffi-devel sqlite-devel
+RUN mkdir -p /opt/src
+WORKDIR /opt/src
+RUN curl https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz > Python-3.9.13.tgz
+RUN tar -xzf Python-3.9.13.tgz
+WORKDIR Python-3.9.13
+RUN ./configure --enable-optimizations --with-openssl=/usr --enable-loadable-sqlite-extensions
+RUN make -j 4 install
 
 # install the local dynamodb service
 RUN mkdir -p /opt/dynamodb
@@ -20,6 +31,11 @@ RUN echo "aws_access_key_id = XXXXXXXXXXXXXXXXXXXX" >> ~/.aws/credentials
 RUN echo "aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" >> ~/.aws/credentials
 RUN echo "region = us-east-1" >> ~/.aws/credentials
 RUN echo "output = json" >> ~/.aws/credentials
+
+# install nodejs and angular cli
+RUN curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
+RUN yum -y install nodejs
+RUN npm install -g @angular/cli
 
 # start the local dynamodb service when the container starts
 #CMD java -jar /opt/dynamodb/DynamoDBLocal.jar -inMemory &

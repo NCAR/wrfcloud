@@ -15,12 +15,18 @@ phases:
       - pylint -E $CODEBUILD_SRC_DIR/python/src/wrfcloud
       - echo "Running unit tests and code coverage"
       - $CODEBUILD_SRC_DIR/python/coverage.sh
+      - cd $CODEBUILD_SRC_DIR/web
+      - npm install
+      - ng build
+      - cd dist/web/
+      - zip -r ${CODEBUILD_SRC_DIR}/wrfcloud_web.zip .
 
   post_build:
     commands:
       - echo "Publishing code coverage report to codecov.io"
       - curl -s https://codecov.io/bash > codecov_temp.sh
       - CODECOV_TOKEN=$(aws secretsmanager get-secret-value --secret-id CodeCovToken | jq -r .SecretString)
+      - cd "${CODEBUILD_SRC_DIR}"
       - /bin/bash ./codecov_temp.sh -t ${CODECOV_TOKEN} -f ${CODEBUILD_SRC_DIR}/python/test/coverage.xml -R $CODEBUILD_SRC_DIR
       - echo "Building ZIP for Lambda API deployment"
       - mkdir -p $CODEBUILD_SRC_DIR/python/build
@@ -30,3 +36,4 @@ phases:
 artifacts:
   files:
     - ${CODEBUILD_SRC_DIR}/wrfcloud_api_lambda.zip
+    - ${CODEBUILD_SRC_DIR}/wrfcloud_web.zip
