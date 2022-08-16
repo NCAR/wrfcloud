@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from "@angular/router";
-import {User, WhoAmIResponse, WrfCloudApi} from "./wrfcloud-api";
+import {User, WhoAmIResponse, ClientApi} from "./client-api";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
@@ -34,7 +34,7 @@ export class AppComponent
   /**
    * Reference to the API object
    */
-  public api: WrfCloudApi;
+  public api: ClientApi;
 
 
   /**
@@ -62,7 +62,6 @@ export class AppComponent
    *
    * @param router Inject the angular router
    * @param http Inject the angular http client
-   * @param dialog Inject the material dialog object
    */
   constructor(public router: Router, public http: HttpClient, public dialog: MatDialog)
   {
@@ -70,10 +69,7 @@ export class AppComponent
     AppComponent.singleton = this;
 
     /* create the API */
-    this.api = new WrfCloudApi(http);
-
-    /* set the menu options based on current user status */
-    this.buildMenu();
+    this.api = new ClientApi(http);
   }
 
 
@@ -82,6 +78,8 @@ export class AppComponent
    */
   public ngOnInit(): void
   {
+    /* set the menu options based on current user status */
+    this.buildMenu();
   }
 
 
@@ -168,8 +166,8 @@ export class AppComponent
     }
 
     /* route to an appropriate screen */
-    if (this.router.url === '/' || this.router.url === '/activate')
-      return;  /* do not interfere with account activation */
+    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset' || this.router.url.startsWith('/view'))
+      return;  /* do not interfere with these routes */
     else if (this.menuOptions.length === 0)
       this.routeTo('login');
     else

@@ -1,0 +1,90 @@
+<div class="viewer-mobile-container" *ngIf="app.isMobile && !forceMobile">
+  <div class="viewer-mobile-text">
+    This app has not been optimized to view model output on a mobile
+    device.  Click the button below if you still want to see it and
+    have a terrible user experience.
+  </div>
+  <div class="viewer-mobile-button-container">
+    <button class="viewer-mobile-button" mat-raised-button color="primary" (click)="forceMobile = true">
+      Show me anyway <mat-icon>tag_faces</mat-icon>
+    </button>
+  </div>
+</div>
+
+<div class="viewer-container" *ngIf="!app.isMobile || forceMobile">
+  <div class="viewer-header">
+    <span class="viewer-title">
+      {{job.name}}
+    </span>
+    <span class="viewer-init-time-select">
+      <mat-form-field appearance="fill" class="viewer-init-time-select-mat">
+        <mat-label>
+          Forecast Initialization Time
+        </mat-label>
+        <mat-select [ngModel]="job.initializationTime[0]">
+          <mat-option *ngFor="let time of job.initializationTime" [value]="time">
+            {{time}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </span>
+  </div>
+  <div class="viewer-mid-panel">
+    <span class="viewer-height-selector">
+      <mat-slider
+        class="viewer-height-selector-widget"
+        color="primary"
+        [(ngModel)]="req.height"
+        [max]="validHeights[0]"
+        [min]="validHeights[validHeights.length - 1]"
+        [step]="1"
+        [invert]="true"
+        [thumbLabel]="true"
+        [tickInterval]="200"
+        [vertical]="true"
+        (change)="heightChanged($event)">
+      </mat-slider>
+    </span>
+    <div id="map" class="map"></div>
+    <span class="viewer-layers">
+      <app-layer *ngFor="let layer of job.layers" [layer]="layer">
+      </app-layer>
+    </span>
+  </div>
+  <div class="viewer-lower-panel">
+    <span class="viewer-animate-tool">
+      <mat-grid-list [cols]="animationControls.length" rowHeight="40px">
+        <mat-grid-tile
+          [id]="button"
+          *ngFor="let button of animationControls"
+          [class]="'viewer-anim-button viewer-anim-button-' + button"
+          (click)="doAnimate($event, button)"
+          matRipple
+        >
+        </mat-grid-tile>
+      </mat-grid-list>
+      <mat-slider
+        invert="true"
+        max="3000"
+        min="100"
+        step="100"
+        [(ngModel)]="animationDelayMs"
+        aria-labelledby="Animation speed">
+    </mat-slider>
+      <span class="viewer-anim-speed-label viewer-left">SLOW</span>
+      <span class="viewer-anim-speed-label viewer-right">FAST</span>
+    </span>
+    <span class="viewer-anim-time-slider">
+      <div>{{selectedFrameMs | date:'yyyy-MM-dd HH:mm:ss O':'UTC'}}</div>
+      <mat-slider *ngIf="animationFrames.length > 0"
+        class="viewer-wide-center"
+        [min]="animationFrames[0].getTime()"
+        [max]="animationFrames[animationFrames.length - 1].getTime()"
+        step="100"
+        [(ngModel)]="selectedFrameMs"
+        (change)="doSelectNearestFrame()"
+        aria-labelledby="Animation speed">
+    </mat-slider>
+    </span>
+  </div>
+</div>

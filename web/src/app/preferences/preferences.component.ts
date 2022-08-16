@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {ChangePasswordRequest, ChangePasswordResponse} from "../wrfcloud-api";
+import {ChangePasswordRequest, ChangePasswordResponse} from "../client-api";
 
 @Component({
   selector: 'app-preferences',

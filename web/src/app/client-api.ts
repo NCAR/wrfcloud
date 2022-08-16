@@ -4,7 +4,7 @@
 import {HttpClient} from "@angular/common/http";
 
 
-export class WrfCloudApi
+export class ClientApi
 {
   /**
    * JSON Web Token
@@ -75,7 +75,7 @@ export class WrfCloudApi
     }
 
     /* save credentials to local storage */
-    WrfCloudApi.saveCredentials(jwt, refreshToken);
+    ClientApi.saveCredentials(jwt, refreshToken);
 
     /* set the logged in flag */
     this.loggedIn = (this.jwt !== undefined && this.refreshToken !== undefined);
@@ -89,6 +89,28 @@ export class WrfCloudApi
   {
     localStorage.setItem('wrfcloud_jwt', jwt);
     localStorage.setItem('wrfcloud_refresh', refreshToken);
+  }
+
+
+  /**
+   * Determine if the JSON Web Token is expired
+   * @private
+   */
+  private jwtExpired(): boolean
+  {
+    /* get current timestamp */
+    const now: number = new Date().getTime() / 1000;
+
+    /* check if we have a JWT with expiry date */
+    if (this.expires === undefined || this.expires === null)
+      return false;
+
+    /* check if JWT is already expired */
+    if (this.expires < now)
+      return true;
+
+    /* token is not expired */
+    return false;
   }
 
 
@@ -153,14 +175,36 @@ export class WrfCloudApi
    * Send a request to the API
    * @param request
    * @param responseHandler
+   * @param includeJwt
    * @private
    */
-  private sendRequest(request: ApiRequest, responseHandler: Function): void
+  private sendRequest(request: ApiRequest, responseHandler: Function, includeJwt: boolean): void
   {
+    /* ensure we have a non-expired JWT */
+    if (includeJwt && this.loggedIn && this.jwtExpired())
+    {
+      /* refresh the JWT */
+      if (this.email !== undefined && this.email !== null && this.refreshToken !== undefined && this.refreshToken !== null)
+      {
+        const req: RefreshTokenRequest = {email: this.email, refresh_token: this.refreshToken};
+        this.sendRefreshTokenRequest(req, this.handleRefreshTokenResponse.bind(this));
+      }
+
+      /* defer this request */
+      setTimeout(this.sendRequest.bind(this), 1000, request, responseHandler, includeJwt);
+
+      /* this function will get called again in 1 second */
+      return;
+    }
+
     /* prepare the request headers */
     const options = {'headers': {
       'Content-Type': 'application/json'
     }};
+
+    /* maybe add the JWT */
+    if (includeJwt)
+      request.jwt = this.jwt;
 
     /* send the POST request */
     this.http.post(this.API_URL, request, options).subscribe((event: Object) => {
@@ -184,7 +228,7 @@ export class WrfCloudApi
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, false);
   }
 
 
@@ -199,12 +243,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'ChangePassword',
-      jwt: this.jwt,
       data: requestData
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -218,12 +261,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'WhoAmI',
-      jwt: this.jwt,
       data: {}
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -237,12 +279,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'ListUsers',
-      jwt: this.jwt,
       data: {}
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -257,12 +298,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'UpdateUser',
-      jwt: this.jwt,
       data: requestData
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -277,12 +317,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'DeleteUser',
-      jwt: this.jwt,
       data: requestData
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -297,12 +336,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'CreateUser',
-      jwt: this.jwt,
       data: requestData
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -321,7 +359,7 @@ export class WrfCloudApi
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, false);
   }
 
 
@@ -340,7 +378,7 @@ export class WrfCloudApi
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, false);
   }
 
 
@@ -359,7 +397,7 @@ export class WrfCloudApi
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, false);
   }
 
 
@@ -374,11 +412,12 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'RefreshToken',
+      jwt: this.jwt,
       data: requestData
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, false);
   }
 
 
@@ -548,6 +587,43 @@ export interface ActivateUserRequest
 
 export interface ActivateUserResponse extends ApiResponse
 {
+}
+
+export interface LatLonPoint
+{
+  latitude: number;
+  longitude: number;
+}
+
+export interface Palette
+{
+  name: string;
+  min: number;
+  max: number;
+}
+
+export interface WrfLayer
+{
+  name: string;
+  displayName: string;
+  palette: Palette;
+  units: string;
+  visible: boolean;
+  opacity: number;
+  data?: any;
+}
+
+export interface WrfJob
+{
+  name: string;
+  domainCenter: LatLonPoint;
+  layers: WrfLayer[];
+  initializationTime: string[];
+}
+
+export interface LayerRequest
+{
+  height: number;
 }
 
 export interface PasswordRecoveryTokenRequest

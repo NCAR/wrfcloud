@@ -1,0 +1,26 @@
+<div class="layer-container" *ngIf="layer">
+  <div class="layer-visibility">
+    <mat-checkbox class="layer-checkbox" color="primary" [(ngModel)]="layer.visible">
+      {{layer.displayName}}
+    </mat-checkbox>
+  </div>
+  <div [class]="layer.visible ? 'layer-details-open' : 'layer-details-closed'">
+    <div class="layer-opacity">
+      <mat-slider color="primary" class="layer-opacity-slider"
+        [min]="0"
+        [max]="1"
+        [step]="0.1"
+        [tickInterval]="0.1"
+        [thumbLabel]="true"
+        [(ngModel)]="layer.opacity">
+      </mat-slider>
+    </div>
+    <div [class]="'layer-color-legend palette-' + layer.palette.name">
+    </div>
+    <div class="layer-color-legend">
+      <span class="layer-color-legend-min">{{layer.palette.min}}</span>
+      <span class="layer-color-legend-units">{{layer.units}}</span>
+      <span class="layer-color-legend-max">{{layer.palette.max}}</span>
+    </div>
+  </div>
+</div>

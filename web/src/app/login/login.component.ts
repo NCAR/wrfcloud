@@ -1,11 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {
-  LoginRequest,
-  LoginResponse,
-  PasswordRecoveryTokenRequest,
-  PasswordRecoveryTokenResponse
-} from "../wrfcloud-api";
+import {LoginRequest, LoginResponse, PasswordRecoveryTokenRequest, PasswordRecoveryTokenResponse} from "../client-api";
+
 
 @Component({
   selector: 'app-login',
