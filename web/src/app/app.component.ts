@@ -166,7 +166,7 @@ export class AppComponent
     }
 
     /* route to an appropriate screen */
-    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset')
+    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset' || this.router.url.startsWith('/view'))
       return;  /* do not interfere with these routes */
     else if (this.menuOptions.length === 0)
       this.routeTo('login');

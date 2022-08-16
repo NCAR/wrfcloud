@@ -75,7 +75,7 @@
       <span class="viewer-anim-speed-label viewer-right">FAST</span>
     </span>
     <span class="viewer-anim-time-slider">
-      <div>{{selectedFrameMs | date:'yyyy-MM-dd HH:mm:ss OOO'}}</div>
+      <div>{{selectedFrameMs | date:'yyyy-MM-dd HH:mm:ss O':'UTC'}}</div>
       <mat-slider *ngIf="animationFrames.length > 0"
         class="viewer-wide-center"
         [min]="animationFrames[0].getTime()"

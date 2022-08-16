@@ -130,8 +130,9 @@ export class WrfViewerComponent implements OnInit
     this.app = AppComponent.singleton;
 
     /* TODO: Get frame list from API */
+    const zoneOffsetMs = new Date().getTimezoneOffset() * 60000;
     for (let t = new Date(2022, 4, 20, 12, 0, 0, 0).getTime(); t < new Date(2022, 4, 21, 12, 0, 0, 0).getTime(); t += 1200000)
-      this.animationFrames.push(new Date(t));
+      this.animationFrames.push(new Date(t - zoneOffsetMs));
     this.selectedFrameMs = this.animationFrames[0].getTime();
   }
 
