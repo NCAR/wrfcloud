@@ -4,7 +4,6 @@
 Functions for setting up, executing, and monitoring a run of the WPS program ungrib
 """
 
-import datetime
 import glob
 import itertools
 import os
@@ -16,6 +15,7 @@ from string import ascii_uppercase
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
 from wrfcloud.runtime.tools.get_grib_input import get_grib_input
 from wrfcloud.runtime import RunInfo
+
 
 def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     """Gets all input files necessary for running ungrib"""
@@ -65,7 +65,7 @@ def run_ungrib(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
     os.symlink(f'{runinfo.wpsdir}/ungrib/ungrib.exe', 'ungrib.exe')
 
     logger.debug('Executing ungrib.exe')
-    ungrib_cmd ='./ungrib.exe >& ungrib.log'
+    ungrib_cmd = './ungrib.exe >& ungrib.log'
     os.system(ungrib_cmd)
  
 

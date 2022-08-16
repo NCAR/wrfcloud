@@ -59,7 +59,7 @@ def main() -> None:
     logging.debug('Creating new RunInfo')
     runinfo = RunInfo(name)
 
-    logging.debug('Initialize enviroment variables for specified configuration')
+    logging.debug('Initialize environment variables for specified configuration')
     init_environment(runinfo.configuration)
 
     logging.debug('Starting ungrib task')

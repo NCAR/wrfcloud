@@ -5,16 +5,13 @@ Functions for getting input GRIB data from remote sources.
 """
 
 import datetime
-import glob
-import itertools
 import math
 import os
 import requests
-import yaml
-from string import ascii_uppercase
 
 from logging import Logger
 from wrfcloud.runtime import RunInfo
+
 
 def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
     """
@@ -45,7 +42,6 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
     # Get requested end time of initialization and set/format necessary end time info.
     cycle_end = runinfo.enddate
     cycle_end = datetime.datetime.strptime(cycle_end, '%Y-%m-%d_%H:%M:%S')
-    cycle_end_h = cycle_end.strftime('%H')
 
     # Calculate the forecast length in seconds and hours. Hours must be an integer.
     cycle_dt = cycle_end - cycle_start
@@ -53,12 +49,8 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
     cycle_dt_h = math.ceil(cycle_dt_s / 3600.)
 
     # Set base URLs for NOMADS and S3 bucket with GFS data.
-    #nomads_base_url = os.environ['NOMADS_BASE_URL']
-    nomads_base_url = os.environ['NOAMDS_BASE_URL']
+    nomads_base_url = os.environ['NOMADS_BASE_URL']
     aws_base_url = os.environ['AWS_BASE_URL']
-    #nomads_base_url = 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
-    #aws_base_url = 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
-    #aws_base_url = os.environ['AWS_BASE_URL'] 
 
     # Check if URL is valid (need to add logging).
     for fhr in range(0, cycle_dt_h + 1, int(input_freq_h)):
@@ -82,6 +74,7 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
             # Should this be a critical error that exits?
             logger.warning('NOMADS and AWS S3 URLs do not exist; this is bad!')
 
+
 def download_to_file(url: str, local_file: str) -> bool:
     """
     Download a URL to a local file
@@ -97,5 +90,6 @@ def download_to_file(url: str, local_file: str) -> bool:
                 gfs_file_out.write(response.content)
                 gfs_file_out.close()
             return True
+        return False
     except Exception:
         return False
