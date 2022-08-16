@@ -11,6 +11,7 @@ run.
 import argparse
 import logging
 import os
+import sys
 
 # Import our custom modules
 from wrfcloud.runtime import ungrib
@@ -35,7 +36,13 @@ def setup_logging(logdir: str = '.',logfile: str = 'debug.log') -> None:
         #Delete existing logger handlers
         logging.debug(f'Clearing existing logging settings; new logfile will be {logfilename}')
         logger.handlers.clear()
-    os.makedirs(logdir, exist_ok=True)
+    try:
+        os.makedirs(logdir, exist_ok=True)
+    except:
+        #Use print() first in case logging has not been set up yet
+        print(f'FATAL ERROR: Could not create {logdir} for run logging')
+        logging.critical(f'Could not create {logdir} for run logging')
+        sys.exit(1)
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                         filename=logfilename,
