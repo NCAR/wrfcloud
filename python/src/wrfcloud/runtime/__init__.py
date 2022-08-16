@@ -44,7 +44,7 @@ class RunInfo:
             logging.debug('Read test.yml successfully, values are:')
         logging.debug(f'{config}')
         self.configuration = config['run']['configuration']
-        self.wd = config['run'].get('workdir',self.topdir + '/' + name)
+        self.wd = config['run'].get('workdir','/data/')
         self.startdate = config['run']['start']
         self.enddate = config['run']['end']
         self.input_freq_sec = config['run']['input_freq_sec']
