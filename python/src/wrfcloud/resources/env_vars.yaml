@@ -27,6 +27,10 @@ test:
   LOG_LEVEL: DEBUG
   LOG_FORMAT: text
 
+  # WRF Output
+  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRF_OUTPUT_PREFIX: ''
+
 codebuild:
 
   # App
@@ -54,6 +58,10 @@ codebuild:
   # Logging options
   LOG_LEVEL: DEBUG
   LOG_FORMAT: json
+
+  # WRF Output
+  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRF_OUTPUT_PREFIX: ''
 
 production:
 
@@ -84,6 +92,10 @@ production:
   LOG_LEVEL: INFO
   LOG_FORMAT: json
 
+  # WRF Output
+  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRF_OUTPUT_PREFIX: 'test'
+
 development:
 
   # App
@@ -111,3 +123,7 @@ development:
   # Logging options
   LOG_LEVEL: DEBUG
   LOG_FORMAT: json
+
+  # WRF Output
+  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRF_OUTPUT_PREFIX: ''
