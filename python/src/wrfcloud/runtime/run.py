@@ -39,8 +39,6 @@ def setup_logging(logdir: str = '.',logfile: str = 'debug.log') -> None:
     try:
         os.makedirs(logdir, exist_ok=True)
     except:
-        #Use print() first in case logging has not been set up yet
-        print(f'FATAL ERROR: Could not create {logdir} for run logging')
         logging.critical(f'Could not create {logdir} for run logging')
         sys.exit(1)
     logging.basicConfig(level=logging.DEBUG,
