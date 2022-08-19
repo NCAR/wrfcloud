@@ -621,8 +621,8 @@ def test_get_wrf_meta_data() -> None:
     assert action.success
     assert 'configurations' in action.response
     assert len(action.response['configurations']) == 1
-    assert 1654041600000 in action.response['configurations']['test']
-    assert len(action.response['configurations']['test'][1654041600000]['valid_times']) == 25
+    assert 1654041600000 == action.response['configurations'][0]['cycle_times'][0]['cycle_time']
+    assert len(action.response['configurations'][0]['cycle_times'][0]['valid_times']) == 25
 
     # teardown test case
     assert _test_teardown()

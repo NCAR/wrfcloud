@@ -14,12 +14,22 @@ export class ViewJobsComponent implements OnInit
   public app: AppComponent;
 
 
+  /**
+   * Default constructor
+   */
   constructor()
   {
+    /* get a reference to the application singleton */
     this.app = AppComponent.singleton;
+
+    /* load the WRF meta data */
+    this.app.refreshWrfMetaData();
   }
 
 
+  /**
+   * Angular initializer
+   */
   ngOnInit(): void
   {
   }

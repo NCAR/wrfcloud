@@ -3,6 +3,7 @@ API actions that are responsible for reading WRF data
 """
 import base64
 import os
+import gzip
 from typing import List, Union
 from datetime import datetime
 from pytz import utc
@@ -41,13 +42,30 @@ class GetWrfMetaData(Action):
         """
         try:
             # get a list of model configurations
-            self.response['configurations'] = self._read_configurations()
+            self.response['configurations'] = self._read_configurations()['configurations']
         except Exception as e:
             self.log.error('Failed to read model configurations.', e)
             self.errors.append('Failed to read model configurations.')
             return False
 
         return True
+
+    # {
+    #   configurations: [
+    #     {
+    #       configuration_name: 'test',
+    #       cycle_times: [
+    #         {
+    #           cycle_time: 20220501000000,
+    #           valid_times: [
+    #             20220501000000,
+    #             20220501010000,
+    #           ]
+    #         }
+    #       ]
+    #     }
+    #   ]
+    # }
 
     def _read_configurations(self) -> dict:
         """
@@ -77,7 +95,16 @@ class GetWrfMetaData(Action):
             if valid not in configs[name][cycle]['valid_times']:
                 configs[name][cycle]['valid_times'].append(valid)
 
-        return configs
+        # make the structure a bit nicer
+        configs_ez_format = {'configurations': []}
+        for name in configs:
+            conf = {'configuration_name': name, 'cycle_times': []}
+            configs_ez_format['configurations'].append(conf)
+            for cycle_time in configs[name]:
+                cycle = {'cycle_time': cycle_time, 'valid_times': configs[name][cycle_time]['valid_times']}
+                conf['cycle_times'].append(cycle)
+
+        return configs_ez_format
 
     def _s3_list(self, bucket: str, prefix: str) -> List[str]:
         """
@@ -179,6 +206,12 @@ class GetWrfGeoJson(Action):
             variable: str = self.request['variable']
             data = self._read_geojson_data(configuration, cycle_time, valid_time, variable)
             self.response['geojson'] = base64.b64encode(data).decode()
+
+            # put the request parameters back in the response
+            self.response['configuration'] = configuration
+            self.response['cycle_time'] = cycle_time
+            self.response['valid_time'] = valid_time
+            self.response['variable'] = variable
         except Exception as e:
             self.log.error('Failed to read model configurations.', e)
             self.errors.append('Failed to read model configurations.')
@@ -201,7 +234,10 @@ class GetWrfGeoJson(Action):
         key = f'{self.prefix}/{configuration}/{cycle_time_str}/wrfout_d01_{valid_time_str}_{variable}.geojson.gz'
 
         # read the object from S3
-        return self._s3_read(self.bucket, key)
+        data = self._s3_read(self.bucket, key)
+
+        # unzip the data
+        return gzip.decompress(data)
 
     def _s3_read(self, bucket: str, key: str) -> bytes:
         """

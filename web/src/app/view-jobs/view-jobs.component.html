@@ -2,3 +2,14 @@
   View WRF Jobs <br>
   <button mat-raised-button (click)="app.routeTo('/view/jobid1')" color="primary">Try a sample</button>
 </div>
+
+<div class="jobs-configuration-container">
+
+  <div class="jobs-configuration" *ngFor="let configuration of app.wrfMetaData">
+    {{configuration.configuration_name}}
+    <div class="jobs-cycle-time" *ngFor="let cycleTime of configuration.cycle_times">
+      {{cycleTime.cycle_time}}
+    </div>
+  </div>
+
+</div>

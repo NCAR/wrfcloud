@@ -1,6 +1,13 @@
 import {Component} from '@angular/core';
 import {Router} from "@angular/router";
-import {User, WhoAmIResponse, ClientApi} from "./client-api";
+import {
+  User,
+  WhoAmIResponse,
+  ClientApi,
+  WrfMetaDataConfiguration,
+  GetWrfMetaDataResponse,
+  GetWrfMetaDataRequest
+} from "./client-api";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
@@ -58,10 +65,17 @@ export class AppComponent
 
 
   /**
+   * WRF meta data
+   */
+  public wrfMetaData: Array<WrfMetaDataConfiguration>|undefined;
+
+
+  /**
    * Default constructor grabs the singleton instance
    *
    * @param router Inject the angular router
    * @param http Inject the angular http client
+   * @param dialog Inject the angular material dialog
    */
   constructor(public router: Router, public http: HttpClient, public dialog: MatDialog)
   {
@@ -245,6 +259,30 @@ export class AppComponent
   public handleUserDataResponse(response: WhoAmIResponse): void
   {
     this.user = response.ok ? response.data.user : undefined;
+  }
+
+
+  /**
+   * Request the latest WRF meta data
+   */
+  public refreshWrfMetaData(): void
+  {
+    const req: GetWrfMetaDataRequest = {};
+    this.api.sendGetWrfMetaDataRequest(req, this.handleWrfMetaDataResponse.bind(this));
+  }
+
+
+  /**
+   * Handle the GetWrfMetaData response
+   *
+   * @param response Response containing WRF meta data or errors
+   */
+  public handleWrfMetaDataResponse(response: GetWrfMetaDataResponse): void
+  {
+    if (response.ok)
+      this.wrfMetaData = response.data.configurations;
+    else
+      this.showErrorDialog(response.errors);
   }
 }
 
