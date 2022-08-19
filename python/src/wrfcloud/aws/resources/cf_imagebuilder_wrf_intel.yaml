@@ -284,6 +284,24 @@ Resources:
                     - cd /home/ec2-user
                     - chown -R ec2-user.ec2-user WPS
 
+              - name: build-upp
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - cd /home/ec2-user
+                    - wget https://dtcenter.org/sites/default/files/code/DTC_upp_v4.0.1.tar.gz
+                    - cd UPPV4.0.1
+                    - export JASPERLIB="-L${SZIP}/lib -L${LIBPNG}/lib -L${ZLIB}/lib -L${JASPER}/lib -L${G2C}/lib -ljasper -lpng -lz -lgrib2c"
+                    - export JASPERINC="-I${SZIP}/include -I${LIBPNG}/include -I${ZLIB}/lib -I${JASPER}/include"
+                    - ./clean
+                    - ./configure << EOF
+                    - 4
+                    - EOF
+                    - ./compile 2>&1 | tee build.log
+                    - cd /home/ec2-user
+                    - chown -R ec2-user.ec2-user UPPV4.0.1
+
   WrfImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
     Properties:
