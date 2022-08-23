@@ -34,7 +34,7 @@ class WrfCloudCluster:
         self.region = region or 'us-east-2'
         self.profile = profile or 'wrfcloud'
         self.subnet = subnet or 'subnet-067bf9400b5ca5833'
-        self.ami = ami or 'ami-083019b32ad5e6a9a'
+        self.ami = ami or 'ami-0af68375a8c4f522e'
         self.cluster_config = cluster_config or 'aws/resources/cluster.wrfcloud.yaml'
         self.cf_client = None
 
