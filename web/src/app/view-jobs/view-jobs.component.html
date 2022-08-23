@@ -8,7 +8,7 @@
   <div class="jobs-configuration" *ngFor="let configuration of app.wrfMetaData">
     {{configuration.configuration_name}}
     <div class="jobs-cycle-time" *ngFor="let cycleTime of configuration.cycle_times">
-      {{cycleTime.cycle_time}}
+      {{cycleTime.cycle_time | date:'yyyy-MM-dd HH:mm:ss O':'UTC'}}
     </div>
   </div>
 

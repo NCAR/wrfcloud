@@ -650,6 +650,7 @@ export interface WrfLayer
   opacity: number;
   data?: any;
   visibilityChange: Function;
+  opacityChange: Function;
 }
 
 export interface WrfJob

@@ -168,12 +168,13 @@ export class WrfViewerComponent implements OnInit
           displayName: '2m Temperature',
           palette: {
             name: 'temperature',
-            min: -40,
-            max: 40
+            min: 270,
+            max: 306
           },
           units: 'ºC',
           visible: false,
           visibilityChange: this.doToggleLayer.bind(this),
+          opacityChange: this.doChangeOpacity.bind(this),
           opacity: 1
         },
         {
@@ -187,6 +188,7 @@ export class WrfViewerComponent implements OnInit
           units: 'kg/kg',
           visible: false,
           visibilityChange: this.doToggleLayer.bind(this),
+          opacityChange: this.doChangeOpacity.bind(this),
           opacity: 1
         }
       ]
@@ -268,6 +270,7 @@ export class WrfViewerComponent implements OnInit
     /* create a new layer for the map */
     const vectorSource = new VectorSource({features: new GeoJSON().readFeatures(geojsonObject)});
     const vectorLayer = new VectorLayer({source: vectorSource, style: WrfViewerComponent.selfStyle});
+    vectorLayer.setOpacity(0.6);
 
     /* cache the layer in the frames map */
     const frameKey = WrfViewerComponent.generateFrameKey(response.data);
@@ -298,8 +301,7 @@ export class WrfViewerComponent implements OnInit
   private static selfStyle(feature: any): Style
   {
     return new Style({
-      stroke: new Stroke({width: 0}),
-      fill: new Fill({color: feature.getProperties().fill}),
+      fill: new Fill({color: feature.getProperties().fill})
     });
   }
 
@@ -350,6 +352,15 @@ export class WrfViewerComponent implements OnInit
       this.preloadFrames(this.job!.name!, this.job!.initializationTime[0], layer.name);
   }
 
+
+  public doChangeOpacity(layer: WrfLayer): void
+  {
+    for (let key of Object.keys(this.frames))
+    {
+      const frame: Layer = this.frames[key];
+      frame.setOpacity(layer.opacity);
+    }
+  }
 
   /**
    * Start the process of preloading data frames
