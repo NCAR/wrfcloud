@@ -63,6 +63,20 @@ Resources:
         - AttributeName: email
           KeyType: HASH
 
+  JobTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${DeploymentType}_${AppName}_jobs'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: job_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: job_id
+          KeyType: HASH
+
 
 Outputs:
   AuditTable:

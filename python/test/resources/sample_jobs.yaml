@@ -1,0 +1,107 @@
+jobs:
+
+  # pending jobs
+  - - job_id: P11111111
+      configuration_name: boulder_co
+      cycle_time: 1661320800
+      forecast_length: 86400
+      output_frequency: 900
+      status_code: 0
+      progress: 0
+    - job_id: P22222222
+      configuration_name: boulder_co_summer
+      cycle_time: 1661364000
+      forecast_length: 604800
+      output_frequency: 3600
+      status_code: 0
+      progress: 0
+
+  # starting jobs
+  - - job_id: S11111111
+      configuration_name: boulder_co
+      cycle_time: 1661320800
+      forecast_length: 86400
+      output_frequency: 900
+      status_code: 1
+      status_message: Initializing cluster
+      progress: 0
+    - job_id: S22222222
+      configuration_name: boulder_co_summer
+      cycle_time: 1661364000
+      forecast_length: 604800
+      output_frequency: 3600
+      status_code: 1
+      status_message: Initializing cluster
+      progress: 0
+
+  # running jobs
+  - - job_id: R11111111
+      configuration_name: boulder_co
+      cycle_time: 1661320800
+      forecast_length: 86400
+      output_frequency: 900
+      status_code: 2
+      status_message: Running metgrid
+      progress: 0.05
+    - job_id: R22222222
+      configuration_name: boulder_co_summer
+      cycle_time: 1661364000
+      forecast_length: 604800
+      output_frequency: 3600
+      status_code: 2
+      status_message: Running wrf
+      progress: 0.472
+
+  # finished jobs
+  - - job_id: F11111111
+      configuration_name: boulder_co
+      cycle_time: 1661320800
+      forecast_length: 86400
+      output_frequency: 900
+      status_code: 3
+      status_message: Finished
+      progress: 1
+    - job_id: F22222222
+      configuration_name: boulder_co_summer
+      cycle_time: 1661364000
+      forecast_length: 604800
+      output_frequency: 3600
+      status_code: 3
+      status_message: Finished
+      progress: 1
+
+  # canceled jobs
+  - - job_id: X11111111
+      configuration_name: boulder_co
+      cycle_time: 1661320800
+      forecast_length: 86400
+      output_frequency: 900
+      status_code: 2
+      status_message: Canceled by user
+      progress: 0.05
+    - job_id: X22222222
+      configuration_name: boulder_co_summer
+      cycle_time: 1661364000
+      forecast_length: 604800
+      output_frequency: 3600
+      status_code: 2
+      status_message: Canceled by user
+      progress: 0.472
+
+  # failed jobs
+  - - job_id: E11111111
+      configuration_name: boulder_co
+      cycle_time: 1661320800
+      forecast_length: 86400
+      output_frequency: 900
+      status_code: 2
+      status_message: Failed while running metgrid
+      progress: 0.05
+    - job_id: E22222222
+      configuration_name: boulder_co_summer
+      cycle_time: 1661364000
+      forecast_length: 604800
+      output_frequency: 3600
+      status_code: 2
+      status_message: Failed while running wrf
+      progress: 0.472
