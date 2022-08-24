@@ -8,7 +8,8 @@ setup(
     author_email='hahnd@ucar.edu',
     maintainer='David Hahn',
     maintainer_email='hahnd@ucar.edu',
-    packages=['wrfcloud', 'wrfcloud/api', 'wrfcloud/aws', 'wrfcloud/dynamodb', 'wrfcloud/user', 'wrfcloud/runtime', 'wrfcloud/runtime/tools'],
+    packages=['wrfcloud', 'wrfcloud/api', 'wrfcloud/aws', 'wrfcloud/dynamodb',
+              'wrfcloud/user', 'wrfcloud/runtime', 'wrfcloud/runtime/tools'],
     install_requires=[
         'boto3>=1.24.8',
         'botocore>=1.27.8',
@@ -20,7 +21,8 @@ setup(
         'netCDF4>=1.5.0',
         'matplotlib>=3.3.0',
         'numpy>=1.23.0',
-        'requests>=2.20'
+        'requests>=2.20',
+        'pytz>=2020.4'
     ],
     package_dir={'wrfcloud': 'wrfcloud'},
     package_data={

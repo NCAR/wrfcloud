@@ -8,7 +8,7 @@ import os
 import sys
 import pkgutil
 import yaml
-
+from wrfcloud.log import LogLevel
 
 # App
 APP_NAME = None
@@ -31,10 +31,6 @@ SESSION_TABLE_NAME = None
 USER_TABLE_NAME = None
 ENDPOINT_URL = None
 
-# Logging options
-LOG_LEVEL = None
-LOG_FORMAT = None
-
 # The environment that has been set
 ENVIRONMENT = None
 
@@ -47,10 +43,12 @@ def init_environment(env='test'):
     global ENVIRONMENT
     ENVIRONMENT = env
 
+    # create a logger with default options
     from wrfcloud.log import Logger
     log = Logger()
     log.info('Initializing %s environment' % ENVIRONMENT)
 
+    # load the requested environment
     data = yaml.full_load(pkgutil.get_data('wrfcloud', 'resources/env_vars.yaml'))
     module = sys.modules[__name__]
     for key in data[env]:
@@ -61,6 +59,14 @@ def init_environment(env='test'):
         else:
             os.environ[key] = str(data[env][key])
             setattr(module, key, data[env][key])
+
+    # reset default logging parameters from the initialized environment
+    if 'LOG_LEVEL' in os.environ:
+        Logger.LOG_LEVEL = LogLevel.log_level_to_int(os.environ['LOG_LEVEL'])
+    if 'LOG_FORMAT' in os.environ:
+        Logger.LOG_FORMAT = os.environ['LOG_FORMAT']
+    if 'LOG_APPLICATION_NAME' in os.environ:
+        Logger.APPLICATION_NAME = os.environ['LOG_APPLICATION_NAME']
 
 
 def get_aws_session():

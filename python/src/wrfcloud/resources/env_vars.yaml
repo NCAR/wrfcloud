@@ -26,6 +26,7 @@ test:
   # Logging options
   LOG_LEVEL: DEBUG
   LOG_FORMAT: text
+  LOG_APPLICATION_NAME: wrfcloud-test
 
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
@@ -58,6 +59,7 @@ codebuild:
   # Logging options
   LOG_LEVEL: DEBUG
   LOG_FORMAT: json
+  LOG_APPLICATION_NAME: wrfcloud-codebuild
 
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
@@ -91,6 +93,7 @@ production:
   # Logging options
   LOG_LEVEL: INFO
   LOG_FORMAT: json
+  LOG_APPLICATION_NAME: wrfcloud-production
 
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
@@ -122,7 +125,8 @@ development:
 
   # Logging options
   LOG_LEVEL: DEBUG
-  LOG_FORMAT: json
+  LOG_FORMAT: text
+  LOG_APPLICATION_NAME: wrfcloud-development
 
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'

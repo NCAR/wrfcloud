@@ -1,21 +1,28 @@
-#!/usr/bin/env python3
-
 """
 Functions for setting up, executing, and monitoring a run of the WRF model
 """
 
-from logging import Logger
-
 # Import our custom modules
-from wrfcloud.runtime import RunInfo
+from typing import Union
+from f90nml import Namelist
+from wrfcloud.runtime import RunInfo, Process
+from wrfcloud.log import Logger
 
 
-def main(runinfo: RunInfo, logger: Logger) -> None:
-    """Main routine that sets up, runs, and monitors WRF end-to-end"""
-    logger.info(f'Setting up WRF for "{runinfo.name}"')
+class Wrf(Process):
+    """
+    Class for setting up, executing, and monitoring a run of the WRF model
+    """
+    def __init__(self, runinfo: RunInfo):
+        """
+        Initialize the Wrf object
+        """
+        super().__init__()
+        self.log = Logger(self.__class__.__name__)
+        self.runinfo = runinfo
+        self.namelist: Union[None, Namelist] = None
 
-    logger.warning(f"{__name__} isn't fully implemented yet!")
-
-
-if __name__ == "__main__":
-    print('Script not yet set up for standalone run, exiting...')
+    def run(self) -> None:
+        """Main routine that sets up, runs, and monitors WRF end-to-end"""
+        self.log.info(f'Setting up WRF for "{self.runinfo.name}"')
+        self.log.warn(f'{__name__} is not fully implemented yet!')

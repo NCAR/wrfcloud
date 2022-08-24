@@ -9,25 +9,25 @@ import math
 import os
 import requests
 
-from logging import Logger
 from wrfcloud.runtime import RunInfo
+from wrfcloud.log import Logger
 
 
-def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
+def get_grib_input(runinfo: RunInfo) -> None:
     """
     Gets GRIB files from external source for processing by ungrib
 
     The first attempt will be to grab data from NOMADS:
     https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod
 
-    If there is a data outage or are running a retrospective case >10 days old, will attempt to pull from NOAA S3 bucket:
+    If there is a data outage or are running a retrospective case >10 days old, will attempt to pull from NOAA S3 bucket
     https://registry.opendata.aws/noaa-gfs-bdp-pds/
 
     :param runinfo: Run information object
-    :param logger: Logging object
     :return: None
     """
-    logger.debug('Getting GRIB file(s) from external source (NOMADS or AWS S3)')
+    log = Logger()
+    log.debug('Getting GRIB file(s) from external source (NOMADS or AWS S3)')
 
     # Get requested input data frequency (in sec) from namelist and convert to hours.
     input_freq_sec = runinfo.input_freq_sec
@@ -61,18 +61,18 @@ def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
             full_url = os.path.join(nomads_base_url, gfs_file)
             nomads_ok = download_to_file(full_url, gfs_local)
             if nomads_ok:
-                logger.debug(f'Pulled forecast hour {fhr} from NOMADS.')
+                log.debug(f'Pulled forecast hour {fhr} from NOMADS.')
             else:
-                logger.debug(f'NOMADS URL does not exist for forecast hour {fhr}, trying AWS S3.')
+                log.debug(f'NOMADS URL does not exist for forecast hour {fhr}, trying AWS S3.')
                 full_url = os.path.join(aws_base_url, gfs_file)
                 aws_ok = download_to_file(full_url, gfs_local)
                 if aws_ok:
-                    logger.debug(f'Pulled forecast hour {fhr} from AWS S3.')
+                    log.debug(f'Pulled forecast hour {fhr} from AWS S3.')
                 if not nomads_ok and not aws_ok:
                     raise RuntimeError(f'GFS data not found for forecast hour {fhr}.')
-        except:
+        except Exception as e:
             # Should this be a critical error that exits?
-            logger.warning('NOMADS and AWS S3 URLs do not exist; this is bad!')
+            log.warn('NOMADS and AWS S3 URLs do not exist; this is bad!', e)
 
 
 def download_to_file(url: str, local_file: str) -> bool:
