@@ -19,7 +19,7 @@ def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
 
     logger.debug('Getting geo_em file(s)')
     # Get the number of domains from namelist
-    # Assumes geo_em files are in local path/domains/expn_name. TODO: Make pull from S3
+    # Assumes geo_em files are in local path/configurations/expn_name. TODO: Make pull from S3
     for domain in range(1, namelist['share']['max_dom'] + 1):
         os.symlink(f'{runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
 
