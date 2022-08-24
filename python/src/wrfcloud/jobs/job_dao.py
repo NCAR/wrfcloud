@@ -8,7 +8,7 @@ import pkgutil
 from typing import Union, List
 import yaml
 from wrfcloud.dynamodb import DynamoDao
-from wrfcloud.jobs import WrfJob
+from wrfcloud.jobs.job import WrfJob
 
 
 class JobDao(DynamoDao):

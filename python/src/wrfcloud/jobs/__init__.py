@@ -90,4 +90,5 @@ def delete_job_from_system(del_job: WrfJob) -> bool:
     if del_job is not None:
         return dao.delete_job(del_job)
 
+    log.error('Value for job to remove was set as None', ValueError('del_job cannot be None'))
     return False
