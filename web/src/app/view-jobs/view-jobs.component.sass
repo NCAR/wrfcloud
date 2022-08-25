@@ -1,8 +1,88 @@
 @import ../../globals
 
 
-.jobs-configuration
-  border: 1px solid peru
+.job-container
+  width: 100vw
+  margin: auto
+  font-size: 1.25rem
 
-.jobs-cycle-time
-  border: 1px solid peru
+.job-filter-container
+  display: grid
+  width: 90vw
+  max-width: 800px
+  margin: auto
+
+.job-hide
+  visibility: hidden
+
+.job-overlay
+  grid-column: 1
+  grid-row: 1
+
+.job-filter-input
+  width: 100%
+  margin: 15px auto 0 auto
+
+.job-busy-spinner
+  width: 100%
+  text-align: center
+  margin-top: 30px
+
+.job-table-container
+  width: 100%
+  max-width: 800px
+  margin: auto
+
+.job-table
+  font-size: 1.25rem
+  width: 100%
+
+.manage-user-table-cell
+  max-width: 30%
+
+.job-inactive-icon
+  color: $warn
+
+.job-active-icon
+  color: $accent-green
+
+.job-hover-highlight :hover
+  background-color: $accent-gold
+
+.job-action-panel
+  width: 100%
+  max-width: 800px
+  margin: auto
+
+.job-action-button
+  font-size: 1.25rem
+  width: 85%
+
+.job-action-button-icon
+  font-size: 1rem
+  position: relative
+  top: 3px
+
+.job-status-message
+  font-size: 0.9rem
+
+.mat-header-cell
+  font-size: 1.25rem
+  font-weight: bold
+
+.mat-cell
+  font-size: 1.25rem
+
+@media screen and (min-width: 840px)
+
+  .job-action-button
+    font-size: 1.0rem
+
+  .job-action-button-icon
+    font-size: 1.0rem
+
+  .mat-header-cell
+    font-size: 1.0rem
+
+  .mat-cell
+    font-size: 1.0rem

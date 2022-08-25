@@ -25,6 +25,8 @@ readonly:
       package: wrfcloud.api.actions
     - action: GetWrfGeoJson
       package: wrfcloud.api.actions
+    - action: ListJobs
+      package: wrfcloud.api.actions
 
 regular:
   permitted_actions:
@@ -37,6 +39,8 @@ regular:
     - action: GetWrfMetaData
       package: wrfcloud.api.actions
     - action: GetWrfGeoJson
+      package: wrfcloud.api.actions
+    - action: ListJobs
       package: wrfcloud.api.actions
 
 admin:
@@ -58,4 +62,6 @@ admin:
     - action: GetWrfMetaData
       package: wrfcloud.api.actions
     - action: GetWrfGeoJson
+      package: wrfcloud.api.actions
+    - action: ListJobs
       package: wrfcloud.api.actions

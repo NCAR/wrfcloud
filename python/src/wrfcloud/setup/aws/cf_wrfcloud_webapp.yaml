@@ -111,6 +111,7 @@ Resources:
                   - Fn::ImportValue: !Sub 'dynamodb-table-audit-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-refresh-tokens-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-users-${DeploymentType}-${AppName}'
+                  - Fn::ImportValue: !Sub 'dynamodb-table-jobs-${DeploymentType}-${AppName}'
               - Effect: Allow
                 Action:
                   - s3:ListBucket

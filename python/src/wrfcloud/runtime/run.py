@@ -11,6 +11,7 @@ run.
 import argparse
 import logging
 import os
+import sys
 
 # Import our custom modules
 from wrfcloud.runtime import ungrib
@@ -19,26 +20,32 @@ from wrfcloud.runtime import real
 from wrfcloud.runtime import wrf
 from wrfcloud.runtime import postproc
 from wrfcloud.runtime import RunInfo
+from wrfcloud.system import init_environment
 
 
 # Define our functions
-def setup_logging(logdir: str = '') -> None:
+def setup_logging(logdir: str = '.',logfile: str = 'debug.log') -> None:
     """
-    Sets up logging for a new run. This should be the first action in main() to ensure
-    that all actions are properly logged.
+    Sets up logging, printing high-priority (INFO and higher) messages to screen, and printing all
+    messages with detailed timing and routine info in the specified text file. Can be called
+    multiple times in a single run (for example, to change logging to a different file path/name)
     """
-    mkdir_fail = False
+    logfilename=logdir + '/' + logfile
+    logger = logging.getLogger()
+    if logging.getLogger().hasHandlers():
+        #Delete existing logger handlers
+        logging.debug(f'Clearing existing logging settings; new logfile will be {logfilename}')
+        logger.handlers.clear()
     try:
-        os.mkdir(logdir)
+        os.makedirs(logdir, exist_ok=True)
     except:
-        mkdir_fail = True
+        logging.critical(f'Could not create {logdir} for run logging')
+        sys.exit(1)
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                        filename=logdir + '/debug.log',
+                        filename=logfilename,
                         filemode='a')
-    logging.debug('Finished setting up debug file logging')
-    if mkdir_fail:
-        logging.warning(f'Could not create directory {logdir}')
+    logging.debug(f'Finished setting up debug file logging in {logfilename}')
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
     logging.getLogger().addHandler(console)
@@ -47,16 +54,24 @@ def setup_logging(logdir: str = '') -> None:
 
 def main() -> None:
     """Main routine that creates a new run and monitors it through completion"""
+    setup_logging(logfile='setup.log')
+    logging.debug('Reading command line arguments')
     parser = argparse.ArgumentParser()
     parser.add_argument('--name', type=str, default='test',
                         help='"name" should be a unique alphanumeric name for this particular run')
     args = parser.parse_args()
     name = args.name
 
-    setup_logging(name)
     logging.info(f'Starting new run "{name}"')
     logging.debug('Creating new RunInfo')
     runinfo = RunInfo(name)
+    logging.info(f'Setting up working directory {runinfo.wd}')
+    setup_logging(logdir=runinfo.wd, logfile='debug.log')
+    logging.debug(f'Moving setup.log to {runinfo.wd}')
+    os.rename('setup.log', runinfo.wd + '/setup.log')
+
+    logging.debug('Initialize environment variables for specified configuration')
+    init_environment(runinfo.configuration)
 
     logging.debug('Starting ungrib task')
     ungrib.main(runinfo, logging.getLogger('root.ungrib'))
