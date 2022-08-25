@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from "@angular/router";
-import {User, WhoAmIResponse, ClientApi} from "./client-api";
+import {User, WhoAmIResponse, ClientApi, ListJobResponse, Job} from "./client-api";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
@@ -166,7 +166,7 @@ export class AppComponent
     }
 
     /* route to an appropriate screen */
-    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset' || this.router.url.startsWith('/view'))
+    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset' || this.router.url.startsWith('/view') || this.router.url.startsWith('/jobs'))
       return;  /* do not interfere with these routes */
     else if (this.menuOptions.length === 0)
       this.routeTo('login');

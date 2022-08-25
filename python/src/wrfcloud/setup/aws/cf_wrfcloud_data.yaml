@@ -94,3 +94,8 @@ Outputs:
     Value: !GetAtt UserTable.Arn
     Export:
       Name: !Sub 'dynamodb-table-users-${DeploymentType}-${AppName}'
+  JobTable:
+    Description: DynamoDB Table - Jobs
+    Value: !GetAtt JobTable.Arn
+    Export:
+      Name: !Sub 'dynamodb-table-jobs-${DeploymentType}-${AppName}'

@@ -2,6 +2,7 @@
 The WrfJob class is the data model used to represent a user and associated functions
 """
 
+import copy
 from typing import Union
 from wrfcloud.log import Logger
 
@@ -14,6 +15,9 @@ class WrfJob:
     # list of all fields supported
     ALL_KEYS = ['job_id', 'job_name', 'configuration_name', 'cycle_time', 'forecast_length',
                 'output_frequency', 'status_code', 'status_message', 'progress']
+
+    # do not return these fields to the user
+    SANITIZE_KEYS = []
 
     # Status code values
     STATUS_CODE_PENDING: int = 0
@@ -77,6 +81,30 @@ class WrfJob:
         self.status_code = None if 'status_code' not in data else data['status_code']
         self.status_message = None if 'status_message' not in data else data['status_message']
         self.progress = None if 'progress' not in data else data['progress']
+
+    @property
+    def sanitized_data(self) -> Union[dict, None]:
+        """
+        Remove any fields that should not be passed back to the user client
+        :return True if user is sanitized
+        """
+        # get a copy of the data dictionary
+        data = copy.deepcopy(self.data)
+
+        try:
+            # remove all the fields that should not be returned to the user
+            for field in self.SANITIZE_KEYS:
+                if field in data:
+                    data.pop(field)
+
+            # remove any extraneous keys that may have been added
+            for key in data:
+                if key not in self.ALL_KEYS:
+                    data.pop(key)
+
+        except Exception:
+            return None
+        return data
 
     def update(self, data: dict):
         """
