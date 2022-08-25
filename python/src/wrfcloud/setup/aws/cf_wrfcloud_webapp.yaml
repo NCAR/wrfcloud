@@ -108,6 +108,7 @@ Resources:
                   - Fn::ImportValue: !Sub 'dynamodb-table-audit-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-refresh-tokens-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-users-${DeploymentType}-${AppName}'
+                  - Fn::ImportValue: !Sub 'dynamodb-table-jobs-${DeploymentType}-${AppName}'
   LambdaLayerPythonDeps:
     Type: AWS::Lambda::LayerVersion
     Properties:
@@ -122,7 +123,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub '${DeploymentType}_${AppName}_handler'
-      Handler: lambda_wrapper.handle_event
+      Handler: lambda_wrapper.lambda_handler
       MemorySize: 1024
       Timeout: 30
       Role: !GetAtt LambdaRole.Arn
