@@ -28,6 +28,10 @@ test:
   LOG_LEVEL: DEBUG
   LOG_FORMAT: text
 
+  # WRF Output
+  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRF_OUTPUT_PREFIX: ''
+
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
   AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
@@ -60,6 +64,10 @@ codebuild:
   # Logging options
   LOG_LEVEL: DEBUG
   LOG_FORMAT: json
+
+  # WRF Output
+  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRF_OUTPUT_PREFIX: ''
 
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
@@ -95,6 +103,10 @@ production:
   LOG_LEVEL: INFO
   LOG_FORMAT: json
 
+  # WRF Output
+  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRF_OUTPUT_PREFIX: 'test'
+
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
   AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
@@ -127,6 +139,10 @@ development:
   # Logging options
   LOG_LEVEL: DEBUG
   LOG_FORMAT: json
+
+  # WRF Output
+  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRF_OUTPUT_PREFIX: ''
 
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'

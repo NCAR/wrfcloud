@@ -48,7 +48,7 @@ class GeoJson:
         self.grid_lon = wrf['XLONG'][0]
 
         # create a set of contours from the data grid
-        contours: contour.QuadContourSet = pyplot.contourf(grid)
+        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=[i/10 for i in range(2700, 3060, 10)])
 
         # create a set of features for the GeoJSON file
         features = []
@@ -85,9 +85,9 @@ class GeoJson:
                         "coordinates": [json.loads(polygon_string)]
                     },
                     "properties": {
-                        "stroke-width": 0,
+                        # "stroke-width": 0,
                         "fill": level_color,
-                        "fill-opacity": 1
+                        # "fill-opacity": 1
                     }
                 }
 

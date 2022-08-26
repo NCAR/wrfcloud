@@ -20,6 +20,7 @@ setup(
         'netCDF4>=1.5.0',
         'matplotlib>=3.3.0',
         'numpy>=1.23.0',
+        'pytz>=2020.4',
         'requests>=2.20'
     ],
     package_dir={'wrfcloud': 'wrfcloud'},

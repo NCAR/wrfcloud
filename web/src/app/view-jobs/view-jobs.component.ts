@@ -64,13 +64,16 @@ export class ViewJobsComponent implements OnInit, AfterViewInit
    */
   constructor()
   {
+    /* get a reference to the application singleton */
     this.app = AppComponent.singleton;
+    
+    /* refresh job data from the API */
     this.refreshJobData();
   }
 
 
   /**
-   * On init
+   * Angular initializer
    */
   ngOnInit(): void
   {

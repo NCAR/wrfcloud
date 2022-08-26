@@ -58,6 +58,9 @@ Parameters:
   CertificateArn:
     Description: Amazon resource name (ARN) for the certificate to use
     Type: String
+  S3ModelOutputBucketName:
+    Description: Name of S3 bucket that holds the model output data
+    Type: String
 
 Conditions:
   IsDev: !Equals [!Ref DeploymentType, 'development']
@@ -109,6 +112,13 @@ Resources:
                   - Fn::ImportValue: !Sub 'dynamodb-table-refresh-tokens-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-users-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-jobs-${DeploymentType}-${AppName}'
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:aws:s3:::${S3ModelOutputBucketName}'
+                  - !Sub 'arn:aws:s3:::${S3ModelOutputBucketName}/*'
   LambdaLayerPythonDeps:
     Type: AWS::Lambda::LayerVersion
     Properties:
