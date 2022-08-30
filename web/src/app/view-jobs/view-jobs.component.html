@@ -64,7 +64,7 @@
       <tr mat-header-row *matHeaderRowDef="app.isMobile ? mobileColumns : desktopColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: (app.isMobile ? mobileColumns : desktopColumns);" (click)="jobClicked(row)"></tr>
     </table>
-    <mat-paginator [pageSizeOptions]="[app.isMobile ? 5 : 8]" showFirstLastButtons #paginator>
+    <mat-paginator [pageSizeOptions]="[app.isMobile ? 5 : 8]" showFirstLastButtons>
     </mat-paginator>
   </div>
 </div>
