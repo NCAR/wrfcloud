@@ -402,6 +402,60 @@ export class ClientApi
 
 
   /**
+   * Send a request for WRF meta data
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendGetWrfMetaDataRequest(requestData: GetWrfMetaDataRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'GetWrfMetaData',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
+   * Send a request for WRF geojson data
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendGetWrfGeoJsonRequest(requestData: GetWrfGeoJsonRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'GetWrfGeoJson',
+      data: requestData
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+  
+  
+  /**
+   * Send a list user request
+   *
+   * @param responseHandler
+   */
+  public sendListJobsRequest(responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'ListJobs',
+      data: {}
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
    * Send a refresh token request
    *
    * @param requestData
@@ -611,6 +665,8 @@ export interface WrfLayer
   visible: boolean;
   opacity: number;
   data?: any;
+  visibilityChange: Function;
+  opacityChange: Function;
 }
 
 export interface WrfJob
@@ -618,7 +674,7 @@ export interface WrfJob
   name: string;
   domainCenter: LatLonPoint;
   layers: WrfLayer[];
-  initializationTime: string[];
+  initializationTime: number[];
 }
 
 export interface LayerRequest
@@ -647,4 +703,66 @@ export interface ResetPasswordRequest
 
 export interface ResetPasswordResponse extends ApiResponse
 {
+}
+
+export interface GetWrfMetaDataRequest
+{
+}
+
+export interface GetWrfMetaDataResponse extends ApiResponse
+{
+  data: {
+    configurations: Array<WrfMetaDataConfiguration>;
+  }
+}
+
+export interface WrfMetaDataConfiguration
+{
+  configuration_name: string;
+  cycle_times: Array<WrfMetaDataCycleTime>;
+}
+
+export interface WrfMetaDataCycleTime
+{
+  cycle_time: number;
+  valid_times: Array<number>
+}
+
+export interface GetWrfGeoJsonRequest
+{
+  configuration: string;
+  cycle_time: number;
+  valid_time: number;
+  variable: string;
+}
+
+export interface GetWrfGeoJsonResponse extends ApiResponse
+{
+  data: {
+    configuration: string;
+    cycle_time: number;
+    valid_time: number;
+    variable: string;
+    geojson: string
+  }
+}
+
+export interface ListJobResponse extends ApiResponse
+{
+  data: {
+    jobs: Job[];
+  }
+}
+
+export interface Job
+{
+  job_id: string;
+  job_name: string;
+  configuration_name: string;
+  cycle_time: number;
+  forecast_length: number;
+  output_frequency: number;
+  status_code: number;
+  status_message: string;
+  progress: number;
 }

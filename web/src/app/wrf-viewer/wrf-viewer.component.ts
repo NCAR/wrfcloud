@@ -1,11 +1,16 @@
 import {Component, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {WrfJob, LayerRequest} from "../client-api";
+import {WrfJob, LayerRequest, GetWrfGeoJsonRequest, GetWrfGeoJsonResponse, WrfLayer} from "../client-api";
 import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import {OSM} from 'ol/source';
 import {MatSliderChange} from "@angular/material/slider";
 import {useGeographic} from "ol/proj";
+import VectorSource from "ol/source/Vector";
+import {GeoJSON} from "ol/format";
+import VectorLayer from "ol/layer/Vector";
+import {Fill, Stroke, Style} from "ol/style";
+import {Layer} from "ol/layer";
 
 @Component({
   selector: 'app-wrf-viewer',
@@ -59,46 +64,13 @@ export class WrfViewerComponent implements OnInit
   /**
    * The selected animation frame
    */
-  public selectedFrameMs: number;
+  public selectedFrameMs: number = 0;
 
 
   /**
    * WRF job definition
    */
-  public job: WrfJob = {
-    name: 'Bermuda to Jonestown',
-    initializationTime: ['2022-05-20 12:00:00', '2022-05-21 00:00:00', '2022-05-21 12:00:00'],
-    domainCenter: {
-      latitude: 20,
-      longitude: -70
-    },
-    layers: [
-      {
-        name: 'T2',
-        displayName: '2m Temperature',
-        palette: {
-          name: 'temperature',
-          min: -40,
-          max: 40
-        },
-        units: 'ºC',
-        visible: true,
-        opacity: 1
-      },
-      {
-        name: 'P24M',
-        displayName: 'Precipitation (24h)',
-        palette: {
-          name: 'moisture',
-          min: 0,
-          max: 300
-        },
-        units: 'mm',
-        visible: false,
-        opacity: 1
-      }
-    ]
-};
+  public job: WrfJob|undefined;
 
 
   /**
@@ -122,6 +94,12 @@ export class WrfViewerComponent implements OnInit
 
 
   /**
+   * A map to store data frames, which are OL6 GeoJSON Layers
+   */
+  public frames: {[key: string]: Layer} = {};
+
+
+  /**
    * Get the singleton app object
    */
   constructor()
@@ -129,11 +107,9 @@ export class WrfViewerComponent implements OnInit
     WrfViewerComponent.singleton = this;
     this.app = AppComponent.singleton;
 
-    /* TODO: Get frame list from API */
-    const zoneOffsetMs = new Date().getTimezoneOffset() * 60000;
-    for (let t = new Date(2022, 4, 20, 12, 0, 0, 0).getTime(); t < new Date(2022, 4, 21, 12, 0, 0, 0).getTime(); t += 1200000)
-      this.animationFrames.push(new Date(t - zoneOffsetMs));
-    this.selectedFrameMs = this.animationFrames[0].getTime();
+    /* get the WRF meta data */
+    this.app.refreshWrfMetaData();
+
   }
 
 
@@ -150,7 +126,73 @@ export class WrfViewerComponent implements OnInit
    */
   ngAfterViewInit(): void
   {
+    this.initWrfJob();
     this.initMap();
+  }
+
+
+  /**
+   * Wait for the WRF metadata, then init the WRF job values
+   * @private
+   */
+  private initWrfJob(): void
+  {
+    /* wait for the metadata to be initialized */
+    if (this.app.wrfMetaData === undefined)
+    {
+      setTimeout(this.initWrfJob.bind(this), 100);
+      return;
+    }
+
+    /* set the wrf job data to be the first configuration in the metadata */
+    let cycleTimes: Array<number> = [];
+    for (let i = 0; i < this.app.wrfMetaData[0].cycle_times.length; i++)
+      cycleTimes.push(this.app.wrfMetaData[0].cycle_times[i].cycle_time);
+
+    /* set the list of valid times */
+    for (let i = 0; i < this.app.wrfMetaData[0].cycle_times[0].valid_times.length; i++)
+      this.animationFrames.push(new Date(this.app.wrfMetaData[0].cycle_times[0].valid_times[i]));
+    this.selectedFrameMs = this.animationFrames[0].getTime();
+
+    /* initialize the WRF job */
+    this.job = {
+      name: this.app.wrfMetaData[0].configuration_name,
+      initializationTime: cycleTimes,
+      domainCenter: {
+        latitude: 20,
+        longitude: -70
+      },
+      layers: [
+        {
+          name: 'T2',
+          displayName: '2m Temperature',
+          palette: {
+            name: 'temperature',
+            min: 270,
+            max: 306
+          },
+          units: 'ºC',
+          visible: false,
+          visibilityChange: this.doToggleLayer.bind(this),
+          opacityChange: this.doChangeOpacity.bind(this),
+          opacity: 1
+        },
+        {
+          name: 'Q2',
+          displayName: 'Mixing Ratio',
+          palette: {
+            name: 'moisture',
+            min: 0,
+            max: 300
+          },
+          units: 'kg/kg',
+          visible: false,
+          visibilityChange: this.doToggleLayer.bind(this),
+          opacityChange: this.doChangeOpacity.bind(this),
+          opacity: 1
+        }
+      ]
+    };
   }
 
 
@@ -160,6 +202,13 @@ export class WrfViewerComponent implements OnInit
    */
   private initMap(): void
   {
+    /* wait for the job to be defined */
+    if (this.job === undefined)
+    {
+      setTimeout(this.initMap.bind(this), 100);
+      return;
+    }
+
     useGeographic();
     this.map = new Map({
       target: 'map',
@@ -176,6 +225,84 @@ export class WrfViewerComponent implements OnInit
     });
 
     this.map.on('click', this.mapClicked.bind(this));
+  }
+
+
+  /**
+   *
+   * @param configName
+   * @param cycleTime
+   * @param validTime
+   * @param variable
+   * @private
+   */
+  private loadLayer(configName: string, cycleTime: number, validTime: number, variable: string): void
+  {
+    /* create the request data */
+    const requestData: GetWrfGeoJsonRequest = {
+      configuration: configName,
+      cycle_time: cycleTime,
+      valid_time: validTime,
+      variable: variable
+    };
+
+    this.app.api.sendGetWrfGeoJsonRequest(requestData, this.handleGetWrfGeoJsonResponse.bind(this));
+  }
+
+
+  /**
+   *
+   * @param response
+   * @private
+   */
+  private handleGetWrfGeoJsonResponse(response: GetWrfGeoJsonResponse): void
+  {
+    /* handle an error case */
+    if (!response.ok)
+    {
+      this.app.showErrorDialog(response.errors);
+      return;
+    }
+
+    /* decode the base64 data */
+    const geojsonObject = JSON.parse(atob(response.data.geojson));
+
+    /* create a new layer for the map */
+    const vectorSource = new VectorSource({features: new GeoJSON().readFeatures(geojsonObject)});
+    const vectorLayer = new VectorLayer({source: vectorSource, style: WrfViewerComponent.selfStyle});
+    vectorLayer.setOpacity(0.6);
+
+    /* cache the layer in the frames map */
+    const frameKey = WrfViewerComponent.generateFrameKey(response.data);
+    this.frames[frameKey] = vectorLayer;
+
+    /* add the invisible layer to the map */
+    vectorLayer.setVisible(false);
+    this.map!.addLayer(vectorLayer);
+  }
+
+
+  /**
+   * Generate a string to identify a particular frame, which is an OpenLayers Layer
+   * @param data
+   * @private
+   */
+  private static generateFrameKey(data: {[key: string]: string|number}): string
+  {
+    return data['configuration'] + '-' + data['cycle_time'] + '-' + data['valid_time'] + '-' + data['variable'];
+  }
+
+
+  /**
+   * Use the styling that is already in the feature -- don't know why OpenLayers can't do this
+   * @param feature
+   * @private
+   */
+  private static selfStyle(feature: any): Style
+  {
+    return new Style({
+      fill: new Fill({color: feature.getProperties().fill})
+    });
   }
 
 
@@ -212,6 +339,52 @@ export class WrfViewerComponent implements OnInit
 
     /* set the slider value to the closest valid height */
     setTimeout(() => {this.req.height = closest;}, 50);
+  }
+
+
+  /**
+   * Toggle a data layer on/off
+   * @param layer
+   */
+  public doToggleLayer(layer: WrfLayer): void
+  {
+    if (layer.visible)
+      this.preloadFrames(this.job!.name!, this.job!.initializationTime[0], layer.name);
+  }
+
+
+  public doChangeOpacity(layer: WrfLayer): void
+  {
+    for (let key of Object.keys(this.frames))
+    {
+      const frame: Layer = this.frames[key];
+      frame.setOpacity(layer.opacity);
+    }
+  }
+
+  /**
+   * Start the process of preloading data frames
+   *
+   * @param configurationName
+   * @param cycleTime
+   * @param variable
+   */
+  public preloadFrames(configurationName: string, cycleTime: number, variable: string): void
+  {
+    /* load a data layer if it is not yet loaded */
+    for (let validTime of this.animationFrames)
+    {
+      const frameKey = WrfViewerComponent.generateFrameKey(
+        {
+          'configuration': configurationName,
+          'cycle_time': cycleTime,
+          'valid_time': validTime.getTime(),
+          'variable': variable
+        }
+      );
+      if (this.frames[frameKey] === undefined)
+        this.loadLayer(configurationName, cycleTime, validTime.getTime(), variable);
+    }
   }
 
 
@@ -316,6 +489,11 @@ export class WrfViewerComponent implements OnInit
    */
   private doStepAnimation(stepSize: number = 1)
   {
+    /* hide the layer that corresponds to the current time */
+    let frameKey = WrfViewerComponent.generateFrameKey({'configuration': this.job!.name, 'cycle_time': this.job!.initializationTime[0], 'valid_time': this.selectedFrameMs, 'variable': 'T2'});
+    if (this.frames[frameKey] !== undefined)
+      this.frames[frameKey].setVisible(false);
+
     /* find the currently selected frame's index */
     let selectedIndex: number = 0;
     for (let i = 0; i < this.animationFrames.length; i++)
@@ -336,5 +514,10 @@ export class WrfViewerComponent implements OnInit
 
     /* update the selected frame */
     this.selectedFrameMs = this.animationFrames[selectedIndex].getTime();
+
+    /* show the layer that corresponds to the new time */
+    frameKey = WrfViewerComponent.generateFrameKey({'configuration': this.job!.name, 'cycle_time': this.job!.initializationTime[0], 'valid_time': this.selectedFrameMs, 'variable': 'T2'});
+    if (this.frames[frameKey] !== undefined)
+      this.frames[frameKey].setVisible(true);
   }
 }

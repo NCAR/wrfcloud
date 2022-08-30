@@ -1,0 +1,11 @@
+---
+# Table definition for storing the job data
+table_name_var: JOB_TABLE_NAME
+key_fields:
+  - job_id
+attribute_definitions:
+  - AttributeName: job_id
+    AttributeType: S
+key_schema:
+  - AttributeName: job_id
+    KeyType: HASH
