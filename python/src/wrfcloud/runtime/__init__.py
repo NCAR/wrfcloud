@@ -88,7 +88,7 @@ class Process:
         Get a summary of the run as a string that can be logged
         :return: Summary of the run: elapsed time and success flag
         """
-        return f'{self.__class__} {self.success:"succeeded":"failed"} in {self.get_elapsed_time()} seconds.'
+        return f'{self.__class__.__name__} {"succeeded" if self.success else "failed"} in {self.get_elapsed_time()} seconds.'
 
     def get_elapsed_time(self) -> Union[None, float]:
         """
