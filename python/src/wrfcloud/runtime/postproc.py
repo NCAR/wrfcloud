@@ -20,9 +20,12 @@ class PostProc(Process):
         self.runinfo = runinfo
         self.namelist: Union[None, Namelist] = None
 
-    def run(self) -> None:
+    def run(self) -> bool:
         """
         Main routine that sets up, runs, and monitors post-processing end-to-end
         """
         self.log.info(f'Setting up post-processing for "{self.runinfo.name}"')
         self.log.warn(f"{__name__} isn't fully implemented yet!")
+
+        # TODO: Check for successful completion of postproc
+        return True

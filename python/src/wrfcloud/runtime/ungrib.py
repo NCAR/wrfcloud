@@ -74,7 +74,7 @@ class Ungrib(Process):
         ungrib_cmd = './ungrib.exe >& ungrib.log'
         os.system(ungrib_cmd)
 
-    def run(self) -> None:
+    def run(self) -> bool:
         """Main routine that sets up, runs, and monitors ungrib end-to-end"""
         self.log.info(f'Setting up ungrib for "{self.runinfo.name}"')
 
@@ -96,6 +96,9 @@ class Ungrib(Process):
 
         self.log.debug('Calling run_ungrib')
         self.run_ungrib()
+
+        # TODO: Check for successful completion of ungrib
+        return True
 
 
 if __name__ == "__main__":

@@ -54,7 +54,7 @@ class MetGrid(Process):
         metgrid_cmd = './metgrid.exe >& metgrid.log'
         os.system(metgrid_cmd)
 
-    def run(self) -> None:
+    def run(self) -> bool:
         """
         Main routine that sets up, runs, and monitors metgrid end-to-end
         """
@@ -80,6 +80,9 @@ class MetGrid(Process):
 
         self.log.debug('Calling run_metgrid')
         self.run_metgrid()
+
+        # TODO: Check for successful completion of metgrid
+        return True
 
 
 if __name__ == "__main__":

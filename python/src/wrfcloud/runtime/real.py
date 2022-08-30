@@ -20,9 +20,12 @@ class Real(Process):
         self.runinfo = runinfo
         self.namelist: Union[None, Namelist] = None
 
-    def run(self) -> None:
+    def run(self) -> bool:
         """
         Main routine that sets up, runs, and monitors real.exe end-to-end
         """
         self.log.info(f'Setting up real.exe for "{self.runinfo.name}"')
         self.log.warn(f'{__name__} is not fully implemented yet!')
+
+        # TODO: Check for successful completion of real
+        return False
