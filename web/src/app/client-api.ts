@@ -37,6 +37,13 @@ export class ClientApi
 
 
   /**
+   * Websocket connected to the WRF Cloud websocket service
+   * @private
+   */
+  private websocket: WebSocket|undefined;
+
+
+  /**
    * Construct a new API object
    *
    * @param http Angular's HttpClient
@@ -51,7 +58,9 @@ export class ClientApi
    * A URL to the API
    */
   // public API_URL = 'https://api-dev.wrfcloud.com/v1/action';
-  public API_URL = 'https://api.wrfcloud.com/v1/action';
+  public static API_URL = 'https://api.wrfcloud.com/v1/action';
+  // public static WEBSOCKET_URL = 'wss://ws.wrfcloud.com/default/v1';
+  public static WEBSOCKET_URL = 'wss://qf4es7tvh4.execute-api.us-east-2.amazonaws.com/v1';
 
 
   /**
@@ -207,7 +216,7 @@ export class ClientApi
       request.jwt = this.jwt;
 
     /* send the POST request */
-    this.http.post(this.API_URL, request, options).subscribe((event: Object) => {
+    this.http.post(ClientApi.API_URL, request, options).subscribe((event: Object) => {
       responseHandler(event);
     });
   }
@@ -450,6 +459,50 @@ export class ClientApi
       this.setCredentials(response.data.jwt, response.data.refresh);
     }
   }
+
+
+  /**
+   * Open a websocket connection
+   */
+  public connectWebsocket(listener: WebsocketListener): void
+  {
+    if (this.websocket === undefined || this.websocket.readyState === WebSocket.CLOSED)
+    {
+      this.websocket = new WebSocket(ClientApi.WEBSOCKET_URL);
+      this.websocket.onopen = listener.websocketOpen.bind(listener);
+      this.websocket.onclose = listener.websocketClose.bind(listener);
+      this.websocket.onmessage = listener.websocketMessage.bind(listener);
+    }
+  }
+
+
+  /**
+   * Disconnect from the websocket connection -- costs are incurred partially
+   * by time connected, so it is good to disconnect when not necessary.
+   */
+  public disconnectWebsocket(): void
+  {
+    if (this.websocket !== undefined && this.websocket.readyState !== WebSocket.CLOSED)
+      this.websocket.close();
+  }
+
+
+  /**
+   * Send a message to the websocket
+   *
+   * @param msg
+   */
+  public sendWebsocket(msg: Object): boolean
+  {
+    if (this.websocket !== undefined && this.websocket.readyState === WebSocket.OPEN)
+    {
+      console.log('Websocket Send Message:');
+      console.log(msg);
+      this.websocket.send(JSON.stringify(msg));
+      return true;
+    }
+    return false;
+  }
 }
 
 
@@ -685,4 +738,11 @@ export interface Job
   status_code: number;
   status_message: string;
   progress: number;
+}
+
+export interface WebsocketListener
+{
+  websocketOpen: (event: Event) => void;
+  websocketClose: (event: CloseEvent) => void;
+  websocketMessage: (event: MessageEvent) => void;
 }

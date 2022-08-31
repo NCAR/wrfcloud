@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from "@angular/router";
-import {User, WhoAmIResponse, ClientApi, ListJobResponse, Job} from "./client-api";
+import {User, WhoAmIResponse, ClientApi, WebsocketListener, ApiRequest} from "./client-api";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
@@ -11,7 +11,7 @@ import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.sass']
 })
-export class AppComponent
+export class AppComponent implements WebsocketListener
 {
   /**
    * AppComponent singleton
@@ -52,7 +52,7 @@ export class AppComponent
 
 
   /**
-   * Information of currently logged in user
+   * Information of currently logged-in user
    */
   public user: User|undefined;
 
@@ -62,6 +62,7 @@ export class AppComponent
    *
    * @param router Inject the angular router
    * @param http Inject the angular http client
+   * @param dialog Inject the dialog service
    */
   constructor(public router: Router, public http: HttpClient, public dialog: MatDialog)
   {
@@ -70,6 +71,36 @@ export class AppComponent
 
     /* create the API */
     this.api = new ClientApi(http);
+
+    /* connect to the websocket */
+    this.api.connectWebsocket(this);
+    const request: ApiRequest = {
+      action: 'WhoAmI',
+      data: {},
+      jwt: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImhhaG5kQHVjYXIuZWR1Iiwicm9sZSI6ImFkbWluIiwiZXhwaXJlcyI6MTY2MTkxNDI0OH0.IzAQ76oDW57oSfOnsNJcYn0ONu1h7zvhSGwXTt82LFA'
+    };
+    setTimeout(this.api.sendWebsocket.bind(this.api), 2000, request);
+  }
+
+
+  public websocketOpen(event: Event): void
+  {
+    console.log('Websocket Connected:');
+    console.log(event);
+  }
+
+
+  public websocketClose(event: CloseEvent): void
+  {
+    console.log('Websocket Disconnected:');
+    console.log(event);
+  }
+
+
+  public websocketMessage(event: MessageEvent<any>): void
+  {
+    console.log('Websocket Message:');
+    console.log(event);
   }
 
 
@@ -93,7 +124,7 @@ export class AppComponent
 
 
   /**
-   * Get only the active menu options (not place holders)
+   * Get only the active menu options (not placeholders)
    * @return List of menu options
    */
   public getActiveMenuOptions(): Array<MenuOption>
@@ -188,10 +219,10 @@ export class AppComponent
 
 
   /**
-   * Perform an action if the key pressed is enter
+   * Perform an action if the key pressed is 'enter'
    *
    * @param event Key press event
-   * @param action The function to call if the key press is enter
+   * @param action The function to call if the key press is 'enter'
    */
   public onEnter(event: any, action: Function): void
   {

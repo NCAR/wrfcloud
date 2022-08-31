@@ -30,6 +30,21 @@ def lambda_handler(event: dict, context: any) -> dict:
     audit = AuditEntry()
     audit.start_time = datetime.timestamp(datetime.utcnow())
 
+    # TODO: Remove this
+    print('------  EVENT  -------')
+    print(event)
+    print('------ CONTEXT -------')
+    print(context)
+    # TODO: If this is a websocket connection
+    # build the client's connection url
+    # domain_name = event['requestContext']['domainName']
+    # stage = event['requestContext']['stage']
+    # connection_id = event['requestContext']['connectionId']
+    # client_url = 'https://%s/%s/@connections/%s' % (domain_name, stage, connection_id)
+    # log.debug(client_url)
+
+
+
     # use the context value
     if context is None:
         log.debug('No context provided to Lambda Function')
