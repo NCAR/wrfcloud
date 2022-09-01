@@ -9,84 +9,64 @@ run.
 """
 
 import argparse
-import logging
 import os
-import sys
-
-# Import our custom modules
-from wrfcloud.runtime import ungrib
-from wrfcloud.runtime import metgrid
-from wrfcloud.runtime import real
-from wrfcloud.runtime import wrf
-from wrfcloud.runtime import postproc
+from wrfcloud.runtime.ungrib import Ungrib
+from wrfcloud.runtime.metgrid import MetGrid
+from wrfcloud.runtime.real import Real
+from wrfcloud.runtime.wrf import Wrf
+from wrfcloud.runtime.postproc import PostProc
 from wrfcloud.runtime import RunInfo
 from wrfcloud.system import init_environment
-
-
-# Define our functions
-def setup_logging(logdir: str = '.',logfile: str = 'debug.log') -> None:
-    """
-    Sets up logging, printing high-priority (INFO and higher) messages to screen, and printing all
-    messages with detailed timing and routine info in the specified text file. Can be called
-    multiple times in a single run (for example, to change logging to a different file path/name)
-    """
-    logfilename=logdir + '/' + logfile
-    logger = logging.getLogger()
-    if logging.getLogger().hasHandlers():
-        #Delete existing logger handlers
-        logging.debug(f'Clearing existing logging settings; new logfile will be {logfilename}')
-        logger.handlers.clear()
-    try:
-        os.makedirs(logdir, exist_ok=True)
-    except:
-        logging.critical(f'Could not create {logdir} for run logging')
-        sys.exit(1)
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                        filename=logfilename,
-                        filemode='a')
-    logging.debug(f'Finished setting up debug file logging in {logfilename}')
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    logging.getLogger().addHandler(console)
-    logging.debug('Logging set up successfully')
+from wrfcloud.log import Logger
 
 
 def main() -> None:
-    """Main routine that creates a new run and monitors it through completion"""
-    setup_logging(logfile='setup.log')
-    logging.debug('Reading command line arguments')
+    """
+    Main routine that creates a new run and monitors it through completion
+    """
+    init_environment('production')
+    log = Logger()
+
+    log.debug('Reading command line arguments')
     parser = argparse.ArgumentParser()
     parser.add_argument('--name', type=str, default='test',
                         help='"name" should be a unique alphanumeric name for this particular run')
     args = parser.parse_args()
     name = args.name
 
-    logging.info(f'Starting new run "{name}"')
-    logging.debug('Creating new RunInfo')
+    log.info(f'Starting new run "{name}"')
+    log.debug('Creating new RunInfo')
     runinfo = RunInfo(name)
-    logging.info(f'Setting up working directory {runinfo.wd}')
-    setup_logging(logdir=runinfo.wd, logfile='debug.log')
-    logging.debug(f'Moving setup.log to {runinfo.wd}')
-    os.rename('setup.log', runinfo.wd + '/setup.log')
+    log.info(f'Setting up working directory {runinfo.wd}')
+    log.debug(f'Moving setup.log to {runinfo.wd}')
 
-    logging.debug('Initialize environment variables for specified configuration')
+    log.debug('Initialize environment variables for specified configuration')
     init_environment(runinfo.configuration)
 
-    logging.debug('Starting ungrib task')
-    ungrib.main(runinfo, logging.getLogger('root.ungrib'))
+    log.debug('Starting ungrib task')
+    ungrib = Ungrib(runinfo)
+    ungrib.start()
+    log.debug(ungrib.get_run_summary())
 
-    logging.debug('Starting metgrid task')
-    metgrid.main(runinfo, logging.getLogger('root.metgrid'))
+    log.debug('Starting metgrid task')
+    metgrid = MetGrid(runinfo)
+    metgrid.start()
+    log.debug(metgrid.get_run_summary())
 
-    logging.debug('Starting real task')
-    real.main(runinfo, logging.getLogger('root.real'))
+    log.debug('Starting real task')
+    real = Real(runinfo)
+    real.start()
+    log.debug(real.get_run_summary())
 
-    logging.debug('Starting wrf task')
-    wrf.main(runinfo, logging.getLogger('root.wrf'))
+    log.debug('Starting wrf task')
+    wrf = Wrf(runinfo)
+    wrf.start()
+    log.debug(wrf.get_run_summary())
 
-    logging.debug('Starting postproc task')
-    postproc.main(runinfo, logging.getLogger('root.postproc'))
+    log.debug('Starting postproc task')
+    postproc = PostProc(runinfo)
+    postproc.start()
+    log.debug(postproc.get_run_summary())
 
 
 if __name__ == "__main__":

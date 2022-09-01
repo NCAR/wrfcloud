@@ -27,6 +27,7 @@ test:
   # Logging options
   LOG_LEVEL: DEBUG
   LOG_FORMAT: text
+  LOG_APPLICATION_NAME: wrfcloud-test
 
   # WRF Output
   WRF_OUTPUT_BUCKET: wrfcloud-output
@@ -64,6 +65,7 @@ codebuild:
   # Logging options
   LOG_LEVEL: DEBUG
   LOG_FORMAT: json
+  LOG_APPLICATION_NAME: wrfcloud-codebuild
 
   # WRF Output
   WRF_OUTPUT_BUCKET: wrfcloud-output
@@ -102,6 +104,7 @@ production:
   # Logging options
   LOG_LEVEL: INFO
   LOG_FORMAT: json
+  LOG_APPLICATION_NAME: wrfcloud-production
 
   # WRF Output
   WRF_OUTPUT_BUCKET: wrfcloud-output
@@ -138,7 +141,8 @@ development:
 
   # Logging options
   LOG_LEVEL: DEBUG
-  LOG_FORMAT: json
+  LOG_FORMAT: text
+  LOG_APPLICATION_NAME: wrfcloud-development
 
   # WRF Output
   WRF_OUTPUT_BUCKET: wrfcloud-output
