@@ -36,6 +36,7 @@ import {ResetPasswordComponent} from './reset-password/reset-password.component'
 import {LayerComponent} from './layer/layer.component';
 import {PreferencesComponent} from './preferences/preferences.component';
 import {LogoutComponent} from './logout/logout.component';
+import {MatBadgeModule} from "@angular/material/badge";
 
 @NgModule({
   declarations: [
@@ -54,29 +55,30 @@ import {LogoutComponent} from './logout/logout.component';
     WrfViewerComponent,
     ResetPasswordComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-    BrowserAnimationsModule,
-    MatButtonModule,
-    MatGridListModule,
-    MatMenuModule,
-    MatIconModule,
-    MatInputModule,
-    FormsModule,
-    MatRippleModule,
-    MatExpansionModule,
-    MatDialogModule,
-    MatDividerModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatSelectModule,
-    MatProgressBarModule,
-    MatSliderModule,
-    MatCheckboxModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        HttpClientModule,
+        BrowserAnimationsModule,
+        MatButtonModule,
+        MatGridListModule,
+        MatMenuModule,
+        MatIconModule,
+        MatInputModule,
+        FormsModule,
+        MatRippleModule,
+        MatExpansionModule,
+        MatDialogModule,
+        MatDividerModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatSelectModule,
+        MatProgressBarModule,
+        MatSliderModule,
+        MatCheckboxModule,
+        MatBadgeModule
+    ],
   providers: [],
   bootstrap: [AppComponent]
 })

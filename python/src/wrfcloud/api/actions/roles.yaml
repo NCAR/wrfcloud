@@ -23,6 +23,8 @@ readonly:
       package: wrfcloud.api.actions
     - action: ListJobs
       package: wrfcloud.api.actions
+    - action: SubscribeJobs
+      package: wrfcloud.api.actions
 
 regular:
   permitted_actions:
@@ -33,6 +35,8 @@ regular:
     - action: RefreshToken
       package: wrfcloud.api.actions
     - action: ListJobs
+      package: wrfcloud.api.actions
+    - action: SubscribeJobs
       package: wrfcloud.api.actions
 
 admin:
@@ -52,4 +56,6 @@ admin:
     - action: RefreshToken
       package: wrfcloud.api.actions
     - action: ListJobs
+      package: wrfcloud.api.actions
+    - action: SubscribeJobs
       package: wrfcloud.api.actions

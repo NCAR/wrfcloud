@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from "@angular/router";
-import {User, WhoAmIResponse, ClientApi, WebsocketListener, ApiRequest} from "./client-api";
+import {User, WhoAmIResponse, ClientApi} from "./client-api";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
@@ -11,7 +11,7 @@ import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.sass']
 })
-export class AppComponent implements WebsocketListener
+export class AppComponent
 {
   /**
    * AppComponent singleton
@@ -71,36 +71,6 @@ export class AppComponent implements WebsocketListener
 
     /* create the API */
     this.api = new ClientApi(http);
-
-    /* connect to the websocket */
-    this.api.connectWebsocket(this);
-    const request: ApiRequest = {
-      action: 'WhoAmI',
-      data: {},
-      jwt: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImhhaG5kQHVjYXIuZWR1Iiwicm9sZSI6ImFkbWluIiwiZXhwaXJlcyI6MTY2MTkxNDI0OH0.IzAQ76oDW57oSfOnsNJcYn0ONu1h7zvhSGwXTt82LFA'
-    };
-    setTimeout(this.api.sendWebsocket.bind(this.api), 2000, request);
-  }
-
-
-  public websocketOpen(event: Event): void
-  {
-    console.log('Websocket Connected:');
-    console.log(event);
-  }
-
-
-  public websocketClose(event: CloseEvent): void
-  {
-    console.log('Websocket Disconnected:');
-    console.log(event);
-  }
-
-
-  public websocketMessage(event: MessageEvent<any>): void
-  {
-    console.log('Websocket Message:');
-    console.log(event);
   }
 
 
@@ -197,8 +167,10 @@ export class AppComponent implements WebsocketListener
     }
 
     /* route to an appropriate screen */
-    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset' || this.router.url.startsWith('/view') || this.router.url.startsWith('/jobs'))
-      return;  /* do not interfere with these routes */
+    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset')
+      return;  /* do not interfere with these routes for anonymous users */
+    else if (this.user !== undefined && (this.router.url.startsWith('/view') || this.router.url.startsWith('/jobs')))
+      return;  /* do not interfere with these routes for authenticated users */
     else if (this.menuOptions.length === 0)
       this.routeTo('login');
     else

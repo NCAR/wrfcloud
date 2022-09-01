@@ -1,0 +1,11 @@
+---
+# Table definition for storing the websocket subscription urls
+table_name_var: SUBSCRIBER_TABLE_NAME
+key_fields:
+  - client_url
+attribute_definitions:
+  - AttributeName: client_url
+    AttributeType: S
+key_schema:
+  - AttributeName: client_url
+    KeyType: HASH

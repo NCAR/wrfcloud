@@ -57,10 +57,8 @@ export class ClientApi
   /**
    * A URL to the API
    */
-  // public API_URL = 'https://api-dev.wrfcloud.com/v1/action';
   public static API_URL = 'https://api.wrfcloud.com/v1/action';
-  // public static WEBSOCKET_URL = 'wss://ws.wrfcloud.com/default/v1';
-  public static WEBSOCKET_URL = 'wss://qf4es7tvh4.execute-api.us-east-2.amazonaws.com/v1';
+  public static WEBSOCKET_URL = 'wss://ws.wrfcloud.com/v1';
 
 
   /**
@@ -488,17 +486,43 @@ export class ClientApi
 
 
   /**
-   * Send a message to the websocket
+   * Send a subscription message
    *
-   * @param msg
+   * @return False if the message was not sent
    */
-  public sendWebsocket(msg: Object): boolean
+  public subscribeToJobChanges(): boolean
   {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'SubscribeJobs',
+      data: {}
+    };
+
+    /* send the API request */
+    return this.sendWebsocketMessage(request, true);
+  }
+
+
+  /**
+   * Send a message to the websocket
+   * @private
+   *
+   * @param message The message to send to the API via websocket
+   * @param includeJwt Should the jwt be attached to the message before sending
+   * @return True if the message was sent, otherwise false
+   */
+  private sendWebsocketMessage(message: ApiRequest, includeJwt: boolean): boolean
+  {
+    /* maybe add the JWT to the message */
+    if (includeJwt)
+      message.jwt = this.jwt;
+
+    /* check if the websocket is still connected */
     if (this.websocket !== undefined && this.websocket.readyState === WebSocket.OPEN)
     {
       console.log('Websocket Send Message:');
-      console.log(msg);
-      this.websocket.send(JSON.stringify(msg));
+      console.log(message);
+      this.websocket.send(JSON.stringify(message));
       return true;
     }
     return false;

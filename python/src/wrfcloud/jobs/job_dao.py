@@ -1,6 +1,6 @@
 """
-The UserDao class is a data access object that performs basic CRUD
-(create, read, update, delete) functions on the user database.
+The JobDao class is a data access object that performs basic CRUD
+(create, read, update, delete) functions on the job database.
 """
 
 import os
@@ -21,7 +21,7 @@ class JobDao(DynamoDao):
         Create the Data Access Object (DAO)
         :param endpoint_url: (optional) Specifying the endpoint URL can be useful for testing
         """
-        # load the user table definition
+        # load the job table definition
         self.table_definition = yaml.safe_load(pkgutil.get_data('wrfcloud', 'jobs/table.yaml'))
 
         # get the table name
@@ -39,7 +39,7 @@ class JobDao(DynamoDao):
 
     def add_job(self, job: WrfJob) -> bool:
         """
-        Store a new user
+        Store a new job
         :param job: Job object to store
         :return: True if successful, otherwise False
         """
@@ -62,13 +62,13 @@ class JobDao(DynamoDao):
         if data is None:
             return None
 
-        # build a new user object
+        # build a new job object
         return WrfJob(data)
 
     def get_all_jobs(self) -> List[WrfJob]:
         """
-        Get a list of all users in the system
-        :return: List of all users
+        Get a list of all jobs in the system
+        :return: List of all jobs
         """
         # Convert a list of items into a list of User objects
         return [WrfJob(item) for item in super().get_all_items()]

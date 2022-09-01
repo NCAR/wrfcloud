@@ -30,21 +30,6 @@ def lambda_handler(event: dict, context: any) -> dict:
     audit = AuditEntry()
     audit.start_time = datetime.timestamp(datetime.utcnow())
 
-    # TODO: Remove this
-    print('------  EVENT  -------')
-    print(event)
-    print('------ CONTEXT -------')
-    print(context)
-    # TODO: If this is a websocket connection
-    # build the client's connection url
-    # domain_name = event['requestContext']['domainName']
-    # stage = event['requestContext']['stage']
-    # connection_id = event['requestContext']['connectionId']
-    # client_url = 'https://%s/%s/@connections/%s' % (domain_name, stage, connection_id)
-    # log.debug(client_url)
-
-
-
     # use the context value
     if context is None:
         log.debug('No context provided to Lambda Function')
@@ -57,6 +42,15 @@ def lambda_handler(event: dict, context: any) -> dict:
     client_ip = event['requestContext']['identity']['sourceIp']
     audit.action = action
     audit.ip_address = client_ip
+
+    # cobble together a client URL, if this is a websocket request
+    client_url = None
+    is_websocket: bool = 'connectionId' in event['requestContext']
+    if is_websocket:
+        domain_name = event['requestContext']['domainName']
+        stage = event['requestContext']['stage']
+        connection_id = event['requestContext']['connectionId']
+        client_url = f'https://{domain_name}/{stage}/@connections/{connection_id}'
 
     # set a reference ID and the client IP instead of the app name
     ref_id = create_reference_id()
@@ -82,7 +76,7 @@ def lambda_handler(event: dict, context: any) -> dict:
             return create_unauthorized_action_response(ref_id)
 
         # create the action
-        action_object = create_action(action, user, data)
+        action_object = create_action(action, user, data, client_url)
 
         # run the action
         try:
@@ -178,12 +172,13 @@ def create_reference_id() -> str:
     return ref_id
 
 
-def create_action(action: str, user: User, data: dict) -> Union[Action, None]:
+def create_action(action: str, user: User, data: dict, client_url: str = None) -> Union[Action, None]:
     """
     Create an action object
     :param action: Name of the action
     :param user: Run as user
     :param data: Request data
+    :param client_url: URL for websocket clients (optional)
     :return: An action object or None
     """
     import importlib  # slow deferred import
@@ -192,7 +187,7 @@ def create_action(action: str, user: User, data: dict) -> Union[Action, None]:
     try:
         action_package = 'wrfcloud.api.actions'
         action_class = getattr(importlib.import_module(action_package), action)
-        action_object = action_class(run_as_user=user, request=data)
+        action_object = action_class(run_as_user=user, request=data, client_url=client_url)
         return action_object
     except Exception as e:
         Logger().error('Error creating action: %s' % action, e)

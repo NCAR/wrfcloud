@@ -1,6 +1,6 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {Job, ListJobResponse} from "../client-api";
+import {Job, ListJobResponse, WebsocketListener} from "../client-api";
 import {MatSort} from "@angular/material/sort";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatTableDataSource} from "@angular/material/table";
@@ -10,7 +10,7 @@ import {MatTableDataSource} from "@angular/material/table";
   templateUrl: './view-jobs.component.html',
   styleUrls: ['./view-jobs.component.sass']
 })
-export class ViewJobsComponent implements OnInit, AfterViewInit
+export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, WebsocketListener
 {
   // @ts-ignore
   @ViewChild(MatSort) sort: MatSort;
@@ -66,6 +66,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit
   {
     this.app = AppComponent.singleton;
     this.refreshJobData();
+    this.app.api.connectWebsocket(this);
   }
 
 
@@ -84,6 +85,16 @@ export class ViewJobsComponent implements OnInit, AfterViewInit
   {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
+  }
+
+
+  /**
+   * Clean up when this object goes away
+   */
+  ngOnDestroy()
+  {
+    /* close the websocket when we are not looking at this page */
+    this.app.api.disconnectWebsocket();
   }
 
 
@@ -141,4 +152,30 @@ export class ViewJobsComponent implements OnInit, AfterViewInit
   {
     this.dataSource.filter = this.filter;
   }
+
+
+  public websocketOpen(event: Event): void
+  {
+    console.log('Websocket Connected On The Viewer Page:');
+    console.log(event);
+    const subscribed: boolean = this.app.api.subscribeToJobChanges();
+    console.log('Subscribed: ' + subscribed);
+  }
+
+
+  public websocketClose(event: CloseEvent): void
+  {
+    console.log('Websocket Disconnected Leaving the Viewer Page:');
+    console.log(event);
+  }
+
+
+  public websocketMessage(event: MessageEvent): void
+  {
+    console.log('Websocket Message:');
+    console.log(event);
+  }
+
+
+
 }

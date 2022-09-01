@@ -103,6 +103,7 @@ Resources:
                   - Fn::ImportValue: !Sub 'dynamodb-table-refresh-tokens-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-users-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-jobs-${DeploymentType}-${AppName}'
+                  - Fn::ImportValue: !Sub 'dynamodb-table-subscribers-${DeploymentType}-${AppName}'
   LambdaLayerPythonDeps:
     Type: AWS::Lambda::LayerVersion
     Properties:
