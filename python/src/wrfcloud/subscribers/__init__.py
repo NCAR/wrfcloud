@@ -3,8 +3,11 @@ Other code calling the wrfcloud.subscribers module should mainly use functions f
 this file.  Calling other functions and classes may have unexpected results.
 """
 __all__ = ['Subscriber', 'SubscriberDao', 'add_subscriber_to_system',
-           'get_all_subscribers_in_system', 'delete_subscriber_from_system']
+           'get_all_subscribers_in_system', 'delete_subscriber_from_system', 'message_subscriber',
+           'message_all_subscribers']
 
+import json
+from concurrent.futures import ThreadPoolExecutor, Future
 from typing import List
 from wrfcloud.log import Logger
 from wrfcloud.subscribers.subscriber import Subscriber
@@ -61,4 +64,44 @@ def message_all_subscribers(message: dict) -> int:
     :param message: Message to send subscribers
     :return: Number of clients reached
     """
-    pass
+    # get a list of subscribers who will receive messages
+    subscribers = get_all_subscribers_in_system()
+
+    # create a worker pool to send messages to subscribers
+    tpe = ThreadPoolExecutor(max_workers=20)
+
+    # use the worker pool to send messages to all subscribers
+    futures: List[Future] = []
+    for subscriber in subscribers:
+        future = tpe.submit(message_subscriber, message, subscriber)
+        futures.append(future)
+
+    # wait for all threads to complete
+    for future in futures:
+        future.result()
+
+    # count the results, and mark bad subscribers for removal
+    message_count: int = 0
+    bad_subs: List[Subscriber] = []
+    for subscriber in subscribers:
+        if subscriber.message_delivered:
+            message_count += 1
+        else:
+            bad_subs.append(subscriber)
+
+    # remove the bad (unreachable) subscribers
+    for bad_sub in bad_subs:
+        delete_subscriber_from_system(bad_sub)
+
+    return message_count
+
+
+def message_subscriber(message: dict, subscriber: Subscriber) -> None:
+    """
+    Send a message to a single subscriber and set the success fail flag on the subscriber object
+    :param message: Message to send the subscriber
+    :param subscriber: Subscriber details
+    """
+    subscriber.message_delivered = False
+    print(f'You get a message, and you get a message, everyone gets a message: {subscriber.client_url} => {json.dumps(message)}')
+    subscriber.message_delivered = True

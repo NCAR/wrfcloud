@@ -28,6 +28,9 @@ class Subscriber:
         if data is not None:
             self.data = data
 
+        # initialize the message delivered flag
+        self.message_delivered = False
+
     @property
     def data(self) -> dict:
         """

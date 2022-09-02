@@ -175,7 +175,4 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
     console.log('Websocket Message:');
     console.log(event);
   }
-
-
-
 }
