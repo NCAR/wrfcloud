@@ -21,6 +21,10 @@ readonly:
       package: wrfcloud.api.actions
     - action: RefreshToken
       package: wrfcloud.api.actions
+    - action: GetWrfMetaData
+      package: wrfcloud.api.actions
+    - action: GetWrfGeoJson
+      package: wrfcloud.api.actions
     - action: ListJobs
       package: wrfcloud.api.actions
     - action: SubscribeJobs
@@ -33,6 +37,10 @@ regular:
     - action: WhoAmI
       package: wrfcloud.api.actions
     - action: RefreshToken
+      package: wrfcloud.api.actions
+    - action: GetWrfMetaData
+      package: wrfcloud.api.actions
+    - action: GetWrfGeoJson
       package: wrfcloud.api.actions
     - action: ListJobs
       package: wrfcloud.api.actions
@@ -54,6 +62,10 @@ admin:
     - action: WhoAmI
       package: wrfcloud.api.actions
     - action: RefreshToken
+      package: wrfcloud.api.actions
+    - action: GetWrfMetaData
+      package: wrfcloud.api.actions
+    - action: GetWrfGeoJson
       package: wrfcloud.api.actions
     - action: ListJobs
       package: wrfcloud.api.actions

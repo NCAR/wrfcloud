@@ -1,6 +1,6 @@
 <div class="layer-container" *ngIf="layer">
   <div class="layer-visibility">
-    <mat-checkbox class="layer-checkbox" color="primary" [(ngModel)]="layer.visible">
+    <mat-checkbox class="layer-checkbox" color="primary" [(ngModel)]="layer.visible" (change)="layer.visibilityChange(layer)">
       {{layer.displayName}}
     </mat-checkbox>
   </div>
@@ -12,7 +12,9 @@
         [step]="0.1"
         [tickInterval]="0.1"
         [thumbLabel]="true"
-        [(ngModel)]="layer.opacity">
+        [(ngModel)]="layer.opacity"
+        (change)="layer.opacityChange(layer)"
+      >
       </mat-slider>
     </div>
     <div [class]="'layer-color-legend palette-' + layer.palette.name">

@@ -57,11 +57,11 @@ def get_all_jobs_in_system() -> List[WrfJob]:
     return dao.get_all_jobs()
 
 
-def update_job_in_system(update_job: WrfJob, notifyWeb: Union[bool, None] = None) -> bool:
+def update_job_in_system(update_job: WrfJob, notify_web: Union[bool, None] = None) -> bool:
     """
     Use the DAOs to update a job in the system
     :param update_job: The complete job object with updated values (only status fields are mutable)
-    :param notifyWeb: Flag telling us to notify the web clients or not
+    :param notify_web: Flag telling us to notify the web clients or not
     :return: True if successful, otherwise False
     """
     # create objects
@@ -78,8 +78,8 @@ def update_job_in_system(update_job: WrfJob, notifyWeb: Union[bool, None] = None
     updated = dao.update_job(update_job)
 
     # message any websocket clients
-    notifyWeb = os.environ['NOTIFY_WEB_CLIENTS'] if notifyWeb is None else notifyWeb
-    if notifyWeb:
+    notify_web = os.environ['NOTIFY_WEB_CLIENTS'] if notify_web is None else notify_web
+    if notify_web:
         update_message = _create_job_update_message(update_job)
         message_all_subscribers(update_message)
 

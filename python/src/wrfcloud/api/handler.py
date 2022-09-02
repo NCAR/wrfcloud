@@ -3,6 +3,7 @@ Functions to handle API requests and provide a response
 """
 
 import base64
+import gzip
 import secrets
 import json
 import pkgutil
@@ -117,12 +118,12 @@ def lambda_handler(event: dict, context: any) -> dict:
 
     # create a proper lambda response
     response = {
-        'isBase64Encoded': False,
+        'isBase64Encoded': True,
         'headers': {
             'Content-Type': 'application/json',
-            'Content-Encoding': 'identity'
+            'Content-Encoding': 'gzip'
         },
-        'body': json.dumps(body)
+        'body': base64.b64encode(gzip.compress(json.dumps(body).encode()))
     }
 
     # add CORS headers

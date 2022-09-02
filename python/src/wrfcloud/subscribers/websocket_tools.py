@@ -8,10 +8,10 @@ import sys
 import datetime
 import urllib
 import urllib.parse
-import requests
-import boto3
 import hmac
 import hashlib
+import requests
+import boto3
 from wrfcloud.log import Logger
 
 

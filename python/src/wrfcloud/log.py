@@ -5,6 +5,7 @@ import datetime
 import json
 import os
 import traceback
+from typing import Union
 
 
 class LogLevel:
@@ -14,7 +15,7 @@ class LogLevel:
     DEBUG, INFO, WARN, ERROR, FATAL = range(5)
 
     @staticmethod
-    def get_default_log_level():
+    def get_default_log_level() -> int:
         """
         Get the system default log level
         :return: {int}
@@ -22,7 +23,7 @@ class LogLevel:
         return LogLevel.INFO
 
     @staticmethod
-    def log_level_to_text(level):
+    def log_level_to_text(level: int) -> Union[None, str]:
         """
         Return a string from an integer log level
         :param level: {int} Log level
@@ -40,12 +41,34 @@ class LogLevel:
             return 'FATAL'
         return None
 
+    @staticmethod
+    def log_level_to_int(level_str: str) -> int:
+        """
+        Return an integer from a string log level
+        :param level_str: {int} Log level
+        :return: Log level as an integer
+        """
+        if level_str.strip() == 'DEBUG':
+            return LogLevel.DEBUG
+        if level_str.strip() == 'INFO':
+            return LogLevel.INFO
+        if level_str.strip() == 'WARN':
+            return LogLevel.WARN
+        if level_str.strip() == 'ERROR':
+            return LogLevel.ERROR
+        if level_str.strip() == 'FATAL':
+            return LogLevel.FATAL
+        return LogLevel.DEBUG
+
 
 class Logger:
     """
     A class to write log entries
     """
+    # set default values for these options
     APPLICATION_NAME = 'no_name'
+    LOG_LEVEL = LogLevel.DEBUG
+    LOG_FORMAT = None
 
     def __init__(self, class_name='NoClass'):
         """
@@ -57,7 +80,10 @@ class Logger:
         self.log_level = LogLevel.INFO
         self.out_to_file = False
         self.file = None
-        self.formatter = JsonFormatter()
+        if self.LOG_FORMAT == JsonFormatter.get_format_type():
+            self.formatter = JsonFormatter()
+        else:
+            self.formatter = TextFormatter()
         self._setup_default_output()
         self._setup_default_log_level()
         self._setup_default_format()

@@ -1,20 +1,31 @@
-#!/usr/bin/env python3
-
 """
 Functions for setting up, executing, and monitoring a run of the 'real.exe' WRF pre-processing program
 """
-from logging import Logger
-
-# Import our custom modules
-from wrfcloud.runtime import RunInfo
-
-
-def main(runinfo: RunInfo, logger: Logger) -> None:
-    """Main routine that sets up, runs, and monitors real.exe end-to-end"""
-    logger.info(f'Setting up real.exe for "{runinfo.name}"')
-
-    logger.warning(f"{__name__} isn't fully implemented yet!")
+from typing import Union
+from f90nml import Namelist
+from wrfcloud.runtime import RunInfo, Process
+from wrfcloud.log import Logger
 
 
-if __name__ == "__main__":
-    print('Script not yet set up for standalone run, exiting...')
+class Real(Process):
+    """
+    Class for setting up, executing, and monitoring a run of the 'real.exe' WRF pre-processing program
+    """
+    def __init__(self, runinfo: RunInfo):
+        """
+        Initialize the Real object
+        """
+        super().__init__()
+        self.log = Logger(self.__class__.__name__)
+        self.runinfo = runinfo
+        self.namelist: Union[None, Namelist] = None
+
+    def run(self) -> bool:
+        """
+        Main routine that sets up, runs, and monitors real.exe end-to-end
+        """
+        self.log.info(f'Setting up real.exe for "{self.runinfo.name}"')
+        self.log.warn(f'{__name__} is not fully implemented yet!')
+
+        # TODO: Check for successful completion of real
+        return False

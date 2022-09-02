@@ -1,6 +1,8 @@
 import os
 import secrets
 import json
+import gzip
+import base64
 import wrfcloud
 from wrfcloud.user import update_user_in_system
 from wrfcloud.user import add_user_to_system
@@ -43,7 +45,7 @@ def test_lambda_handler_valid_request() -> None:
         }
     }
     response = lambda_handler(event, None)
-    login_response = json.loads(response['body'])
+    login_response = json.loads(gzip.decompress(base64.b64decode(response['body'])))
 
     assert login_response['ok']
     payload = validate_jwt(login_response['data']['jwt'])
@@ -123,7 +125,8 @@ def test_lambda_handler_action_failed() -> None:
         }
     }
     response = lambda_handler(event, None)
-    chpass_response = json.loads(response['body'])
+    chpass_response = json.loads(gzip.decompress(base64.b64decode(response['body'])))
+
 
     assert not chpass_response['ok']
     assert 'Current password is not correct' in chpass_response['errors']
