@@ -466,6 +466,7 @@ export class ClientApi
   {
     if (this.websocket === undefined || this.websocket.readyState === WebSocket.CLOSED)
     {
+      console.log('wsconn');
       this.websocket = new WebSocket(ClientApi.WEBSOCKET_URL);
       this.websocket.onopen = listener.websocketOpen.bind(listener);
       this.websocket.onclose = listener.websocketClose.bind(listener);
@@ -481,7 +482,11 @@ export class ClientApi
   public disconnectWebsocket(): void
   {
     if (this.websocket !== undefined && this.websocket.readyState !== WebSocket.CLOSED)
-      this.websocket.close();
+    {
+      const tempsocket = this.websocket;
+      this.websocket = undefined;
+      tempsocket.close();
+    }
   }
 
 
@@ -520,8 +525,6 @@ export class ClientApi
     /* check if the websocket is still connected */
     if (this.websocket !== undefined && this.websocket.readyState === WebSocket.OPEN)
     {
-      console.log('Websocket Send Message:');
-      console.log(message);
       this.websocket.send(JSON.stringify(message));
       return true;
     }
@@ -769,4 +772,17 @@ export interface WebsocketListener
   websocketOpen: (event: Event) => void;
   websocketClose: (event: CloseEvent) => void;
   websocketMessage: (event: MessageEvent) => void;
+}
+
+export interface WebsocketMessage
+{
+  type: string;
+  data: ApiResponse;
+}
+
+export interface JobStatusResponse extends ApiResponse
+{
+  data: {
+    job: Job
+  }
 }

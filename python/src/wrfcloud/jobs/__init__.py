@@ -5,10 +5,12 @@ this file.  Calling other functions and classes may have unexpected results.
 __all__ = ['WrfJob', 'JobDao', 'add_job_to_system', 'get_job_from_system', 'get_all_jobs_in_system',
            'update_job_in_system', 'delete_job_from_system']
 
+import os
 from typing import Union, List
 from wrfcloud.log import Logger
 from wrfcloud.jobs.job import WrfJob
 from wrfcloud.jobs.job_dao import JobDao
+from wrfcloud.subscribers import message_all_subscribers
 
 
 log = Logger()
@@ -55,10 +57,11 @@ def get_all_jobs_in_system() -> List[WrfJob]:
     return dao.get_all_jobs()
 
 
-def update_job_in_system(update_job: WrfJob) -> bool:
+def update_job_in_system(update_job: WrfJob, notifyWeb: Union[bool, None] = None) -> bool:
     """
     Use the DAOs to update a job in the system
     :param update_job: The complete job object with updated values (only status fields are mutable)
+    :param notifyWeb: Flag telling us to notify the web clients or not
     :return: True if successful, otherwise False
     """
     # create objects
@@ -73,6 +76,12 @@ def update_job_in_system(update_job: WrfJob) -> bool:
     # update job table
     update_job.job_id = existing_job.job_id  # job_id is immutable
     updated = dao.update_job(update_job)
+
+    # message any websocket clients
+    notifyWeb = os.environ['NOTIFY_WEB_CLIENTS'] if notifyWeb is None else notifyWeb
+    if notifyWeb:
+        update_message = _create_job_update_message(update_job)
+        message_all_subscribers(update_message)
 
     return updated
 
@@ -92,3 +101,20 @@ def delete_job_from_system(del_job: WrfJob) -> bool:
 
     log.error('Value for job to remove was set as None', ValueError('del_job cannot be None'))
     return False
+
+
+def _create_job_update_message(update_job: WrfJob) -> dict:
+    """
+    Create a message describing this update that can be consumed by websocket clients
+    :param update_job: The updated WRF job
+    :return: A websocket message
+    """
+    message = {
+        'type': 'JobStatus',
+        'data': {
+            'data': {
+                'job': update_job.sanitized_data
+            }
+        }
+    }
+    return message

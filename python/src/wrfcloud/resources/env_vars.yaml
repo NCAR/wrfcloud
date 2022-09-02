@@ -16,6 +16,7 @@ test:
   APP_URL: localhost:4200
   API_STAGE: v1
   ALLOW_CORS: True
+  NOTIFY_WEB_CLIENTS: False
 
   # DynamoDB Options
   USER_TABLE_NAME: wrfcloud_users_test
@@ -51,6 +52,7 @@ codebuild:
   APP_URL: www.domainname.com
   API_STAGE: v1
   ALLOW_CORS: True
+  NOTIFY_WEB_CLIENTS: False
 
   # DynamoDB Options
   USER_TABLE_NAME: wrfcloud_users_build
@@ -86,6 +88,7 @@ production:
   APP_URL: www.domainname.com
   API_STAGE: v1
   ALLOW_CORS: True
+  NOTIFY_WEB_CLIENTS: True
 
   # DynamoDB Options
   USER_TABLE_NAME: wrfcloud_users_prod
@@ -120,6 +123,7 @@ development:
   APP_URL: www.wrfcloud.com
   API_STAGE: v1
   ALLOW_CORS: True
+  NOTIFY_WEB_CLIENTS: True
 
   # DynamoDB Options
   USER_TABLE_NAME: development_wrfcloud_users

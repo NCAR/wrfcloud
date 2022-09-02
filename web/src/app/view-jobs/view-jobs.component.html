@@ -1,7 +1,7 @@
 <div class="job-container">
 
   <!-- action panel -->
-  <div class="job-action-panel">
+  <div class="job-action-panel" *ngIf="!subscribed">
     <mat-grid-list [cols]="1" rowHeight="75px">
       <mat-grid-tile>
         <button mat-stroked-button class="job-action-button" (click)="refreshJobData()">
@@ -26,7 +26,7 @@
     </div>
   </div>
 
-  <!-- user table -->
+  <!-- job table -->
   <div class="job-table-container">
     <table mat-table [dataSource]="dataSource" matSort class="job-table mat-elevation-z8">
       <ng-container matColumnDef="job_id" class="job-table-cell">

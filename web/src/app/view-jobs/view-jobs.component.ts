@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {Job, ListJobResponse, WebsocketListener} from "../client-api";
+import {JobStatusResponse, Job, ListJobResponse, WebsocketListener, WebsocketMessage} from "../client-api";
 import {MatSort} from "@angular/material/sort";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatTableDataSource} from "@angular/material/table";
@@ -45,6 +45,19 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
    * Flag to indicate loading data from the API
    */
   public busy: boolean = false;
+
+
+  /**
+   * Flag to indicate an active websocket connection to receive job status updates
+   */
+  public subscribed: boolean = false;
+
+
+  /**
+   * Flag to indicate this object is being destroyed
+   * @private
+   */
+  private destructing: boolean = false;
 
 
   /**
@@ -94,6 +107,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   ngOnDestroy()
   {
     /* close the websocket when we are not looking at this page */
+    this.destructing = true;
     this.app.api.disconnectWebsocket();
   }
 
@@ -156,23 +170,59 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
 
   public websocketOpen(event: Event): void
   {
-    console.log('Websocket Connected On The Viewer Page:');
-    console.log(event);
-    const subscribed: boolean = this.app.api.subscribeToJobChanges();
-    console.log('Subscribed: ' + subscribed);
+    /* subscribe to job status changes */
+    this.subscribed = this.app.api.subscribeToJobChanges();
   }
 
 
   public websocketClose(event: CloseEvent): void
   {
-    console.log('Websocket Disconnected Leaving the Viewer Page:');
-    console.log(event);
+    /* connect again if we get disconnected */
+    this.subscribed = false;
+    if (!this.destructing)
+      this.app.api.connectWebsocket(this);
   }
 
 
   public websocketMessage(event: MessageEvent): void
   {
-    console.log('Websocket Message:');
-    console.log(event);
+    /* parse the websocket message -- must be valid JSON */
+    const data: WebsocketMessage = JSON.parse(event.data);
+
+    /* handle the message */
+    switch(data.type)
+    {
+      case 'JobStatus':
+        this.handleJobStatusMessage(data.data as JobStatusResponse);
+        break;
+    }
+  }
+
+
+  /**
+   *
+   * @param message The
+   * @private
+   */
+  private handleJobStatusMessage(message: JobStatusResponse)
+  {
+    /* extract the job from the message */
+    const job: Job = message.data.job;
+
+    /* find the job in the table */
+    for (let job_ of this.jobs)
+    {
+      if (job_.job_id === job.job_id)
+      {
+        job_.status_code = job.status_code;
+        job_.status_message = job.status_message;
+        job_.job_name = job.job_name;
+        job_.output_frequency = job.output_frequency;
+        job_.forecast_length = job.forecast_length;
+        job_.configuration_name = job.configuration_name;
+        job_.cycle_time = job.cycle_time;
+        job_.progress = job.progress;
+      }
+    }
   }
 }
