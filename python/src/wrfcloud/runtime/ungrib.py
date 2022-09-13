@@ -63,12 +63,12 @@ class Ungrib(Process):
             os.symlink(f'{self.runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
 
         self.log.debug('Getting VTable.GFS')
-        os.symlink(f'{self.runinfo.wpsdir}/ungrib/Variable_Tables/Vtable.GFS', 'Vtable')
+        os.symlink(f'{self.runinfo.wpscodedir}/ungrib/Variable_Tables/Vtable.GFS', 'Vtable')
 
     def run_ungrib(self) -> None:
         """Executes the ungrib.exe program"""
         self.log.debug('Linking ungrib.exe to ungrib working directory')
-        os.symlink(f'{self.runinfo.wpsdir}/ungrib/ungrib.exe', 'ungrib.exe')
+        os.symlink(f'{self.runinfo.wpscodedir}/ungrib/ungrib.exe', 'ungrib.exe')
 
         self.log.debug('Executing ungrib.exe')
         ungrib_cmd = './ungrib.exe >& ungrib.log'

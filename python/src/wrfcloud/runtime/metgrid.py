@@ -35,7 +35,7 @@ class MetGrid(Process):
             os.symlink(f'{self.runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
 
         self.log.debug('Linking metgrid dir for tables')
-        os.symlink(f'{self.runinfo.wpsdir}/metgrid', 'metgrid')
+        os.symlink(f'{self.runinfo.wpscodedir}/metgrid', 'metgrid')
 
         # Link in the FILES from ungrib
         self.log.debug('Linking FILEs from ungrib step')
@@ -48,7 +48,7 @@ class MetGrid(Process):
         Executes the metgrid.exe program
         """
         self.log.debug('Linking metgrid.exe to metgrid working directory')
-        os.symlink(f'{self.runinfo.wpsdir}/metgrid/metgrid.exe', 'metgrid.exe')
+        os.symlink(f'{self.runinfo.wpscodedir}/metgrid/metgrid.exe', 'metgrid.exe')
 
         self.log.debug('Executing metgrid.exe')
         metgrid_cmd = './metgrid.exe >& metgrid.log'
