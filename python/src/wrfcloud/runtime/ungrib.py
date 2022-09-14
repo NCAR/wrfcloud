@@ -48,7 +48,7 @@ class Ungrib(Process):
         else:
             self.log.debug('Getting GRIB file(s) from remote source')
             get_grib_input(self.runinfo)
-            filelist = glob.glob(os.path.join(self.runinfo.ungribdir, 'gfs.*'))
+            filelist = sorted(glob.glob(os.path.join(self.runinfo.ungribdir, 'gfs.*')))
 
         for gribfile in filelist:
             # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
