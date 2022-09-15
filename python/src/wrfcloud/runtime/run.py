@@ -38,7 +38,7 @@ def main() -> None:
     log.debug('Creating new RunInfo')
     runinfo = RunInfo(name)
     log.info(f'Setting up working directory {runinfo.wd}')
-    log.debug(f'Moving setup.log to {runinfo.wd}')
+    os.makedirs(runinfo.wd, exist_ok=True)
 
     log.debug('Initialize environment variables for specified configuration')
     init_environment(runinfo.configuration)
