@@ -61,7 +61,7 @@ class MetGrid(Process):
         self.log.info(f'Setting up metgrid for "{self.runinfo.name}"')
 
         # Stop execution if experiment working directory already exists, unless runinfo.exists == "skip"
-        if os.path.isdir(self.runinfo.ungribdir):
+        if os.path.isdir(self.runinfo.metgriddir):
             if self.runinfo.exists == "skip":
                 msg = (f"Metgrid directory \n                 {self.runinfo.metgriddir}\n                 "
                        "already exists. Config option set to skip task, returning to main program.")
