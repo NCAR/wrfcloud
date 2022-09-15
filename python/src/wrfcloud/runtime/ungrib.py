@@ -33,7 +33,7 @@ class Ungrib(Process):
         """
         suffixes = itertools.product(ascii_uppercase, repeat=3)
         if self.runinfo.local_data:
-            self.log.debug('Getting GRIB file(s) from local source')
+            self.log.debug('Getting GRIB file(s) from specified local directory(ies)')
             filelist = []
             # If runinfo.local_data is a string, convert it to a list
             if isinstance(self.runinfo.local_data, str):
@@ -46,7 +46,7 @@ class Ungrib(Process):
                 # each one individually using glob.glob, then append them all together
                 filelist.extend(sorted(glob.glob(entry)))
         else:
-            self.log.debug('Getting GRIB file(s) from remote source')
+            self.log.debug('"local_data" not set; getting GRIB file(s) from remote source')
             get_grib_input(self.runinfo)
             filelist = sorted(glob.glob(os.path.join(self.runinfo.ungribdir, 'gfs.*')))
 
@@ -78,12 +78,18 @@ class Ungrib(Process):
         """Main routine that sets up, runs, and monitors ungrib end-to-end"""
         self.log.info(f'Setting up ungrib for "{self.runinfo.name}"')
 
-        # Stop execution if experiment working directory already exists
+        # Stop execution if experiment working directory already exists, unless runinfo.exists == "skip"
         if os.path.isdir(self.runinfo.ungribdir):
-            errmsg = (f"Ungrib directory \n                 {self.runinfo.ungribdir}\n                 "
-                      "already exists. Move or remove this directory before continuing.")
-            self.log.fatal(errmsg)
-            raise FileExistsError(errmsg)
+            if self.runinfo.exists == "skip":
+                msg = (f"Ungrib directory \n                 {self.runinfo.ungribdir}\n                 "
+                       "already exists. Config option set to skip task, returning to main program.")
+                self.log.warn(msg)
+                return True
+            else:
+                errmsg = (f"Ungrib directory \n                 {self.runinfo.ungribdir}\n                 "
+                          "already exists. Move or remove this directory before continuing.")
+                self.log.fatal(errmsg)
+                raise FileExistsError(errmsg)
 
         os.mkdir(self.runinfo.ungribdir)
         os.chdir(self.runinfo.ungribdir)

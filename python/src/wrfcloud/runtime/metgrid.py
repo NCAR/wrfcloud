@@ -60,13 +60,18 @@ class MetGrid(Process):
         """
         self.log.info(f'Setting up metgrid for "{self.runinfo.name}"')
 
-        # Stop execution if experiment working directory already exists
-        if os.path.isdir(self.runinfo.metgriddir):
-            errmsg = (f"Metgrid directory \n                 {self.runinfo.metgriddir}\n                 "
-                      "already exists. Move or remove this directory before continuing.")
-            err = FileExistsError(errmsg)
-            self.log.fatal(errmsg, err)
-            raise FileExistsError(errmsg)
+        # Stop execution if experiment working directory already exists, unless runinfo.exists == "skip"
+        if os.path.isdir(self.runinfo.ungribdir):
+            if self.runinfo.exists == "skip":
+                msg = (f"Metgrid directory \n                 {self.runinfo.metgriddir}\n                 "
+                       "already exists. Config option set to skip task, returning to main program.")
+                self.log.warn(msg)
+                return True
+            else:
+                errmsg = (f"Metgrid directory \n                 {self.runinfo.metgriddir}\n                 "
+                          "already exists. Move or remove this directory before continuing.")
+                self.log.fatal(errmsg)
+                raise FileExistsError(errmsg)
 
         os.mkdir(self.runinfo.metgriddir)
         os.chdir(self.runinfo.metgriddir)

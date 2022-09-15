@@ -62,6 +62,10 @@ class RunInfo:
         self.input_freq_sec = config['run']['input_freq_sec']
         self.output_freq_sec = config['run']['output_freq_sec']
         self.local_data = config['run'].get('local_data', '')
+        self.exists = config['run'].get('exists', '')
+        # If "exists" is not set or invalid, set behavior to die
+        if self.exists not in ["overwrite", "save", "skip"]:
+            self.exists = 'die'
 
 
 class Process:
