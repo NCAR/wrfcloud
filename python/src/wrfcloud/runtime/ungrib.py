@@ -10,6 +10,7 @@ from typing import Union
 from f90nml.namelist import Namelist
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
 from wrfcloud.runtime.tools.get_grib_input import get_grib_input
+from wrfcloud.runtime.tools.check_wd_exist import check_wd_exist
 from wrfcloud.runtime import RunInfo, Process
 from wrfcloud.log import Logger
 
@@ -50,25 +51,29 @@ class Ungrib(Process):
             get_grib_input(self.runinfo)
             filelist = sorted(glob.glob(os.path.join(self.runinfo.ungribdir, 'gfs.*')))
 
+        if not filelist:
+            self.log.error('List of input files is empty; check configuration')
+            raise FileNotFoundError('No input files found')
+
         for gribfile in filelist:
             # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
             griblink = 'GRIBFILE.' + "".join(suffixes.__next__())
             self.log.debug(f'Linking input GRIB file {gribfile} to {griblink}')
-            os.symlink(gribfile, griblink)
+            self.symlink(gribfile, griblink)
 
         self.log.debug('Getting geo_em file(s)')
         # Get the number of domains from namelist
         # Assumes geo_em files are in local path/configurations/expn_name. TODO: Make pull from S3
         for domain in range(1, self.namelist['share']['max_dom'] + 1):
-            os.symlink(f'{self.runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
+            self.symlink(f'{self.runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
 
         self.log.debug('Getting VTable.GFS')
-        os.symlink(f'{self.runinfo.wpscodedir}/ungrib/Variable_Tables/Vtable.GFS', 'Vtable')
+        self.symlink(f'{self.runinfo.wpscodedir}/ungrib/Variable_Tables/Vtable.GFS', 'Vtable')
 
     def run_ungrib(self) -> None:
         """Executes the ungrib.exe program"""
         self.log.debug('Linking ungrib.exe to ungrib working directory')
-        os.symlink(f'{self.runinfo.wpscodedir}/ungrib/ungrib.exe', 'ungrib.exe')
+        self.symlink(f'{self.runinfo.wpscodedir}/ungrib/ungrib.exe', 'ungrib.exe')
 
         self.log.debug('Executing ungrib.exe')
         ungrib_cmd = './ungrib.exe >& ungrib.log'
@@ -78,18 +83,10 @@ class Ungrib(Process):
         """Main routine that sets up, runs, and monitors ungrib end-to-end"""
         self.log.info(f'Setting up ungrib for "{self.runinfo.name}"')
 
-        # Stop execution if experiment working directory already exists, unless runinfo.exists == "skip"
-        if os.path.isdir(self.runinfo.ungribdir):
-            if self.runinfo.exists == "skip":
-                msg = (f"Ungrib directory \n                 {self.runinfo.ungribdir}\n                 "
-                       "already exists. Config option set to skip task, returning to main program.")
-                self.log.warn(msg)
-                return True
-            else:
-                errmsg = (f"Ungrib directory \n                 {self.runinfo.ungribdir}\n                 "
-                          "already exists. Move or remove this directory before continuing.")
-                self.log.fatal(errmsg)
-                raise FileExistsError(errmsg)
+        #Check if experiment working directory already exists, take action based on value of runinfo.exists
+        action = check_wd_exist(self.runinfo.exists,self.runinfo.ungribdir)
+        if action == "skip":
+            return True
 
         os.mkdir(self.runinfo.ungribdir)
         os.chdir(self.runinfo.ungribdir)

@@ -7,6 +7,7 @@ import glob
 from typing import Union
 from f90nml.namelist import Namelist
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
+from wrfcloud.runtime.tools.check_wd_exist import check_wd_exist
 from wrfcloud.runtime import RunInfo, Process
 from wrfcloud.log import Logger
 
@@ -32,23 +33,23 @@ class MetGrid(Process):
         # Get the number of domains from namelist
         # Assumes geo_em files are in local path/configurations/expn_name. TODO: Make pull from S3
         for domain in range(1, self.namelist['share']['max_dom'] + 1):
-            os.symlink(f'{self.runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
+            self.symlink(f'{self.runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
 
         self.log.debug('Linking metgrid dir for tables')
-        os.symlink(f'{self.runinfo.wpscodedir}/metgrid', 'metgrid')
+        self.symlink(f'{self.runinfo.wpscodedir}/metgrid', 'metgrid')
 
         # Link in the FILES from ungrib
         self.log.debug('Linking FILEs from ungrib step')
         filelist = glob.glob(f'{self.runinfo.ungribdir}/FILE*')
         for ungribfile in filelist:
-            os.symlink(ungribfile, f'{self.runinfo.metgriddir}/' + os.path.basename(ungribfile))
+            self.symlink(ungribfile, f'{self.runinfo.metgriddir}/' + os.path.basename(ungribfile))
 
     def run_metgrid(self) -> None:
         """
         Executes the metgrid.exe program
         """
         self.log.debug('Linking metgrid.exe to metgrid working directory')
-        os.symlink(f'{self.runinfo.wpscodedir}/metgrid/metgrid.exe', 'metgrid.exe')
+        self.symlink(f'{self.runinfo.wpscodedir}/metgrid/metgrid.exe', 'metgrid.exe')
 
         self.log.debug('Executing metgrid.exe')
         metgrid_cmd = './metgrid.exe >& metgrid.log'
@@ -60,18 +61,10 @@ class MetGrid(Process):
         """
         self.log.info(f'Setting up metgrid for "{self.runinfo.name}"')
 
-        # Stop execution if experiment working directory already exists, unless runinfo.exists == "skip"
-        if os.path.isdir(self.runinfo.metgriddir):
-            if self.runinfo.exists == "skip":
-                msg = (f"Metgrid directory \n                 {self.runinfo.metgriddir}\n                 "
-                       "already exists. Config option set to skip task, returning to main program.")
-                self.log.warn(msg)
-                return True
-            else:
-                errmsg = (f"Metgrid directory \n                 {self.runinfo.metgriddir}\n                 "
-                          "already exists. Move or remove this directory before continuing.")
-                self.log.fatal(errmsg)
-                raise FileExistsError(errmsg)
+        #Check if experiment working directory already exists, take action based on value of runinfo.exists
+        action = check_wd_exist(self.runinfo.exists,self.runinfo.metgriddir)
+        if action == "skip":
+            return True
 
         os.mkdir(self.runinfo.metgriddir)
         os.chdir(self.runinfo.metgriddir)
