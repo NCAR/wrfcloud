@@ -50,7 +50,7 @@ class RunInfo:
                 config = yaml.safe_load(file)
             self.log.debug('Read test.yml successfully, values are:')
         self.log.debug(f'{config}')
-        config['run'].get('workdir','/data/')
+        self.config= config
         self.wpscodedir = config['static'].get('wpscodedir',self.topdir + '/WPSV4/')
         self.log.debug(f'WPS code directory is {self.wpscodedir}')
         self.wrfcodedir = config['static'].get('wrfcodedir',self.topdir + '/WRFV4/')
