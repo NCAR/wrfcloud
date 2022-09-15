@@ -64,7 +64,7 @@ class RunInfo:
         self.local_data = config['run'].get('local_data', '')
         self.exists = config['run'].get('exists', '')
         # If "exists" is not set or invalid, set behavior to die
-        if self.exists not in ["overwrite", "save", "skip"]:
+        if self.exists not in ["overwrite", "remove", "save", "skip"]:
             self.exists = 'die'
 
 
@@ -105,15 +105,17 @@ class Process:
             return None
         return self.end_time - self.start_time
 
-    def symlink(self, link: str, file: str) -> bool:
+    def symlink(self, target: str, link: str) -> bool:
         """
-        Create a symlink on the file system
+        Create a symlink on the file system. This function will raise an exception if the original file or directory does not exist.
+        :param target: Path to the file or directory that already exists and will be pointed to by the new symlink
         :param link: Path to the new symlink that will be created
-        :param file: Path to the file that already exists and will be pointed to by the new symlink
         """
-        # TODO: Implement this method with issue #54
-        self.log.error(f'Failed to create symlink from {link} to {file}')
-        return False
+        if not os.path.isdir(target) and not os.path.isfile(target):
+            self.log.error(f'Failed to create symlink from {target} to {link}')
+            raise FileNotFoundError(f'{target} does not exist')
+        os.symlink(target, link)
+        return True
 
     def run(self) -> bool:
         """
