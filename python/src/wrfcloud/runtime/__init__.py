@@ -31,6 +31,7 @@ class RunInfo:
         self.log.debug(f'Working directory set to {self.wd}')
         self.ungribdir = self.wd + '/ungrib'
         self.metgriddir = self.wd + '/metgrid'
+        self.realdir = self.wd + '/real'
         self.wrfdir = self.wd + '/wrf'
 
     def read_config(self, name: str) -> None:
@@ -83,6 +84,8 @@ class RunInfo:
 
         self.input_freq_sec = config['run']['input_freq_sec']
         self.output_freq_sec = config['run']['output_freq_sec']
+        self.output_freq_min = self.output_freq_sec / 60
+
         self.local_data = config['run'].get('local_data', '')
         self.exists = config['run'].get('exists', '')
         # If "exists" is not set or invalid, set behavior to die
