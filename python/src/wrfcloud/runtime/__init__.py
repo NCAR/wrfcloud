@@ -57,8 +57,30 @@ class RunInfo:
         self.log.debug(f'WRF code directory is {self.wrfcodedir}')
         self.configuration = config['run']['configuration']
         self.wd = config['run'].get('workdir', '/data/')
+
+        #Extract individual date/time components from startdate and enddate for later use
         self.startdate = config['run']['start']
         self.enddate = config['run']['end']
+        split_startdate = self.startdate.split('-')
+        split_enddate = self.enddate.split('-')
+        self.startyear = split_startdate[0]
+        self.startmonth = split_startdate[1]
+        self.startday = split_startdate[2][0:2]
+        self.starthour = split_startdate[2][3:5]
+        self.endyear = split_enddate[0]
+        self.endmonth = split_enddate[1]
+        self.endday = split_enddate[2][0:2]
+        self.endhour = split_enddate[2][3:5]
+
+        #Calculate runtime in hours
+        date_format_str = '%Y-%m-%d_%H:%M:%S'
+        start = datetime.strptime(self.startdate, date_format_str)
+        end =   datetime.strptime(self.enddate, date_format_str)
+        # Get interval between two timstamps as timedelta object
+        diff = end - start
+        # Get interval between two timstamps in hours
+        self.runhours = diff.total_seconds() / 3600
+
         self.input_freq_sec = config['run']['input_freq_sec']
         self.output_freq_sec = config['run']['output_freq_sec']
         self.local_data = config['run'].get('local_data', '')
