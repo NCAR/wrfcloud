@@ -12,8 +12,9 @@ from wrfcloud.log import Logger
 def check_wd_exist(exists: str, dirname : str ) -> str:
     """Main routine that checks if task's working directory exists, and depending
        on the value of runinfo.exists, takes an action:
-       skip:  Return string "skip"
-       
+       skip:    Return string "skip"
+       remove:  Removes the existing working directory and returns string "done"
+       [else]:  Any other string defaults to previous behavior, which raises an exception.
        """
 
     log = Logger()
