@@ -52,7 +52,7 @@ export class AppComponent
 
 
   /**
-   * Information of currently logged in user
+   * Information of currently logged-in user
    */
   public user: User|undefined;
 
@@ -100,7 +100,7 @@ export class AppComponent
 
 
   /**
-   * Get only the active menu options (not place holders)
+   * Get only the active menu options (not placeholders)
    * @return List of menu options
    */
   public getActiveMenuOptions(): Array<MenuOption>
@@ -173,8 +173,10 @@ export class AppComponent
     }
 
     /* route to an appropriate screen */
-    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset' || this.router.url.startsWith('/view') || this.router.url.startsWith('/jobs'))
-      return;  /* do not interfere with these routes */
+    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset')
+      return;  /* do not interfere with these routes for anonymous users */
+    else if (this.user !== undefined && (this.router.url.startsWith('/view') || this.router.url.startsWith('/jobs')))
+      return;  /* do not interfere with these routes for authenticated users */
     else if (this.menuOptions.length === 0)
       this.routeTo('login');
     else
@@ -195,10 +197,10 @@ export class AppComponent
 
 
   /**
-   * Perform an action if the key pressed is enter
+   * Perform an action if the key pressed is 'enter'
    *
    * @param event Key press event
-   * @param action The function to call if the key press is enter
+   * @param action The function to call if the key press is 'enter'
    */
   public onEnter(event: any, action: Function): void
   {

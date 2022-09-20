@@ -37,6 +37,13 @@ export class ClientApi
 
 
   /**
+   * Websocket connected to the WRF Cloud websocket service
+   * @private
+   */
+  private websocket: WebSocket|undefined;
+
+
+  /**
    * Construct a new API object
    *
    * @param http Angular's HttpClient
@@ -50,8 +57,8 @@ export class ClientApi
   /**
    * A URL to the API
    */
-  // public API_URL = 'https://api-dev.wrfcloud.com/v1/action';
-  public API_URL = 'https://api.wrfcloud.com/v1/action';
+  public static API_URL = 'https://api.wrfcloud.com/v1/action';
+  public static WEBSOCKET_URL = 'wss://ws.wrfcloud.com/v1';
 
 
   /**
@@ -207,7 +214,7 @@ export class ClientApi
       request.jwt = this.jwt;
 
     /* send the POST request */
-    this.http.post(this.API_URL, request, options).subscribe((event: Object) => {
+    this.http.post(ClientApi.API_URL, request, options).subscribe((event: Object) => {
       responseHandler(event);
     });
   }
@@ -432,11 +439,13 @@ export class ClientApi
     const request: ApiRequest = {
       action: 'GetWrfGeoJson',
       data: requestData
+    };
+
     /* send the API request */
     this.sendRequest(request, responseHandler, true);
   }
-  
-  
+
+
   /**
    * Send a list user request
    *
@@ -485,6 +494,79 @@ export class ClientApi
     {
       this.setCredentials(response.data.jwt, response.data.refresh);
     }
+  }
+
+
+  /**
+   * Open a websocket connection
+   */
+  public connectWebsocket(listener: WebsocketListener): void
+  {
+    if (this.websocket === undefined || this.websocket.readyState === WebSocket.CLOSED)
+    {
+      console.log('wsconn');
+      this.websocket = new WebSocket(ClientApi.WEBSOCKET_URL);
+      this.websocket.onopen = listener.websocketOpen.bind(listener);
+      this.websocket.onclose = listener.websocketClose.bind(listener);
+      this.websocket.onmessage = listener.websocketMessage.bind(listener);
+    }
+  }
+
+
+  /**
+   * Disconnect from the websocket connection -- costs are incurred partially
+   * by time connected, so it is good to disconnect when not necessary.
+   */
+  public disconnectWebsocket(): void
+  {
+    if (this.websocket !== undefined && this.websocket.readyState !== WebSocket.CLOSED)
+    {
+      const tempsocket = this.websocket;
+      this.websocket = undefined;
+      tempsocket.close();
+    }
+  }
+
+
+  /**
+   * Send a subscription message
+   *
+   * @return False if the message was not sent
+   */
+  public subscribeToJobChanges(): boolean
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'SubscribeJobs',
+      data: {}
+    };
+
+    /* send the API request */
+    return this.sendWebsocketMessage(request, true);
+  }
+
+
+  /**
+   * Send a message to the websocket
+   * @private
+   *
+   * @param message The message to send to the API via websocket
+   * @param includeJwt Should the jwt be attached to the message before sending
+   * @return True if the message was sent, otherwise false
+   */
+  private sendWebsocketMessage(message: ApiRequest, includeJwt: boolean): boolean
+  {
+    /* maybe add the JWT to the message */
+    if (includeJwt)
+      message.jwt = this.jwt;
+
+    /* check if the websocket is still connected */
+    if (this.websocket !== undefined && this.websocket.readyState === WebSocket.OPEN)
+    {
+      this.websocket.send(JSON.stringify(message));
+      return true;
+    }
+    return false;
   }
 }
 
@@ -765,4 +847,24 @@ export interface Job
   status_code: number;
   status_message: string;
   progress: number;
+}
+
+export interface WebsocketListener
+{
+  websocketOpen: (event: Event) => void;
+  websocketClose: (event: CloseEvent) => void;
+  websocketMessage: (event: MessageEvent) => void;
+}
+
+export interface WebsocketMessage
+{
+  type: string;
+  data: ApiResponse;
+}
+
+export interface JobStatusResponse extends ApiResponse
+{
+  data: {
+    job: Job
+  }
 }

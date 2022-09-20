@@ -3,6 +3,7 @@ from wrfcloud.api.audit import AuditDao
 from wrfcloud.api.auth.refresh import RefreshTokenDao
 from wrfcloud.jobs import JobDao, WrfJob
 from wrfcloud.user import UserDao, User
+from wrfcloud.subscribers import SubscriberDao, Subscriber
 import yaml
 
 
@@ -17,6 +18,7 @@ def _test_setup() -> bool:
         audit_dao = AuditDao()
         refresh_dao = RefreshTokenDao()
         job_dao = JobDao()
+        subscriber_dao = SubscriberDao()
 
         try:
             # just in case the table already exists, get rid of it
@@ -24,6 +26,7 @@ def _test_setup() -> bool:
             audit_dao.delete_table(audit_dao.table)
             refresh_dao.delete_table(refresh_dao.table)
             job_dao.delete_table(job_dao.table)
+            subscriber_dao.delete_table(subscriber_dao.table)
         except Exception:
             pass
 
@@ -31,7 +34,8 @@ def _test_setup() -> bool:
         return user_dao.create_user_table() and \
             audit_dao.create_audit_table() and \
             refresh_dao.create_refresh_table() and \
-            job_dao.create_job_table()
+            job_dao.create_job_table() and \
+            subscriber_dao.create_subscriber_table()
     except Exception as e:
         print(e)
         return False
@@ -48,10 +52,13 @@ def _test_teardown() -> bool:
         audit_dao = AuditDao()
         refresh_dao = RefreshTokenDao()
         job_dao = JobDao()
+        subscriber_dao = SubscriberDao()
+
         user_dao.delete_table(user_dao.table)
         audit_dao.delete_table(audit_dao.table)
         refresh_dao.delete_table(refresh_dao.table)
         job_dao.delete_table(job_dao.table)
+        subscriber_dao.delete_table(subscriber_dao.table)
     except Exception as e:
         print(e)
         return False
@@ -133,3 +140,27 @@ def _get_all_sample_jobs(status_code: int = None) -> List[WrfJob]:
 
     # build job objects and return them
     return [WrfJob(job_data) for job_data in jobs_data]
+
+
+def _get_sample_subscriber() -> Subscriber:
+    """
+    Get a sample subscriber
+    :return: A sample subscriber object
+    """
+    # load sample subscribers
+    sample_subscribers = yaml.load(open('resources/sample_subscribers.yaml'))['subscribers']
+
+    # return the first one in the list
+    return Subscriber(sample_subscribers[0])
+
+
+def _get_all_sample_subscribers() -> List[Subscriber]:
+    """
+    Get all the sample subscribers
+    :return: A list of sample subscriber objects
+    """
+    # load sample subscribers
+    sample_subscribers = yaml.load(open('resources/sample_subscribers.yaml'))['subscribers']
+
+    # create and return a list of all sample subscribers
+    return [Subscriber(data) for data in sample_subscribers]

@@ -1,6 +1,6 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {Job, ListJobResponse} from "../client-api";
+import {JobStatusResponse, Job, ListJobResponse, WebsocketListener, WebsocketMessage} from "../client-api";
 import {MatSort} from "@angular/material/sort";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatTableDataSource} from "@angular/material/table";
@@ -10,7 +10,7 @@ import {MatTableDataSource} from "@angular/material/table";
   templateUrl: './view-jobs.component.html',
   styleUrls: ['./view-jobs.component.sass']
 })
-export class ViewJobsComponent implements OnInit, AfterViewInit
+export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, WebsocketListener
 {
   // @ts-ignore
   @ViewChild(MatSort) sort: MatSort;
@@ -48,6 +48,19 @@ export class ViewJobsComponent implements OnInit, AfterViewInit
 
 
   /**
+   * Flag to indicate an active websocket connection to receive job status updates
+   */
+  public subscribed: boolean = false;
+
+
+  /**
+   * Flag to indicate this object is being destroyed
+   * @private
+   */
+  private destructing: boolean = false;
+
+
+  /**
    * Column names to display on a desktop computer
    */
   public desktopColumns: Array<string> = ['job_id', 'configuration_name', 'cycle_time', 'forecast_length', 'status'];
@@ -69,6 +82,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit
     
     /* refresh job data from the API */
     this.refreshJobData();
+    this.app.api.connectWebsocket(this);
   }
 
 
@@ -87,6 +101,17 @@ export class ViewJobsComponent implements OnInit, AfterViewInit
   {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
+  }
+
+
+  /**
+   * Clean up when this object goes away
+   */
+  ngOnDestroy()
+  {
+    /* close the websocket when we are not looking at this page */
+    this.destructing = true;
+    this.app.api.disconnectWebsocket();
   }
 
 
@@ -143,5 +168,64 @@ export class ViewJobsComponent implements OnInit, AfterViewInit
   public filterModified(): void
   {
     this.dataSource.filter = this.filter;
+  }
+
+
+  public websocketOpen(event: Event): void
+  {
+    /* subscribe to job status changes */
+    this.subscribed = this.app.api.subscribeToJobChanges();
+  }
+
+
+  public websocketClose(event: CloseEvent): void
+  {
+    /* connect again if we get disconnected */
+    this.subscribed = false;
+    if (!this.destructing)
+      this.app.api.connectWebsocket(this);
+  }
+
+
+  public websocketMessage(event: MessageEvent): void
+  {
+    /* parse the websocket message -- must be valid JSON */
+    const data: WebsocketMessage = JSON.parse(event.data);
+
+    /* handle the message */
+    switch(data.type)
+    {
+      case 'JobStatus':
+        this.handleJobStatusMessage(data.data as JobStatusResponse);
+        break;
+    }
+  }
+
+
+  /**
+   *
+   * @param message The
+   * @private
+   */
+  private handleJobStatusMessage(message: JobStatusResponse)
+  {
+    /* extract the job from the message */
+    const job: Job = message.data.job;
+
+    /* find the job in the table */
+    for (let job_ of this.jobs)
+    {
+      if (job_.job_id === job.job_id)
+      {
+        job_.status_code = job.status_code;
+        job_.status_message = job.status_message;
+        job_.job_name = job.job_name;
+        job_.output_frequency = job.output_frequency;
+        job_.forecast_length = job.forecast_length;
+        job_.configuration_name = job.configuration_name;
+        job_.cycle_time = job.cycle_time;
+        job_.progress = job.progress;
+      }
+    }
   }
 }

@@ -16,12 +16,14 @@ test:
   APP_URL: localhost:4200
   API_STAGE: v1
   ALLOW_CORS: True
+  NOTIFY_WEB_CLIENTS: False
 
   # DynamoDB Options
   USER_TABLE_NAME: wrfcloud_users_test
   AUDIT_TABLE_NAME: wrfcloud_audit_test
   REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_test
   JOB_TABLE_NAME: wrfcloud_jobs_test
+  SUBSCRIBER_TABLE_NAME: wrfcloud_subscribers_test
   ENDPOINT_URL: 'http://localhost:8000'
 
   # Logging options
@@ -55,11 +57,13 @@ codebuild:
   APP_URL: www.domainname.com
   API_STAGE: v1
   ALLOW_CORS: True
+  NOTIFY_WEB_CLIENTS: False
 
   # DynamoDB Options
   USER_TABLE_NAME: wrfcloud_users_build
   AUDIT_TABLE_NAME: wrfcloud_audit_build
   REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_build
+  SUBSCRIBER_TABLE_NAME: wrfcloud_subscribers_build
   JOB_TABLE_NAME: wrfcloud_jobs_build
 
   # Logging options
@@ -94,12 +98,14 @@ production:
   APP_URL: www.domainname.com
   API_STAGE: v1
   ALLOW_CORS: True
+  NOTIFY_WEB_CLIENTS: True
 
   # DynamoDB Options
   USER_TABLE_NAME: wrfcloud_users_prod
   AUDIT_TABLE_NAME: wrfcloud_audit_prod
   REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_prod
   JOB_TABLE_NAME: wrfcloud_jobs_prod
+  SUBSCRIBER_TABLE_NAME: wrfcloud_subscribers_prod
 
   # Logging options
   LOG_LEVEL: INFO
@@ -132,12 +138,14 @@ development:
   APP_URL: www.wrfcloud.com
   API_STAGE: v1
   ALLOW_CORS: True
+  NOTIFY_WEB_CLIENTS: True
 
   # DynamoDB Options
   USER_TABLE_NAME: development_wrfcloud_users
   AUDIT_TABLE_NAME: development_wrfcloud_audit
   REFRESH_TOKEN_TABLE_NAME: development_wrfcloud_refresh_tokens
   JOB_TABLE_NAME: development_wrfcloud_jobs
+  SUBSCRIBER_TABLE_NAME: development_wrfcloud_subscribers
 
   # Logging options
   LOG_LEVEL: DEBUG

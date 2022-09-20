@@ -16,17 +16,6 @@ class GetWrfMetaData(Action):
     """
     Get meta data for all the available WRF runs
     """
-    def __init__(self, run_as_user: Union[User, None] = None, request: dict = None):
-        """
-        Initialize the action
-        :param run_as_user: Run the action as this user
-        :param request: Full request message for this action
-        """
-        super().__init__(run_as_user, request)
-        self.bucket: str = os.environ['WRF_OUTPUT_BUCKET']
-        self.prefix: str = os.environ['WRF_OUTPUT_PREFIX']
-        self.s3 = None
-
     def validate_request(self) -> bool:
         """
         Validate the request object
@@ -41,6 +30,11 @@ class GetWrfMetaData(Action):
         :return: True if the action ran successfully
         """
         try:
+            # setup S3 parameters
+            self.bucket: str = os.environ['WRF_OUTPUT_BUCKET']
+            self.prefix: str = os.environ['WRF_OUTPUT_PREFIX']
+            self.s3 = None
+
             # get a list of model configurations
             self.response['configurations'] = self._read_configurations()['configurations']
         except Exception as e:
@@ -173,17 +167,6 @@ class GetWrfGeoJson(Action):
     """
     Get meta data for all the available WRF runs
     """
-    def __init__(self, run_as_user: Union[User, None] = None, request: dict = None):
-        """
-        Initialize the action
-        :param run_as_user: Run the action as this user
-        :param request: Full request message for this action
-        """
-        super().__init__(run_as_user, request)
-        self.bucket: str = os.environ['WRF_OUTPUT_BUCKET']
-        self.prefix: str = os.environ['WRF_OUTPUT_PREFIX']
-        self.s3 = None
-
     def validate_request(self) -> bool:
         """
         Validate the request object
@@ -199,6 +182,11 @@ class GetWrfGeoJson(Action):
         :return: True if the action ran successfully
         """
         try:
+            # get the S3 configuration
+            self.bucket: str = os.environ['WRF_OUTPUT_BUCKET']
+            self.prefix: str = os.environ['WRF_OUTPUT_PREFIX']
+            self.s3 = None
+
             # get a geojson file
             configuration: str = self.request['configuration']
             cycle_time: int = self.request['cycle_time']

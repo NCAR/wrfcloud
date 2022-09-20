@@ -36,15 +36,11 @@ Parameters:
     Description: Hostname for the web page (e.g. www.mydomain.com)
     Type: String
   ApiHostName:
-    Description: Hostname for the REST or Websocket API (e.g. api.mydomain.com)
+    Description: Hostname for the REST API (e.g. api.mydomain.com)
     Type: String
-  ApiType:
-    Description: May be WEBSOCKET or REST
+  WebsocketHostName:
+    Description: Hostname for the Websocket API (e.g. ws.mydomain.com)
     Type: String
-    Default: rest
-    AllowedValues:
-      - websocket
-      - rest
   StageName:
     Description: API Gateway Stage (may be version number)
     Type: String
@@ -65,8 +61,6 @@ Parameters:
 Conditions:
   IsDev: !Equals [!Ref DeploymentType, 'development']
   IsProd: !Equals [!Ref DeploymentType, 'production']
-  UseRest: !Equals [!Ref ApiType, 'rest']
-  UseWebsocket: !Equals [!Ref ApiType, 'websocket']
 
 Resources:
 
@@ -112,6 +106,7 @@ Resources:
                   - Fn::ImportValue: !Sub 'dynamodb-table-refresh-tokens-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-users-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-jobs-${DeploymentType}-${AppName}'
+                  - Fn::ImportValue: !Sub 'dynamodb-table-subscribers-${DeploymentType}-${AppName}'
               - Effect: Allow
                 Action:
                   - s3:ListBucket
@@ -142,7 +137,6 @@ Resources:
         - !Ref LambdaLayerPythonDeps
       Environment:
         Variables:
-          API_TYPE: !Ref ApiType
           API_HOSTNAME: !Ref ApiHostName
           DEPLOYMENT_TYPE: !Ref DeploymentType
           STAGE: !Ref StageName
@@ -167,7 +161,6 @@ Resources:
             }
   LambdaInvokePermissionFromWebsocketApi:
     Type: AWS::Lambda::Permission
-    Condition: UseWebsocket
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Ref LambdaFunctionFrontController
@@ -182,7 +175,6 @@ Resources:
             - /*
   LambdaInvokePermissionFromRestApi:
     Type: AWS::Lambda::Permission
-    Condition: UseRest
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Ref LambdaFunctionFrontController
@@ -199,14 +191,12 @@ Resources:
   # Websocket API
   WebsocketApi:
     Type: AWS::ApiGatewayV2::Api
-    Condition: UseWebsocket
     Properties:
       Name: !Sub '${DeploymentType} ${AppName} Websocket API Gateway'
       ProtocolType: WEBSOCKET
       RouteSelectionExpression: "\\$default"
   WebsocketConnectRoute:
     Type: AWS::ApiGatewayV2::Route
-    Condition: UseWebsocket
     DependsOn: WebsocketApi
     Properties:
       ApiId: !Ref WebsocketApi
@@ -215,7 +205,6 @@ Resources:
       OperationName: Default
   WebsocketDefaultRoute:
     Type: AWS::ApiGatewayV2::Route
-    Condition: UseWebsocket
     DependsOn: WebsocketApi
     Properties:
       ApiId: !Ref WebsocketApi
@@ -228,7 +217,6 @@ Resources:
           - !Ref WebsocketDefaultIntegration
   WebsocketDefaultIntegration:
     Type: AWS::ApiGatewayV2::Integration
-    Condition: UseWebsocket
     DependsOn:
       - WebsocketApi
       - LambdaFunctionFrontController
@@ -239,7 +227,6 @@ Resources:
       IntegrationUri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${DeploymentType}_${AppName}_handler/invocations'
   WebsocketDeployment:
     Type: AWS::ApiGatewayV2::Deployment
-    Condition: UseWebsocket
     DependsOn:
       - WebsocketApi
       - WebsocketConnectRoute
@@ -248,16 +235,16 @@ Resources:
       ApiId: !Ref WebsocketApi
   WebsocketApiDomainName:
     Type: AWS::ApiGatewayV2::DomainName
-    Condition: UseWebsocket
-    DependsOn: WebsocketDeployment
+    DependsOn:
+      - WebsocketDeployment
+      - WebsocketCertificate
     Properties:
-      DomainName: !Ref ApiHostName
+      DomainName: !Ref WebsocketHostName
       DomainNameConfigurations:
-        - CertificateArn: !Sub '${CertificateArn}'
+        - CertificateArn: !Ref WebsocketCertificate
           SecurityPolicy: TLS_1_2
   WebsocketApiBasePathMapping:
     Type: AWS::ApiGatewayV2::ApiMapping
-    Condition: UseWebsocket
     DependsOn:
       - WebsocketApi
       - WebsocketApiDomainName
@@ -268,10 +255,9 @@ Resources:
       Stage: !Sub '${StageName}'
   WebsocketApiDnsEntry:
     Type: AWS::Route53::RecordSet
-    Condition: UseWebsocket
     DependsOn: WebsocketApi
     Properties:
-      Name: !Ref ApiHostName
+      Name: !Ref WebsocketHostName
       HostedZoneId: !Ref HostedZoneId
       Type: CNAME
       TTL: 300
@@ -279,7 +265,6 @@ Resources:
         - !GetAtt WebsocketApiDomainName.RegionalDomainName
   WebsocketStage:
     Type: AWS::ApiGatewayV2::Stage
-    Condition: UseWebsocket
     DependsOn: WebsocketApi
     Properties:
       StageName: !Sub '${StageName}'
@@ -287,7 +272,6 @@ Resources:
       ApiId: !Ref WebsocketApi
   WebsocketAllowPostExecuteApi:
     Type: AWS::IAM::Policy
-    Condition: UseWebsocket
     Properties:
       PolicyName: !Sub '${DeploymentType}_${AppName}_allow_api_client_response'
       Roles:
@@ -298,11 +282,18 @@ Resources:
           - Effect: Allow
             Action: execute-api:*
             Resource: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/*/*'
+  WebsocketCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Sub '${DomainName}'
+      SubjectAlternativeNames:
+        - !Sub '${WebsocketHostName}'
+        - !Sub '*.${DomainName}'  # TODO: This may not be desired, but cannot be changed after creation
+      ValidationMethod: DNS
 
   # REST API
   RestApi:
     Type: AWS::ApiGateway::RestApi
-    Condition: UseRest
     Properties:
       Name: !Sub '${DeploymentType}_${AppName}'
       EndpointConfiguration:
@@ -369,14 +360,12 @@ Resources:
         components: {}
   RestApiDeployment:
     Type: AWS::ApiGateway::Deployment
-    Condition: UseRest
     DependsOn: RestApi
     Properties:
       RestApiId: !Ref RestApi
       StageName: !Sub '${StageName}'
   RestApiDomainName:
     Type: AWS::ApiGateway::DomainName
-    Condition: UseRest
     DependsOn: RestApiDeployment
     Properties:
       CertificateArn: !Sub '${CertificateArn}'
@@ -387,7 +376,6 @@ Resources:
           - EDGE
   RestApiBasePathMapping:
     Type: AWS::ApiGateway::BasePathMapping
-    Condition: UseRest
     DependsOn:
       - RestApi
       - RestApiDomainName
@@ -398,7 +386,6 @@ Resources:
       Stage: !Sub '${StageName}'
   RestApiDnsEntry:
     Type: AWS::Route53::RecordSet
-    Condition: UseRest
     DependsOn: RestApi
     Properties:
       Name: !Ref ApiHostName
