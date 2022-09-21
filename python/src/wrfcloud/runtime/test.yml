@@ -2,10 +2,13 @@
 #This section specifies settings about the user who created the run
 user:
     name: testuser
+static:
+    wpscodedir: /home/ec2-user/WPS
+    wrfcodedir: /home/ec2-user/WRF
 #This section specifies settings about what job is to be run
 run:
     configuration: test
-    workdir: /data
+    workdir: /data/testrun
     start: 2022-06-01_06:00:00
     end: 2022-06-01_18:00:00
     input_freq_sec: 10800
@@ -13,7 +16,8 @@ run:
     # local_data is the name of the grib files needed, if not pulling from AWS bucket. Multiple
     # entries and wildcards are accepted. Must be in date order (e.g. initial file location must be
     # listed before forecast file location.
-    local_data: /glade/p/ral/jntp/CCproject/wrfcloud/input_data/gfs/2022060100/gfs.t00z.pgrb2.0p25.f*
+    local_data: /data/input_data/gfs/2022060100/gfs.t00z.pgrb2.0p25.f*
+    exists: die
 #This section specifies settings about how the job is to be run
 settings:
     queue: debug

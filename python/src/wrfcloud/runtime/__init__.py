@@ -26,15 +26,12 @@ class RunInfo:
         self.topdir = os.getcwd()
         self.staticdir = self.topdir + '/configurations/' + name
         self.log.debug(f'Static data directory is {self.staticdir}')
-        self.wpsdir = self.topdir + '/WPSV4/'
-        self.log.debug(f'WPS directory is {self.wpsdir}')
-        self.wrfdir = self.topdir + '/WRFV4/'
-        self.log.debug(f'WRF directory is {self.wrfdir}')
         self.read_config(name)
 
         self.log.debug(f'Working directory set to {self.wd}')
         self.ungribdir = self.wd + '/ungrib'
         self.metgriddir = self.wd + '/metgrid'
+        self.wrfdir = self.wd + '/wrf'
 
     def read_config(self, name: str) -> None:
         """
@@ -53,13 +50,22 @@ class RunInfo:
                 config = yaml.safe_load(file)
             self.log.debug('Read test.yml successfully, values are:')
         self.log.debug(f'{config}')
+        self.config= config
+        self.wpscodedir = config['static'].get('wpscodedir',self.topdir + '/WPSV4/')
+        self.log.debug(f'WPS code directory is {self.wpscodedir}')
+        self.wrfcodedir = config['static'].get('wrfcodedir',self.topdir + '/WRFV4/')
+        self.log.debug(f'WRF code directory is {self.wrfcodedir}')
         self.configuration = config['run']['configuration']
         self.wd = config['run'].get('workdir', '/data/')
         self.startdate = config['run']['start']
         self.enddate = config['run']['end']
         self.input_freq_sec = config['run']['input_freq_sec']
         self.output_freq_sec = config['run']['output_freq_sec']
-        self.local_data = config['run']['local_data']
+        self.local_data = config['run'].get('local_data', '')
+        self.exists = config['run'].get('exists', '')
+        # If "exists" is not set or invalid, set behavior to die
+        if self.exists not in ["overwrite", "remove", "save", "skip"]:
+            self.exists = 'die'
 
 
 class Process:
@@ -99,15 +105,17 @@ class Process:
             return None
         return self.end_time - self.start_time
 
-    def symlink(self, link: str, file: str) -> bool:
+    def symlink(self, target: str, link: str) -> bool:
         """
-        Create a symlink on the file system
+        Create a symlink on the file system. This function will raise an exception if the original file or directory does not exist.
+        :param target: Path to the file or directory that already exists and will be pointed to by the new symlink
         :param link: Path to the new symlink that will be created
-        :param file: Path to the file that already exists and will be pointed to by the new symlink
         """
-        # TODO: Implement this method with issue #54
-        self.log.error(f'Failed to create symlink from {link} to {file}')
-        return False
+        if not os.path.isdir(target) and not os.path.isfile(target):
+            self.log.error(f'Failed to create symlink from {target} to {link}')
+            raise FileNotFoundError(f'{target} does not exist')
+        os.symlink(target, link)
+        return True
 
     def run(self) -> bool:
         """
