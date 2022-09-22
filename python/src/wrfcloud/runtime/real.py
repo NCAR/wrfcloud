@@ -7,8 +7,8 @@ from typing import Union
 from f90nml import Namelist
 from wrfcloud.runtime import RunInfo, Process
 from wrfcloud.log import Logger
-from wrfcloud.runtime.tools.make_wrf_namelist import make_wrf_namelist
-from wrfcloud.runtime.tools.check_wd_exist import check_wd_exist
+from wrfcloud.runtime.tools import make_wrf_namelist
+from wrfcloud.runtime.tools import check_wd_exist
 
 
 class Real(Process):

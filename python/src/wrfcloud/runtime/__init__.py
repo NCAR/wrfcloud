@@ -6,9 +6,9 @@ __all__ = ['tools', 'metgrid', 'postproc', 'real', 'run', 'ungrib', 'wrf', 'RunI
 
 import os
 from typing import Union
+from datetime import datetime
 import yaml
 import pytz
-from datetime import datetime
 from wrfcloud.log import Logger
 
 
@@ -132,7 +132,8 @@ class Process:
 
     def symlink(self, target: str, link: str) -> bool:
         """
-        Create a symlink on the file system. This function will raise an exception if the original file or directory does not exist.
+        Create a symlink on the file system. This function will raise an exception
+        if the original file or directory does not exist.
         :param target: Path to the file or directory that already exists and will be pointed to by the new symlink
         :param link: Path to the new symlink that will be created
         """

@@ -35,7 +35,7 @@ def make_wps_namelist(runinfo: RunInfo, nml_file: str = None) -> Namelist:
         log.debug(f'For domain {domain+1}, writing end date {runinfo.enddate}')
         nml['share']['end_date'][domain] = runinfo.enddate
 
-    log.debug(f'Writing WPS namelist file')
+    log.debug('Writing WPS namelist file')
     f90nml.write(nml, 'namelist.wps')
 
     return nml

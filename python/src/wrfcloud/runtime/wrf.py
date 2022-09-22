@@ -4,12 +4,11 @@ Functions for setting up, executing, and monitoring a run of the WRF model
 
 import os
 import glob
-# Import our custom modules
 from typing import Union
 from f90nml import Namelist
 from wrfcloud.runtime import RunInfo, Process
 from wrfcloud.log import Logger
-from wrfcloud.runtime.tools.check_wd_exist import check_wd_exist
+from wrfcloud.runtime.tools import check_wd_exist
 
 
 class Wrf(Process):
@@ -70,7 +69,7 @@ class Wrf(Process):
         """Main routine that sets up, runs, and monitors WRF end-to-end"""
         self.log.info(f'Setting up real.exe for "{self.runinfo.name}"')
 
-        #Check if experiment working directory already exists, take action based on value of runinfo.exists
+        # Check if experiment working directory already exists, take action based on value of runinfo.exists
         action = check_wd_exist(self.runinfo.exists,self.runinfo.wrfdir)
         if action == "skip":
             return True

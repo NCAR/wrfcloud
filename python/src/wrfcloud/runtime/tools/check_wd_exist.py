@@ -9,7 +9,8 @@ import os
 import shutil
 from wrfcloud.log import Logger
 
-def check_wd_exist(exists: str, dirname : str ) -> str:
+
+def check_wd_exist(exists: str, dirname : str) -> str:
     """Main routine that checks if task's working directory exists, and depending
        on the value of runinfo.exists, takes an action:
        skip:    Return string "skip"
@@ -19,18 +20,18 @@ def check_wd_exist(exists: str, dirname : str ) -> str:
 
     log = Logger()
     if os.path.isdir(dirname):
-        msg1 = (f"Directory already exists: \n                 {dirname}\n                 ")
-        if exists == "skip":
-            msg2 = (f"Config option set to skip task, returning to main program.")
+        msg1 = f'Directory already exists: \n                 {dirname}\n                 '
+        if exists == 'skip':
+            msg2 = 'Config option set to skip task, returning to main program.'
             log.warn(msg1 + msg2)
-            return "skip"
-        elif exists == "remove":
-            msg2 = (f"Config option set to remove existing directory.")
+            return 'skip'
+        elif exists == 'remove':
+            msg2 = 'Config option set to remove existing directory.'
             log.warn(msg1 + msg2)
             shutil.rmtree(dirname)
         else:
-            msg2 = (f"Move or remove this directory before continuing.")
+            msg2 = 'Move or remove this directory before continuing.'
             log.fatal(msg1 + msg2)
             raise FileExistsError(msg1 + msg2)
 
-    return "done"
+    return 'done'

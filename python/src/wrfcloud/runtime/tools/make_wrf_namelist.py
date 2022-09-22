@@ -43,12 +43,12 @@ def make_wrf_namelist(runinfo: RunInfo, nml_file: str = None) -> Namelist:
         nml['time_control']['end_day'][domain] = int(runinfo.endday)
         nml['time_control']['end_hour'][domain] = int(runinfo.endhour)
 
-    log.debug(f'Writing domain-independent time_control variables')
+    log.debug('Writing domain-independent time_control variables')
     nml['time_control']['run_hours'] = int(runinfo.runhours)
     nml['time_control']['interval_seconds'] = int(runinfo.input_freq_sec)
     nml['time_control']['history_interval'] = int(runinfo.output_freq_min)
 
-    log.debug(f'Writing WRF namelist file')
+    log.debug('Writing WRF namelist file')
     f90nml.write(nml, 'namelist.input')
 
     return nml
