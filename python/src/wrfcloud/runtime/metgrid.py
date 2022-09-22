@@ -27,7 +27,7 @@ class MetGrid(Process):
 
     def get_files(self) -> None:
         """
-        Gets all input files necessary for running ungrib
+        Gets all input files necessary for running metgrid
         """
         self.log.debug('Getting geo_em file(s)')
         # Get the number of domains from namelist
