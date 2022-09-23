@@ -25,10 +25,10 @@ Scheduling:
     Image:
       CustomAmi: __AMI_ID__
     ComputeResources:
-    - Name: c6i
-      InstanceType: c6i.2xlarge  # 8-cores 16-gb-memory
+    - Name: hpc6a
+      InstanceType: hpc6a.48xlarge  # 96-cores 384-gb-memory $2.88/hr us-east-2 only
       Efa:
-        Enabled: false
+        Enabled: true
       MinCount: 0
       MaxCount: 1
     Networking:

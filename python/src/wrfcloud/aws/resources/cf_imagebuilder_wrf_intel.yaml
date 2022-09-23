@@ -31,7 +31,7 @@ Resources:
                     - yum -y install intel-oneapi-common-licensing
                     - yum -y install intel-oneapi-libdpstd-devel intel-oneapi-itac
                     - yum -y install intel-hpckit
-                    - yum -y install gcc gcc-c++ gcc-gfortran m4 curl-devel git cmake pkgconfig expat-devel libX11-devel libXmu-devel Xaw3d-devel libXaw-devel
+                    - yum -y install gcc gcc-c++ gcc-gfortran m4 curl-devel git cmake pkgconfig expat-devel libX11-devel libXmu-devel Xaw3d-devel libXaw-devel make openssl-devel bzip2-devel libffi-devel sqlite-devel
 
               - name: configure_bash
                 action: ExecuteBash
@@ -245,6 +245,33 @@ Resources:
                     - ./configure --prefix=/opt/netcdf --with-udunits2_incdir=${UDUNITS}/include  --with-udunits2_libdir=${UDUNITS}/lib --with-png_incdir=${LIBPNG}/include --with-png_libdir=${LIBPNG}/lib 2>&1 | tee configure.log
                     - make -j 4 install 2>&1 | tee build.log
                     - echo 'X11Forwarding yes' | tee -a /etc/ssh/sshd_config
+
+              - name: python39
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - wget https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz
+                    - tar -xzf Python-3.9.13.tgz
+                    - cd Python-3.9.13
+                    - unset CPP CC_FOR_BUILD CPP_FOR_BUILD
+                    - export CC=gcc
+                    - ./configure --prefix=/opt/python --enable-optimizations --with-openssl=/usr --enable-loadable-sqlite-extensions
+                    - make -j 4 install
+                    - echo 'export PYTHON39=/opt/python' | tee -a /etc/bashrc
+                    - echo 'export PATH=${PYTHON39}/bin:${PATH}' | tee -a /etc/bashrc
+
+              - name: wrfcloud
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - git clone https://github.com/NCAR/wrfcloud
+                    - pip3 install wrfcloud/python/src
 
               - name: build-wrf
                 action: ExecuteBash
