@@ -42,8 +42,11 @@ class Real(Process):
         self.symlink(f'{self.runinfo.wrfcodedir}/main/real.exe', 'real.exe')
 
         self.log.debug('Executing real.exe')
-        real_cmd = './real.exe >& real.log'
-        os.system(real_cmd)
+        if self.runinfo.wrfcores == 1:
+            wrf_cmd = './real.exe >& real.log'
+            os.system(real_cmd)
+        else:
+            self.submit_job('real.exe',self.runinfo.wrfcores,'wrf')
 
     def run(self) -> bool:
         """

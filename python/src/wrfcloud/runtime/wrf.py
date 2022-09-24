@@ -62,12 +62,15 @@ class Wrf(Process):
         self.symlink(f'{self.runinfo.wrfcodedir}/main/wrf.exe', 'wrf.exe')
 
         self.log.debug('Executing wrf.exe')
-        wrf_cmd = './wrf.exe >& wrf.log'
-        os.system(wrf_cmd)
+        if self.runinfo.wrfcores == 1:
+            wrf_cmd = './wrf.exe >& wrf.log'
+            os.system(wrf_cmd)
+        else:
+            self.submit_job('wrf.exe',self.runinfo.wrfcores,'wrf')
 
     def run(self) -> bool:
         """Main routine that sets up, runs, and monitors WRF end-to-end"""
-        self.log.info(f'Setting up real.exe for "{self.runinfo.name}"')
+        self.log.info(f'Setting up wrf.exe for "{self.runinfo.name}"')
 
         # Check if experiment working directory already exists, take action based on value of runinfo.exists
         action = check_wd_exist(self.runinfo.exists,self.runinfo.wrfdir)
