@@ -43,7 +43,7 @@ class Real(Process):
 
         self.log.debug('Executing real.exe')
         if self.runinfo.wrfcores == 1:
-            wrf_cmd = './real.exe >& real.log'
+            real_cmd = './real.exe >& real.log'
             os.system(real_cmd)
         else:
             self.submit_job('real.exe',self.runinfo.wrfcores,'wrf')
