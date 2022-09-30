@@ -9,8 +9,8 @@ static:
 run:
     configuration: test
     workdir: /data/testrun
-    start: 2022-06-01_06:00:00
-    end: 2022-06-01_18:00:00
+    start: 2022-06-01_09:00:00
+    end: 2022-06-01_12:00:00
     input_freq_sec: 10800
     output_freq_sec: 3600
     # local_data is the name of the grib files needed, if not pulling from AWS bucket. Multiple
@@ -21,4 +21,4 @@ run:
 #This section specifies settings about how the job is to be run
 settings:
     queue: debug
-    cores: 1
+    wrfcores: 96

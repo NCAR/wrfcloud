@@ -31,8 +31,6 @@ def make_wrf_namelist(runinfo: RunInfo, nml_file: str = None) -> Namelist:
     # Replace relevant settings
     for domain in range(nml['domains']['max_dom'][0]):
         log.debug(f'For domain {domain+1}, writing start date variables for {runinfo.startdate}')
-        print(f"{nml['time_control']['start_year'][domain]=}")
-        print(f'{runinfo.startyear=}')
         nml['time_control']['start_year'][domain] = int(runinfo.startyear)
         nml['time_control']['start_month'][domain] = int(runinfo.startmonth)
         nml['time_control']['start_day'][domain] = int(runinfo.startday)

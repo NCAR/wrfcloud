@@ -91,7 +91,11 @@ class RunInfo:
         # If "exists" is not set or invalid, set behavior to die
         if self.exists not in ["overwrite", "remove", "save", "skip"]:
             self.exists = 'die'
-
+        self.wrfcores = config['settings'].get('wrfcores', 1)
+        if self.wrfcores < 1 or self.wrfcores > 96:
+            self.log.error(f'wrfcores valid values are <= wrfcores <= 96')
+            raise ValueError(f'Invalid wrfcores value provided: {self.wrfcores}')
+ 
 
 class Process:
     """
@@ -141,6 +145,33 @@ class Process:
             self.log.error(f'Failed to create symlink from {target} to {link}')
             raise FileNotFoundError(f'{target} does not exist')
         os.symlink(target, link)
+        return True
+
+    def submit_job(self, exename: str, ntasks: int, partname: str) -> bool:
+        """
+        Create a job card file and submit it to the slurm scheduler
+        :param exename: Name of executable
+        :param ntasks: Int number of MPI tasks
+        :param partname: Partition name
+        """
+        slurmfile = exename + ".sbatch"
+        f = open(slurmfile, "w")
+        f.write('#!/bin/bash\n')
+        f.write(f'#SBATCH --job-name={exename}\n')
+        f.write(f'#SBATCH --ntasks={ntasks}\n')
+        f.write(f'#SBATCH --cpus-per-task=1\n')
+        f.write(f'#SBATCH --nodes=1\n')
+        f.write(f'#SBATCH --ntasks-per-node={ntasks}\n')
+        f.write(f'#SBATCH --output={exename}_%j.log\n')
+        f.write(f"\ndate +%s > START\n")
+        f.write(f"\nsrun --mpi=pmi2 {exename}\n")
+        f.write(f"\ndate +%s > STOP\n")
+
+        f.close()
+
+        jobid = os.system(f'sbatch -p {partname} -W {slurmfile}')
+        
+
         return True
 
     def run(self) -> bool:
