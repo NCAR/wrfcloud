@@ -8,7 +8,6 @@ from typing import List, Union
 from datetime import datetime
 from pytz import utc
 from wrfcloud.api.actions import Action
-from wrfcloud.user import User
 from wrfcloud.system import get_aws_session
 
 
@@ -245,3 +244,47 @@ class GetWrfGeoJson(Action):
         data: bytes = response['Body'].read()
 
         return data
+
+
+class RunWrf(Action):
+    """
+    Run the WRF model
+    """
+
+    def validate_request(self) -> bool:
+        """
+        Validate the request object
+        :return: True if the request is valid, otherwise False
+        """
+        required_fields = ['configuration_name' 'start_time', 'forecast_length', 'output_frequency', 'notify']
+        return self.check_request_fields(required_fields, [])
+
+    def perform_action(self) -> bool:
+        """
+        Abstract method that performs the action and sets the response field
+        :return: True if the action ran successfully
+        """
+        print('Running RunWrf Action')
+        # TODO: Replace this test function with code to start the cluster and run WRF
+        if not self.run_as_user._send_email_enabled():
+            print('Not sending email')
+            return True
+
+        print(f'Sending email to {self.run_as_user.email}')
+
+        session = get_aws_session()
+        ses = session.client('ses')
+        dest = {'ToAddresses': [self.run_as_user.email]}
+        message = {
+            'Subject': {
+                'Data': 'Scheduled WRF job is running',
+                'Charset': 'utf-8'
+            },
+            'Body': {
+                'Text': {
+                    'Data': 'WRF is fake running.', 'Charset': 'utf-8'
+                }
+            }
+        }
+        ses.send_email(Source='hahnd@ucar.edu', Destination=dest, Message=message)
+        return True

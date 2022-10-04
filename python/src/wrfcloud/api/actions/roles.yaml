@@ -46,6 +46,8 @@ regular:
       package: wrfcloud.api.actions
     - action: SubscribeJobs
       package: wrfcloud.api.actions
+    - action: RunWrf
+      package: wrfcloud.api.actions
 
 admin:
   permitted_actions:
@@ -70,4 +72,6 @@ admin:
     - action: ListJobs
       package: wrfcloud.api.actions
     - action: SubscribeJobs
+      package: wrfcloud.api.actions
+    - action: RunWrf
       package: wrfcloud.api.actions

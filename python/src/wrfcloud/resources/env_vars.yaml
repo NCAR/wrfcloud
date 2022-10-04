@@ -26,6 +26,9 @@ test:
   SUBSCRIBER_TABLE_NAME: wrfcloud_subscribers_test
   ENDPOINT_URL: 'http://localhost:8000'
 
+  # EventBridge Options
+  EVENTBRIDGE_RULE_PREFIX: wrfcloud-test
+
   # Logging options
   LOG_LEVEL: DEBUG
   LOG_FORMAT: text
@@ -65,6 +68,9 @@ codebuild:
   REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_build
   SUBSCRIBER_TABLE_NAME: wrfcloud_subscribers_build
   JOB_TABLE_NAME: wrfcloud_jobs_build
+
+  # EventBridge Options
+  EVENTBRIDGE_RULE_PREFIX: wrfcloud-codebuild
 
   # Logging options
   LOG_LEVEL: DEBUG
@@ -107,6 +113,9 @@ production:
   JOB_TABLE_NAME: wrfcloud_jobs_prod
   SUBSCRIBER_TABLE_NAME: wrfcloud_subscribers_prod
 
+  # EventBridge Options
+  EVENTBRIDGE_RULE_PREFIX: wrfcloud-
+
   # Logging options
   LOG_LEVEL: INFO
   LOG_FORMAT: json
@@ -146,6 +155,9 @@ development:
   REFRESH_TOKEN_TABLE_NAME: development_wrfcloud_refresh_tokens
   JOB_TABLE_NAME: development_wrfcloud_jobs
   SUBSCRIBER_TABLE_NAME: development_wrfcloud_subscribers
+
+  # EventBridge Options
+  EVENTBRIDGE_RULE_PREFIX: wrfcloud-dev
 
   # Logging options
   LOG_LEVEL: DEBUG

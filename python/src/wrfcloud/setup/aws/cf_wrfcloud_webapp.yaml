@@ -173,6 +173,19 @@ Resources:
             - !Sub '${AWS::AccountId}:'
             - !Ref WebsocketApi
             - /*
+  LambdaInvokePermissionFromEventBridge:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LambdaFunctionFrontController
+      Principal: events.amazonaws.com
+      SourceArn:
+        !Join
+          - ''
+          - - 'arn:aws:events:'
+            - !Sub '${AWS::Region}:'
+            - !Sub '${AWS::AccountId}:'
+            - 'rule/wrfcloud-*'
   LambdaInvokePermissionFromRestApi:
     Type: AWS::Lambda::Permission
     Properties:
