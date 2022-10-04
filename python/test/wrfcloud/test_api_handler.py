@@ -7,7 +7,7 @@ import wrfcloud
 from wrfcloud.user import update_user_in_system
 from wrfcloud.user import add_user_to_system
 from wrfcloud.system import init_environment
-from wrfcloud.api.handler import lambda_handler
+from wrfcloud.api.handler import lambda_handler, Request
 from wrfcloud.api.auth import validate_jwt
 from wrfcloud.api.auth import create_jwt
 from wrfcloud.api.auth import KEY_EMAIL, KEY_ROLE
@@ -220,3 +220,44 @@ def test_lambda_handler_unknown_role() -> None:
 
     # teardown the test
     assert _test_teardown()
+
+
+def test_lambda_handler_eventbridge_parsing():
+    """
+    Test the ability to parse an event from an eventbridge source
+    """
+    # set up the test
+    assert _test_setup()
+
+    # create a login request
+    user, plain_text = _get_sample_user('admin')
+    assert add_user_to_system(user)
+    jwt = create_jwt({'email': user.email, 'role': user.role_id})
+    runwrf_request = {
+        'action': 'RunWrf',
+        'jwt': jwt,
+        'data': {
+            'configuration_name': 'test',
+            'start_time': '2022-09-23 12:00:00',
+            'forecast_length': 86400,
+            'output_frequency': 3600,
+            'notify': True
+        }
+    }
+
+    event = {
+        'source': 'aws.events',
+        'request': runwrf_request
+    }
+
+    request = Request(event)
+    assert not request.is_websocket
+    assert request.action == 'RunWrf'
+    assert 'start_time' in request.data
+    assert 'forecast_length' in request.data
+    assert 'output_frequency' in request.data
+    assert 'notify' in request.data
+
+    response = lambda_handler(event, None)
+    runwrf_response = json.loads(gzip.decompress(base64.b64decode(response['body'].decode())).decode())
+    assert runwrf_response['ok']
