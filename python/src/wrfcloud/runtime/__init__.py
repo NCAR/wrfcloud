@@ -33,6 +33,7 @@ class RunInfo:
         self.metgriddir = self.wd + '/metgrid'
         self.realdir = self.wd + '/real'
         self.wrfdir = self.wd + '/wrf'
+        self.uppdir = self.wd + '/upp'
 
     def read_config(self, name: str) -> None:
         """
@@ -56,6 +57,8 @@ class RunInfo:
         self.log.debug(f'WPS code directory is {self.wpscodedir}')
         self.wrfcodedir = config['static'].get('wrfcodedir',self.topdir + '/WRFV4/')
         self.log.debug(f'WRF code directory is {self.wrfcodedir}')
+        self.uppcodedir = config['static'].get('uppcodedir',self.topdir + '/UPP/')
+        self.log.debug(f'UPP code directory is {self.uppcodedir}')
         self.configuration = config['run']['configuration']
         self.wd = config['run'].get('workdir', '/data/')
 
