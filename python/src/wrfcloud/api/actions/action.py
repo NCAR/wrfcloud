@@ -19,12 +19,13 @@ class Action:
     REQ_KEY_USER = 'user'
     REQ_KEY_DATA = 'data'
 
-    def __init__(self, run_as_user: Union[User, None] = None, request: dict = None, client_url: str = None):
+    def __init__(self, run_as_user: Union[User, None] = None, request: dict = None, client_url: str = None, ref_id: str):
         """
         Initialize the action
         :param run_as_user: Run the action as this user
         :param request: Full request message for this action
         :param client_url: Optional for websocket clients.  URL to send messages to client.
+        :param ref_id: Reference ID for action
         """
         self.log = Logger(self.__class__.__name__)
         self.run_as_user = run_as_user
@@ -34,6 +35,7 @@ class Action:
         self.errors = []
         self.success = False
         self.additional = {}
+        self.ref_id = ref_id
 
     def run(self) -> bool:
         """
