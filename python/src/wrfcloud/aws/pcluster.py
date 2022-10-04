@@ -38,7 +38,7 @@ class WrfCloudCluster:
         self.cluster_config = cluster_config or 'aws/resources/cluster.wrfcloud.yaml'
         self.cf_client = None
 
-    def create_cluster(self) -> None:
+    def create_cluster(self, custom_action: str = None, cluster_name: str = None) -> None:
         """
         Create a cluster using AWS ParallelCluster
         """

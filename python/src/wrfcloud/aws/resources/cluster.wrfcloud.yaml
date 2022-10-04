@@ -15,6 +15,11 @@ HeadNode:
   Iam:
     AdditionalIamPolicies:
       - Policy: arn:aws:iam::aws:policy/AmazonS3FullAccess
+  CustomActions:
+    OnNodeConfigured:
+      Script: __CUSTOM_ACTION__
+      Args: 
+        - __RUN_WRF_FILE__
 Scheduling:
   Scheduler: slurm
   SlurmSettings:
