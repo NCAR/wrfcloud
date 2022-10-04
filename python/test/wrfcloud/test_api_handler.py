@@ -233,35 +233,30 @@ def test_lambda_handler_eventbridge_parsing():
     user, plain_text = _get_sample_user('admin')
     assert add_user_to_system(user)
     jwt = create_jwt({'email': user.email, 'role': user.role_id})
-    login_request = {
+    runwrf_request = {
         'action': 'RunWrf',
         'jwt': jwt,
         'data': {
+            'configuration_name': 'test',
             'start_time': '2022-09-23 12:00:00',
-            'end_time': '2022-09-24 12:00:00',
-            'output_frequency': 3600
+            'forecast_length': 86400,
+            'output_frequency': 3600,
+            'notify': True
         }
     }
 
     event = {
-        'id': 'cdc73f9d-aea9-11e3-9d5a-835b769c0d9c',
-        'detail-type': 'Scheduled Event',
         'source': 'aws.events',
-        'account': '123456789012',
-        'time': '1970-01-01T00:00:00Z',
-        'region': 'us-east-2',
-        'resources': [
-            'arn:aws:events:us-east-1:123456789012:rule/ExampleRule'
-        ],
-        'detail': login_request
+        'request': runwrf_request
     }
 
     request = Request(event)
     assert not request.is_websocket
     assert request.action == 'RunWrf'
     assert 'start_time' in request.data
-    assert 'end_time' in request.data
+    assert 'forecast_length' in request.data
     assert 'output_frequency' in request.data
+    assert 'notify' in request.data
 
     response = lambda_handler(event, None)
     runwrf_response = json.loads(gzip.decompress(base64.b64decode(response['body'].decode())).decode())

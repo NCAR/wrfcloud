@@ -256,7 +256,7 @@ class RunWrf(Action):
         Validate the request object
         :return: True if the request is valid, otherwise False
         """
-        required_fields = ['configuration_name' 'start_time', 'forecast_length', 'output_frequency', 'notify']
+        required_fields = ['configuration_name', 'start_time', 'forecast_length', 'output_frequency', 'notify']
         return self.check_request_fields(required_fields, [])
 
     def perform_action(self) -> bool:
