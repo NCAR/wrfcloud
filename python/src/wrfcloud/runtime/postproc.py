@@ -34,10 +34,10 @@ class PostProc(Process):
                          'src/lib/g2tmpl/params_grib2_tbl_new' ]
 
         for statfile in static_files:
-            self.symlink(f'{self.runinfo.uppcodedir}/' + statfile, f'{self.runinfo.uppdir}/' + os.path.basename(statfile))
+            self.symlink(f'{self.runinfo.uppcodedir}/' + statfile, os.path.basename(statfile))
 
         self.log.debug('Linking control file for upp')
-        self.symlink(f'{self.runinfo.uppcodedir}/parm/postxconfig-NT-WRF.txt', f'{self.runinfo.uppdir}/postxconfig-NT.txt')
+        self.symlink(f'{self.runinfo.uppcodedir}/parm/postxconfig-NT-WRF.txt', 'postxconfig-NT.txt')
 
         self.log.debug('Linking satellite fix files for upp')
         sat_fix_files = [ 'AerosolCoeff/Big_Endian/AerosolCoeff.bin',
@@ -88,7 +88,7 @@ class PostProc(Process):
                           'TauCoeff/ODPS/Big_Endian/seviri_m10.TauCoeff.bin' ]
 
         for fixfile in sat_fix_files:
-            self.symlink(f'{self.runinfo.uppcodedir}/src/lib/crtm2/src/fix/' + fixfile, f'{self.runinfo.uppdir}/' + os.path.basename(fixfile))
+            self.symlink(f'{self.runinfo.uppcodedir}/src/lib/crtm2/src/fix/' + fixfile, os.path.basename(fixfile))
 
     def run_upp(self) -> None:
         """
@@ -97,17 +97,43 @@ class PostProc(Process):
         self.log.debug('Linking unipost.exe to upp working directory')
         self.symlink(f'{self.runinfo.uppcodedir}/bin/unipost.exe', 'unipost.exe')
         
-        # Some sort of loop through fhrs to create itag?
+        self.log.debug('Executing unipost.exe')
+        if self.runinfo.wrfcores == 1:
+            upp_cmd = './unipost.exe >& unipost.log'
+            os.system(upp_cmd)
+        else:
+            self.submit_job('unipost.exe',self.runinfo.wrfcores,'wrf')
+
+    def run(self) -> bool:
+        """
+        Main routine that sets up, runs, and monitors post-processing end-to-end
+        """
+        self.log.info(f'Setting up post-processing for "{self.runinfo.name}"')
+
+        # Check if experiment working directory already exists, take action based on value of runinfo.exists
+        action = check_wd_exist(self.runinfo.exists,self.runinfo.uppdir)
+        if action == "skip":
+            return True
+
+        os.mkdir(self.runinfo.uppdir)
+        os.chdir(self.runinfo.uppdir)
+
         startdate = self.runinfo.startdate
-        print(startdate)
         startdate = datetime.strptime(startdate, '%Y-%m-%d_%H:%M:%S')
         enddate   = self.runinfo.enddate
         enddate   = datetime.strptime(enddate, '%Y-%m-%d_%H:%M:%S')
-        out_freq  = self.runinfo.output_freq_sec
-        increment = timedelta(seconds=3600)
-
+        increment = timedelta(seconds=self.runinfo.output_freq_sec)
         thisdate = startdate
+        fhr=0
         while thisdate <= enddate:
+            # Create subdirs by forecast hour
+            fhrstr = ('%03d' % fhr )
+            os.mkdir(f'{self.runinfo.uppdir}/fhr_'+fhrstr)
+            os.chdir(f'{self.runinfo.uppdir}/fhr_'+fhrstr)
+
+            self.log.debug('Calling get_files')
+            self.get_files()
+
             # Create the itag namelist file for this fhr
             self.log.debug('Creating itag file')
             wrfdate = thisdate.strftime("%Y-%m-%d_%H:%M:%S")
@@ -120,35 +146,11 @@ class PostProc(Process):
 
             f.close()
 
-            self.log.debug('Executing unipost.exe')
-            if self.runinfo.wrfcores == 1:
-                upp_cmd = './unipost.exe >& unipost.log'
-                os.system(upp_cmd)
-            else:
-                 self.submit_job('unipost.exe',self.runinfo.wrfcores,'wrf')
+            self.log.debug('Calling run_upp')
+            self.run_upp()
 
             thisdate = thisdate + increment
-
-    def run(self) -> bool:
-        """
-        Main routine that sets up, runs, and monitors post-processing end-to-end
-        """
-        self.log.info(f'Setting up post-processing for "{self.runinfo.name}"')
-        self.log.warn(f"{__name__} isn't fully implemented yet!")
-
-        # Check if experiment working directory already exists, take action based on value of runinfo.exists
-        action = check_wd_exist(self.runinfo.exists,self.runinfo.uppdir)
-        if action == "skip":
-            return True
-
-        os.mkdir(self.runinfo.uppdir)
-        os.chdir(self.runinfo.uppdir)
-
-        self.log.debug('Calling get_files')
-        self.get_files()
-
-        self.log.debug('Calling run_upp')
-        self.run_upp()
+            fhr = fhr + 1
 
         # TODO: Check for successful completion of postproc
         return True
