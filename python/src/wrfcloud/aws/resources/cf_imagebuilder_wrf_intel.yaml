@@ -347,7 +347,7 @@ Resources:
           UninstallAfterBuild: true
       Components:
         - ComponentArn: !Ref WrfComponent
-      ParentImage: ami-088034fea7c4afffb  # ParallelCluster - USE2 - Amazon Linux 2 - x86_64
+      ParentImage: ami-03c70fb2cbb1eb205  # ParallelCluster v3.2.1 - USE2 - Amazon Linux 2 - x86_64
 
   WrfImageBuilderInfrastructure:
     Type: AWS::ImageBuilder::InfrastructureConfiguration
