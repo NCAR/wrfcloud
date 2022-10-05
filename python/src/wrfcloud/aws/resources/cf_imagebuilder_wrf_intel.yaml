@@ -341,7 +341,7 @@ Resources:
           Ebs:
             DeleteOnTermination: true
             VolumeType: gp2
-            VolumeSize: 35
+            VolumeSize: 50
       AdditionalInstanceConfiguration:
         SystemsManagerAgent:
           UninstallAfterBuild: true
