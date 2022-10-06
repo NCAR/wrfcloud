@@ -5,7 +5,7 @@ System Administration
 *********************
 
 User Roles & Permissions
-================
+========================
 
 The following definitions and table describe the user roles and corresponding permissions for each role that exist in this framework.
 
