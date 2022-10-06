@@ -4,15 +4,6 @@
 System Administration
 *********************
 
-Adding Users
-============
-
-Users with the **Admin** role have permission to add new users to the system. This option will be available to users with these permissions on the system's website under the "Manage Users" tab. Click the Add User to begin the process.
-
-.. _add-user:
-
-.. figure:: figure/add-user.png
-
 User Roles & Permissions
 ================
 
@@ -58,6 +49,19 @@ The following definitions and table describe the user roles and corresponding pe
      - 
      - 
 
+
+Adding Users
+============
+
+Users with the **Admin** role have permission to add new users to the system. This option will be available to users with these permissions on the system's website under the "Manage Users" tab. Click the Add User to begin the process.
+
+.. _add-user:
+
+.. figure:: figure/add-user.png
+
+.. _add-user2:
+
+.. figure:: figure/add-user2.png
 
 Audit Logs
 ==========
