@@ -83,10 +83,8 @@ class PostProc(Process):
         os.makedirs(self.runinfo.uppdir)
         os.chdir(self.runinfo.uppdir)
 
-        startdate = self.runinfo.startdate
-        startdate = datetime.strptime(startdate, '%Y-%m-%d_%H:%M:%S')
-        enddate = self.runinfo.enddate
-        enddate = datetime.strptime(enddate, '%Y-%m-%d_%H:%M:%S')
+        startdate = datetime.strptime(self.runinfo.startdate, '%Y-%m-%d_%H:%M:%S')
+        enddate = datetime.strptime(self.runinfo.enddate, '%Y-%m-%d_%H:%M:%S')
         increment = timedelta(seconds=self.runinfo.output_freq_sec)
         this_date = startdate
         fhr = 0
