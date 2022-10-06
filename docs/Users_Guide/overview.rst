@@ -41,7 +41,7 @@ System overview
 NWP Overview (schematic of NWP?)
 --------------------------------
 
-.. _nwp-components-figure:
+.. _nwp-components:
 
 .. figure:: figure/nwp_components.png
 
