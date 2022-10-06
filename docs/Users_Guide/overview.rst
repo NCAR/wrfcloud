@@ -4,10 +4,14 @@
 Overview of WRF Cloud 
 *********************
 
+The WRF Cloud framework is a cloud-based forecasting system that was designed to easily facilitate cost-effective state-of-the-art numerical weather prediction system forecasts in communities that lack the large computational resources. 
+
 Purpose and organization of the User's Guide
 ============================================
 
 The goal of this User's Guide is to document the procedures required to install the WRF Cloud system and to serve as a reference for using and adapting the system to an organization's own needs. 
+
+The User Guide is organized by first providing an overview of the system, followed steps to install the framework and adminstartion details to manage the system. Finally the user interface is documented along with details about the graahical outputs produced by the system. 
 
 UCAR/UCP/COMET and UCAR/NCAR/RAL
 ================================
@@ -19,7 +23,7 @@ This project is made possible through funding by `UCAR <https://www.ucar.edu/>`_
 WRF Cloud goals and design philosophy
 =====================================
 
-The WRF Cloud framework is a cloud-based forecasting system that was designed to facilitate cost-efficent forecasts motivated by the need to enable access of a state-of-the-art numerical weather prediction system to communities that lack the computational resources. Flexibility is at the forefront of all design choices of the framework, with the understanding that for under-resourced communities, the wants versus needs may compete and often change. For example, when launching a forecast, users have the option to choose to run a cloud configuration that is fast but more expensive, or slower but cheaper, providing opportunity to weigh the cost versus benefits for any given weather situation or budget constraints. In addition, the system is built to allow for future enhancements to be incorporated with relative ease. Establishing a framework that is flexible and circumvents much of the current computational resource limitations affords local officials the ability to prepare for and respond to weather-related events promptly and effectively. It also lays the foundation to further NWP development and earth system prediction, for example by incorporating additional verification techniques and new observations. A streamlined and practical approach is achieved by using a serverless design philosophy including an intuitive user interface and responsive website that allows the end user to launch and view forecasts from any device with an internet connection. The control of the forecast configuration and forecast output graphics are both incorporated into the same website, which allows the user a one-stop-shop to launch and view a forecast. This opens opportunities for on-demand rapid deployment of the system to produce forecasts in preparation of or in response to natural disasters, from the field on a mobile device or on a personal laptop; the only requirement being an internet connection. The framework can also be used as a regular forecasting tool with automated forecast cycles customized to the needs of a community.
+Flexibility is at the forefront of all design choices of the framework, with the understanding that for under-resourced communities, the wants versus needs may compete and often change. For example, when launching a forecast, users have the option to choose to run a cloud configuration that is fast but more expensive, or slower but cheaper, providing opportunity to weigh the cost versus benefits for any given weather situation or budget constraints. In addition, the system is built to allow for future enhancements to be incorporated with relative ease. Establishing a framework that is flexible and circumvents much of the current computational resource limitations affords local officials the ability to prepare for and respond to weather-related events promptly and effectively. It also lays the foundation to further NWP development and earth system prediction, for example by incorporating additional verification techniques and new observations. A streamlined and practical approach is achieved by using a serverless design philosophy including an intuitive user interface and responsive website that allows the end user to launch and view forecasts from any device with an internet connection. The control of the forecast configuration and forecast output graphics are both incorporated into the same website, which allows the user a one-stop-shop to launch and view a forecast. This opens opportunities for on-demand rapid deployment of the system to produce forecasts in preparation of or in response to natural disasters, from the field on a mobile device or on a personal laptop; the only requirement being an internet connection. The framework can also be used as a regular forecasting tool with automated forecast cycles customized to the needs of a community.
 
 
 WRF Cloud components
@@ -36,6 +40,10 @@ System overview
 
 NWP Overview (schematic of NWP?)
 --------------------------------
+
+.. _nwp-components-figure:
+
+.. figure:: figure/nwp_components.png
 
 .. _release-notes:
 
