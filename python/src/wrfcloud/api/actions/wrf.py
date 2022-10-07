@@ -4,11 +4,13 @@ API actions that are responsible for reading WRF data
 import base64
 import os
 import gzip
+import pkgutil
 from typing import List, Union
 from datetime import datetime
 from pytz import utc
 from wrfcloud.api.actions import Action
 from wrfcloud.system import get_aws_session
+from wrfcloud.aws.pcluster import CustomAction
 
 
 class GetWrfMetaData(Action):
@@ -264,27 +266,26 @@ class RunWrf(Action):
         Abstract method that performs the action and sets the response field
         :return: True if the action ran successfully
         """
-        print('Running RunWrf Action')
-        # TODO: Replace this test function with code to start the cluster and run WRF
-        if not self.run_as_user._send_email_enabled():
-            print('Not sending email')
-            return True
+        try:
+            # create the run configuration file
+            config_file = pkgutil.get_data('wrfcloud', 'runtime/test.yml')
+            config_b64_gz = base64.b64encode(gzip.compress(config_file)).decode()
 
-        print(f'Sending email to {self.run_as_user.email}')
+            # create the custom action to start the model
+            script = f'#! /bin/bash\n' \
+                     f'mkdir -p /data/{self.ref_id}\n' \
+                     f'cd /data/{self.ref_id}\n' \
+                     f'echo -n "{config_b64_gz}" | base64 -D | gunzip > config.yaml\n' \
+                     f'wrfcloud-run config.yaml\n'
+            ca = CustomAction(self.ref_id, script)
 
-        session = get_aws_session()
-        ses = session.client('ses')
-        dest = {'ToAddresses': [self.run_as_user.email]}
-        message = {
-            'Subject': {
-                'Data': 'Scheduled WRF job is running',
-                'Charset': 'utf-8'
-            },
-            'Body': {
-                'Text': {
-                    'Data': 'WRF is fake running.', 'Charset': 'utf-8'
-                }
-            }
-        }
-        ses.send_email(Source='hahnd@ucar.edu', Destination=dest, Message=message)
+            # start the cluster
+            from wrfcloud.aws.pcluster import WrfCloudCluster
+            wrfcloud_cluster = WrfCloudCluster(self.ref_id)
+            wrfcloud_cluster.create_cluster(ca, False)
+        except Exception as e:
+            self.log.error('Failed to launch WRF job', e)
+            self.errors.append('Failed to launch WRF job')
+            return False
+
         return True
