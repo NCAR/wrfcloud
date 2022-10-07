@@ -142,6 +142,7 @@ Resources:
           STAGE: !Ref StageName
           HELP_TOPIC_ARN: !Ref HelpTopic
           PYTHONPATH: /opt/python/lib
+          WRFCLOUD_BUCKET_NAME: !Sub '${S3ModelOutputBucketName}'
       InlineCode: |
         import os
         import json

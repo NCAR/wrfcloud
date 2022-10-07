@@ -13,10 +13,13 @@ from wrfcloud.api.actions import DeleteUser
 from wrfcloud.api.actions import WhoAmI
 from wrfcloud.api.actions import RequestPasswordRecoveryToken
 from wrfcloud.api.actions import ResetPassword
+from wrfcloud.api.actions import RunWrf
 from wrfcloud.api.actions import GetWrfMetaData
 from wrfcloud.api.actions import GetWrfGeoJson
 from wrfcloud.api.auth import create_jwt, validate_jwt
-from wrfcloud.api.auth import issue_refresh_token, get_refresh_token
+from wrfcloud.api.auth import issue_refresh_token
+from wrfcloud.api.auth import get_refresh_token
+from wrfcloud.api.handler import create_reference_id
 from wrfcloud.user import User
 from wrfcloud.user import add_user_to_system
 from wrfcloud.user import get_user_from_system
@@ -24,6 +27,7 @@ from wrfcloud.user import update_user_in_system
 from wrfcloud.user import delete_user_from_system
 from wrfcloud.system import init_environment
 from wrfcloud.api.auth import get_user_from_jwt
+
 from helper import _test_teardown, _test_setup, _get_sample_user, _get_all_sample_users
 
 init_environment(env='test')
@@ -41,23 +45,26 @@ def test_login() -> None:
     assert add_user_to_system(user)
 
     # create the request and run the action - valid login
+    ref_id = create_reference_id()
     request = {'email': user.email, 'password': plain_text}
-    login = Login(run_as_user=None, request=request)
+    login = Login(ref_id=ref_id, run_as_user=None, request=request)
     assert login.run()
     user_ = get_user_from_jwt(login.response['jwt'])
     assert login.REQ_KEY_REFRESH in login.response
     assert user.email == user_.email
 
     # create the request and run the action - wrong password
+    ref_id = create_reference_id()
     request = {'email': user.email, 'password': 'wr0nGP@$Sw0RD!'}
-    login = Login(run_as_user=None, request=request)
+    login = Login(ref_id=ref_id, run_as_user=None, request=request)
     assert not login.run()
     assert 'jwt' not in login.response
 
     # create the request and run the action - email not in system
     assert delete_user_from_system(user)
+    ref_id = create_reference_id()
     request = {'email': user.email, 'password': plain_text}
-    login = Login(run_as_user=None, request=request)
+    login = Login(ref_id=ref_id, run_as_user=None, request=request)
     assert not login.run()
     assert 'jwt' not in login.response
 
@@ -76,12 +83,13 @@ def test_change_password() -> None:
     assert add_user_to_system(user)
 
     # create the request and run the action - valid change password
+    ref_id = create_reference_id()
     request = {
         'password0': plain_text,
         'password1': 'mys@f#newpasw#rd',
         'password2': 'mys@f#newpasw#rd'
     }
-    chpass = ChangePassword(run_as_user=user, request=request)
+    chpass = ChangePassword(ref_id=ref_id, run_as_user=user, request=request)
     assert chpass.run()
 
     # check that the password was really changed
@@ -89,21 +97,23 @@ def test_change_password() -> None:
     assert user_.validate_password('mys@f#newpasw#rd')
 
     # create the request and run the action - change anonymous user password
+    ref_id = create_reference_id()
     request = {
         'password0': plain_text,
         'password1': 'mys@f#newpasw#rd',
         'password2': 'mys@f#newpasw#rd'
     }
-    chpass = ChangePassword(run_as_user=None, request=request)
+    chpass = ChangePassword(ref_id=ref_id, run_as_user=None, request=request)
     assert not chpass.run()
 
     # create the request and run the action - new passwords do not match
+    ref_id = create_reference_id()
     request = {
         'password0': 'mys@f#newpasw#rd',
         'password1': 'fdsafdsafdsa',
         'password2': 'asdfasdfasdf'
     }
-    chpass = ChangePassword(run_as_user=user, request=request)
+    chpass = ChangePassword(ref_id=ref_id, run_as_user=user, request=request)
     assert not chpass.run()
 
     # check that the password was not changed
@@ -111,12 +121,13 @@ def test_change_password() -> None:
     assert user_.validate_password('mys@f#newpasw#rd')
 
     # create the request and run the action - invalid current password
+    ref_id = create_reference_id()
     request = {
         'password0': 'myWRONGpasw#rd',
         'password1': 'asdfasdfasdf',
         'password2': 'asdfasdfasdf'
     }
-    chpass = ChangePassword(run_as_user=user, request=request)
+    chpass = ChangePassword(ref_id=ref_id, run_as_user=user, request=request)
     assert not chpass.run()
 
     # check that the password was not changed
@@ -135,11 +146,12 @@ def test_invalid_request_parameters() -> None:
     assert add_user_to_system(user)
 
     # create the request and run the action - invalid request parameters
+    ref_id = create_reference_id()
     request = {
         'email': user.email,
         'wrong_key': plain_text
     }
-    login = Login(request=request)
+    login = Login(ref_id=ref_id, request=request)
     assert not login.run()
     assert not login.success
     assert 'jwt' not in login.response
@@ -161,6 +173,7 @@ def test_setup_new_user() -> None:
 
     # create the request to create a new user
     reg_user, user_pw = _get_sample_user('regular')
+    ref_id = create_reference_id()
     request = {
         'user': {
             'full_name': reg_user.full_name,
@@ -170,7 +183,7 @@ def test_setup_new_user() -> None:
     }
 
     # create and run the action
-    action = CreateUser(run_as_user=admin, request=request)
+    action = CreateUser(ref_id=ref_id, run_as_user=admin, request=request)
     assert action.run()
     assert action.success
     assert not action.errors
@@ -186,12 +199,13 @@ def test_setup_new_user() -> None:
     assert not user.validate_password('')
 
     # activate the user with a new action
+    ref_id = create_reference_id()
     request = {
         'email': user.email,
         'activation_key': user.activation_key,
         'new_password': user_pw
     }
-    action = ActivateUser(run_as_user=None, request=request)
+    action = ActivateUser(ref_id=ref_id, run_as_user=None, request=request)
     assert action.run()
     assert action.success
     assert not action.errors
@@ -222,6 +236,7 @@ def test_user_with_same_email() -> None:
 
     # try to create a new user with the same email address
     reg_user, _ = _get_sample_user('regular')
+    ref_id = create_reference_id()
     request = {
         'user': {
             'full_name': reg_user.full_name,
@@ -229,7 +244,7 @@ def test_user_with_same_email() -> None:
             'role_id': reg_user.role_id
         }
     }
-    action = CreateUser(run_as_user=admin, request=request)
+    action = CreateUser(ref_id=ref_id, run_as_user=admin, request=request)
     assert not action.run()
     assert not action.success
     assert 'Email address is already in use' in action.errors
@@ -249,12 +264,13 @@ def test_activate_user_twice() -> None:
     assert add_user_to_system(admin)
 
     # create an activation request
+    ref_id = create_reference_id()
     request = {
         'email': admin.email,
         'activation_key': admin.activation_key,
         'new_password': plain_text
     }
-    action = ActivateUser(run_as_user=None, request=request)
+    action = ActivateUser(ref_id=ref_id, run_as_user=None, request=request)
     assert not action.run()
     assert not action.success
     assert 'Account is already active' in action.errors
@@ -275,12 +291,13 @@ def test_activate_user_with_weak_password() -> None:
     assert add_user_to_system(admin)
 
     # create an activation request
+    ref_id = create_reference_id()
     request = {
         'email': admin.email,
         'activation_key': admin.activation_key,
         'new_password': 'abc123'
     }
-    action = ActivateUser(run_as_user=None, request=request)
+    action = ActivateUser(ref_id=ref_id, run_as_user=None, request=request)
     assert not action.run()
     assert not action.success
     assert 'Password must be at least 10 characters long' in action.errors
@@ -298,12 +315,13 @@ def test_activate_unknown_user() -> None:
 
     # create an activate request
     reg_user, plain_text = _get_sample_user('regular')
+    ref_id = create_reference_id()
     request = {
         'email': reg_user.email,
         'activation_key': reg_user.activation_key,
         'new_password': plain_text
     }
-    action = ActivateUser(run_as_user=None, request=request)
+    action = ActivateUser(ref_id=ref_id, run_as_user=None, request=request)
     assert not action.run()
     assert not action.success
     assert 'Invalid activation key' in action.errors
@@ -324,8 +342,9 @@ def test_list_users() -> None:
 
     # create a list users request
     admin, _ = _get_sample_user('regular')
+    ref_id = create_reference_id()
     request = {}
-    action = ListUsers(run_as_user=admin, request=request)
+    action = ListUsers(ref_id=ref_id, run_as_user=admin, request=request)
     assert action.run()
     assert action.success
     assert len(action.response['users']) == len(users)
@@ -351,13 +370,14 @@ def test_update_user() -> None:
     assert add_user_to_system(admin)
 
     # create an update user request
+    ref_id = create_reference_id()
     request = {
         'user': {
             'email': user.email,
             'full_name': 'Joe Bauers'
         }
     }
-    action = UpdateUser(run_as_user=admin, request=request)
+    action = UpdateUser(ref_id=ref_id, run_as_user=admin, request=request)
     assert action.run()
     assert action.success
     response_user = User(action.response['user'])
@@ -381,13 +401,14 @@ def test_update_unknown_user() -> None:
     assert add_user_to_system(admin)
 
     # create an update user request
+    ref_id = create_reference_id()
     request = {
         'user': {
             'email': user.email,
             'full_name': 'Joe Bauers'
         }
     }
-    action = UpdateUser(run_as_user=admin, request=request)
+    action = UpdateUser(ref_id=ref_id, run_as_user=admin, request=request)
     assert not action.run()
     assert not action.success
     assert 'Unknown user' in action.errors
@@ -408,8 +429,9 @@ def test_delete_user() -> None:
     assert add_user_to_system(user)
 
     # create a request to delete a user
+    ref_id = create_reference_id()
     request = {'email': user.email}
-    action = DeleteUser(run_as_user=admin, request=request)
+    action = DeleteUser(ref_id=ref_id, run_as_user=admin, request=request)
     assert action.run()
     assert action.success
 
@@ -428,8 +450,9 @@ def test_delete_unknown_user() -> None:
     assert add_user_to_system(admin)
 
     # create a request to delete a user
+    ref_id = create_reference_id()
     request = {'email': user.email}
-    action = DeleteUser(run_as_user=admin, request=request)
+    action = DeleteUser(ref_id=ref_id, run_as_user=admin, request=request)
     assert not action.run()
     assert not action.success
     assert 'User not found' in action.errors
@@ -448,8 +471,9 @@ def test_whoami() -> None:
     assert add_user_to_system(user)
 
     # create a request to get a user's own information
+    ref_id = create_reference_id()
     request = {}
-    action = WhoAmI(run_as_user=user, request=request)
+    action = WhoAmI(ref_id=ref_id, run_as_user=user, request=request)
     assert action.run()
     assert action.success
     assert 'user' in action.response
@@ -470,8 +494,9 @@ def test_password_reset() -> None:
 
     # create a request to add a reset token
     assert user.reset_token is None
+    ref_id = create_reference_id()
     request = {'email': user.email}
-    action = RequestPasswordRecoveryToken(run_as_user=None, request=request)
+    action = RequestPasswordRecoveryToken(ref_id=ref_id, run_as_user=None, request=request)
     assert action.run()
     assert action.success
     user_ = get_user_from_system(user.email)
@@ -481,18 +506,19 @@ def test_password_reset() -> None:
     assert user_.validate_reset_token(token)
 
     # try to set another reset token too quickly
-    action = RequestPasswordRecoveryToken(run_as_user=None, request=request)
+    action = RequestPasswordRecoveryToken(ref_id=ref_id, run_as_user=None, request=request)
     assert not action.run()
     assert not action.success
     assert 'You must wait at least 10 minutes before requesting another reset email' in action.errors
 
     # user the reset token to reset the password
+    ref_id = create_reference_id()
     request = {
         'email': user_.email,
         'reset_token': user_.reset_token.split(';')[1],
         'new_password': '100shredsOFcabbage'
     }
-    action = ResetPassword(run_as_user=None, request=request)
+    action = ResetPassword(ref_id=ref_id, run_as_user=None, request=request)
     assert action.run()
     assert action.success
 
@@ -512,12 +538,13 @@ def test_reset_password_for_unknown_user() -> None:
     assert _test_setup()
 
     # create a request
+    ref_id = create_reference_id()
     request = {
         'email': 'unknown@example.com',
         'reset_token': User().reset_token,
         'new_password': '100shredsOFcabbage'
     }
-    action = ResetPassword(run_as_user=None, request=request)
+    action = ResetPassword(ref_id=ref_id, run_as_user=None, request=request)
     assert not action.run()
     assert not action.success
     assert 'Password reset failed' in action.errors
@@ -536,12 +563,13 @@ def test_reset_password_with_invalid_token() -> None:
     assert add_user_to_system(user)
 
     # test with no reset token set in the system user
+    ref_id = create_reference_id()
     request = {
         'email': user.email,
         'reset_token': User().reset_token,
         'new_password': '100shredsOFcabbage'
     }
-    action = ResetPassword(run_as_user=None, request=request)
+    action = ResetPassword(ref_id=ref_id, run_as_user=None, request=request)
     assert not action.run()
     assert not action.success
     assert 'Password reset failed' in action.errors
@@ -549,12 +577,13 @@ def test_reset_password_with_invalid_token() -> None:
     # test with a valid reset token set in the system user
     user.reset_token = User().reset_token
     assert update_user_in_system(user)
+    ref_id = create_reference_id()
     request = {
         'email': user.email,
         'reset_token': User().reset_token,  # get a random token value
         'new_password': '100shredsOFcabbage'
     }
-    action = ResetPassword(run_as_user=None, request=request)
+    action = ResetPassword(ref_id=ref_id, run_as_user=None, request=request)
     assert not action.run()
     assert not action.success
     assert 'Password reset failed' in action.errors
@@ -577,11 +606,12 @@ def test_refresh_token() -> None:
     refresh_token = issue_refresh_token(user)
 
     # create a request to renew a JWT
+    ref_id = create_reference_id()
     request = {
         'email': user.email,
         'refresh_token': refresh_token
     }
-    action = RefreshToken(run_as_user=user, request=request)
+    action = RefreshToken(ref_id=ref_id, run_as_user=user, request=request)
     assert action.run()
     new_jwt = action.response['jwt']
     new_refresh_token = action.response[action.REQ_KEY_REFRESH]
@@ -598,6 +628,32 @@ def test_refresh_token() -> None:
     assert get_refresh_token(new_refresh_token) is not None
 
     # teardown test case
+    assert _test_teardown()
+
+
+def test_run_wrf() -> None:
+    """
+    Test the RunWrf API action
+    """
+    # set up the test
+    assert _test_setup()
+    user, _ = _get_sample_user('regular')
+    assert add_user_to_system(user)
+
+    # create a request to get a user's own information
+    ref_id = create_reference_id()
+    request = {
+        'configuration_name': 'test',
+        'start_time': '2022-10-06 12:00:00',
+        'forecast_length': 86400,
+        'output_frequency': 1200,
+        'notify': True
+    }
+    action = RunWrf(ref_id=ref_id, run_as_user=user, request=request)
+    assert action.run()
+    assert action.success
+
+    # teardown the test
     assert _test_teardown()
 
 

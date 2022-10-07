@@ -16,6 +16,56 @@ from wrfcloud.log import Logger
 from wrfcloud.system import init_environment, get_aws_session
 
 
+class CustomAction:
+    """
+    Represents a custom action to run on the cluster
+    """
+    def __init__(self, ref_id: str, script_contents: str, bucket_name: str = None,
+                 object_prefix: str = None, object_name: str = None):
+        """
+        Initialize the custom action
+        """
+        self.log = Logger(self.__class__.__name__)
+        self.ref_id = ref_id
+        self.script_contents = script_contents
+        self.bucket_name = bucket_name if bucket_name is not None else os.environ['WRFCLOUD_BUCKET_NAME']
+        self.object_prefix = object_prefix if object_prefix is not None else f'CustomAction/{ref_id}'
+        self.object_name = object_name if object_name is not None else 'on_configure.sh'
+
+    @property
+    def s3_url(self):
+        """
+        Get the S3 URL
+        """
+        return f's3://{self.bucket_name}/{self.s3_key}'
+
+    @property
+    def s3_key(self):
+        """
+        Get the S3 key
+        """
+        return f'{self.object_prefix}/{self.object_name}'
+
+    def upload(self) -> bool:
+        """
+        Upload the custom action script to S3
+        """
+        # upload the script to S3
+        session = get_aws_session()
+        s3 = session.client('s3')
+        res = s3.put_object(
+            Body=self.script_contents.encode(),
+            Bucket=self.bucket_name,
+            Key=self.s3_key
+        )
+
+        # check the status of uploading the object to S3
+        if res['ResponseMetadata']['HTTPStatusCode'] != 200:
+            self.log.error(f'Failed to upload custom action to S3: {self.s3_url}')
+            return False
+        return True
+
+
 class WrfCloudCluster:
     """
     Class to start the WRF Cloud cluster via AWS ParallelCluster
@@ -41,10 +91,11 @@ class WrfCloudCluster:
         self.cluster_config = cluster_config or 'aws/resources/cluster.wrfcloud.yaml'
         self.cf_client = None
 
-    def create_cluster(self, custom_action: str = None) -> None:
+    def create_cluster(self, custom_action: CustomAction = None, wait: bool = True) -> None:
         """
         Create a cluster using AWS ParallelCluster
-        :param custom_action: Command line to run when cluster is configured and ready
+        :param custom_action: Script contents to run when cluster is configured and ready
+        :param wait: Do not return until the stack status is CREATE_COMPLETE
         """
         # create the configuration file data
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
@@ -55,7 +106,7 @@ class WrfCloudCluster:
 
         # maybe add the custom action to the configuration
         if custom_action:
-            data = self._add_custom_action_to_config(custom_action, data)
+            data = self._setup_custom_action(custom_action, data)
 
         # maybe remove the SSH configuration
         data = self._confirm_ssh_config(data)
@@ -75,7 +126,8 @@ class WrfCloudCluster:
             print(output_str)
 
         # wait for the stack status
-        self._wait_for_stack_status('CREATE_COMPLETE')
+        if wait:
+            self._wait_for_stack_status('CREATE_COMPLETE')
 
         # delete the temporary file
         os.unlink(config_file)
@@ -161,34 +213,34 @@ class WrfCloudCluster:
               f'#dashboards:name={self.cluster_name}-{self.region}'
         print(f'Dashboard at:  {url}')
 
-    @staticmethod
-    def _add_custom_action_to_config(custom_action: str, data: str) -> str:
+    def _setup_custom_action(self, custom_action: CustomAction, data: str) -> str:
         """
         Add a custom action to the configuration
-        :param custom_action: Run this command on configure complete
+        :param custom_action: Script contents which will be run on the cluster head node
         :param data: ParallelCluster configuration data
         """
         # make sure there is a custom action
-        if custom_action is None or custom_action.strip() == '':
+        if custom_action is None:
+            return data
+        if custom_action.script_contents is None or custom_action.script_contents.strip() == '':
             return data
 
         # load the configuration data into a dictionary
         config = yaml.safe_load(data)
 
-        # split the custom action into a script and arguments
-        parts = custom_action.split()
-        script = parts[0]
-        args = parts[1:] if len(parts) > 1 else None
-
         # create a custom action section of the configuration file
-        custom_action_section = {'OnNodeConfigured': {'Script': script}}
-        if args:
-            custom_action_section['OnNodeConfigured']['Args'] = args
+        custom_action_section = {'OnNodeConfigured': {'Script': custom_action.s3_url}}
 
         # insert the custom action section into the document
         config['HeadNode']['CustomActions'] = custom_action_section
-        print(config['HeadNode']['CustomActions'])
-        return yaml.dump(config, indent=2)
+        data = yaml.dump(config, indent=2)
+
+        # upload the script to s3
+        if not custom_action.upload():
+            self.log.error(f'Failed to upload custom action script to S3: {custom_action.s3_url}')
+            return ''
+
+        return data
 
     def _confirm_ssh_config(self, data: str) -> str:
         """
@@ -305,6 +357,7 @@ class WrfCloudCluster:
         Get the default subnet ID for the cluster
         :return: Subnet ID
         """
+        os.environ['AWS_PROFILE'] = 'wrfcloud'
         # get an EC2 client to query available subnets
         session = get_aws_session()
         ec2 = session.client('ec2')
@@ -332,6 +385,22 @@ def _print_usage_and_exit() -> None:
     print('Usage:')
     print(f'   {sys.argv[0]} <status|create|delete|update|connect|dashboard>')
     sys.exit(0)
+
+
+def _build_custom_action(ref_id: str, command: str) -> Union[CustomAction, None]:
+    """
+    Build a custom action from the command line parameter
+    :param ref_id: Reference ID, typically using the cluster name
+    :param command: Command to run on the cluster
+    :return: Custom Action object, or None if no command is given
+    """
+    # return None if no command is given
+    if command is None:
+        return None
+
+    # return a CustomAction object
+    script = f'#! /bin/bash\n\n{command}\n'  # wrap the command in a bash script
+    return CustomAction(ref_id=ref_id, script_contents=script)
 
 
 def main() -> None:
@@ -365,7 +434,8 @@ def main() -> None:
     if command == 'delete':
         image_builder.delete_cluster()
     elif command == 'create':
-        image_builder.create_cluster(custom_action=args.command)
+        ca = _build_custom_action(image_builder.cluster_name, args.command)
+        image_builder.create_cluster(custom_action=ca)
     elif command == 'update':
         image_builder.update_cluster()
     elif command == 'status':
