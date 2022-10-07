@@ -275,8 +275,8 @@ class RunWrf(Action):
             script = f'#! /bin/bash\n' \
                      f'mkdir -p /data/{self.ref_id}\n' \
                      f'cd /data/{self.ref_id}\n' \
-                     f'echo -n "{config_b64_gz}" | base64 -D | gunzip > config.yaml\n' \
-                     f'wrfcloud-run config.yaml\n'
+                     f'echo -n "{config_b64_gz}" | base64 -d | gunzip > test.yml\n' \
+                     f'wrfcloud-run\n'
             ca = CustomAction(self.ref_id, script)
 
             # start the cluster
