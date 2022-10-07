@@ -231,7 +231,7 @@ def create_reference_id() -> str:
     """
     random = secrets.token_bytes(5)
     ref_id = base64.b16encode(random).decode()
-    return ref_id
+    return f'W{ref_id}'
 
 
 def create_action(request: Request, user: User, lambda_context: any, ref_id: str) -> Union[Action, None]:
