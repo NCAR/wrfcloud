@@ -15,11 +15,11 @@ WRF Cloud Concept
 Acronyms
 --------
 
-* **NCAR**  - National Center for Atmospheric Research
-* **RAL**   - Research Applications Laboratory
-* **UCAR**  - University Corporation for Atmospheric Research
-* **UCP**   - UCAR Community Programs
-* **WRF**   - Weather Research and Forecasting Model
+* **NCAR** - National Center for Atmospheric Research
+* **RAL**  - Research Applications Laboratory
+* **UCAR** - University Corporation for Atmospheric Research
+* **UCP**  - UCAR Community Programs
+* **WRF**  - Weather Research and Forecasting Model
 
 .. rubric:: Organization
 
