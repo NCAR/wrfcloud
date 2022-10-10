@@ -4,7 +4,7 @@ WRF Cloud version |version|
 Developed by the `UCAR/UCP/COMET <https://www.comet.ucar.edu/>`_ and `UCAR/NCAR/RAL <https://ral.ucar.edu/>`_
 Boulder, CO
 
-.. image:: _static/wrfcloud_banner_photo_web.jpeg
+.. image:: _static/wrfcloud_banner_photo_web.BADPATH.jpeg
 
 Welcome
 -------
