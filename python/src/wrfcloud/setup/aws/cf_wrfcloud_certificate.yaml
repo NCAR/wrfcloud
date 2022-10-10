@@ -16,7 +16,7 @@ Parameters:
 
 Resources:
 
-  # SSL Certificate
+  # SSL Certificate for REST API
   Certificate:
     Type: AWS::CertificateManager::Certificate
     Properties:

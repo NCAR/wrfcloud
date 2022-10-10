@@ -63,6 +63,34 @@ Resources:
         - AttributeName: email
           KeyType: HASH
 
+  JobTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${DeploymentType}_${AppName}_jobs'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: job_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: job_id
+          KeyType: HASH
+
+  SubscriberTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${DeploymentType}_${AppName}_subscribers'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: client_url
+          AttributeType: S
+      KeySchema:
+        - AttributeName: client_url
+          KeyType: HASH
+
 
 Outputs:
   AuditTable:
@@ -80,3 +108,13 @@ Outputs:
     Value: !GetAtt UserTable.Arn
     Export:
       Name: !Sub 'dynamodb-table-users-${DeploymentType}-${AppName}'
+  JobTable:
+    Description: DynamoDB Table - Jobs
+    Value: !GetAtt JobTable.Arn
+    Export:
+      Name: !Sub 'dynamodb-table-jobs-${DeploymentType}-${AppName}'
+  SubscriberTable:
+    Description: DynamoDB Table - Subscribers
+    Value: !GetAtt SubscriberTable.Arn
+    Export:
+      Name: !Sub 'dynamodb-table-subscribers-${DeploymentType}-${AppName}'

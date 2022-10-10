@@ -1,106 +1,107 @@
-#!/usr/bin/env python3
-
 """
-Functions for setting up, executing, and monitoring a run of the WPS program ungrib
+Class for setting up, executing, and monitoring a run of the WPS program ungrib
 """
 
-import os
 import glob
 import itertools
+import os
 from string import ascii_uppercase
-from logging import Logger
+from typing import Union
 from f90nml.namelist import Namelist
-
-# Import our custom modules
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
-from wrfcloud.runtime import RunInfo
+from wrfcloud.runtime.tools.get_grib_input import get_grib_input
+from wrfcloud.runtime.tools.check_wd_exist import check_wd_exist
+from wrfcloud.runtime import RunInfo, Process
+from wrfcloud.log import Logger
 
 
-def get_grib_input(runinfo: RunInfo, logger: Logger) -> None:
+class Ungrib(Process):
     """
-    Gets GRIB files for processing by ungrib
-
-    If user has specified local data (or this is the test case), will attempt to read from that
-    local data.
-
-    Otherwise, will attempt to grab data from NOAA S3 bucket
-    https://registry.opendata.aws/noaa-gfs-bdp-pds/
+    Class for setting up, executing, and monitoring a run of the WPS program ungrib
     """
-    logger.debug('test')
+    def __init__(self, runinfo: RunInfo):
+        """
+        Initialize the Ungrib object
+        """
+        super().__init__()
+        self.log: Logger = Logger(self.__class__.__name__)
+        self.runinfo: RunInfo = runinfo
+        self.namelist: Union[None, Namelist] = None
 
-    if runinfo.local_data:
-        logger.debug('Getting GRIB file(s) from local source')
-        # Iterator for generating letter strings for GRIBFILE suffixes. Don't blame me, this is ungrib's fault
+    def get_files(self) -> None:
+        """
+        Gets all input files necessary for running ungrib
+        """
         suffixes = itertools.product(ascii_uppercase, repeat=3)
-        filelist = []
-        # If runinfo.local_data is a string, convert it to a list
-        if isinstance(runinfo.local_data, str):
-            data = [runinfo.local_data]
-        else:
-            data = runinfo.local_data
+        if self.runinfo.local_data:
+            self.log.debug('Getting GRIB file(s) from specified local directory(ies)')
+            filelist = []
+            # If runinfo.local_data is a string, convert it to a list
+            if isinstance(self.runinfo.local_data, str):
+                data = [self.runinfo.local_data]
+            else:
+                data = self.runinfo.local_data
 
-        for entry in data:
-            # Since there may be multiple string entries in runinfo.local_data, we need to parse
-            # each one individually using glob.glob, then append them all together
-            filelist.extend(sorted(glob.glob(entry)))
+            for entry in data:
+                # Since there may be multiple string entries in runinfo.local_data, we need to parse
+                # each one individually using glob.glob, then append them all together
+                filelist.extend(sorted(glob.glob(entry)))
+        else:
+            self.log.debug('"local_data" not set; getting GRIB file(s) from remote source')
+            get_grib_input(self.runinfo)
+            filelist = sorted(glob.glob(os.path.join(self.runinfo.ungribdir, 'gfs.*')))
+
+        if not filelist:
+            self.log.error('List of input files is empty; check configuration')
+            raise FileNotFoundError('No input files found')
+
         for gribfile in filelist:
             # Gives us GRIBFILE.AAA on first iteration, then GRIBFILE.AAB, GRIBFILE.AAC, etc.
             griblink = 'GRIBFILE.' + "".join(suffixes.__next__())
-            logger.debug(f'Linking input GRIB file {gribfile} to {griblink}')
-            os.symlink(gribfile, griblink)
-    else:
-        logger.debug('Getting GRIB file(s) from S3 bucket')
-        logger.warning('Not yet implemented!')
+            self.log.debug(f'Linking input GRIB file {gribfile} to {griblink}')
+            self.symlink(gribfile, griblink)
 
+        self.log.debug('Getting geo_em file(s)')
+        # Get the number of domains from namelist
+        # Assumes geo_em files are in local path/configurations/expn_name. TODO: Make pull from S3
+        for domain in range(1, self.namelist['share']['max_dom'] + 1):
+            self.symlink(f'{self.runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
 
-def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
-    """Gets all input files necessary for running ungrib"""
+        self.log.debug('Getting VTable.GFS')
+        self.symlink(f'{self.runinfo.wpscodedir}/ungrib/Variable_Tables/Vtable.GFS', 'Vtable')
 
-    logger.debug('Getting GRIB input files')
-    get_grib_input(runinfo, logger)
+    def run_ungrib(self) -> None:
+        """Executes the ungrib.exe program"""
+        self.log.debug('Linking ungrib.exe to ungrib working directory')
+        self.symlink(f'{self.runinfo.wpscodedir}/ungrib/ungrib.exe', 'ungrib.exe')
 
-    logger.debug('Getting geo_em file(s)')
-    # Get the number of domains from namelist
-    # Assumes geo_em files are in local path/domains/expn_name. TODO: Make pull from S3
-    for domain in range(1, namelist['share']['max_dom'] + 1):
-        os.symlink(f'{runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
+        self.log.debug('Executing ungrib.exe')
+        ungrib_cmd = './ungrib.exe >& ungrib.log'
+        os.system(ungrib_cmd)
 
-    logger.debug('Getting VTable.GFS')
-    os.symlink(f'{runinfo.wpsdir}/ungrib/Variable_Tables/Vtable.GFS', 'Vtable')
+    def run(self) -> bool:
+        """Main routine that sets up, runs, and monitors ungrib end-to-end"""
+        self.log.info(f'Setting up ungrib for "{self.runinfo.name}"')
 
+        #Check if experiment working directory already exists, take action based on value of runinfo.exists
+        action = check_wd_exist(self.runinfo.exists,self.runinfo.ungribdir)
+        if action == "skip":
+            return True
 
-def run_ungrib(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
-    """Executes the ungrib.exe program"""
-    logger.debug('Linking ungrib.exe to ungrib working directory')
-    os.symlink(f'{runinfo.wpsdir}/ungrib/ungrib.exe', 'ungrib.exe')
+        os.mkdir(self.runinfo.ungribdir)
+        os.chdir(self.runinfo.ungribdir)
 
-    logger.debug('Executing ungrib.exe')
-    ungrib_cmd ='./ungrib.exe >& ungrib.log'
-    os.system(ungrib_cmd)
- 
+        self.log.debug('Creating WPS namelist')
+        self.namelist = make_wps_namelist(self.runinfo)
 
-def main(runinfo: RunInfo, logger: Logger) -> None:
-    """Main routine that sets up, runs, and monitors ungrib end-to-end"""
-    logger.info(f'Setting up ungrib for "{runinfo.name}"')
+        self.log.debug('Getting ungrib input files')
+        self.get_files()
 
-    # Stop execution if experiment working directory already exists
-    if os.path.isdir(runinfo.ungribdir):
-        errmsg = (f"Ungrib directory \n                 {runinfo.ungribdir}\n                 "
-                  "already exists. Move or remove this directory before continuing.")
-        logger.critical(errmsg)
-        raise FileExistsError(errmsg)
+        self.log.debug('Calling run_ungrib')
+        self.run_ungrib()
 
-    os.mkdir(runinfo.ungribdir)
-    os.chdir(runinfo.ungribdir)
-
-    logger.debug('Creating WPS namelist')
-    namelist = make_wps_namelist(runinfo, logger)
-
-    logger.debug('Getting ungrib input files')
-    get_files(runinfo, logger, namelist)
-
-    logger.debug('Calling run_ungrib')
-    run_ungrib(runinfo, logger, namelist)
+        # TODO: Check for successful completion of ungrib
+        return True
 
 
 if __name__ == "__main__":

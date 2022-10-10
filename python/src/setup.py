@@ -8,7 +8,8 @@ setup(
     author_email='hahnd@ucar.edu',
     maintainer='David Hahn',
     maintainer_email='hahnd@ucar.edu',
-    packages=['wrfcloud', 'wrfcloud/api', 'wrfcloud/aws', 'wrfcloud/dynamodb', 'wrfcloud/user', 'wrfcloud/runtime', 'wrfcloud/runtime/tools'],
+    packages=['wrfcloud', 'wrfcloud/api', 'wrfcloud/aws', 'wrfcloud/dynamodb',
+              'wrfcloud/user', 'wrfcloud/runtime', 'wrfcloud/runtime/tools'],
     install_requires=[
         'boto3>=1.24.8',
         'botocore>=1.27.8',
@@ -19,7 +20,9 @@ setup(
         'f90nml>=1.4',
         'netCDF4>=1.5.0',
         'matplotlib>=3.3.0',
-        'numpy>=1.23.0'
+        'numpy>=1.23.0',
+        'requests>=2.20',
+        'pytz>=2020.4'
     ],
     package_dir={'wrfcloud': 'wrfcloud'},
     package_data={
@@ -31,7 +34,8 @@ setup(
             'imagebuilder/imagebuilder.yaml',
             'user/table.yaml',
             'aws/resources/cf_imagebuilder_wrf_intel.yaml',
-            'aws/resources/cluster.wrfcloud.yaml'
+            'aws/resources/cluster.wrfcloud.yaml',
+            'runtime/resources/*.yaml'
         ]
     },
     include_package_data=True,

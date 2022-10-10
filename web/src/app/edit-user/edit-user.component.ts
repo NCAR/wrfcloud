@@ -6,7 +6,7 @@ import {
   UpdateUserRequest,
   UpdateUserResponse,
   User
-} from "../wrfcloud-api";
+} from "../client-api";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {AppComponent} from "../app.component";
 

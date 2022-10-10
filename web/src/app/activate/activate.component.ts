@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {ActivateUserRequest, ActivateUserResponse} from "../wrfcloud-api";
+import {ActivateUserRequest, ActivateUserResponse} from "../client-api";
 
 @Component({
   selector: 'app-activate',

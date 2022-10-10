@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from "@angular/router";
-import {User, WhoAmIResponse, WrfCloudApi} from "./wrfcloud-api";
+import {User, WhoAmIResponse, ClientApi, WrfMetaDataConfiguration, GetWrfMetaDataResponse, GetWrfMetaDataRequest, ListJobResponse, Job} from "./client-api";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
@@ -34,7 +34,7 @@ export class AppComponent
   /**
    * Reference to the API object
    */
-  public api: WrfCloudApi;
+  public api: ClientApi;
 
 
   /**
@@ -52,9 +52,15 @@ export class AppComponent
 
 
   /**
-   * Information of currently logged in user
+   * Information of currently logged-in user
    */
   public user: User|undefined;
+
+
+  /**
+   * WRF meta data
+   */
+  public wrfMetaData: Array<WrfMetaDataConfiguration>|undefined;
 
 
   /**
@@ -62,7 +68,7 @@ export class AppComponent
    *
    * @param router Inject the angular router
    * @param http Inject the angular http client
-   * @param dialog Inject the material dialog object
+   * @param dialog Inject the angular material dialog
    */
   constructor(public router: Router, public http: HttpClient, public dialog: MatDialog)
   {
@@ -70,10 +76,7 @@ export class AppComponent
     AppComponent.singleton = this;
 
     /* create the API */
-    this.api = new WrfCloudApi(http);
-
-    /* set the menu options based on current user status */
-    this.buildMenu();
+    this.api = new ClientApi(http);
   }
 
 
@@ -82,6 +85,8 @@ export class AppComponent
    */
   public ngOnInit(): void
   {
+    /* set the menu options based on current user status */
+    this.buildMenu();
   }
 
 
@@ -95,7 +100,7 @@ export class AppComponent
 
 
   /**
-   * Get only the active menu options (not place holders)
+   * Get only the active menu options (not placeholders)
    * @return List of menu options
    */
   public getActiveMenuOptions(): Array<MenuOption>
@@ -168,8 +173,10 @@ export class AppComponent
     }
 
     /* route to an appropriate screen */
-    if (this.router.url === '/' || this.router.url === '/activate')
-      return;  /* do not interfere with account activation */
+    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset')
+      return;  /* do not interfere with these routes for anonymous users */
+    else if (this.user !== undefined && (this.router.url.startsWith('/view') || this.router.url.startsWith('/jobs')))
+      return;  /* do not interfere with these routes for authenticated users */
     else if (this.menuOptions.length === 0)
       this.routeTo('login');
     else
@@ -190,10 +197,10 @@ export class AppComponent
 
 
   /**
-   * Perform an action if the key pressed is enter
+   * Perform an action if the key pressed is 'enter'
    *
    * @param event Key press event
-   * @param action The function to call if the key press is enter
+   * @param action The function to call if the key press is 'enter'
    */
   public onEnter(event: any, action: Function): void
   {
@@ -247,6 +254,30 @@ export class AppComponent
   public handleUserDataResponse(response: WhoAmIResponse): void
   {
     this.user = response.ok ? response.data.user : undefined;
+  }
+
+
+  /**
+   * Request the latest WRF meta data
+   */
+  public refreshWrfMetaData(): void
+  {
+    const req: GetWrfMetaDataRequest = {};
+    this.api.sendGetWrfMetaDataRequest(req, this.handleWrfMetaDataResponse.bind(this));
+  }
+
+
+  /**
+   * Handle the GetWrfMetaData response
+   *
+   * @param response Response containing WRF meta data or errors
+   */
+  public handleWrfMetaDataResponse(response: GetWrfMetaDataResponse): void
+  {
+    if (response.ok)
+      this.wrfMetaData = response.data.configurations;
+    else
+      this.showErrorDialog(response.errors);
   }
 }
 

@@ -1,72 +1,86 @@
-#!/usr/bin/env python3
-
 """
 Functions for setting up, executing, and monitoring a run of the WPS program metgrid
 """
 
 import os
 import glob
-from logging import Logger
+from typing import Union
 from f90nml.namelist import Namelist
-
-# Import our custom modules
 from wrfcloud.runtime.tools.make_wps_namelist import make_wps_namelist
-from wrfcloud.runtime import RunInfo
+from wrfcloud.runtime.tools.check_wd_exist import check_wd_exist
+from wrfcloud.runtime import RunInfo, Process
+from wrfcloud.log import Logger
 
 
-def get_files(runinfo: RunInfo, logger: Logger, namelist: Namelist) -> None:
-    """Gets all input files necessary for running ungrib"""
+class MetGrid(Process):
+    """
+    Class for setting up, executing, and monitoring a run of the WPS program metgrid
+    """
+    def __init__(self, runinfo: RunInfo):
+        """
+        Initialize the MetGrid object
+        """
+        super().__init__()
+        self.log = Logger(self.__class__.__name__)
+        self.runinfo = runinfo
+        self.namelist: Union[None, Namelist] = None
 
-    logger.debug('Getting geo_em file(s)')
-    # Get the number of domains from namelist
-    # Assumes geo_em files are in local path/domains/expn_name. TODO: Make pull from S3
-    for domain in range(1, namelist['share']['max_dom'] + 1):
-        os.symlink(f'{runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
+    def get_files(self) -> None:
+        """
+        Gets all input files necessary for running metgrid
+        """
+        self.log.debug('Getting geo_em file(s)')
+        # Get the number of domains from namelist
+        # Assumes geo_em files are in local path/configurations/expn_name. TODO: Make pull from S3
+        for domain in range(1, self.namelist['share']['max_dom'] + 1):
+            self.symlink(f'{self.runinfo.staticdir}/geo_em.d{domain:02d}.nc', f'geo_em.d{domain:02d}.nc')
 
-    logger.debug('Linking metgrid dir for tables')
-    os.symlink(f'{runinfo.wpsdir}/metgrid', 'metgrid')
+        self.log.debug('Linking metgrid dir for tables')
+        self.symlink(f'{self.runinfo.wpscodedir}/metgrid', 'metgrid')
 
-    # Link in the FILES from ungrib
-    logger.debug('Linking FILEs from ungrib step')
-    filelist = glob.glob(f'{runinfo.ungribdir}/FILE*') 
-    for ungribfile in filelist:
-        os.symlink(ungribfile, f'{runinfo.metgriddir}/' + os.path.basename(ungribfile))
+        # Link in the FILES from ungrib
+        self.log.debug('Linking FILEs from ungrib step')
+        filelist = glob.glob(f'{self.runinfo.ungribdir}/FILE*')
+        for ungribfile in filelist:
+            self.symlink(ungribfile, f'{self.runinfo.metgriddir}/' + os.path.basename(ungribfile))
 
+    def run_metgrid(self) -> None:
+        """
+        Executes the metgrid.exe program
+        """
+        self.log.debug('Linking metgrid.exe to metgrid working directory')
+        self.symlink(f'{self.runinfo.wpscodedir}/metgrid/metgrid.exe', 'metgrid.exe')
 
-def run_metgrid(runinfo: RunInfo, logger: Logger) -> None:
-    """Executes the metgrid.exe program"""
+        self.log.debug('Executing metgrid.exe')
+        metgrid_cmd = './metgrid.exe >& metgrid.log'
+        os.system(metgrid_cmd)
 
-    logger.debug('Linking metgrid.exe to metgrid working directory')
-    os.symlink(f'{runinfo.wpsdir}/metgrid/metgrid.exe', 'metgrid.exe')
+    def run(self) -> bool:
+        """
+        Main routine that sets up, runs, and monitors metgrid end-to-end
+        """
+        self.log.info(f'Setting up metgrid for "{self.runinfo.name}"')
 
-    logger.debug('Executing metgrid.exe')
-    metgrid_cmd = './metgrid.exe >& metgrid.log'
-    os.system(metgrid_cmd)
+        #Check if experiment working directory already exists, take action based on value of runinfo.exists
+        action = check_wd_exist(self.runinfo.exists,self.runinfo.metgriddir)
+        if action == "skip":
+            return True
 
+        os.mkdir(self.runinfo.metgriddir)
+        os.chdir(self.runinfo.metgriddir)
 
-def main(runinfo: RunInfo, logger: Logger) -> None:
-    """Main routine that sets up, runs, and monitors metgrid end-to-end"""
-    logger.info(f'Setting up metgrid for "{runinfo.name}"')
+        # No longer needed since the whole thing is made in ungrib?
+        self.log.debug('Creating WPS namelist')
+        self.namelist = make_wps_namelist(self.runinfo)
 
-    # Stop execution if experiment working directory already exists
-    if os.path.isdir(runinfo.metgriddir):
-        errmsg = (f"Metgrid directory \n                 {runinfo.metgriddir}\n                 "
-                   "already exists. Move or remove this directory before continuing.")
-        logger.critical(errmsg)
-        raise FileExistsError(errmsg)
+        self.log.debug('Calling get_files')
+        self.get_files()
 
-    os.mkdir(runinfo.metgriddir)
-    os.chdir(runinfo.metgriddir)
-   
-    # No longer needed since the whole thing is made in ungrib? 
-    logger.debug('Creating WPS namelist')
-    namelist = make_wps_namelist(runinfo, logger)
+        self.log.debug('Calling run_metgrid')
+        self.run_metgrid()
 
-    logger.debug('Calling get_files')
-    get_files(runinfo, logger, namelist)
-
-    logger.debug('Calling run_metgrid')
-    run_metgrid(runinfo, logger)
+        # TODO: Check for successful completion of metgrid
+        return True
 
 
 if __name__ == "__main__":

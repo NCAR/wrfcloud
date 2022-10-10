@@ -4,7 +4,7 @@
 import {HttpClient} from "@angular/common/http";
 
 
-export class WrfCloudApi
+export class ClientApi
 {
   /**
    * JSON Web Token
@@ -37,6 +37,13 @@ export class WrfCloudApi
 
 
   /**
+   * Websocket connected to the WRF Cloud websocket service
+   * @private
+   */
+  private websocket: WebSocket|undefined;
+
+
+  /**
    * Construct a new API object
    *
    * @param http Angular's HttpClient
@@ -50,8 +57,8 @@ export class WrfCloudApi
   /**
    * A URL to the API
    */
-  // public API_URL = 'https://api-dev.wrfcloud.com/v1/action';
-  public API_URL = 'https://api.wrfcloud.com/v1/action';
+  public static API_URL = 'https://api.wrfcloud.com/v1/action';
+  public static WEBSOCKET_URL = 'wss://ws.wrfcloud.com/v1';
 
 
   /**
@@ -75,7 +82,7 @@ export class WrfCloudApi
     }
 
     /* save credentials to local storage */
-    WrfCloudApi.saveCredentials(jwt, refreshToken);
+    ClientApi.saveCredentials(jwt, refreshToken);
 
     /* set the logged in flag */
     this.loggedIn = (this.jwt !== undefined && this.refreshToken !== undefined);
@@ -89,6 +96,28 @@ export class WrfCloudApi
   {
     localStorage.setItem('wrfcloud_jwt', jwt);
     localStorage.setItem('wrfcloud_refresh', refreshToken);
+  }
+
+
+  /**
+   * Determine if the JSON Web Token is expired
+   * @private
+   */
+  private jwtExpired(): boolean
+  {
+    /* get current timestamp */
+    const now: number = new Date().getTime() / 1000;
+
+    /* check if we have a JWT with expiry date */
+    if (this.expires === undefined || this.expires === null)
+      return false;
+
+    /* check if JWT is already expired */
+    if (this.expires < now)
+      return true;
+
+    /* token is not expired */
+    return false;
   }
 
 
@@ -153,17 +182,39 @@ export class WrfCloudApi
    * Send a request to the API
    * @param request
    * @param responseHandler
+   * @param includeJwt
    * @private
    */
-  private sendRequest(request: ApiRequest, responseHandler: Function): void
+  private sendRequest(request: ApiRequest, responseHandler: Function, includeJwt: boolean): void
   {
+    /* ensure we have a non-expired JWT */
+    if (includeJwt && this.loggedIn && this.jwtExpired())
+    {
+      /* refresh the JWT */
+      if (this.email !== undefined && this.email !== null && this.refreshToken !== undefined && this.refreshToken !== null)
+      {
+        const req: RefreshTokenRequest = {email: this.email, refresh_token: this.refreshToken};
+        this.sendRefreshTokenRequest(req, this.handleRefreshTokenResponse.bind(this));
+      }
+
+      /* defer this request */
+      setTimeout(this.sendRequest.bind(this), 1000, request, responseHandler, includeJwt);
+
+      /* this function will get called again in 1 second */
+      return;
+    }
+
     /* prepare the request headers */
     const options = {'headers': {
       'Content-Type': 'application/json'
     }};
 
+    /* maybe add the JWT */
+    if (includeJwt)
+      request.jwt = this.jwt;
+
     /* send the POST request */
-    this.http.post(this.API_URL, request, options).subscribe((event: Object) => {
+    this.http.post(ClientApi.API_URL, request, options).subscribe((event: Object) => {
       responseHandler(event);
     });
   }
@@ -184,7 +235,7 @@ export class WrfCloudApi
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, false);
   }
 
 
@@ -199,12 +250,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'ChangePassword',
-      jwt: this.jwt,
       data: requestData
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -218,12 +268,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'WhoAmI',
-      jwt: this.jwt,
       data: {}
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -237,12 +286,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'ListUsers',
-      jwt: this.jwt,
       data: {}
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -257,12 +305,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'UpdateUser',
-      jwt: this.jwt,
       data: requestData
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -277,12 +324,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'DeleteUser',
-      jwt: this.jwt,
       data: requestData
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -297,12 +343,11 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'CreateUser',
-      jwt: this.jwt,
       data: requestData
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -321,7 +366,7 @@ export class WrfCloudApi
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, false);
   }
 
 
@@ -340,7 +385,7 @@ export class WrfCloudApi
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, false);
   }
 
 
@@ -359,7 +404,63 @@ export class WrfCloudApi
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, false);
+  }
+
+
+  /**
+   * Send a request for WRF meta data
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendGetWrfMetaDataRequest(requestData: GetWrfMetaDataRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'GetWrfMetaData',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
+   * Send a request for WRF geojson data
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendGetWrfGeoJsonRequest(requestData: GetWrfGeoJsonRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'GetWrfGeoJson',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
+   * Send a list user request
+   *
+   * @param responseHandler
+   */
+  public sendListJobsRequest(responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'ListJobs',
+      data: {}
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
   }
 
 
@@ -374,11 +475,12 @@ export class WrfCloudApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'RefreshToken',
+      jwt: this.jwt,
       data: requestData
     };
 
     /* send the API request */
-    this.sendRequest(request, responseHandler);
+    this.sendRequest(request, responseHandler, false);
   }
 
 
@@ -392,6 +494,79 @@ export class WrfCloudApi
     {
       this.setCredentials(response.data.jwt, response.data.refresh);
     }
+  }
+
+
+  /**
+   * Open a websocket connection
+   */
+  public connectWebsocket(listener: WebsocketListener): void
+  {
+    if (this.websocket === undefined || this.websocket.readyState === WebSocket.CLOSED)
+    {
+      console.log('wsconn');
+      this.websocket = new WebSocket(ClientApi.WEBSOCKET_URL);
+      this.websocket.onopen = listener.websocketOpen.bind(listener);
+      this.websocket.onclose = listener.websocketClose.bind(listener);
+      this.websocket.onmessage = listener.websocketMessage.bind(listener);
+    }
+  }
+
+
+  /**
+   * Disconnect from the websocket connection -- costs are incurred partially
+   * by time connected, so it is good to disconnect when not necessary.
+   */
+  public disconnectWebsocket(): void
+  {
+    if (this.websocket !== undefined && this.websocket.readyState !== WebSocket.CLOSED)
+    {
+      const tempsocket = this.websocket;
+      this.websocket = undefined;
+      tempsocket.close();
+    }
+  }
+
+
+  /**
+   * Send a subscription message
+   *
+   * @return False if the message was not sent
+   */
+  public subscribeToJobChanges(): boolean
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'SubscribeJobs',
+      data: {}
+    };
+
+    /* send the API request */
+    return this.sendWebsocketMessage(request, true);
+  }
+
+
+  /**
+   * Send a message to the websocket
+   * @private
+   *
+   * @param message The message to send to the API via websocket
+   * @param includeJwt Should the jwt be attached to the message before sending
+   * @return True if the message was sent, otherwise false
+   */
+  private sendWebsocketMessage(message: ApiRequest, includeJwt: boolean): boolean
+  {
+    /* maybe add the JWT to the message */
+    if (includeJwt)
+      message.jwt = this.jwt;
+
+    /* check if the websocket is still connected */
+    if (this.websocket !== undefined && this.websocket.readyState === WebSocket.OPEN)
+    {
+      this.websocket.send(JSON.stringify(message));
+      return true;
+    }
+    return false;
   }
 }
 
@@ -550,6 +725,45 @@ export interface ActivateUserResponse extends ApiResponse
 {
 }
 
+export interface LatLonPoint
+{
+  latitude: number;
+  longitude: number;
+}
+
+export interface Palette
+{
+  name: string;
+  min: number;
+  max: number;
+}
+
+export interface WrfLayer
+{
+  name: string;
+  displayName: string;
+  palette: Palette;
+  units: string;
+  visible: boolean;
+  opacity: number;
+  data?: any;
+  visibilityChange: Function;
+  opacityChange: Function;
+}
+
+export interface WrfJob
+{
+  name: string;
+  domainCenter: LatLonPoint;
+  layers: WrfLayer[];
+  initializationTime: number[];
+}
+
+export interface LayerRequest
+{
+  height: number;
+}
+
 export interface PasswordRecoveryTokenRequest
 {
   email: string;
@@ -571,4 +785,86 @@ export interface ResetPasswordRequest
 
 export interface ResetPasswordResponse extends ApiResponse
 {
+}
+
+export interface GetWrfMetaDataRequest
+{
+}
+
+export interface GetWrfMetaDataResponse extends ApiResponse
+{
+  data: {
+    configurations: Array<WrfMetaDataConfiguration>;
+  }
+}
+
+export interface WrfMetaDataConfiguration
+{
+  configuration_name: string;
+  cycle_times: Array<WrfMetaDataCycleTime>;
+}
+
+export interface WrfMetaDataCycleTime
+{
+  cycle_time: number;
+  valid_times: Array<number>
+}
+
+export interface GetWrfGeoJsonRequest
+{
+  configuration: string;
+  cycle_time: number;
+  valid_time: number;
+  variable: string;
+}
+
+export interface GetWrfGeoJsonResponse extends ApiResponse
+{
+  data: {
+    configuration: string;
+    cycle_time: number;
+    valid_time: number;
+    variable: string;
+    geojson: string
+  }
+}
+
+export interface ListJobResponse extends ApiResponse
+{
+  data: {
+    jobs: Job[];
+  }
+}
+
+export interface Job
+{
+  job_id: string;
+  job_name: string;
+  configuration_name: string;
+  cycle_time: number;
+  forecast_length: number;
+  output_frequency: number;
+  status_code: number;
+  status_message: string;
+  progress: number;
+}
+
+export interface WebsocketListener
+{
+  websocketOpen: (event: Event) => void;
+  websocketClose: (event: CloseEvent) => void;
+  websocketMessage: (event: MessageEvent) => void;
+}
+
+export interface WebsocketMessage
+{
+  type: string;
+  data: ApiResponse;
+}
+
+export interface JobStatusResponse extends ApiResponse
+{
+  data: {
+    job: Job
+  }
 }

@@ -3,6 +3,7 @@ Functions to handle API requests and provide a response
 """
 
 import base64
+import gzip
 import secrets
 import json
 import pkgutil
@@ -12,7 +13,7 @@ import yaml
 from wrfcloud.user import User
 from wrfcloud.api.actions import Action
 from wrfcloud.log import Logger
-from wrfcloud.api.auth import get_user_from_jwt
+from wrfcloud.api.auth import get_user_from_jwt, get_jwt_payload, create_jwt
 from wrfcloud.api.audit import AuditEntry, save_audit_log_entry
 
 
@@ -35,23 +36,19 @@ def lambda_handler(event: dict, context: any) -> dict:
         log.debug('No context provided to Lambda Function')
 
     # parse out the request details
-    request = json.loads(event['body'])
-    action = request[Action.REQ_KEY_ACTION]
-    jwt = request[Action.REQ_KEY_JWT] if Action.REQ_KEY_JWT in request else None
-    data = request[Action.REQ_KEY_DATA]
-    client_ip = event['requestContext']['identity']['sourceIp']
-    audit.action = action
-    audit.ip_address = client_ip
+    request = Request(event)
+    audit.action = request.action
+    audit.ip_address = request.client_ip
 
     # set a reference ID and the client IP instead of the app name
     ref_id = create_reference_id()
     audit.ref_id = ref_id
-    log.set_application_name(f'{ref_id} {client_ip}')
-    log.info('Starting action: %s' % action)
+    log.set_application_name(f'{ref_id} {request.client_ip}')
+    log.info('Starting action: %s' % request.action)
 
     # verify the session
-    user = get_user_from_jwt(jwt)
-    if user is None and jwt is not None:
+    user = get_user_from_jwt(request.jwt)
+    if user is None and request.jwt is not None:
         return create_invalid_session_response(ref_id)
 
     # update audit log entry with auth info
@@ -63,11 +60,11 @@ def lambda_handler(event: dict, context: any) -> dict:
     body = {}
     try:
         # determine if this user is authorized to run the action
-        if not has_required_permissions(action, user):
+        if not has_required_permissions(request.action, user):
             return create_unauthorized_action_response(ref_id)
 
         # create the action
-        action_object = create_action(action, user, data)
+        action_object = create_action(request, user, context)
 
         # run the action
         try:
@@ -108,18 +105,92 @@ def lambda_handler(event: dict, context: any) -> dict:
 
     # create a proper lambda response
     response = {
-        'isBase64Encoded': False,
+        'isBase64Encoded': True,
         'headers': {
             'Content-Type': 'application/json',
-            'Content-Encoding': 'identity'
+            'Content-Encoding': 'gzip'
         },
-        'body': json.dumps(body)
+        'body': base64.b64encode(gzip.compress(json.dumps(body).encode()))
     }
 
     # add CORS headers
     add_cors_headers(response)
 
     return response
+
+
+class Request:
+    """
+    Contains standard reqeust properties and can parse Lambda events from multiple sources
+    """
+
+    def __init__(self, event: dict) -> None:
+        """
+        Parse the Lambda event
+        """
+        # save the event object
+        self.event = event
+
+        # initialize the standard request properties
+        self.action: Union[str, None] = None
+        self.jwt: Union[str, None] = None
+        self.data: Union[dict, None] = None
+        self.client_ip: Union[str, None] = None
+        self.client_url: Union[str, None] = None
+        self.is_websocket: bool = False
+
+        # poke around and detect the lambda event source
+        if 'source' in event and event['source'] == 'aws.events':
+            self._parse_from_eventbridge()
+        elif 'body' in event and 'connectionId' in event['requestContext']:
+            self._parse_from_apigateway_websocket()
+        elif 'body' in event:
+            self._parse_from_apigateway_rest()
+        else:
+            print(self.event)
+            raise ValueError('Cannot determine source of event')
+
+    def _parse_from_eventbridge(self):
+        """
+        Parse the request from an EventBridge source event
+        """
+        # get the request data from the "detail" part of the event
+        request = self.event['request']
+        self.action = request[Action.REQ_KEY_ACTION]
+        self.jwt = request[Action.REQ_KEY_JWT] if Action.REQ_KEY_JWT in request else None
+        self.data = request[Action.REQ_KEY_DATA]
+
+        # create a new valid jwt for the user who scheduled this event
+        payload = get_jwt_payload(self.jwt, True)
+        if 'expires' in payload:
+            payload.pop('expires')
+        self.jwt = create_jwt(payload)
+
+    def _parse_from_apigateway_rest(self):
+        """
+        Parse the request from an API Gateway REST source event
+        """
+        request = json.loads(self.event['body'])
+        self.action = request[Action.REQ_KEY_ACTION]
+        self.jwt = request[Action.REQ_KEY_JWT] if Action.REQ_KEY_JWT in request else None
+        self.data = request[Action.REQ_KEY_DATA]
+        self.client_ip = self.event['requestContext']['identity']['sourceIp']
+
+    def _parse_from_apigateway_websocket(self):
+        """
+        Parse the request from an API Gateway V2 Websocket source event
+        """
+        # part is the same as API Gateway REST source event, so run that code first
+        self._parse_from_apigateway_rest()
+
+        # this is a websocket event
+        self.is_websocket = True
+
+        # put together a client URL
+        domain_name = self.event['requestContext']['domainName']
+        stage = self.event['requestContext']['stage']
+        connection_id = self.event['requestContext']['connectionId']
+        self.client_url = f'https://{domain_name}/{stage}/@connections/{connection_id}'
 
 
 def has_required_permissions(action: str, user: Union[User, None] = None) -> bool:
@@ -163,12 +234,12 @@ def create_reference_id() -> str:
     return ref_id
 
 
-def create_action(action: str, user: User, data: dict) -> Union[Action, None]:
+def create_action(request: Request, user: User, lambda_context: any) -> Union[Action, None]:
     """
     Create an action object
-    :param action: Name of the action
+    :param request: Request object
     :param user: Run as user
-    :param data: Request data
+    :param lambda_context: Lambda context or None
     :return: An action object or None
     """
     import importlib  # slow deferred import
@@ -176,11 +247,12 @@ def create_action(action: str, user: User, data: dict) -> Union[Action, None]:
     # create the action object
     try:
         action_package = 'wrfcloud.api.actions'
-        action_class = getattr(importlib.import_module(action_package), action)
-        action_object = action_class(run_as_user=user, request=data)
+        action_class = getattr(importlib.import_module(action_package), request.action)
+        action_object: Action = action_class(run_as_user=user, request=request.data, client_url=request.client_url)
+        action_object.additional['lambda_context'] = lambda_context
         return action_object
     except Exception as e:
-        Logger().error('Error creating action: %s' % action, e)
+        Logger().error('Error creating action: %s' % request.action, e)
 
     return None
 

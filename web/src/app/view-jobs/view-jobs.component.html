@@ -1,3 +1,81 @@
-<div class="placeholder-style">
-  View WRF Jobs
+<div class="job-container">
+
+  <!-- action panel -->
+  <div class="job-action-panel" *ngIf="!subscribed">
+    <mat-grid-list [cols]="1" rowHeight="75px">
+      <mat-grid-tile>
+        <button mat-stroked-button class="job-action-button" (click)="refreshJobData()">
+          <mat-icon class="job-action-button-icon">autorenew</mat-icon>
+          Refresh
+        </button>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </div>
+
+  <!-- filter container -->
+  <div class="job-filter-container">
+    <mat-form-field class="job-filter-input job-overlay" appearance="fill" [class.job-hide]="busy">
+      <mat-label>Filter Results</mat-label>
+      <input matInput type="text" [(ngModel)]="filter" (keyup)="filterModified()">
+      <button mat-button matSuffix *ngIf="filter.length > 0" (click)="filter=''; filterModified()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+    <div class="job-busy-spinner job-overlay" [class.job-hide]="!busy">
+      <mat-icon class="spin">autorenew</mat-icon>
+    </div>
+  </div>
+
+  <!-- job table -->
+  <div class="job-table-container">
+    <table mat-table [dataSource]="dataSource" matSort class="job-table mat-elevation-z8">
+      <ng-container matColumnDef="job_id" class="job-table-cell">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Job ID </th>
+        <td mat-cell *matCellDef="let item"> {{item.job_id}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="configuration_name" class="job-table-cell">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Configuration </th>
+        <td mat-cell *matCellDef="let item"> {{item.configuration_name}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="cycle_time" class="job-table-cell">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Cycle Time </th>
+        <td mat-cell *matCellDef="let item"> {{item.cycle_time*1000 | date:'yyyy-MM-dd HH:mm:ss O':'UTC'}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="forecast_length" class="job-table-cell">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Forecast Length </th>
+        <td mat-cell *matCellDef="let item"> {{item.forecast_length / 3600}}h </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status" class="job-table-cell">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+        <td mat-cell *matCellDef="let item">
+          <mat-progress-bar
+            [mode]="item.status_code <= 1 ? 'indeterminate' : 'determinate'"
+            [value]="item.progress * 100"
+          >
+          </mat-progress-bar>
+          <span class="job-status-message">{{item.status_message || 'Pending'}}</span>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="app.isMobile ? mobileColumns : desktopColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: (app.isMobile ? mobileColumns : desktopColumns);" (click)="jobClicked(row)"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[app.isMobile ? 5 : 8]" showFirstLastButtons>
+    </mat-paginator>
+  </div>
+</div>
+
+<div class="jobs-configuration-container">
+
+  <div class="jobs-configuration" *ngFor="let configuration of app.wrfMetaData">
+    {{configuration.configuration_name}}
+    <div class="jobs-cycle-time" *ngFor="let cycleTime of configuration.cycle_times">
+      {{cycleTime.cycle_time | date:'yyyy-MM-dd HH:mm:ss O':'UTC'}}
+    </div>
+  </div>
+
 </div>

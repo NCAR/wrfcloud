@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ResetPasswordRequest, ResetPasswordResponse} from "../wrfcloud-api";
+import {ResetPasswordRequest, ResetPasswordResponse} from "../client-api";
 import {AppComponent} from "../app.component";
 
 @Component({

@@ -8,12 +8,15 @@ __all__ = ['refresh',
            'issue_refresh_token',
            'get_refresh_token',
            'delete_refresh_token',
-           'get_user_from_jwt'
+           'get_user_from_jwt',
+           'get_jwt_payload'
            ]
 
 
 import os
 import secrets
+import json
+import base64
 from datetime import datetime
 from typing import Union
 import jwt
@@ -84,6 +87,20 @@ def get_user_from_jwt(token: str) -> Union[User, None]:
     user = None if payload is None else get_user_from_system(payload[KEY_EMAIL])
 
     return user
+
+
+def get_jwt_payload(token: str, ack_no_security_here: bool = False) -> dict:
+    """
+    This method does not provide any validity checks for security, it only shows the payload
+    :param token: Full JSON web token
+    :param ack_no_security_here: Acknowledge that this is not a security-related function
+    :return JWT payload
+    """
+    if not ack_no_security_here:
+        raise ValueError('Be sure you are not using this for security oriented '
+                         'purposes, and add the True parameter to acknowledge this.')
+
+    return json.loads(base64.b64decode(token.split('.')[1] + '==').decode())
 
 
 def issue_refresh_token(user: User) -> Union[str, None]:
