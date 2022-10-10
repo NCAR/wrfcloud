@@ -1,4 +1,7 @@
 name: Documentation
+
+# Build the documentation and check for warning messages
+
 on:
   push:
     branches:
