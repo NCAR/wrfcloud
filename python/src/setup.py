@@ -22,7 +22,8 @@ setup(
         'matplotlib>=3.3.0',
         'numpy>=1.23.0',
         'requests>=2.20',
-        'pytz>=2020.4'
+        'pytz>=2020.4',
+        'xarray>=2022.1.0'
     ],
     package_dir={'wrfcloud': 'wrfcloud'},
     package_data={
