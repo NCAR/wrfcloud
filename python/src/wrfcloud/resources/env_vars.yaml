@@ -6,10 +6,11 @@ test:
   SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
   SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
+  WRFCLOUD_BUCKET_NAME: wrfcloud-output
 
   # AWS Account Profile
   AWS_PROFILE: junk
-  AWS_REGION: us-east-1
+  AWS_REGION: us-east-2
 
   # API Gateway Options
   API_URL: localhost:4201

@@ -5,8 +5,9 @@ import base64
 import os
 import gzip
 import pkgutil
+import yaml
 from typing import List, Union
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz import utc
 from wrfcloud.api.actions import Action
 from wrfcloud.system import get_aws_session
@@ -268,15 +269,33 @@ class RunWrf(Action):
         """
         try:
             # create the run configuration file
-            config_file = pkgutil.get_data('wrfcloud', 'runtime/test.yml')
-            config_b64_gz = base64.b64encode(gzip.compress(config_file)).decode()
+            config_file = yaml.safe_load(pkgutil.get_data('wrfcloud', 'runtime/test.yml'))
+            config_name = self.request['configuration_name']
+            config_file['run']['local_data'] = f'/data/{self.ref_id}/gfs.t*'
+            config_file['run']['workdir'] = f'/data/{self.ref_id}/{config_name}_run'
+            forecast_len_sec = self.request['forecast_length']
+            start_date = datetime.strptime(self.request['start_time'], '%Y-%m-%d %H:%M:%S')
+            increment = timedelta(seconds=forecast_len_sec)
+            end_time = start_date + increment
+            config_file['run']['start'] = start_date.strftime("%Y-%m-%d_%H:%M:%S")
+            config_file['run']['end'] = end_time.strftime("%Y-%m-%d_%H:%M:%S")
+            config_file['run']['output_freq_sec'] = self.request['output_frequency']
+            config_file['run']['configuration'] = config_name
+            config_data = yaml.dump(config_file)
+            config_b64_gz = base64.b64encode(gzip.compress(bytes(config_data,encoding='utf8'))).decode()
 
             # create the custom action to start the model
             script = f'#! /bin/bash\n' \
                      f'mkdir -p /data/{self.ref_id}\n' \
                      f'cd /data/{self.ref_id}\n' \
-                     f'echo -n "{config_b64_gz}" | base64 -d | gunzip > test.yml\n' \
-                     f'wrfcloud-run\n'
+                     f'echo -n "{config_b64_gz}" | base64 -d | gunzip > run.yml\n' \
+                     f'aws s3 sync s3://wrfcloud-xfer-tmp/ .\n' \
+                     f'mkdir -p configurations/{config_name};\n' \
+                     f'mv geo_em.d01.nc configurations/{config_name} \n' \
+                     f'cp namelist.wps configurations/{config_name} \n' \
+                     f'cp namelist.input configurations/{config_name} \n' \
+                     f'unset I_MPI_OFI_PROVIDER \n' \
+                     f'wrfcloud-run > log.wrfcloud-run 2>&1 & \n'
             ca = CustomAction(self.ref_id, script)
 
             # start the cluster
