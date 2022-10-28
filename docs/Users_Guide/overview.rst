@@ -16,34 +16,64 @@ The User Guide is organized by first providing an overview of the system, follow
 UCAR/UCP/COMET and UCAR/NCAR/RAL
 ================================
 
-This project is made possible through funding by `UCAR <https://www.ucar.edu/>`_/`UCP <https://www.ucar.edu/community-programs>`_/`COMET <https://www.comet.ucar.edu/>`_ and collaborations with `UCAR <https://www.ucar.edu/>`_/`NCAR <https://ncar.ucar.edu/>`_/`RAL <https://ral.ucar.edu/>`_/`MMM <https://www.mmm.ucar.edu/>`_.  
+This project is made possible by `UCAR <https://www.ucar.edu/>`_/`UCP <https://www.ucar.edu/community-programs>`_/`COMET <https://www.comet.ucar.edu/>`_ and collaborations with `UCAR <https://www.ucar.edu/>`_/`NCAR <https://ncar.ucar.edu/>`_/`RAL <https://ral.ucar.edu/>`_/`MMM <https://www.mmm.ucar.edu/>`_.  
 
 .. _wrfcloud-goals:
 
 WRF Cloud goals and design philosophy
 =====================================
 
-Flexibility is at the forefront of all design choices of the framework, with the understanding that for under-resourced communities, the wants versus needs may compete and often change. For example, when launching a forecast, users have the option to choose to run a cloud configuration that is fast but more expensive, or slower but cheaper, providing opportunity to weigh the cost versus benefits for any given weather situation or budget constraints. In addition, the system is built to allow for future enhancements to be incorporated with relative ease. Establishing a framework that is flexible and circumvents much of the current computational resource limitations affords local officials the ability to prepare for and respond to weather-related events promptly and effectively. It also lays the foundation to further NWP development and earth system prediction, for example by incorporating additional verification techniques and new observations. A streamlined and practical approach is achieved by using a serverless design philosophy including an intuitive user interface and responsive website that allows the end user to launch and view forecasts from any device with an internet connection. The control of the forecast configuration and forecast output graphics are both incorporated into the same website, which allows the user a one-stop-shop to launch and view a forecast. This opens opportunities for on-demand rapid deployment of the system to produce forecasts in preparation of or in response to natural disasters, from the field on a mobile device or on a personal laptop; the only requirement being an internet connection. The framework can also be used as a regular forecasting tool with automated forecast cycles customized to the needs of a community.
+The primary goal of this projec is to provide easy access to powerful NWP forecasts to communities lacking financial or computation resources to maintain baremetal forecasting platforms. The aim for this system is to be:
+
+* Flexibility and customizable
+* Efficeint and cost-effective
+* Easy to setup, use, and manage
+* Useful and portable
 
 
 WRF Cloud components
 ====================
 
-The WRF Cloud system consists primarily of one python package that was developed to orchestrate all components of the end-to-end system leveraging serverless architure principals. Amazon Web Services (AWS) is used for the cloud service provider and several AWS resources are used to construct the entire system. The weather forecast itself is produced using initial conditions from the Global Forecast System (GFS) to run the Weather Research and Modeling (`WRF <https://www2.mmm.ucar.edu/wrf/users/>`_) system, including it's pre-processor WPS. The WRF model output is post-processed using the Unified Post Processor (`UPP <https://dtcenter.org/community-code/unified-post-processor-upp>`_) and from there the data are processed for plotting and served up to the system's website. 
+The WRF Cloud system consists primarily of one python package that was developed to orchestrate all of the necessary components of the end-to-end system from the web application to the user management and authentication, as well as the numerical weather software and forecast mangement. It leverages serverless architure, meaning that there are no dedicated webservers required to host the APIs, website or database. Amazon Web Services (AWS) is used for the cloud service provider and several AWS resources are used to construct the entire system. 
 
 System overview
 ---------------
+The main components of the system and how they interact with eachother are shown in the overview schematic below. Details about each of the components follows.  
+
+.. _overivew-figure-two:
+
+.. figure:: figure/overview-figure-two.png
 
 .. _overview-figure:
 
 .. figure:: figure/overview-figure.png
 
-NWP Overview (schematic of NWP?)
+Web Application (User Interface) 
 --------------------------------
+The web application is the primary place users interact with the system. The website itself was designed using Angular, and AWS's Cloudfront is used to deliver the website content anywhere with low latency. The web application communicates with the APIs and allows users to login and change or recover passwords, manage users, as well as forecasts including launching, monitoring, cancelling new runs and viewing forecast output.  
+
+APIs
+--------------------------------
+The application interfaces leverage AWS's Lambda functions to handle requests from the web application or user interface and performs authentication of execution of the requested action.
+
+NWP Components 
+--------------------------------
+The weather forecast itself is produced using initial conditions from the Global Forecast System (GFS) to run the Weather Research and Modeling (`WRF <https://www2.mmm.ucar.edu/wrf/users/>`_) system, including it's pre-processor WPS. The WRF model output is post-processed using the Unified Post Processor (`UPP <https://dtcenter.org/community-code/unified-post-processor-upp>`_) and from there the data are processed for plotting and served up to the system's website. 
 
 .. _nwp-components:
 
 .. figure:: figure/nwp_components.png
+
+Application Data
+--------------------------------
+Certain information needs to persist for the system to function properly. This component uses AWS's dynamodb service to maintain its docuement database. Information that is collected and stored falls into four categories: Users, Audit Log, WRF Jobs, and Scheduled Jobs. Users information stored includes that which is required to sign in and authenticate actions, for example user email, passwords, and role permissions. The Audit Log contains useful information about actions requested. The WRF Jobs category contains information about a certain forecast that was run, such as the intialization time, configuration name, user email, forecast length, status, archive location, and deletion information. Finally, Scheduled Jobs includes information from regulary scheduled jobs much like the WRF Jobs, but also including scheduling information.  
+
+Code
+--------------------------------
+The python code used to build and manage the entire system is available on GitHub. AWS's CodeBuild has been incorpoarted to make sure the code within the package is regularly tested with converage reports generated to identify untested features.  
+
+AWS's Imagebuilder is used to create an Amazon Machine Image (AMI) that contains the hardware and software needed to run the system. This AMI is automatically created during the setup of this system.
+
 
 .. _release-notes:
 
