@@ -3,7 +3,7 @@ Image:
   Os: alinux2
   CustomAmi: __AMI_ID__
 HeadNode:
-  InstanceType: c5.xlarge
+  InstanceType: c5n.xlarge
   Networking:
     SubnetId: __SUBNET_ID__
   Ssh:

@@ -636,13 +636,14 @@ def test_run_wrf() -> None:
     Test the RunWrf API action
     """
     # set up the test
-#    assert _test_setup()
+    # assert _test_setup()
     user, _ = _get_sample_user('regular')
-#    assert add_user_to_system(user)
+    # assert add_user_to_system(user)
 
     # create a request to get a user's own information
     ref_id = create_reference_id()
     request = {
+        'job_name': 'Job name from user',
         'configuration_name': 'test',
         'start_time': '2022-06-01 09:00:00',
         'forecast_length': 10800,

@@ -11,7 +11,8 @@ from datetime import datetime, timedelta
 from pytz import utc
 from wrfcloud.api.actions import Action
 from wrfcloud.system import get_aws_session
-from wrfcloud.aws.pcluster import CustomAction
+from wrfcloud.aws.pcluster import WrfCloudCluster, CustomAction
+from wrfcloud.jobs import WrfJob, JobDao
 
 
 class GetWrfMetaData(Action):
@@ -259,7 +260,7 @@ class RunWrf(Action):
         Validate the request object
         :return: True if the request is valid, otherwise False
         """
-        required_fields = ['configuration_name', 'start_time', 'forecast_length', 'output_frequency', 'notify']
+        required_fields = ['job_name', 'configuration_name', 'start_time', 'forecast_length', 'output_frequency', 'notify']
         return self.check_request_fields(required_fields, [])
 
     def perform_action(self) -> bool:
@@ -285,7 +286,8 @@ class RunWrf(Action):
             config_b64_gz = base64.b64encode(gzip.compress(bytes(config_data,encoding='utf8'))).decode()
 
             # create the custom action to start the model
-            script = f'#! /bin/bash\n' \
+            script = f'#! /usr/bin/su ec2-user\n' \
+                     f'# source /etc/bashrc\n' \
                      f'mkdir -p /data/{self.ref_id}\n' \
                      f'cd /data/{self.ref_id}\n' \
                      f'echo -n "{config_b64_gz}" | base64 -d | gunzip > run.yml\n' \
@@ -299,9 +301,26 @@ class RunWrf(Action):
             ca = CustomAction(self.ref_id, script)
 
             # start the cluster
-            from wrfcloud.aws.pcluster import WrfCloudCluster
             wrfcloud_cluster = WrfCloudCluster(self.ref_id)
             wrfcloud_cluster.create_cluster(ca, False)
+
+            # create information for a new job
+            job: WrfJob = WrfJob()
+            job.job_id = self.ref_id
+            job.job_name = self.request['job_name']
+            job.configuration_name = self.request['configuration_name']
+            job.cycle_time = start_date
+            job.forecast_length = forecast_len_sec
+            job.output_frequency = self.request['output_frequency']
+            job.status_code = WrfJob.STATUS_CODE_STARTING
+            job.status_message = 'Launching cluster'
+
+            # add the job information to the database
+            job_dao = JobDao()
+            job_added = job_dao.add_job(job)
+            if not job_added:
+                self.log.warn('Failed to add job information to database.')
+
         except Exception as e:
             self.log.error('Failed to launch WRF job', e)
             self.errors.append('Failed to launch WRF job')
