@@ -9,7 +9,7 @@ import yaml
 from typing import List, Union
 from datetime import datetime, timedelta
 from pytz import utc
-from wrfcloud.api.actions import Action
+from wrfcloud.api.actions.action import Action
 from wrfcloud.system import get_aws_session
 from wrfcloud.aws.pcluster import WrfCloudCluster, CustomAction
 from wrfcloud.jobs import WrfJob, JobDao
