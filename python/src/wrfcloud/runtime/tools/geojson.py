@@ -1,29 +1,36 @@
 """
 Module to convert WRF output to GeoJSON
 """
-
-from typing import Union
+import pkgutil
+from concurrent.futures import ProcessPoolExecutor
+from typing import Union, List
+from gzip import compress
 import json
+import yaml
 import netCDF4
 from matplotlib import colors
 from matplotlib import contour
 from matplotlib import pyplot
 import numpy
-import xarray
 from numpy.ma.core import MaskedArray
 from wrfcloud.log import Logger
+import pygrib
 
 
 class GeoJson:
     """
     Class to convert WRF output to GeoJSON MultiPolygon format
     """
-    def __init__(self, wrf_file: str, file_type: str, variable: str, z_level: Union[int, None] = None):
+    def __init__(self, wrf_file: str, file_type: str, variable: str, value_range: List[float],
+                 contour_interval: float, palette: str, z_level: Union[int, None] = None):
         """
         Construct a WRF to GeoJSON converter
         :param wrf_file: Full path to the WRF output file
         :param file_type: File type can be either 'grib2' or 'netcdf'
         :param variable: Name of the variable in the NetCDF file to convert
+        :param value_range: List of exactly two floats [0]=min [1]=max
+        :param contour_interval: Value difference between contour levels
+        :param palette: Name of the color palette
         :param z_level: Height level in the to convert
         """
         self.log = Logger(self.__class__.__name__)
@@ -34,6 +41,10 @@ class GeoJson:
         self.grid = None
         self.grid_lat = None
         self.grid_lon = None
+        self.min = value_range[0]
+        self.max = value_range[1]
+        self.contour_interval = contour_interval
+        self.palette = palette
 
     def convert(self, out_file: Union[str, None]) -> Union[None, dict]:
         """
@@ -41,6 +52,9 @@ class GeoJson:
         :param out_file: Full path to the output file (directory must exist) or None to get the
                          GeoJSON data returned as a dictionary
         """
+        # log status info
+        self.log.info(f'Converting {self.variable} to {out_file}')
+
         # get the data, lat, and lon grids
         if self.file_type == 'grib2':
             grid, self.grid_lat, self.grid_lon = self._read_from_grib()
@@ -51,7 +65,11 @@ class GeoJson:
             return None
 
         # create a set of contours from the data grid
-        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=[i/10 for i in range(2700, 3100, 20)])
+        range_min = int(self.min * 10)
+        range_max = int(self.max * 10)
+        ci = int(self.contour_interval*10)
+        levels = [i/10 for i in range(range_min, range_max, ci)]
+        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette)
 
         # create a set of features for the GeoJSON file
         features = []
@@ -88,9 +106,9 @@ class GeoJson:
                         "coordinates": [json.loads(polygon_string)]
                     },
                     "properties": {
-                        # "stroke-width": 0,
-                        "fill": level_color,
-                        # "fill-opacity": 1
+                        # "stroke-width": 0,  has no effect in OpenLayers and only makes the data set larger
+                        "fill": level_color
+                        # "fill-opacity": 1   has no effect in OpenLayers and only makes the data set larger
                     }
                 }
 
@@ -108,8 +126,8 @@ class GeoJson:
             return doc
 
         # write the data to a file or return as a string if no data were
-        with open(out_file, 'w') as file:
-            file.write(json.dumps(doc))
+        with open(out_file, 'wb') as file:
+            file.write(compress(json.dumps(doc).encode()))
             file.flush()
             file.close()
         return None
@@ -137,16 +155,15 @@ class GeoJson:
         Read the variable data, latitude, and longitude grids from a GRIB2 file
         :return: data, latitude, longitude
         """
-        # WITH xarray & cfgrib
-        grib_filter = {'typeOfLevel': 'isobaricInhPa'} if self.z_level else {'typeOfLevel': 'surface'}
-        wrf = xarray.open_dataset(self.wrf_file, engine='cfgrib', filter_by_keys=grib_filter)
-        variable = wrf[self.variable]
-        grid_1d = variable.data[self.z_level] if self.z_level else variable.data
-        grid = self._1d_to_2d(grid_1d, 699, 499)
+        # read grib2 file with pygrib & eccodes
+        wrf = pygrib.open(self.wrf_file)
+        variable = wrf.select(shortName=self.variable)[self.z_level if self.z_level else 0]
+        values = variable.values
+        grid = MaskedArray(values)
 
         # get the latitude and longitude grids
-        grid_lat = self._1d_to_2d(variable.latitude.data, 699, 499)
-        grid_lon = self._1d_to_2d(variable.longitude.data, 699, 499)
+        grid_lat = MaskedArray(wrf.select(shortName='nlat')[0].values)
+        grid_lon = MaskedArray(wrf.select(shortName='elon')[0].values) - 360
 
         return grid, grid_lat, grid_lon
 
@@ -230,8 +247,13 @@ def main():
     parser.add_argument('--type', type=str, help='"grib2" or "netcdf"', required=True)
     parser.add_argument('--in-file', type=str, help='Full path to the WRF file', required=True)
     parser.add_argument('--out-file', type=str, help='Full path to the output file', required=False)
-    parser.add_argument('--variable', type=str, help='Variable from the WRF file', required=True)
+    parser.add_argument('--variable', type=str, help='Variable from the WRF file, required if auto not set', required=False)
+    parser.add_argument('--min', type=float, help='Color palette\'s min value range, required if auto not set', required=False)
+    parser.add_argument('--max', type=float, help='Color palette\'s max value range, required if auto not set', required=False)
+    parser.add_argument('--palette', type=str, help='Color palette name https://matplotlib.org/stable/gallery/color/colormap_reference.html', required=False)
+    parser.add_argument('--contour-interval', type=float, help='Value difference between contour levels, required if auto not set', required=False)
     parser.add_argument('--z-level', type=int, help='Z-level if a 3D field', required=False)
+    parser.add_argument('--auto', help='Automatically creates full output set', required=False, action='store_true')
     args = parser.parse_args()
 
     # get the command line parameters
@@ -240,14 +262,67 @@ def main():
     out_file = args.out_file or None
     variable = args.variable
     z_level = args.z_level or None
+    value_range = [args.min, args.max]
+    contour_interval = args.contour_interval
+    palette = args.palette
+    auto = args.auto
 
+    # select mode and convert the WRF data to GeoJSON
+    if not auto:
+        _manual_product(wrf_file, file_type, out_file, variable, value_range, contour_interval, palette, z_level)
+    else:
+        _automate_products(wrf_file, file_type)
+
+
+def _manual_product(wrf_file: str, file_type: str, out_file: Union[str, None], variable: str, value_range: List[float],
+                    contour_interval: float, palette: str, z_level: Union[int, None]) -> None:
+    """
+    Generate a single product defined by manual CLI inputs
+    :param wrf_file: Input file name
+    :param file_type: grib2 or netcdf
+    :param out_file: Output file name or None if stdout is desired
+    :param variable: Variable name in the file
+    :param z_level: Vertical level to export, or None if a 2D variable
+    """
     # convert the WRF data to GeoJSON
-    converter = GeoJson(wrf_file, file_type, variable, z_level)
+    converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette, z_level)
     output = converter.convert(out_file)
 
     # print the output to stdout if we do not have an output file
     if output is not None:
         print(json.dumps(output, indent=2))
+
+
+def _automate_products(wrf_file: str, file_type: str) -> None:
+    """
+    Generate all the products defined in the geojson_products.yaml file
+    :param wrf_file: Input file name
+    :param
+    """
+    # load the product list from the yaml file
+    products_data = pkgutil.get_data('wrfcloud', 'runtime/resources/geojson_products.yaml')
+    products = yaml.safe_load(products_data)['products']
+
+    # create a process pool for concurrent execution
+    ppe = ProcessPoolExecutor(max_workers=8)
+    futures = []
+
+    # create each product
+    for product in products:
+        variable = product[file_type]['variable']
+        value_range = [product['range']['min'], product['range']['max']]
+        contour_interval = product['contour_interval']
+        palette = product['palette']
+        z_levels = product['z_levels'] if 'z_levels' in product else [None]
+        for z_level in z_levels:
+            out_file = (f'{wrf_file}_{variable}' if z_level is None else f'{wrf_file}_{variable}_{z_level}')
+            out_file += '.geojson.gz'
+            converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette, z_level)
+            future = ppe.submit(converter.convert, out_file)
+            futures.append(future)
+
+    for future in futures:
+        future.result()
 
 
 if __name__ == '__main__':
