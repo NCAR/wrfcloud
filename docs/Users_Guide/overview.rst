@@ -46,7 +46,7 @@ The main components of the framework and how they interact with eachother are sh
 
 Cloud Formation
 ---------------
-Cloud formation is used to provision and manage all AWS resources.
+AWS's Cloud Formation is used to configure and manage all AWS resources by treating them as Infastructure as Code (IAC).
 
 Web Application (User Interface) 
 --------------------------------
@@ -56,9 +56,11 @@ APIs
 --------------------------------
 The application interfaces leverage AWS's Lambda functions for the code execution and API Gateway to provide a standard HTTP request and forward to the Lambda function for processing, plust API Gateway version 2 to handle the websocket protocol) Together these three services coordinate a user's request from the web application or user interface and performs authentication and execution of the requested action.
 
-NWP Components 
---------------------------------
-The weather forecast itself is produced using initial conditions from the Global Forecast System (GFS) to run the Weather Research and Modeling (`WRF <https://www2.mmm.ucar.edu/wrf/users/>`_) system, including it's pre-processor WPS. The WRF model output is post-processed using the Unified Post Processor (`UPP <https://dtcenter.org/community-code/unified-post-processor-upp>`_) and from there the data are processed for plotting and served up to the system's website. 
+Compute Cluster 
+---------------
+The compute cluster component is where the bulk of the computing is done, including running the numerical weather prediction software and producing the graphical outputs. Care is taken to ensure these resoureces are only provisioned when necessary and that they are shut down when the jobs are complete as this component is the most expensive part of the framework. AWS's Parallel Cluster is used to deploy and manage the cluster resources which include launching an AWS EC2 instance from an AMI developed specifically for this framework. 
+
+The weather forecasts use initial conditions from the Global Forecast System (GFS) and are pulled from AWS's S3 on demand for each forecast. The numrical weather prediction software used for making the forecasts is the Weather Research and Modeling version 4.4.1 (`WRF <https://www2.mmm.ucar.edu/wrf/users/>`_) system, including it's pre-processor WPS. The WRF model output is then post-processed using the Unified Post Processor version 4.0.1 (`UPP <https://dtcenter.org/community-code/unified-post-processor-upp>`_) and from there the data are processed for plotting and served up to the system's website. The components of the numerical weather prediction part of the framework for shown in the schematic below.
 
 .. _nwp-components:
 
