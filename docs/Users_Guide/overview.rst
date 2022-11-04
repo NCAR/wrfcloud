@@ -9,9 +9,9 @@ The WRF Cloud framework is a cloud-based forecasting system that was designed to
 Purpose and organization of the User's Guide
 ============================================
 
-The goal of this User's Guide is to document the procedures required to install the WRF Cloud system and to serve as a reference for using and adapting the system to an organization's own needs. 
+The goal of this User's Guide is to document the procedures required to install the WRF Cloud framework and to serve as a reference for using and adapting the system to an organization's own needs. As features are added to the framework, this User's Guide will continue to be expanded to document new capabilities. 
 
-The User Guide is organized by first providing an overview of the system, followed steps to install the framework and adminstartion details to manage the system. Finally the user interface is documented along with details about the graahical outputs produced by the system. 
+The User Guide is organized by first providing an overview of the system, followed steps to install the framework and adminstartion details to manage the system. Finally the user interface is documented along with details about the graphical outputs produced by the system. 
 
 UCAR/UCP/COMET and UCAR/NCAR/RAL
 ================================
@@ -23,38 +23,35 @@ This project is made possible by `UCAR <https://www.ucar.edu/>`_/`UCP <https://w
 WRF Cloud goals and design philosophy
 =====================================
 
-The primary goal of this projec is to provide easy access to powerful NWP forecasts to communities lacking financial or computation resources to maintain baremetal forecasting platforms. The aim for this system is to be:
+The primary goal of this projec is to provide easy access to powerful NWP forecasts to communities lacking financial or computation resources to maintain baremetal forecasting platforms. The aim for this framework is to be:
 
 * Flexibility and customizable
 * Efficeint and cost-effective
 * Easy to setup, use, and manage
-* Useful and portable
+* Useful and accessible
 
 
 WRF Cloud components
 ====================
 
-The WRF Cloud system consists primarily of one python package that was developed to orchestrate all of the necessary components of the end-to-end system from the web application to the user management and authentication, as well as the numerical weather software and forecast mangement. It leverages serverless architure, meaning that there are no dedicated webservers required to host the APIs, website or database. Amazon Web Services (AWS) is used for the cloud service provider and several AWS resources are used to construct the entire system. 
+The WRF Cloud framework primarily consists of a web application and a python package that were developed to orchestrate all of the necessary components of the end-to-end system from the web application to the user authentication and authorization, as well as the numerical weather software and forecast mangement. It leverages serverless architure, meaning that there are no dedicated webservers required to host the APIs, website or database, and makes running the system more cost-efficient. Amazon Web Services (AWS) is used for the cloud service provider and several AWS resources are used to construct the entire system. 
 
 System overview
 ---------------
-The main components of the system and how they interact with eachother are shown in the overview schematic below. Details about each of the components follows.  
+The main components of the framework and how they interact with eachother are shown in the overview schematic below. Details about each of the components follows.  
 
 .. _overivew-figure-two:
 
 .. figure:: figure/overview-figure-two.png
 
-.. _overview-figure:
-
-.. figure:: figure/overview-figure.png
 
 Web Application (User Interface) 
 --------------------------------
-The web application is the primary place users interact with the system. The website itself was designed using Angular, and AWS's Cloudfront is used to deliver the website content anywhere with low latency. The web application communicates with the APIs and allows users to login and change or recover passwords, manage users, as well as forecasts including launching, monitoring, cancelling new runs and viewing forecast output.  
+The web application consists of single page application and progressive web applicaton and is the primary place users interact with the system. The website itself was implemented using Angular, and AWS's Cloudfront is used to deliver the website content anywhere with low latency. The web application communicates with the APIs and allows users to login and change or recover passwords, manage users, as well as forecasts including launching, monitoring, cancelling new runs and viewing forecast output. In addiition, the web application was implemented with responsive design to support mobile devices, such as tablets and smartphones.
 
 APIs
 --------------------------------
-The application interfaces leverage AWS's Lambda functions to handle requests from the web application or user interface and performs authentication of execution of the requested action.
+The application interfaces leverage AWS's Lambda functions for the code execution and API Gateway to provide a standard HTTP request and forward to the Lambda function for processing, plust API Gateway version 2 to handle the websocket protocol) Together these three services coordinate a user's request from the web application or user interface and performs authentication and execution of the requested action.
 
 NWP Components 
 --------------------------------
@@ -66,7 +63,7 @@ The weather forecast itself is produced using initial conditions from the Global
 
 Application Data
 --------------------------------
-Certain information needs to persist for the system to function properly. This component uses AWS's dynamodb service to maintain its docuement database. Information that is collected and stored falls into four categories: Users, Audit Log, WRF Jobs, and Scheduled Jobs. Users information stored includes that which is required to sign in and authenticate actions, for example user email, passwords, and role permissions. The Audit Log contains useful information about actions requested. The WRF Jobs category contains information about a certain forecast that was run, such as the intialization time, configuration name, user email, forecast length, status, archive location, and deletion information. Finally, Scheduled Jobs includes information from regulary scheduled jobs much like the WRF Jobs, but also including scheduling information.  
+Certain information needs to persist for the system to function properly. This component uses AWS's dynamodb service to maintain its docuement database. Information that is collected and stored falls into four categories: Users, Audit Log, WRF Jobs, Model Data, and Scheduled Jobs. Users information stored includes that which is required for authentication and authorization with the API. The Audit Log contains useful information about actions requested. The WRF Jobs category contains information about a certain forecast that was run, such as the intialization time, configuration name, user email, forecast length, status, archive location, and deletion information. Model data consists of the forecast output, graphics, and any other products desired to archive. Finally, Scheduled Jobs includes information from regulary scheduled jobs much like the WRF Jobs, but also including scheduling information.  
 
 Code
 --------------------------------
@@ -82,7 +79,7 @@ AWS's Imagebuilder is used to create an Amazon Machine Image (AMI) that contains
 Future development plans
 ========================
 
-New features are being considered for the next release. These may include:
+New features being considered for future releases:
 
 * Verification capabilities
 * Enhanced User Interface plotting features
