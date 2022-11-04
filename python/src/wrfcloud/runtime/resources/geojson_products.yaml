@@ -12,6 +12,7 @@
 # z_levels: Optional, vertical level to plot for 3D variables
 ---
 products:
+  # 2D variables
   - grib2:
       variable: 2t
     netcdf:
@@ -63,3 +64,35 @@ products:
       max: 6000
     contour_interval: 500
     palette: BrBG
+  - grib2:
+      variable: cin
+    range:
+      min: -600
+      max: 0
+    contour_interval: 10
+    palette: viridis
+  - grib2:
+      variable: refc
+    range:
+      min: 10
+      max: 70
+    contour_interval: 5
+    palette: viridis
+
+  # 3D variables - 700mb
+  - grib2:
+      variable: t
+    range:
+      min: 245
+      max: 313
+    contour_interval: 1
+    palette: viridis
+    z_levels:
+      - 1000
+      - 925
+      - 850
+      - 700
+      - 500
+      - 300
+      - 250
+      - 100

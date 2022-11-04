@@ -157,15 +157,37 @@ class GeoJson:
         """
         # read grib2 file with pygrib & eccodes
         wrf = pygrib.open(self.wrf_file)
-        variable = wrf.select(shortName=self.variable)[self.z_level if self.z_level else 0]
-        values = variable.values
-        grid = MaskedArray(values)
+
+        # determine if we are after a 2D or 3D field
+        grid = self._read_2d_from_grib(wrf) if self.z_level is None else self._read_3d_from_grib(wrf)
 
         # get the latitude and longitude grids
         grid_lat = MaskedArray(wrf.select(shortName='nlat')[0].values)
         grid_lon = MaskedArray(wrf.select(shortName='elon')[0].values) - 360
 
         return grid, grid_lat, grid_lon
+
+    def _read_2d_from_grib(self, wrf: pygrib.open) -> MaskedArray:
+        """
+        Read the 2D variable data from a GRIB2 file
+        :return: data
+        """
+        # read grib2 file with pygrib & eccodes
+        variable = wrf.select(shortName=self.variable)
+        grid = MaskedArray(variable[0].values)
+
+        return grid
+
+    def _read_3d_from_grib(self, wrf: pygrib.open) -> MaskedArray:
+        """
+        Read the 3D variable data from a GRIB2 file
+        :return: data
+        """
+        # read grib2 file with pygrib & eccodes
+        variable = wrf.select(shortName=self.variable, typeOfLevel='isobaricInhPa', level=self.z_level)
+        grid = MaskedArray(variable[0].values)
+
+        return grid
 
     @staticmethod
     def _1d_to_2d(data: MaskedArray, x: int, y: int) -> MaskedArray:
