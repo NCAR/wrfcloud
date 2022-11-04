@@ -83,6 +83,9 @@ Resources:
                     - aws s3 cp s3://wrfcloud-dep-src/g2clib-1.6.0-patch.tar.gz .
                     - aws s3 cp s3://wrfcloud-dep-src/udunits-2.2.28.tar.gz .
                     - aws s3 cp s3://wrfcloud-dep-src/ncview-2.1.7.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/cmake-3.25.0-rc3.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/libaec-v1.0.6.tar.gz .
+                    - aws s3 cp s3://wrfcloud-dep-src/eccodes-2.27.0-Source.tar.gz .
 
               - name: build-zlib
                 action: ExecuteBash
@@ -263,6 +266,51 @@ Resources:
                     - echo 'export PYTHON39=/opt/python' | tee -a /etc/bashrc
                     - echo 'export PATH=${PYTHON39}/bin:${PATH}' | tee -a /etc/bashrc
 
+              - name: build-cmake
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - cd /opt/src
+                    - tar -xzf cmake-3.25.0-rc3.tar.gz
+                    - cd cmake-3.25.0-rc3
+                    - ./configure --prefix=/opt/cmake
+                    - gmake install
+                    - echo 'export CMAKE=/opt/cmake' | tee -a /etc/bashrc
+                    - echo 'export PATH=${CMAKE}/bin:${PATH}' | tee -a /etc/bashrc
+
+              - name: build-libaec
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - cd /opt/src
+                    - tar -xzf libaec-v1.0.6.tar.gz
+                    - cd libaec-v1.0.6
+                    - mkdir build
+                    - cd build
+                    - cmake -DCMAKE_INSTALL_PREFIX=/opt/libaec .. 2>&1 | tee cmake.log        
+                    - make -j 8 2>&1 | tee build.log
+                    - make install
+                    - echo 'export LIBAEC=/opt/libaec' | tee -a /etc/bashrc
+                    - echo 'export PATH=${LIBAEC}/bin:${PATH}' | tee -a /etc/bashrc
+                    - echo 'export LD_LIBRARY_PATH=${LIBAEC}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
+
+              - name: build-eccodes
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - cd /opt/src
+                    - tar -xzf eccodes-2.27.0-Source.tar.gz
+                    - cd eccodes-2.27.0-Source
+                    - mkdir build
+                    - cd build
+                    - cmake -DCMAKE_INSTALL_PREFIX=/opt/eccodes -DAEC_LIBRARY=/opt/libaec/lib64/libaec.so -DAEC_INCLUDE_DIR=/opt/libaec/include .. 2>&1 | tee cmake.log        
+                    - make -j 8 2>&1 | tee build.log
+                    - make install
+                    - echo 'export ECCCODES_DIR=/opt/eccodes' | tee -a /etc/bashrc
+
               - name: wrfcloud
                 action: ExecuteBash
                 inputs:
@@ -329,7 +377,7 @@ Resources:
                     - EOF
                     - ./compile 2>&1 | tee build.log
                     - cd /home/ec2-user
-                    - chown -R ec2-user.ec2-user UPP
+                    - chown -R ec2-user.ec2-user UPP        
 
   WrfImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
