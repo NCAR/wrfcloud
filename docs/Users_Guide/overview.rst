@@ -44,6 +44,9 @@ The main components of the framework and how they interact with eachother are sh
 
 .. figure:: figure/overview-figure_2.png
 
+Cloud Formation
+---------------
+Cloud formation is used to provision and manage all AWS resources.
 
 Web Application (User Interface) 
 --------------------------------
