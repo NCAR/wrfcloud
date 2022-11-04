@@ -72,20 +72,7 @@ Resources:
                   commands:
                     - mkdir -p /opt/src
                     - cd /opt/src
-                    - aws s3 cp s3://wrfcloud-dep-src/zlib-1.2.11.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/szip-2.1.1.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/hdf5-1.10.5.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/netcdf-4.7.3.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/netcdf-cxx-4.3.1.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/netcdf-fortran-4.5.2.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/libpng-1.2.50.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/jasper-1.900.1.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/g2clib-1.6.0-patch.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/udunits-2.2.28.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/ncview-2.1.7.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/cmake-3.25.0-rc3.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/libaec-v1.0.6.tar.gz .
-                    - aws s3 cp s3://wrfcloud-dep-src/eccodes-2.27.0-Source.tar.gz .
+                    - aws s3 sync s3://wrfcloud-dep-src .
 
               - name: build-zlib
                 action: ExecuteBash
@@ -275,8 +262,7 @@ Resources:
                     - tar -xzf cmake-3.25.0-rc3.tar.gz
                     - cd cmake-3.25.0-rc3
                     - ./configure --prefix=/opt/cmake 2>&1 | tee configure.log
-                    - gmake 2>&1 | tee build.log
-                    - gmake install 2>&1 | tee install.log
+                    - gmake install 2>&1 | tee build.log
                     - echo 'export CMAKE=/opt/cmake' | tee -a /etc/bashrc
                     - echo 'export PATH=${CMAKE}/bin:${PATH}' | tee -a /etc/bashrc
 
@@ -291,8 +277,7 @@ Resources:
                     - mkdir build
                     - cd build
                     - cmake -DCMAKE_INSTALL_PREFIX=/opt/libaec .. 2>&1 | tee cmake.log        
-                    - make -j 8 2>&1 | tee build.log
-                    - make install 2>&1 | tee install.log
+                    - make -j 8 install 2>&1 | tee build.log
                     - echo 'export LIBAEC=/opt/libaec' | tee -a /etc/bashrc
                     - echo 'export PATH=${LIBAEC}/bin:${PATH}' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH=${LIBAEC}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
@@ -303,13 +288,12 @@ Resources:
                   commands:
                     - source /etc/bashrc
                     - cd /opt/src
-                    - tar -xzf eccodes-2.27.0-Source.tar.gz
+                    - tar -xzf eccodes-2.27.0.tar.gz
                     - cd eccodes-2.27.0-Source
                     - mkdir build
                     - cd build
-                    - cmake -DCMAKE_INSTALL_PREFIX=/opt/eccodes -DAEC_LIBRARY=/opt/libaec/lib64/libaec.so -DAEC_INCLUDE_DIR=/opt/libaec/include .. 2>&1 | tee cmake.log        
-                    - make -j 8 2>&1 | tee build.log
-                    - make install 2>&1 | tee install.log
+                    - cmake -DCMAKE_INSTALL_PREFIX=/opt/eccodes -DAEC_LIBRARY=${LIBAEC}/lib64/libaec.so -DAEC_INCLUDE_DIR=${LIBAEC}/include .. 2>&1 | tee cmake.log        
+                    - make -j 8 install 2>&1 | tee build.log
                     - echo 'export ECCODES_DIR=/opt/eccodes' | tee -a /etc/bashrc
 
               - name: wrfcloud
