@@ -274,8 +274,9 @@ Resources:
                     - cd /opt/src
                     - tar -xzf cmake-3.25.0-rc3.tar.gz
                     - cd cmake-3.25.0-rc3
-                    - ./configure --prefix=/opt/cmake
-                    - gmake install
+                    - ./configure --prefix=/opt/cmake 2>&1 | tee configure.log
+                    - gmake 2>&1 | tee build.log
+                    - gmake install 2>&1 | tee install.log
                     - echo 'export CMAKE=/opt/cmake' | tee -a /etc/bashrc
                     - echo 'export PATH=${CMAKE}/bin:${PATH}' | tee -a /etc/bashrc
 
@@ -291,7 +292,7 @@ Resources:
                     - cd build
                     - cmake -DCMAKE_INSTALL_PREFIX=/opt/libaec .. 2>&1 | tee cmake.log        
                     - make -j 8 2>&1 | tee build.log
-                    - make install
+                    - make install 2>&1 | tee install.log
                     - echo 'export LIBAEC=/opt/libaec' | tee -a /etc/bashrc
                     - echo 'export PATH=${LIBAEC}/bin:${PATH}' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH=${LIBAEC}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
@@ -308,8 +309,8 @@ Resources:
                     - cd build
                     - cmake -DCMAKE_INSTALL_PREFIX=/opt/eccodes -DAEC_LIBRARY=/opt/libaec/lib64/libaec.so -DAEC_INCLUDE_DIR=/opt/libaec/include .. 2>&1 | tee cmake.log        
                     - make -j 8 2>&1 | tee build.log
-                    - make install
-                    - echo 'export ECCCODES_DIR=/opt/eccodes' | tee -a /etc/bashrc
+                    - make install 2>&1 | tee install.log
+                    - echo 'export ECCODES_DIR=/opt/eccodes' | tee -a /etc/bashrc
 
               - name: wrfcloud
                 action: ExecuteBash
