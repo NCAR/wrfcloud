@@ -40,9 +40,9 @@ System overview
 ---------------
 The main components of the framework and how they interact with eachother are shown in the overview schematic below. Details about each of the components follows.  
 
-.. _overivew-figure-two:
+.. _overivew-figure_2:
 
-.. figure:: figure/overview-figure-two.png
+.. figure:: figure/overview-figure_2.png
 
 
 Web Application (User Interface) 
