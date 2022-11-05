@@ -6,6 +6,7 @@ from concurrent.futures import ProcessPoolExecutor
 from typing import Union, List
 from gzip import compress
 import json
+from argparse import ArgumentParser
 import yaml
 import netCDF4
 from matplotlib import colors
@@ -13,8 +14,8 @@ from matplotlib import contour
 from matplotlib import pyplot
 import numpy
 from numpy.ma.core import MaskedArray
-from wrfcloud.log import Logger
 import pygrib
+from wrfcloud.log import Logger
 
 
 class GeoJson:
@@ -61,14 +62,15 @@ class GeoJson:
         elif self.file_type == 'netcdf':
             grid, self.grid_lat, self.grid_lon = self._read_from_netcdf()
         else:
-            self.log.error(f'Invalid file type: {self.file_type}.  Valid types are "netcdf" and "grib2".')
+            self.log.error(f'Invalid file type: {self.file_type}.'
+                           f'Valid types are "netcdf" and "grib2".')
             return None
 
         # create a set of contours from the data grid
         range_min = int(self.min * 10)
         range_max = int(self.max * 10)
-        ci = int(self.contour_interval*10)
-        levels = [i/10 for i in range(range_min, range_max, ci)]
+        contour_interval = int(self.contour_interval*10)
+        levels = [i/10 for i in range(range_min, range_max, contour_interval)]
         contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette)
 
         # create a set of features for the GeoJSON file
@@ -106,9 +108,9 @@ class GeoJson:
                         "coordinates": [json.loads(polygon_string)]
                     },
                     "properties": {
-                        # "stroke-width": 0,  has no effect in OpenLayers and only makes the data set larger
+                        # "stroke-width": 0,  no effect in OpenLayers--only makes data set larger
                         "fill": level_color
-                        # "fill-opacity": 1   has no effect in OpenLayers and only makes the data set larger
+                        # "fill-opacity": 1   no effect in OpenLayers--only makes data set larger
                     }
                 }
 
@@ -156,7 +158,7 @@ class GeoJson:
         :return: data, latitude, longitude
         """
         # read grib2 file with pygrib & eccodes
-        wrf = pygrib.open(self.wrf_file)
+        wrf = pygrib.open(self.wrf_file)  # pylint: disable=E1101
 
         # determine if we are after a 2D or 3D field
         grid = self._read_2d_from_grib(wrf) if self.z_level is None else self._read_3d_from_grib(wrf)
@@ -167,9 +169,10 @@ class GeoJson:
 
         return grid, grid_lat, grid_lon
 
-    def _read_2d_from_grib(self, wrf: pygrib.open) -> MaskedArray:
+    def _read_2d_from_grib(self, wrf: any) -> MaskedArray:
         """
         Read the 2D variable data from a GRIB2 file
+        :param wrf: pygrib.open object to read the GRIB2 file
         :return: data
         """
         # read grib2 file with pygrib & eccodes
@@ -178,9 +181,10 @@ class GeoJson:
 
         return grid
 
-    def _read_3d_from_grib(self, wrf: pygrib.open) -> MaskedArray:
+    def _read_3d_from_grib(self, wrf: any) -> MaskedArray:
         """
         Read the 3D variable data from a GRIB2 file
+        :param wrf: pygrib.open object to read the GRIB2 file
         :return: data
         """
         # read grib2 file with pygrib & eccodes
@@ -262,8 +266,6 @@ def main():
     """
     Command line entry point to run the converter
     """
-    from argparse import ArgumentParser
-
     # parse the command line parameters
     parser = ArgumentParser(description='Convert WRF (netCDF or GRIB2) to GeoJSON format')
     parser.add_argument('--type', type=str, help='"grib2" or "netcdf"', required=True)
