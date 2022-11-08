@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Wrapper script for creating, submitting, and monitoring runs of the wrfcloud framework.
 
@@ -67,7 +65,3 @@ def main() -> None:
     postproc = PostProc(runinfo)
     postproc.start()
     log.debug(postproc.get_run_summary())
-
-
-if __name__ == "__main__":
-    main()

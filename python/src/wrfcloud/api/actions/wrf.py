@@ -222,6 +222,7 @@ class GetWrfGeoJson(Action):
         # build the S3 object key
         cycle_time_str = utc.localize(datetime.utcfromtimestamp(cycle_time / 1000)).strftime('%Y%m%d%H%M%S')
         valid_time_str = utc.localize(datetime.utcfromtimestamp(valid_time / 1000)).strftime('%Y-%m-%d_%H-%M-%S')
+
         key = f'{self.prefix}/{configuration}/{cycle_time_str}/wrfout_d01_{valid_time_str}_{variable}.geojson.gz'
 
         # read the object from S3
@@ -283,33 +284,22 @@ class RunWrf(Action):
             config_file['run']['output_freq_sec'] = self.request['output_frequency']
             config_file['run']['configuration'] = config_name
             config_data = yaml.dump(config_file)
-            config_b64_gz = base64.b64encode(gzip.compress(bytes(config_data,encoding='utf8'))).decode()
+            config_b64_gz = base64.b64encode(gzip.compress(bytes(config_data, encoding='utf8'))).decode()
 
             # create the custom action to start the model
-            script = f'#! /usr/bin/su ec2-user\n' \
-                     f'# source /etc/bashrc\n' \
-                     f'mkdir -p /data/{self.ref_id}\n' \
-                     f'cd /data/{self.ref_id}\n' \
-                     f'echo -n "{config_b64_gz}" | base64 -d | gunzip > run.yml\n' \
-                     f'aws s3 sync s3://wrfcloud-xfer-tmp/ .\n' \
-                     f'mkdir -p configurations/{config_name};\n' \
-                     f'mv geo_em.d01.nc configurations/{config_name} \n' \
-                     f'cp namelist.wps configurations/{config_name} \n' \
-                     f'cp namelist.input configurations/{config_name} \n' \
-                     f'unset I_MPI_OFI_PROVIDER \n' \
-                     f'wrfcloud-run > log.wrfcloud-run 2>&1 & \n'
+            script_template = pkgutil.get_data('wrfcloud', 'api/actions/resources/run_wrf_template.sh').decode()
+            script = script_template\
+                .replace('__REF_ID__', self.ref_id)\
+                .replace('__CONFIG_NAME__', config_name)\
+                .replace('__CONFIG_B64_GZ__', config_b64_gz)
             ca = CustomAction(self.ref_id, script)
-
-            # start the cluster
-            wrfcloud_cluster = WrfCloudCluster(self.ref_id)
-            wrfcloud_cluster.create_cluster(ca, False)
 
             # create information for a new job
             job: WrfJob = WrfJob()
             job.job_id = self.ref_id
             job.job_name = self.request['job_name']
             job.configuration_name = self.request['configuration_name']
-            job.cycle_time = start_date
+            job.cycle_time = int(start_date.timestamp())
             job.forecast_length = forecast_len_sec
             job.output_frequency = self.request['output_frequency']
             job.status_code = WrfJob.STATUS_CODE_STARTING
@@ -320,6 +310,10 @@ class RunWrf(Action):
             job_added = job_dao.add_job(job)
             if not job_added:
                 self.log.warn('Failed to add job information to database.')
+
+            # start the cluster
+            wrfcloud_cluster = WrfCloudCluster(self.ref_id)
+            wrfcloud_cluster.create_cluster(ca, False)
 
         except Exception as e:
             self.log.error('Failed to launch WRF job', e)

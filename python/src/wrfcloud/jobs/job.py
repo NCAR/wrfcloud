@@ -4,6 +4,7 @@ The WrfJob class is the data model used to represent a user and associated funct
 
 import copy
 from typing import Union
+from datetime import datetime
 from wrfcloud.log import Logger
 
 
@@ -81,6 +82,10 @@ class WrfJob:
         self.status_code = None if 'status_code' not in data else data['status_code']
         self.status_message = None if 'status_message' not in data else data['status_message']
         self.progress = None if 'progress' not in data else data['progress']
+
+        # always store cycle time as an integer
+        if isinstance(self.cycle_time, datetime):
+            self.cycle_time = int(self.cycle_time.timestamp())
 
     @property
     def sanitized_data(self) -> Union[dict, None]:
