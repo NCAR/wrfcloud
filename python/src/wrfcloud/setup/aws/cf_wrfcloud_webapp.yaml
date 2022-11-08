@@ -109,6 +109,11 @@ Resources:
                   - Fn::ImportValue: !Sub 'dynamodb-table-subscribers-${DeploymentType}-${AppName}'
               - Effect: Allow
                 Action:
+                  - s3:ListAllMyBuckets
+                Resource:
+                  - '*'
+              - Effect: Allow
+                Action:
                   - s3:ListBucket
                   - s3:GetObject
                 Resource:

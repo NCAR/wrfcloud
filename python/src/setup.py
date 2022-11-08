@@ -22,7 +22,8 @@ setup(
         'matplotlib>=3.3.0',
         'numpy>=1.23.0',
         'requests>=2.20',
-        'pytz>=2020.4'
+        'pytz>=2020.4',
+        'pygrib>=2.1.4'
     ],
     package_dir={'wrfcloud': 'wrfcloud'},
     package_data={
@@ -35,7 +36,9 @@ setup(
             'user/table.yaml',
             'aws/resources/cf_imagebuilder_wrf_intel.yaml',
             'aws/resources/cluster.wrfcloud.yaml',
-            'runtime/configurations/test/namelist.*'
+            'runtime/configurations/test/namelist.*',
+            'runtime/resources/*.yaml',
+            'api/actions/resources/run_wrf_template.sh'
         ]
     },
     include_package_data=True,

@@ -1,0 +1,98 @@
+# A list of products to create from the UPP GRIB2 files
+#
+# grib2:
+#   variable: Short name in the grib file
+# netcdf:
+#   variable: NetCDF variable name
+# range:
+#   min: Lowest value for the color scale (grib file units)
+#   max: Highest value for the color scale (grib file units)
+# contour_interval: Value difference between contour levels (grib file units)
+# palette: Name of the color palette to use: https://matplotlib.org/stable/gallery/color/colormap_reference.html
+# z_levels: Optional, vertical level to plot for 3D variables
+---
+products:
+  # 2D variables
+  - grib2:
+      variable: 2t
+    netcdf:
+      variable: T2
+    range:
+      min: 258
+      max: 318
+    contour_interval: 2
+    palette: viridis
+  - grib2:
+      variable: dpt
+    range:
+      min: 248
+      max: 308
+    contour_interval: 2
+    palette: BrBG_r
+  - grib2:
+      variable: 10u
+    range:
+      min: -60
+      max: 60
+    contour_interval: 2
+    palette: PuOr
+  - grib2:
+      variable: 10v
+    range:
+      min: -60
+      max: 60
+    contour_interval: 2
+    palette: PuOr
+  - grib2:
+      variable: prmsl
+    range:
+      min: 92000
+      max: 104000
+    contour_interval: 200
+    palette: winter
+  - grib2:
+      variable: r
+    range:
+      min: 0
+      max: 100
+    contour_interval: 5
+    palette: BrBG
+  - grib2:
+      variable: cape
+    range:
+      min: 0
+      max: 6000
+    contour_interval: 500
+    palette: BrBG
+  - grib2:
+      variable: cin
+    range:
+      min: -600
+      max: 0
+    contour_interval: 10
+    palette: viridis
+  - grib2:
+      variable: refc
+    range:
+      min: 10
+      max: 70
+    contour_interval: 5
+    palette: viridis
+
+  # 3D variables - 700mb
+  - grib2:
+      variable: t
+    range:
+      min: 245
+      max: 313
+    contour_interval: 1
+    palette: viridis
+    z_levels:
+      - 1000
+      - 925
+      - 850
+      - 700
+      - 500
+      - 300
+      - 250
+      - 100

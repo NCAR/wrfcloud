@@ -5,6 +5,7 @@ user:
 static:
     wpscodedir: /home/ec2-user/WPS
     wrfcodedir: /home/ec2-user/WRF
+    uppcodedir: /home/ec2-user/UPP
 #This section specifies settings about what job is to be run
 run:
     configuration: test
