@@ -37,6 +37,9 @@ import {LayerComponent} from './layer/layer.component';
 import {PreferencesComponent} from './preferences/preferences.component';
 import {LogoutComponent} from './logout/logout.component';
 import {MatBadgeModule} from "@angular/material/badge";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
+
 
 @NgModule({
   declarations: [
@@ -77,7 +80,9 @@ import {MatBadgeModule} from "@angular/material/badge";
         MatProgressBarModule,
         MatSliderModule,
         MatCheckboxModule,
-        MatBadgeModule
+        MatBadgeModule,
+        MatDatepickerModule,
+        MatNativeDateModule
     ],
   providers: [],
   bootstrap: [AppComponent]

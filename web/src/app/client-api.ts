@@ -464,6 +464,8 @@ export class ClientApi
   }
 
 
+  public sendLaunchWrf()
+
   /**
    * Send a refresh token request
    *
@@ -867,4 +869,14 @@ export interface JobStatusResponse extends ApiResponse
   data: {
     job: Job
   }
+}
+
+export interface RunWrfRequest
+{
+  job_name: string;
+  configuration_name: string;
+  start_time: number;
+  forecast_length: number;
+  output_frequency: number;
+  notify: boolean;
 }

@@ -1,3 +1,51 @@
-<div class="placeholder-style">
-  Launch a WRF Job
+
+<div class="launch-container">
+  <div class="launch-title">
+    Launch WRF Model
+  </div>
+
+  <div class="launch-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Job Name</mat-label>
+      <input matInput type="text" [(ngModel)]="req.job_name" autofocus>
+    </mat-form-field>
+  </div>
+
+  <div class="launch-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Choose a date</mat-label>
+      <input matInput [matDatepicker]="picker">
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="launch-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Forecast Length</mat-label>
+      <input matInput type="text" [(ngModel)]="req.forecast_length">
+    </mat-form-field>
+  </div>
+
+  <div class="launch-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Output Frequency</mat-label>
+      <input matInput type="text" [(ngModel)]="req.output_frequency">
+    </mat-form-field>
+  </div>
+
+  <div class="launch-input-container">
+    <mat-checkbox [(ngModel)]="req.notify" labelPosition="after">
+      Notify when complete
+    </mat-checkbox>
+  </div>
+
+  <div class="launch-input-container">
+    <button mat-raised-button class="launch-button" color="primary">
+      Launch
+    </button>
+  </div>
 </div>
+
+{{req.configuration_name}}
