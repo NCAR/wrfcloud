@@ -60,7 +60,8 @@ class MetGrid(Process):
         Main routine that sets up, runs, and monitors metgrid end-to-end
         """
         self.log.info('Unsetting I_MPI_OFI_PROVIDER so that EFA support is not required')
-        os.environ.pop('I_MPI_OFI_PROVIDER')
+        if 'I_MPI_OFI_PROVIDER' in os.environ:
+            os.environ.pop('I_MPI_OFI_PROVIDER')
 
         self.log.info(f'Setting up metgrid for "{self.runinfo.name}"')
 
