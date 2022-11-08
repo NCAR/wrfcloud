@@ -94,4 +94,4 @@ New features being considered for future releases:
 Code support
 ============
 
-At this time, support beyond the contents of this User's Guide is available through established collaborations only. Please contact `COMET <https://www.comet.ucar.edu/form/contact>`_ for further inquiries. 
+At this time, support beyond the contents of this User's Guide is available through established collaborations only. Please use the contact form on wrfcloud.com for further inquires.
