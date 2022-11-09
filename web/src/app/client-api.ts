@@ -464,7 +464,14 @@ export class ClientApi
   }
 
 
-  public sendLaunchWrf()
+  /**
+   * Launch a WRF run
+   */
+  public sendLaunchWrf(): void
+  {
+
+  }
+
 
   /**
    * Send a refresh token request

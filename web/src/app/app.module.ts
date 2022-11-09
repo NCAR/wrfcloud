@@ -39,6 +39,7 @@ import {LogoutComponent} from './logout/logout.component';
 import {MatBadgeModule} from "@angular/material/badge";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
+import {MatRadioModule} from "@angular/material/radio";
 
 
 @NgModule({
@@ -82,7 +83,8 @@ import {MatNativeDateModule} from "@angular/material/core";
         MatCheckboxModule,
         MatBadgeModule,
         MatDatepickerModule,
-        MatNativeDateModule
+        MatNativeDateModule,
+        MatRadioModule
     ],
   providers: [],
   bootstrap: [AppComponent]

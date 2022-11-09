@@ -13,12 +13,22 @@
 
   <div class="launch-input-container">
     <mat-form-field appearance="fill">
-      <mat-label>Choose a date</mat-label>
+      <mat-label>Cycle Date</mat-label>
       <input matInput [matDatepicker]="picker">
-      <mat-hint>MM/DD/YYYY</mat-hint>
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
+  </div>
+
+  <div class="launch-input-container launch-cycle-hour-container">
+    <mat-label>Cycle Hour</mat-label>
+    <mat-radio-group [(ngModel)]="cycleHour">
+      <div class="launch-cycle-hour-button-container">
+        <mat-radio-button *ngFor="let hour of cycleHourOptions; index as i" [value]="hour" style="column">
+          {{hour}} UTC
+        </mat-radio-button>
+      </div>
+    </mat-radio-group>
   </div>
 
   <div class="launch-input-container">

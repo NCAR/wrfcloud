@@ -8,7 +8,8 @@ import {RunWrfRequest} from "../client-api";
 })
 export class LaunchWrfComponent implements OnInit
 {
-  req: RunWrfRequest = {
+  /* request to send the API */
+  public req: RunWrfRequest = {
     job_name: '',
     configuration_name: 'test',
     start_time: LaunchWrfComponent.getDefaultStartTime(),
@@ -16,6 +17,12 @@ export class LaunchWrfComponent implements OnInit
     output_frequency: 3600,
     notify: true
   };
+
+  /* cycle hour to be added to the request before sending */
+  public cycleHour: number = 0;
+
+  /* list of valid cycle hour options */
+  public cycleHourOptions = [0, 6, 12, 18];
 
 
   constructor()
