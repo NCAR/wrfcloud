@@ -172,8 +172,7 @@ class Process:
 
         f.close()
 
-        jobid = os.system(f'sbatch -p {partname} -W {slurmfile}')
-        
+        jobid = os.system(f'/opt/slurm/bin/sbatch -p {partname} -W {slurmfile}')
 
         return True
 
