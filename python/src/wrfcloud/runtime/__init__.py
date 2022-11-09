@@ -150,7 +150,8 @@ class Process:
         os.symlink(target, link)
         return True
 
-    def submit_job(self, exename: str, ntasks: int, partname: str) -> bool:
+    @staticmethod
+    def submit_job(exename: str, ntasks: int, partname: str) -> bool:
         """
         Create a job card file and submit it to the slurm scheduler
         :param exename: Name of executable
@@ -167,7 +168,7 @@ class Process:
         f.write(f'#SBATCH --ntasks-per-node={ntasks}\n')
         f.write(f'#SBATCH --output={exename}_%j.log\n')
         f.write(f"\ndate +%s > START\n")
-        f.write(f"\nsrun --mpi=pmi2 {exename}\n")
+        f.write(f"\n/opt/slurm/bin/srun --mpi=pmi2 {exename}\n")
         f.write(f"\ndate +%s > STOP\n")
 
         f.close()

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Functions for getting input GRIB data from remote sources.
 """
