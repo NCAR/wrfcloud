@@ -38,7 +38,7 @@ import {PreferencesComponent} from './preferences/preferences.component';
 import {LogoutComponent} from './logout/logout.component';
 import {MatBadgeModule} from "@angular/material/badge";
 import {MatDatepickerModule} from "@angular/material/datepicker";
-import {MatNativeDateModule} from "@angular/material/core";
+import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MatMomentDateModule} from "@angular/material-moment-adapter";
 import {MatRadioModule} from "@angular/material/radio";
 
 
@@ -83,10 +83,12 @@ import {MatRadioModule} from "@angular/material/radio";
         MatCheckboxModule,
         MatBadgeModule,
         MatDatepickerModule,
-        MatNativeDateModule,
+        MatMomentDateModule,
         MatRadioModule
     ],
-  providers: [],
+  providers: [
+    {provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule

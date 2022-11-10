@@ -1,7 +1,17 @@
-
 <div class="launch-container">
   <div class="launch-title">
     Launch WRF Model
+  </div>
+
+  <div class="launch-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Model Configuration</mat-label>
+      <mat-select [(ngModel)]="req.configuration_name">
+        <mat-option *ngFor="let option of modelConfigOptions" [value]="option">
+          {{option}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </div>
 
   <div class="launch-input-container">
@@ -14,20 +24,22 @@
   <div class="launch-input-container">
     <mat-form-field appearance="fill">
       <mat-label>Cycle Date</mat-label>
-      <input matInput [matDatepicker]="picker">
+      <input matInput [matDatepicker]="picker" [(ngModel)]="start_time">
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
   </div>
 
   <div class="launch-input-container launch-cycle-hour-container">
-    <mat-label>Cycle Hour</mat-label>
+    <mat-label class="launch-cycle-hour-label">Cycle Hour</mat-label>
     <mat-radio-group [(ngModel)]="cycleHour">
-      <div class="launch-cycle-hour-button-container">
-        <mat-radio-button *ngFor="let hour of cycleHourOptions; index as i" [value]="hour" style="column">
-          {{hour}} UTC
-        </mat-radio-button>
-      </div>
+      <mat-grid-list cols="2" rowHeight="25px">
+        <mat-grid-tile *ngFor="let hour of cycleHourOptions" class="launch-cycle-hour-button">
+          <mat-radio-button color="primary" [value]="hour">
+            {{hour}} UTC
+          </mat-radio-button>
+        </mat-grid-tile>
+      </mat-grid-list>
     </mat-radio-group>
   </div>
 
@@ -52,10 +64,8 @@
   </div>
 
   <div class="launch-input-container">
-    <button mat-raised-button class="launch-button" color="primary">
+    <button mat-raised-button class="launch-button" color="primary" (click)="startWrf()" [disabled]="busy">
       Launch
     </button>
   </div>
 </div>
-
-{{req.configuration_name}}
