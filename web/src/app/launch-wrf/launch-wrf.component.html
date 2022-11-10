@@ -17,7 +17,7 @@
   <div class="launch-input-container">
     <mat-form-field appearance="fill">
       <mat-label>Job Name</mat-label>
-      <input matInput type="text" [(ngModel)]="req.job_name" autofocus>
+      <input matInput type="text" [(ngModel)]="req.job_name">
     </mat-form-field>
   </div>
 
@@ -30,7 +30,7 @@
     </mat-form-field>
   </div>
 
-  <div class="launch-input-container launch-cycle-hour-container">
+  <div class="launch-cycle-hour-container launch-input-container">
     <mat-label class="launch-cycle-hour-label">Cycle Hour</mat-label>
     <mat-radio-group [(ngModel)]="cycleHour">
       <mat-grid-list cols="2" rowHeight="25px">
@@ -63,9 +63,15 @@
     </mat-checkbox>
   </div>
 
-  <div class="launch-input-container">
+  <div class="launch-input-container" *ngIf="!success">
     <button mat-raised-button class="launch-button" color="primary" (click)="startWrf()" [disabled]="busy">
       Launch
     </button>
+  </div>
+
+  <div class="launch-input-container" *ngIf="success">
+    <div class="launch-success-text">
+      Success.  Forwarding to status page.
+    </div>
   </div>
 </div>

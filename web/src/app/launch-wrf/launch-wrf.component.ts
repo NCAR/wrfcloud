@@ -106,6 +106,8 @@ export class LaunchWrfComponent implements OnInit
       return;
     }
 
+    /* show success message and route to the job status page */
     this.success = true;
+    setTimeout(this.app.routeTo.bind(this.app), 1500, '/jobs');
   }
 }
