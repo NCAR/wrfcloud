@@ -2,7 +2,7 @@
 Module to convert WRF output to GeoJSON
 """
 import pkgutil
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, wait
 from typing import Union, List
 from gzip import compress
 import json
@@ -295,7 +295,7 @@ def main():
     if not auto:
         _manual_product(wrf_file, file_type, out_file, variable, value_range, contour_interval, palette, z_level)
     else:
-        _automate_products(wrf_file, file_type)
+        automate_geojson_products(wrf_file, file_type)
 
 
 def _manual_product(wrf_file: str, file_type: str, out_file: Union[str, None], variable: str, value_range: List[float],
@@ -317,11 +317,12 @@ def _manual_product(wrf_file: str, file_type: str, out_file: Union[str, None], v
         print(json.dumps(output, indent=2))
 
 
-def _automate_products(wrf_file: str, file_type: str) -> None:
+def automate_geojson_products(wrf_file: str, file_type: str) -> List[str]:
     """
     Generate all the products defined in the geojson_products.yaml file
     :param wrf_file: Input file name
-    :param
+    :param file_type: Type of input file, currently support either 'grib2' or 'netcdf'
+    :return: List of GeoJSON output files
     """
     # load the product list from the yaml file
     products_data = pkgutil.get_data('wrfcloud', 'runtime/resources/geojson_products.yaml')
@@ -332,6 +333,7 @@ def _automate_products(wrf_file: str, file_type: str) -> None:
     futures = []
 
     # create each product
+    out_files: List[str] = []
     for product in products:
         variable = product[file_type]['variable']
         value_range = [product['range']['min'], product['range']['max']]
@@ -341,12 +343,13 @@ def _automate_products(wrf_file: str, file_type: str) -> None:
         for z_level in z_levels:
             out_file = (f'{wrf_file}_{variable}' if z_level is None else f'{wrf_file}_{variable}_{z_level}')
             out_file += '.geojson.gz'
+            out_files.append(out_file)
             converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette, z_level)
             future = ppe.submit(converter.convert, out_file)
             futures.append(future)
+    wait(futures)
 
-    for future in futures:
-        future.result()
+    return out_files
 
 
 if __name__ == '__main__':

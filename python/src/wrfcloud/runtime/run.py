@@ -12,7 +12,7 @@ from wrfcloud.runtime.ungrib import Ungrib
 from wrfcloud.runtime.metgrid import MetGrid
 from wrfcloud.runtime.real import Real
 from wrfcloud.runtime.wrf import Wrf
-from wrfcloud.runtime.postproc import PostProc
+from wrfcloud.runtime.postproc import UPP, GeoJson
 from wrfcloud.runtime import RunInfo
 from wrfcloud.system import init_environment
 from wrfcloud.log import Logger
@@ -61,7 +61,12 @@ def main() -> None:
     wrf.start()
     log.debug(wrf.get_run_summary())
 
-    log.debug('Starting postproc task')
-    postproc = PostProc(runinfo)
-    postproc.start()
-    log.debug(postproc.get_run_summary())
+    log.debug('Starting UPP task')
+    upp = UPP(runinfo)
+    upp.start()
+    log.debug(upp.get_run_summary())
+
+    log.debug('Starting GeoJSON task')
+    geojson = GeoJson(runinfo, upp.grib_files)
+    geojson.start()
+    log.debug(geojson.get_run_summary())

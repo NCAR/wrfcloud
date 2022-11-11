@@ -4,16 +4,17 @@ Functions for setting up, executing, and monitoring a run of WRF post-processing
 
 import os
 import pkgutil
-from typing import Union
+from typing import Union, List
 from datetime import datetime, timedelta
 import yaml
 from f90nml import Namelist
 from wrfcloud.runtime import RunInfo, Process
 from wrfcloud.log import Logger
 from wrfcloud.runtime.tools import check_wd_exist
+from wrfcloud.runtime.tools.geojson import automate_geojson_products
 
 
-class PostProc(Process):
+class UPP(Process):
     """
     Class for setting up, executing, and monitoring a run of WRF post-processing tasks
     """
@@ -25,6 +26,7 @@ class PostProc(Process):
         self.log = Logger(self.__class__.__name__)
         self.runinfo = runinfo
         self.namelist: Union[None, Namelist] = None
+        self.grib_files: List[str] = []
 
     def _get_files(self) -> None:
         """
@@ -114,9 +116,64 @@ class PostProc(Process):
             self.log.debug('Calling run_upp')
             self._run_upp()
 
+            # create list of grib files
+            self.grib_files.append(x)
+
             # increment the date and forecast hour
             this_date = this_date + increment
             fhr = fhr + 1
 
         # TODO: Check for successful completion of postproc
         return True
+
+
+class GeoJson(Process):
+    """
+    Class for setting up, executing, and monitoring a run of WRF post-processing tasks
+    """
+    def __init__(self, runinfo: RunInfo):
+        """
+        Initialize the ProcProc object
+        """
+        super().__init__()
+        self.log = Logger(self.__class__.__name__)
+        self.runinfo = runinfo
+        self.namelist: Union[None, Namelist] = None
+
+    def run(self) -> bool:
+        """
+        Main routine that sets up, runs, and monitors post-processing end-to-end
+        """
+        try:
+            # find the grib2 files
+            grib_files = self._find_grib_files()
+
+            # create the geojson files
+            geojson_files = self._convert_to_geojson(grib_files)
+
+            # upload the geojson files to S3
+            self._upload_geojson_files(geojson_files)
+
+        except Exception as e:
+            self.log.error('Failed to convert GRIB2 files to GeoJSON.', e)
+            return False
+
+    def _find_grib_files(self) -> List[str]:
+        """
+
+        """
+        self.runinfo.uppdir
+
+    @staticmethod
+    def _convert_to_geojson(grib_files: List[str]) -> List[str]:
+        """
+        Convert the GRIB2 files into GeoJSON files
+        :param grib_files: List of GRIB2 files (full paths)
+        :return: List of GeoJSON files (full paths)
+        """
+        geojson_files = []
+        for grib_file in grib_files:
+            for geojson_file in automate_geojson_products(grib_file, 'grib2'):
+                geojson_files.append(geojson_file)
+
+        return geojson_files
