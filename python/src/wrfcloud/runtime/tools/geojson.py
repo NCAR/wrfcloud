@@ -16,6 +16,7 @@ import numpy
 from numpy.ma.core import MaskedArray
 import pygrib
 from wrfcloud.log import Logger
+from wrfcloud.system import init_environment
 
 
 class GeoJson:
@@ -266,6 +267,9 @@ def main():
     """
     Command line entry point to run the converter
     """
+    # initialize the CLI environment
+    init_environment('cli')
+
     # parse the command line parameters
     parser = ArgumentParser(description='Convert WRF (netCDF or GRIB2) to GeoJSON format')
     parser.add_argument('--type', type=str, help='"grib2" or "netcdf"', required=True)

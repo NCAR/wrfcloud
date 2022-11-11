@@ -22,7 +22,7 @@ def main() -> None:
     """
     Main routine that creates a new run and monitors it through completion
     """
-    init_environment('production')
+    init_environment('cli')
     log = Logger()
 
     log.debug('Reading command line arguments')
@@ -67,6 +67,7 @@ def main() -> None:
     log.debug(upp.get_run_summary())
 
     log.debug('Starting GeoJSON task')
-    geojson = GeoJson(runinfo, upp.grib_files)
+    geojson = GeoJson(runinfo)
+    geojson.set_grib_files(upp.grib_files)
     geojson.start()
     log.debug(geojson.get_run_summary())

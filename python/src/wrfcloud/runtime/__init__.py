@@ -98,7 +98,16 @@ class RunInfo:
         if self.wrfcores < 1 or self.wrfcores > 96:
             self.log.error(f'wrfcores valid values are <= wrfcores <= 96')
             raise ValueError(f'Invalid wrfcores value provided: {self.wrfcores}')
- 
+
+    @property
+    def start_datetime(self) -> datetime:
+        """
+        Get the start time as a datetime object
+        :return: Start time of the model as datetime object
+        """
+        date_format_str = '%Y-%m-%d_%H:%M:%S'
+        return datetime.strptime(self.startdate, date_format_str)
+
 
 class Process:
     """
