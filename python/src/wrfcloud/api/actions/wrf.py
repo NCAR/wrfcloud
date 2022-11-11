@@ -279,8 +279,8 @@ class RunWrf(Action):
             start_date = datetime.strptime(self.request['start_time'], '%Y-%m-%d %H:%M:%S')
             increment = timedelta(seconds=forecast_len_sec)
             end_time = start_date + increment
-            config_file['run']['start'] = start_date.strftime("%Y-%m-%d_%H:%M:%S")
-            config_file['run']['end'] = end_time.strftime("%Y-%m-%d_%H:%M:%S")
+            config_file['run']['start'] = start_date.strftime('%Y-%m-%d_%H:%M:%S')
+            config_file['run']['end'] = end_time.strftime('%Y-%m-%d_%H:%M:%S')
             config_file['run']['output_freq_sec'] = self.request['output_frequency']
             config_file['run']['configuration'] = config_name
             config_data = yaml.dump(config_file)

@@ -1,5 +1,7 @@
 #! /bin/bash
 
+source /etc/bashrc
+
 mkdir -p /data/__REF_ID__
 cd /data/__REF_ID__
 echo -n "__CONFIG_B64_GZ__" | base64 -d | gunzip > run.yml
