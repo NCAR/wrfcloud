@@ -162,7 +162,7 @@ class GeoJson(Process):
             return self._upload_geojson_files()
 
         except Exception as e:
-            self.log.error('Failed to convert GRIB2 files to GeoJSON.', e)
+            self.log.error('Failed to convert and/or upload GeoJSON files.', e)
             return False
 
     def _convert_to_geojson(self):
@@ -193,13 +193,17 @@ class GeoJson(Process):
         # upload each file
         upload_count = 0
         for file in self.geojson_files:
-            key = f'{prefix}/{self.runinfo.configuration}/{start_dt}'
-            res = s3.upload_file(Filename=file, Bucket=bucket, Key=key)
-            if res['ResponseMetadata']['HTTPStatusCode'] == 200:
+            file_name = file.split('/')[-1]
+            file_suffix = file_name[file_name.find('_') + 1:]
+            domain = 'DXX'
+            key = f'{prefix}/{self.runinfo.configuration}/{start_dt}/wrf_{domain}_{start_dt}_{file_suffix}'
+            try:
+                s3.upload_file(Filename=file, Bucket=bucket, Key=key)
                 upload_count += 1
-            else:
-                self.log.warn(f'Failed to upload GeoJSON file: {file}')
+            except Exception as e:
+                self.log.warn(f'Failed to upload GeoJSON file: {file}', e)
 
+        # log a message if some files failed to upload
         if upload_count != len(self.geojson_files):
             self.log.warn(f'Failed to upload all GeoJSON files: {upload_count} of {len(self.geojson_files)}')
 

@@ -38,9 +38,6 @@ def main() -> None:
     log.info(f'Setting up working directory {runinfo.wd}')
     os.makedirs(runinfo.wd, exist_ok=True)
 
-    log.debug('Initialize environment variables for specified configuration')
-    init_environment(runinfo.configuration)
-
     log.debug('Starting ungrib task')
     ungrib = Ungrib(runinfo)
     ungrib.start()
