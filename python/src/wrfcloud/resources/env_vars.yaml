@@ -198,6 +198,10 @@ cli:
   LOG_FORMAT: text
   LOG_APPLICATION_NAME: wrfcloud-cli
 
+  # AWS Account Profile
+  AWS_PROFILE: None
+  AWS_REGION: us-east-2
+
   # WRF Output
   WRF_OUTPUT_BUCKET: wrfcloud-output
   WRF_OUTPUT_PREFIX: 'output'

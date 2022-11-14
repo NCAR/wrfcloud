@@ -357,7 +357,6 @@ class WrfCloudCluster:
         Get the default subnet ID for the cluster
         :return: Subnet ID
         """
-        os.environ['AWS_PROFILE'] = 'wrfcloud'
         # get an EC2 client to query available subnets
         session = get_aws_session()
         ec2 = session.client('ec2')
@@ -407,8 +406,8 @@ def main() -> None:
     """
     Command line interface main function -- use as entrypoint
     """
-    # initialize the production environment
-    init_environment('production')
+    # initialize the cli environment
+    init_environment('cli')
 
     # library to parse command line parameters
     from argparse import ArgumentParser
@@ -428,21 +427,21 @@ def main() -> None:
     args = parser.parse_args(sys.argv[2:])
 
     # get a WrfCloudCluster instance
-    image_builder = WrfCloudCluster(cluster_name=args.name)
+    cluster = WrfCloudCluster(cluster_name=args.name)
 
     # run specified command
     if command == 'delete':
-        image_builder.delete_cluster()
+        cluster.delete_cluster()
     elif command == 'create':
-        ca = _build_custom_action(image_builder.cluster_name, args.command)
-        image_builder.create_cluster(custom_action=ca)
+        ca = _build_custom_action(cluster.cluster_name, args.command)
+        cluster.create_cluster(custom_action=ca)
     elif command == 'update':
-        image_builder.update_cluster()
+        cluster.update_cluster()
     elif command == 'status':
-        image_builder.cluster_status()
+        cluster.cluster_status()
     elif command == 'connect':
-        image_builder.connect_cluster()
+        cluster.connect_cluster()
     elif command == 'dashboard':
-        image_builder.open_dashboard()
+        cluster.open_dashboard()
     else:
         _print_usage_and_exit()
