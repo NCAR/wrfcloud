@@ -277,7 +277,7 @@ class RunWrf(Action):
             # TODO: add this to download GFS data from NWS - config_file['run'].pop('local_data')
             config_file['run']['workdir'] = f'/data/{config_name}_run'
             forecast_len_sec = self.request['forecast_length']
-            start_date = datetime.strptime(self.request['start_time'], '%Y-%m-%d %H:%M:%S')
+            start_date = utc.localize(datetime.utcfromtimestamp(self.request['start_time']))
             increment = timedelta(seconds=forecast_len_sec)
             end_time = start_date + increment
             config_file['run']['start'] = start_date.strftime('%Y-%m-%d_%H:%M:%S')

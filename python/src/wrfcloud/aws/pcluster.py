@@ -82,8 +82,9 @@ class WrfCloudCluster:
         :param ami: AMI ID to use for the cluster nodes or None for default value
         :param cluster_config: Path to cluster configuration
         """
+        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
         self.log = Logger(WrfCloudCluster.__class__.__name__)
-        self.cluster_name = cluster_name or os.environ['USER']
+        self.cluster_name = cluster_name or user
         self.region = region or get_aws_session().region_name
         self.profile = profile or 'wrfcloud'
         self.subnet = subnet or self._get_default_subnet_id()
@@ -98,8 +99,9 @@ class WrfCloudCluster:
         :param wait: Do not return until the stack status is CREATE_COMPLETE
         """
         # create the configuration file data
+        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
-        data = data.replace('__USER__', os.environ['USER'])
+        data = data.replace('__USER__', user)
         data = data.replace('__SUBNET_ID__', self.subnet)
         data = data.replace('__AMI_ID__', self.ami)
         data = data.replace('__REGION__', self.region)
@@ -142,8 +144,9 @@ class WrfCloudCluster:
             return
 
         # create the configuration file data
+        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
-        data = data.replace('__USER__', os.environ['USER'])
+        data = data.replace('__USER__', user)
         data = data.replace('__SUBNET_ID__', self.subnet)
         data = data.replace('__AMI_ID__', self.ami)
         data = data.replace('__REGION__', self.region)
@@ -249,7 +252,7 @@ class WrfCloudCluster:
         :return: Updated ParallelCluster configuration data with SSH confirmation
         """
         # get the current user
-        user = os.environ['USER']
+        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
 
         # check for the named ssh key in the account
         session = get_aws_session()
