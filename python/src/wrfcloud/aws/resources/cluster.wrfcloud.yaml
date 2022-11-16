@@ -16,6 +16,7 @@ HeadNode:
     AdditionalIamPolicies:
       - Policy: arn:aws:iam::aws:policy/AmazonS3FullAccess
       - Policy: arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+      - Policy: arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
 Scheduling:
   Scheduler: slurm
   SlurmSettings:
