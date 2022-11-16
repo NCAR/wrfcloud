@@ -34,7 +34,6 @@ class RunInfo:
         self.realdir = self.wd + '/real'
         self.wrfdir = self.wd + '/wrf'
         self.uppdir = self.wd + '/upp'
-        self.ref_id: Union[None, str] = None
 
     def read_config(self, name: str) -> None:
         """
