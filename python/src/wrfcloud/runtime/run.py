@@ -103,6 +103,7 @@ def _update_job_status(job: Union[None, WrfJob], status_code: int, status_messag
     if not job:
         return
 
+    print(f'Updating job status {job.job_id} {status_message}')  # TODO: Remove this, use a logger
     job.status_code = status_code
     job.progress = progress
     job.status_message = status_message

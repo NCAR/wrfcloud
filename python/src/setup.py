@@ -8,8 +8,8 @@ setup(
     author_email='hahnd@ucar.edu',
     maintainer='David Hahn',
     maintainer_email='hahnd@ucar.edu',
-    packages=['wrfcloud', 'wrfcloud/api', 'wrfcloud/aws', 'wrfcloud/dynamodb',
-              'wrfcloud/user', 'wrfcloud/runtime', 'wrfcloud/runtime/tools'],
+    packages=['wrfcloud', 'wrfcloud/api', 'wrfcloud/aws', 'wrfcloud/jobs', 'wrfcloud/dynamodb',
+              'wrfcloud/subscribers', 'wrfcloud/user', 'wrfcloud/runtime', 'wrfcloud/runtime/tools'],
     install_requires=[
         'boto3>=1.24.8',
         'botocore>=1.27.8',
