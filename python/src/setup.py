@@ -33,6 +33,7 @@ setup(
             'resources/password_reset.html',
             'resources/welcome_email.html',
             'imagebuilder/imagebuilder.yaml',
+            'jobs/table.yaml',
             'user/table.yaml',
             'aws/resources/cf_imagebuilder_wrf_intel.yaml',
             'aws/resources/cluster.wrfcloud.yaml',
