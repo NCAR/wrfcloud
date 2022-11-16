@@ -9,5 +9,6 @@ __all__ = [
     'user',
     'log',
     'system',
-    'runtime'
+    'runtime',
+    'jobs'
 ]

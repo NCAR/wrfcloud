@@ -131,118 +131,118 @@ Resources:
                 Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/parallelcluster/*'
               - Effect: Allow
                 Action:
-                - iam:CreateInstanceProfile
-                - iam:DeleteInstanceProfile
-                - iam:DetachRolePolicy
-                - iam:DeleteRolePolicy
-                - iam:RemoveRoleFromInstanceProfile
-                - iam:DeleteRole
-                - iam:AddRoleToInstanceProfile
+                  - iam:CreateInstanceProfile
+                  - iam:DeleteInstanceProfile
+                  - iam:DetachRolePolicy
+                  - iam:DeleteRolePolicy
+                  - iam:RemoveRoleFromInstanceProfile
+                  - iam:DeleteRole
+                  - iam:AddRoleToInstanceProfile
                 Resource:
-                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
-                - !Sub 'arn:aws:iam::${AWS::AccountId}:instance-profile/parallelcluster/*'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:instance-profile/parallelcluster/*'
               - Effect: Allow
                 Action:
-                - lambda:CreateFunction
-                - lambda:TagResource
-                - secretsmanager:DescribeSecret
-                - dynamodb:ListTagsOfResource
-                - lambda:GetFunctionConfiguration
-                - dynamodb:DeleteTable
-                - lambda:UntagResource
-                - iam:SimulatePrincipalPolicy
-                - dynamodb:TagResource
-                - lambda:ListTags
-                - dynamodb:DescribeTable
-                - dynamodb:GetItem
-                - lambda:DeleteFunction
-                - iam:GetRole
-                - iam:GetInstanceProfile
-                - iam:GetPolicy
-                - dynamodb:PutItem
-                - lambda:InvokeFunction
-                - lambda:GetFunction
-                - lambda:UpdateFunctionConfiguration
-                - dynamodb:Query
-                - dynamodb:UpdateItem
-                - dynamodb:CreateTable
-                - lambda:AddPermission
-                - lambda:RemovePermission
-                - iam:GetRolePolicy
+                  - dynamodb:CreateTable
+                  - dynamodb:DeleteTable
+                  - dynamodb:DescribeTable
+                  - dynamodb:GetItem
+                  - dynamodb:ListTagsOfResource
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                  - dynamodb:TagResource
+                  - dynamodb:UpdateItem
+                  - lambda:AddPermission
+                  - lambda:CreateFunction
+                  - lambda:DeleteFunction
+                  - lambda:GetFunction
+                  - lambda:GetFunctionConfiguration
+                  - lambda:InvokeFunction
+                  - lambda:ListTags
+                  - lambda:RemovePermission
+                  - lambda:TagResource
+                  - lambda:UntagResource
+                  - lambda:UpdateFunctionConfiguration
+                  - iam:GetInstanceProfile
+                  - iam:GetPolicy
+                  - iam:GetRole
+                  - iam:GetRolePolicy
+                  - iam:SimulatePrincipalPolicy
+                  - secretsmanager:DescribeSecret
                 Resource:
-                - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:parallelcluster-*'
-                - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:pcluster-*'
-                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
-                - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/*'
-                - !Sub 'arn:aws:iam::aws:policy/*'
-                - !Sub 'arn:aws:iam::${AWS::AccountId}:instance-profile/*'
-                - !Sub 'arn:aws:dynamodb:*:${AWS::AccountId}:table/parallelcluster-*'
-                - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:*'
+                  - !Sub 'arn:aws:dynamodb:*:${AWS::AccountId}:table/parallelcluster-*'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/*'
+                  - !Sub 'arn:aws:iam::aws:policy/*'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:instance-profile/*'
+                  - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:parallelcluster-*'
+                  - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:pcluster-*'
+                  - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:*'
               - Effect: Allow
                 Action:
-                - cloudwatch:PutDashboard
-                - ec2:AuthorizeSecurityGroupIngress
-                - ec2:ModifyVolumeAttribute
-                - route53:GetHostedZone
-                - ec2:DeleteVolume
-                - ec2:CreatePlacementGroup
-                - ec2:RevokeSecurityGroupEgress
-                - cloudwatch:ListDashboards
-                - route53:ListResourceRecordSets
-                - logs:GetLogEvents
-                - logs:FilterLogEvents
-                - ec2:ModifyVolume
-                - route53:CreateHostedZone
-                - cloudwatch:GetDashboard
-                - ec2:CreateTags
-                - ec2:ModifyNetworkInterfaceAttribute
-                - route53:ChangeResourceRecordSets
-                - ec2:DeleteNetworkInterface
-                - cloudformation:*
-                - ec2:RunInstances
-                - ec2:CreateFleet
-                - logs:CreateLogGroup
-                - ec2:CreateVolume
-                - ec2:RevokeSecurityGroupIngress
-                - ec2:CreateNetworkInterface
-                - logs:DescribeExportTasks
-                - route53:ChangeTagsForResource
-                - resource-groups:ListGroupResources
-                - ec2:AssociateAddress
-                - ec2:DisassociateAddress
-                - route53:GetChange
-                - logs:DescribeLogStreams
-                - route53:ListQueryLoggingConfigs
-                - logs:CreateExportTask
-                - cloudwatch:DeleteDashboards
-                - ec2:CreateSecurityGroup
-                - ec2:CreateSnapshot
-                - route53:DeleteHostedZone
-                - ec2:ReleaseAddress
-                - ec2:AuthorizeSecurityGroupEgress
-                - ec2:DeleteLaunchTemplate
-                - ec2:TerminateInstances
-                - ec2:DeletePlacementGroup
-                - logs:DescribeLogGroups
-                - logs:DeleteLogGroup
-                - ec2:AllocateAddress
-                - ec2:CreateLaunchTemplateVersion
-                - ec2:Describe*
-                - ec2:CreateLaunchTemplate
-                - ec2:DeleteSecurityGroup
-                - ec2:ModifyLaunchTemplate
-                - ec2:AttachNetworkInterface
-                - logs:PutRetentionPolicy
+                  - cloudformation:*
+                  - cloudwatch:PutDashboard
+                  - cloudwatch:ListDashboards
+                  - cloudwatch:GetDashboard
+                  - cloudwatch:DeleteDashboards
+                  - ec2:AllocateAddress
+                  - ec2:AssociateAddress
+                  - ec2:AuthorizeSecurityGroupEgress
+                  - ec2:AuthorizeSecurityGroupIngress
+                  - ec2:CreateSecurityGroup
+                  - ec2:CreateSnapshot
+                  - ec2:DeleteLaunchTemplate
+                  - ec2:DeletePlacementGroup
+                  - ec2:DisassociateAddress
+                  - ec2:ModifyVolume
+                  - ec2:ModifyVolumeAttribute
+                  - ec2:ReleaseAddress
+                  - ec2:TerminateInstances
+                  - ec2:CreateLaunchTemplateVersion
+                  - ec2:Describe*
+                  - ec2:CreateLaunchTemplate
+                  - ec2:DeleteSecurityGroup
+                  - ec2:ModifyLaunchTemplate
+                  - ec2:AttachNetworkInterface
+                  - ec2:CreateVolume
+                  - ec2:RevokeSecurityGroupIngress
+                  - ec2:CreateNetworkInterface
+                  - ec2:RunInstances
+                  - ec2:CreateFleet
+                  - ec2:DeleteNetworkInterface
+                  - ec2:CreateTags
+                  - ec2:ModifyNetworkInterfaceAttribute
+                  - ec2:DeleteVolume
+                  - ec2:CreatePlacementGroup
+                  - ec2:RevokeSecurityGroupEgress
+                  - logs:GetLogEvents
+                  - logs:FilterLogEvents
+                  - logs:CreateLogGroup
+                  - logs:DescribeExportTasks
+                  - logs:DescribeLogStreams
+                  - logs:CreateExportTask
+                  - logs:DescribeLogGroups
+                  - logs:DeleteLogGroup
+                  - logs:PutRetentionPolicy
+                  - resource-groups:ListGroupResources
+                  - route53:GetHostedZone
+                  - route53:ListResourceRecordSets
+                  - route53:CreateHostedZone
+                  - route53:ChangeResourceRecordSets
+                  - route53:ChangeTagsForResource
+                  - route53:GetChange
+                  - route53:ListQueryLoggingConfigs
+                  - route53:DeleteHostedZone
                 Resource: '*'
               - Effect: Allow
                 Action: s3:*
                 Resource:
-                - arn:aws:s3:::parallelcluster-*
-                - arn:aws:s3:::aws-parallelcluster-*
+                  - arn:aws:s3:::parallelcluster-*
+                  - arn:aws:s3:::aws-parallelcluster-*
               - Effect: Allow
                 Action:
-                - s3:Get*
-                - s3:List*
+                  - s3:Get*
+                  - s3:List*
                 Resource: arn:aws:s3:::*-aws-parallelcluster*
               - Effect: Allow
                 Action: elasticfilesystem:*
