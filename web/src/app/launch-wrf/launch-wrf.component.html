@@ -16,7 +16,7 @@
 
   <div class="launch-input-container">
     <mat-form-field appearance="fill">
-      <mat-label>Job Name</mat-label>
+      <mat-label>Job Name (Optional)</mat-label>
       <input matInput type="text" [(ngModel)]="req.job_name">
     </mat-form-field>
   </div>
@@ -30,8 +30,8 @@
     </mat-form-field>
   </div>
 
-  <div class="launch-cycle-hour-container launch-input-container">
-    <mat-label class="launch-cycle-hour-label">Cycle Hour</mat-label>
+  <div class="launch-shaded-container launch-input-container">
+    <mat-label class="launch-input-label">Cycle Hour</mat-label>
     <mat-radio-group [(ngModel)]="cycleHour">
       <mat-grid-list cols="2" rowHeight="25px">
         <mat-grid-tile *ngFor="let hour of cycleHourOptions" class="launch-cycle-hour-button">
@@ -43,27 +43,45 @@
     </mat-radio-group>
   </div>
 
-  <div class="launch-input-container">
-    <mat-form-field appearance="fill">
-      <mat-label>Forecast Length</mat-label>
-      <input matInput type="text" [(ngModel)]="req.forecast_length">
-    </mat-form-field>
+  <div class="launch-shaded-container launch-input-container">
+    <mat-label class="launch-input-label">Forecast Length: {{secondsToHoursLabel(req.forecast_length, true)}}</mat-label>
+    <mat-slider
+      thumbLabel
+      class="launch-time-slider"
+      [(ngModel)]="req.forecast_length"
+      [displayWith]="secondsToHoursLabel"
+      tickInterval="auto"
+      step="3600"
+      min="3600"
+      max="1382400"
+      aria-label="seconds">
+    </mat-slider>
+  </div>
+
+  <div class="launch-shaded-container launch-input-container">
+    <mat-label class="launch-input-label">Output Frequency: {{secondsToHoursLabel(req.output_frequency, true)}}</mat-label>
+    <mat-slider
+      thumbLabel
+      class="launch-time-slider"
+      [(ngModel)]="req.output_frequency"
+      [displayWith]="secondsToHoursLabel"
+      tickInterval="auto"
+      step="1200"
+      min="1200"
+      max="10800"
+      aria-label="seconds">
+    </mat-slider>
   </div>
 
   <div class="launch-input-container">
-    <mat-form-field appearance="fill">
-      <mat-label>Output Frequency</mat-label>
-      <input matInput type="text" [(ngModel)]="req.output_frequency">
-    </mat-form-field>
-  </div>
-
-  <div class="launch-input-container">
-    <mat-checkbox [(ngModel)]="req.notify" labelPosition="after">
-      Notify when complete
+    <mat-checkbox class="launch-checkbox" [(ngModel)]="req.notify" labelPosition="after">
+      Notify when finished
     </mat-checkbox>
   </div>
 
   <div class="launch-input-container" *ngIf="!success">
+    <mat-progress-bar *ngIf="busy" class="launch-progress" mode="determinate" [value]="submitProgress">
+    </mat-progress-bar>
     <button mat-raised-button class="launch-button" color="primary" (click)="startWrf()" [disabled]="busy">
       Launch
     </button>

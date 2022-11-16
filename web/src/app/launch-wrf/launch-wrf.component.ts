@@ -1,7 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ApiResponse, RunWrfRequest, RunWrfResponse} from "../client-api";
-import {TEXT_ALIGN} from "ol/render/canvas/TextBuilder";
-import start = TEXT_ALIGN.start;
+import {RunWrfRequest, RunWrfResponse} from "../client-api";
 import * as moment from 'moment';
 import {AppComponent} from "../app.component";
 
@@ -25,6 +23,12 @@ export class LaunchWrfComponent implements OnInit
    * Flag to indicate a successful API response was received
    */
   public success: boolean = false;
+
+
+  /**
+   * Progress bar value for submitting the WRF job
+   */
+  public submitProgress: number = 0;
 
 
   /* request to send the API */
@@ -75,6 +79,7 @@ export class LaunchWrfComponent implements OnInit
   {
     /* start the busy spinner */
     this.busy = true;
+    this.startSubmitProgress();
 
     /* set the cycle hour on the selected date */
     this.start_time.hours(this.cycleHour);
@@ -109,5 +114,57 @@ export class LaunchWrfComponent implements OnInit
     /* show success message and route to the job status page */
     this.success = true;
     setTimeout(this.app.routeTo.bind(this.app), 1500, '/jobs');
+  }
+
+
+  /**
+   * Convert the number of seconds to hours for a slider label
+   * @param seconds
+   * @param full include full unit labels or just hour value
+   */
+  public secondsToHoursLabel(seconds: number, full: boolean = false): string
+  {
+    const hours: number = Math.trunc(seconds / 3600);
+    const minutes: number = Math.round((seconds - (hours * 3600)) / 60);
+    let label: string;
+
+    if (!full)
+    {
+      label = hours + '';
+      label += minutes > 0 ? (':' + minutes) : '';
+    }
+    else
+    {
+      label = hours > 0 ? hours + ' hours' : '';
+      label += minutes > 0 ? (minutes + ' minutes') : '';
+    }
+
+    return label;
+  }
+
+
+  /**
+   * Start the progress bar for N seconds
+   * @param seconds
+   */
+  public startSubmitProgress(seconds: number = 30): void
+  {
+    this.submitProgress = 0;
+    this.runSubmitProgress(seconds);
+  }
+
+
+  /**
+   * Run the progress bar
+   * @param seconds Complete in this many seconds
+   * @private
+   */
+  private runSubmitProgress(seconds: number = 30): void
+  {
+    const increment: number = 100 / (2 * seconds);
+    this.submitProgress += increment;
+
+    if (this.submitProgress < 100 && this.busy)
+      setTimeout(this.runSubmitProgress.bind(this), 500, seconds);
   }
 }

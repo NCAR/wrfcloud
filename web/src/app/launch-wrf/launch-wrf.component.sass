@@ -17,29 +17,49 @@
   max-height: 100px
   overflow: hidden
 
-.launch-button
-  margin-top: 20px
+.launch-checkbox
+  margin: 8px auto
   font-size: 1.25rem
 
-.launch-cycle-hour-container
+.launch-button
+  margin-top: 20px
+  margin-bottom: 50px
+  font-size: 1.25rem
+
+.launch-progress
+  width: 88vw
+  margin: 10px auto 2px auto
+
+.launch-shaded-container
   padding: 10px
   margin: 0 0 10px 0
   max-width: calc(90vw - 20px)
   background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05))
 
-.launch-cycle-hour-label
+.launch-input-label
   margin-left: 10px
   margin-top: 8px
   margin-bottom: 8px
   color: rgba(0, 0, 0, 0.6)
+  font-size: 1.15rem
 
 .launch-cycle-hour-button
   font-size: 1.0rem
+
+.launch-time-slider
+  width: 80%
+  margin: auto
 
 .launch-success-text
   text-align: center
   color: $accent-blue-dark
 
+::ng-deep .mat-slider-thumb-label-text
+  color: $accent-blue-dark !important
+  margin-left: 0 !important
+
+::ng-deep .mat-checkbox-background
+  background-color: $warn !important
 
 @media screen and ( min-width : 840px )
 
@@ -51,7 +71,7 @@
     background-image: linear-gradient($bg1, $bg2)
     margin-top: 30px
 
-  .launch-cycle-hour-container
+  .launch-shaded-container
     padding: 0 0 8px 0
     margin-bottom: 10px !important
 
