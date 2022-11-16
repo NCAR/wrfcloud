@@ -35,6 +35,7 @@ setup(
             'imagebuilder/imagebuilder.yaml',
             'jobs/table.yaml',
             'user/table.yaml',
+            'subscribers/table.yaml',
             'aws/resources/cf_imagebuilder_wrf_intel.yaml',
             'aws/resources/cluster.wrfcloud.yaml',
             'runtime/configurations/test/namelist.*',
