@@ -11,7 +11,7 @@ import urllib.parse
 import hmac
 import hashlib
 import requests
-import boto3
+from wrfcloud.system import get_aws_session
 from wrfcloud.log import Logger
 
 
@@ -61,7 +61,7 @@ def send_message_to_ws_client(url: str, request_data: str) -> bool:
     connection_id = tokens[5]
 
     # get AWS credentials
-    session = boto3.Session()
+    session = get_aws_session()
     region = session.region_name
     credentials = session.get_credentials()
     credentials = credentials.get_frozen_credentials()
