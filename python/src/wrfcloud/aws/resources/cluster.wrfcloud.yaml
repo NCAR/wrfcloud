@@ -45,6 +45,6 @@ SharedStorage:
     EbsSettings:
       VolumeType: gp3
       DeletionPolicy: Delete
-      Size: 50
+      Size: 500
       Encrypted: false
       Throughput: 720

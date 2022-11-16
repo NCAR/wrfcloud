@@ -17,7 +17,7 @@ run:
     # local_data is the name of the grib files needed, if not pulling from AWS bucket. Multiple
     # entries and wildcards are accepted. Must be in date order (e.g. initial file location must be
     # listed before forecast file location.
-    local_data: /data/input_data/gfs/2022060100/gfs.t00z.pgrb2.0p25.f*
+    # local_data: /data/input_data/gfs/2022060100/gfs.t00z.pgrb2.0p25.f*
     exists: die
 #This section specifies settings about how the job is to be run
 settings:

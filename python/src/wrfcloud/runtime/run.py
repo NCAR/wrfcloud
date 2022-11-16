@@ -91,6 +91,8 @@ def main() -> None:
         log.error('Failed to run the model', e)
         _update_job_status(job, WrfJob.STATUS_CODE_FAILED, 'Failed', 1)
 
+    # TODO: Shutdown the cluster here
+
 
 def _update_job_status(job: Union[None, WrfJob], status_code: int, status_message: str, progress: float) -> None:
     """
