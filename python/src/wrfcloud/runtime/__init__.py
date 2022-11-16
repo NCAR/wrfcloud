@@ -34,6 +34,7 @@ class RunInfo:
         self.realdir = self.wd + '/real'
         self.wrfdir = self.wd + '/wrf'
         self.uppdir = self.wd + '/upp'
+        self.ref_id: Union[None, str] = None
 
     def read_config(self, name: str) -> None:
         """
@@ -52,7 +53,8 @@ class RunInfo:
                 config = yaml.safe_load(file)
             self.log.debug('Read test.yml successfully, values are:')
         self.log.debug(f'{config}')
-        self.config= config
+        self.ref_id = config['ref_id'] if 'ref_id' in config else None
+        self.config = config
         self.wpscodedir = config['static'].get('wpscodedir',self.topdir + '/WPSV4/')
         self.log.debug(f'WPS code directory is {self.wpscodedir}')
         self.wrfcodedir = config['static'].get('wrfcodedir',self.topdir + '/WRFV4/')

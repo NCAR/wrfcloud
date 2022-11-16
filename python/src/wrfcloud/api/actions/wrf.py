@@ -273,6 +273,7 @@ class RunWrf(Action):
             # create the run configuration file
             config_file = yaml.safe_load(pkgutil.get_data('wrfcloud', 'runtime/test.yml'))
             config_name = self.request['configuration_name']
+            config_file['ref_id'] = self.ref_id
             config_file['run']['local_data'] = f'/data/{self.ref_id}/gfs.t*'
             # TODO: add this to download GFS data from NWS - config_file['run'].pop('local_data')
             config_file['run']['workdir'] = f'/data/{config_name}_run'

@@ -82,7 +82,7 @@ class WrfCloudCluster:
         :param ami: AMI ID to use for the cluster nodes or None for default value
         :param cluster_config: Path to cluster configuration
         """
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'david'  # TODO: Not this user
         self.log = Logger(WrfCloudCluster.__class__.__name__)
         self.cluster_name = cluster_name or user
         self.region = region or get_aws_session().region_name
@@ -99,7 +99,7 @@ class WrfCloudCluster:
         :param wait: Do not return until the stack status is CREATE_COMPLETE
         """
         # create the configuration file data
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'david'  # TODO: Not this user
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
         data = data.replace('__USER__', user)
         data = data.replace('__SUBNET_ID__', self.subnet)
@@ -144,7 +144,7 @@ class WrfCloudCluster:
             return
 
         # create the configuration file data
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'david'  # TODO: Not this user
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
         data = data.replace('__USER__', user)
         data = data.replace('__SUBNET_ID__', self.subnet)
@@ -252,7 +252,7 @@ class WrfCloudCluster:
         :return: Updated ParallelCluster configuration data with SSH confirmation
         """
         # get the current user
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'david'  # TODO: Not this user
 
         # check for the named ssh key in the account
         session = get_aws_session()

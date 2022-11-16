@@ -163,10 +163,12 @@ Resources:
                   - lambda:TagResource
                   - lambda:UntagResource
                   - lambda:UpdateFunctionConfiguration
+                  - iam:AttachRolePolicy
                   - iam:GetInstanceProfile
                   - iam:GetPolicy
                   - iam:GetRole
                   - iam:GetRolePolicy
+                  - iam:PutRolePolicy
                   - iam:SimulatePrincipalPolicy
                   - secretsmanager:DescribeSecret
                 Resource:
@@ -178,6 +180,11 @@ Resources:
                   - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:parallelcluster-*'
                   - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:pcluster-*'
                   - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:*'
+              - Effect: Allow
+                Action:
+                  - iam:CreateRole
+                Resource:
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/parallelcluster/*'
               - Effect: Allow
                 Action:
                   - cloudformation:*
@@ -218,6 +225,8 @@ Resources:
                   - logs:GetLogEvents
                   - logs:FilterLogEvents
                   - logs:CreateLogGroup
+                  - logs:TagLogGroup
+                  - logs:UntagLogGroup
                   - logs:DescribeExportTasks
                   - logs:DescribeLogStreams
                   - logs:CreateExportTask
