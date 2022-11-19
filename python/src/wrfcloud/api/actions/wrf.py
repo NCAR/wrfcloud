@@ -313,6 +313,8 @@ class RunWrf(Action):
 
             # start the cluster
             wrfcloud_cluster = WrfCloudCluster(self.ref_id)
+            if self.client_ip is not None:
+                wrfcloud_cluster.set_ssh_security_group_ip(self.client_ip + '/32')
             wrfcloud_cluster.create_cluster(ca, False)
 
         except Exception as e:

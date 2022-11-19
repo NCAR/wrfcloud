@@ -16,6 +16,7 @@ from wrfcloud.runtime.wrf import Wrf
 from wrfcloud.runtime.postproc import UPP, GeoJson
 from wrfcloud.runtime import RunInfo
 from wrfcloud.jobs import WrfJob, get_job_from_system, update_job_in_system
+from wrfcloud.aws.pcluster import WrfCloudCluster
 from wrfcloud.system import init_environment
 from wrfcloud.log import Logger
 
@@ -91,7 +92,13 @@ def main() -> None:
         log.error('Failed to run the model', e)
         _update_job_status(job, WrfJob.STATUS_CODE_FAILED, 'Failed', 1)
 
-    # TODO: Shutdown the cluster here
+    # Shutdown the cluster after completion or failure
+    try:
+        cluster = WrfCloudCluster(job.job_id)
+        cluster.delete_cluster()
+    except Exception as e:
+        log.error('Failed to delete cluster.', e)
+        _update_job_status(job, WrfJob.STATUS_CODE_FAILED, 'Failed to delete cluster, shutdown from AWS web console to avoid additional costs.', 1)
 
 
 def _update_job_status(job: Union[None, WrfJob], status_code: int, status_message: str, progress: float) -> None:

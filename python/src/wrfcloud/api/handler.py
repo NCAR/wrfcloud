@@ -249,8 +249,14 @@ def create_action(request: Request, user: User, lambda_context: any, ref_id: str
     try:
         action_package = 'wrfcloud.api.actions'
         action_class = getattr(importlib.import_module(action_package), request.action)
-        action_object: Action = action_class(run_as_user=user, request=request.data, client_url=request.client_url, ref_id=ref_id)
+        action_object: Action = action_class(
+            run_as_user=user,
+            request=request.data,
+            client_url=request.client_url,
+            ref_id=ref_id
+        )
         action_object.additional['lambda_context'] = lambda_context
+        action_object.client_ip = request.client_ip
         return action_object
     except Exception as e:
         Logger().error('Error creating action: %s' % request.action, e)

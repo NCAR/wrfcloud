@@ -27,15 +27,16 @@ class Action:
         :param request: Full request message for this action
         :param client_url: Optional for websocket clients.  URL to send messages to client.
         """
-        self.log = Logger(self.__class__.__name__)
-        self.ref_id = ref_id
-        self.run_as_user = run_as_user
-        self.websocket_client_url = client_url
-        self.request = request
-        self.response = {}
-        self.errors = []
-        self.success = False
-        self.additional = {}
+        self.log: Logger = Logger(self.__class__.__name__)
+        self.ref_id: str = ref_id
+        self.run_as_user: Union[User, None] = run_as_user
+        self.websocket_client_url: str = client_url
+        self.request: dict = request
+        self.response: dict = {}
+        self.errors: List[str] = []
+        self.success: bool = False
+        self.additional: dict = {}
+        self.client_ip: Union[str, None] = None
 
     def run(self) -> bool:
         """

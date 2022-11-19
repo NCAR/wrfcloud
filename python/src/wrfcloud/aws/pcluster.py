@@ -91,6 +91,14 @@ class WrfCloudCluster:
         self.ami = ami or self._get_latest_ami_id()
         self.cluster_config = cluster_config or 'aws/resources/cluster.wrfcloud.yaml'
         self.cf_client = None
+        self.ssh_cidr_ip_range: Union[str, None] = None
+
+    def set_ssh_security_group_ip(self, cidr_ip_range: str) -> None:
+        """
+        Set the CIDR block that can connect to the head node via SSH
+        :param cidr_ip_range: IP address range in CIDR notation
+        """
+        self.ssh_cidr_ip_range = cidr_ip_range
 
     def create_cluster(self, custom_action: CustomAction = None, wait: bool = True) -> None:
         """
@@ -271,6 +279,12 @@ class WrfCloudCluster:
         if not found:
             config = yaml.safe_load(data)
             config['HeadNode'].pop('Ssh')
+            data = yaml.dump(config, indent=2)
+
+        # add an IP range that can connect via SSH if provided
+        elif self.ssh_cidr_ip_range is not None:
+            config = yaml.safe_load(data)
+            config['HeadNode']['Ssh']['AllowedIps'] = self.ssh_cidr_ip_range
             data = yaml.dump(config, indent=2)
 
         return data
