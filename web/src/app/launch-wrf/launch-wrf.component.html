@@ -82,6 +82,8 @@
   <div class="launch-input-container" *ngIf="!success">
     <mat-progress-bar *ngIf="busy" class="launch-progress" mode="determinate" [value]="submitProgress">
     </mat-progress-bar>
+  </div>
+  <div class="launch-input-container">
     <button mat-raised-button class="launch-button" color="primary" (click)="startWrf()" [disabled]="busy">
       Launch
     </button>

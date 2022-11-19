@@ -147,7 +147,7 @@ export class LaunchWrfComponent implements OnInit
    * Start the progress bar for N seconds
    * @param seconds
    */
-  public startSubmitProgress(seconds: number = 30): void
+  private startSubmitProgress(seconds: number = 30): void
   {
     this.submitProgress = 0;
     this.runSubmitProgress(seconds);
@@ -161,10 +161,10 @@ export class LaunchWrfComponent implements OnInit
    */
   private runSubmitProgress(seconds: number = 30): void
   {
-    const increment: number = 100 / (2 * seconds);
+    const increment: number = 100 / (seconds * 2);
     this.submitProgress += increment;
 
     if (this.submitProgress < 100 && this.busy)
-      setTimeout(this.runSubmitProgress.bind(this), 500, seconds);
+      setTimeout(this.runSubmitProgress.bind(this), 1000, seconds);
   }
 }
