@@ -46,7 +46,8 @@ class Login(Action):
                 wrfcloud.api.auth.KEY_EMAIL: user.email,
                 wrfcloud.api.auth.KEY_ROLE: user.role_id,
             }
-            self.response[Action.REQ_KEY_JWT] = create_jwt(payload)
+            # TODO: Fix the JWT renewal in the web app, then shorten the valid time here
+            self.response[Action.REQ_KEY_JWT] = create_jwt(payload, 2592000)
             self.response[Action.REQ_KEY_REFRESH] = issue_refresh_token(user)
             self.response[Action.REQ_KEY_USER] = user.sanitized_data
             return True
