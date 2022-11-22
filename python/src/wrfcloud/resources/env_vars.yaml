@@ -6,10 +6,11 @@ test:
   SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
   SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
+  WRFCLOUD_BUCKET_NAME: wrfcloud-output
 
   # AWS Account Profile
   AWS_PROFILE: junk
-  AWS_REGION: us-east-1
+  AWS_REGION: us-east-2
 
   # API Gateway Options
   API_URL: localhost:4201
@@ -166,8 +167,46 @@ development:
 
   # WRF Output
   WRF_OUTPUT_BUCKET: wrfcloud-output
-  WRF_OUTPUT_PREFIX: ''
+  WRF_OUTPUT_PREFIX: 'output'
 
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
   AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
+
+cli:
+
+  # App
+  APP_NAME: WRF Cloud
+  SEND_EMAIL: True
+  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
+  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
+  LANGUAGE: en
+  LOCALE: us
+
+  # DynamoDB Options
+  USER_TABLE_NAME: development_wrfcloud_users
+  AUDIT_TABLE_NAME: development_wrfcloud_audit
+  REFRESH_TOKEN_TABLE_NAME: development_wrfcloud_refresh_tokens
+  JOB_TABLE_NAME: development_wrfcloud_jobs
+  SUBSCRIBER_TABLE_NAME: development_wrfcloud_subscribers
+
+  # EventBridge Options
+  EVENTBRIDGE_RULE_PREFIX: wrfcloud-
+
+  # Logging options
+  LOG_LEVEL: INFO
+  LOG_FORMAT: text
+  LOG_APPLICATION_NAME: wrfcloud-cli
+
+  # AWS Account Profile
+  AWS_PROFILE: None
+  AWS_REGION: us-east-2
+
+  # WRF Output
+  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRF_OUTPUT_PREFIX: 'output'
+
+  # Location of input data
+  NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
+  AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
+

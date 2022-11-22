@@ -19,21 +19,24 @@ class Action:
     REQ_KEY_USER = 'user'
     REQ_KEY_DATA = 'data'
 
-    def __init__(self, run_as_user: Union[User, None] = None, request: dict = None, client_url: str = None):
+    def __init__(self, ref_id: str, run_as_user: Union[User, None] = None, request: dict = None, client_url: str = None):
         """
         Initialize the action
+        :param ref_id: Reference ID of the request
         :param run_as_user: Run the action as this user
         :param request: Full request message for this action
         :param client_url: Optional for websocket clients.  URL to send messages to client.
         """
-        self.log = Logger(self.__class__.__name__)
-        self.run_as_user = run_as_user
-        self.websocket_client_url = client_url
-        self.request = request
-        self.response = {}
-        self.errors = []
-        self.success = False
-        self.additional = {}
+        self.log: Logger = Logger(self.__class__.__name__)
+        self.ref_id: str = ref_id
+        self.run_as_user: Union[User, None] = run_as_user
+        self.websocket_client_url: str = client_url
+        self.request: dict = request
+        self.response: dict = {}
+        self.errors: List[str] = []
+        self.success: bool = False
+        self.additional: dict = {}
+        self.client_ip: Union[str, None] = None
 
     def run(self) -> bool:
         """

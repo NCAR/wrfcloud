@@ -52,7 +52,8 @@ class RunInfo:
                 config = yaml.safe_load(file)
             self.log.debug('Read test.yml successfully, values are:')
         self.log.debug(f'{config}')
-        self.config= config
+        self.ref_id = config['ref_id'] if 'ref_id' in config else None
+        self.config = config
         self.wpscodedir = config['static'].get('wpscodedir',self.topdir + '/WPSV4/')
         self.log.debug(f'WPS code directory is {self.wpscodedir}')
         self.wrfcodedir = config['static'].get('wrfcodedir',self.topdir + '/WRFV4/')
@@ -98,7 +99,16 @@ class RunInfo:
         if self.wrfcores < 1 or self.wrfcores > 96:
             self.log.error(f'wrfcores valid values are <= wrfcores <= 96')
             raise ValueError(f'Invalid wrfcores value provided: {self.wrfcores}')
- 
+
+    @property
+    def start_datetime(self) -> datetime:
+        """
+        Get the start time as a datetime object
+        :return: Start time of the model as datetime object
+        """
+        date_format_str = '%Y-%m-%d_%H:%M:%S'
+        return datetime.strptime(self.startdate, date_format_str)
+
 
 class Process:
     """
@@ -150,7 +160,8 @@ class Process:
         os.symlink(target, link)
         return True
 
-    def submit_job(self, exename: str, ntasks: int, partname: str) -> bool:
+    @staticmethod
+    def submit_job(exename: str, ntasks: int, partname: str) -> bool:
         """
         Create a job card file and submit it to the slurm scheduler
         :param exename: Name of executable
@@ -167,13 +178,12 @@ class Process:
         f.write(f'#SBATCH --ntasks-per-node={ntasks}\n')
         f.write(f'#SBATCH --output={exename}_%j.log\n')
         f.write(f"\ndate +%s > START\n")
-        f.write(f"\nsrun --mpi=pmi2 {exename}\n")
+        f.write(f"\n/opt/slurm/bin/srun --mpi=pmi2 {exename}\n")
         f.write(f"\ndate +%s > STOP\n")
 
         f.close()
 
-        jobid = os.system(f'sbatch -p {partname} -W {slurmfile}')
-        
+        jobid = os.system(f'/opt/slurm/bin/sbatch -p {partname} -W {slurmfile}')
 
         return True
 

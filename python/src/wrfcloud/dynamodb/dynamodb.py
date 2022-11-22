@@ -5,6 +5,7 @@ A base class for generic DynamoDB functions
 from typing import Union, List, Dict
 import boto3
 from wrfcloud.log import Logger
+from wrfcloud.system import get_aws_session
 
 
 class DynamoDao:
@@ -277,7 +278,8 @@ class DynamoDao:
         if self.client is not None:
             return self.client
 
-        self.client = boto3.client('dynamodb', endpoint_url=self.endpoint_url)
+        session = get_aws_session()
+        self.client = session.client('dynamodb', endpoint_url=self.endpoint_url)
         return self.client
 
     def _dict_to_dynamo(self, data: dict, set_ok: bool = False, recursed: bool = False) -> dict:

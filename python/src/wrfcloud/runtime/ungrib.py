@@ -83,7 +83,7 @@ class Ungrib(Process):
         """Main routine that sets up, runs, and monitors ungrib end-to-end"""
         self.log.info(f'Setting up ungrib for "{self.runinfo.name}"')
 
-        #Check if experiment working directory already exists, take action based on value of runinfo.exists
+        # check if experiment working directory already exists, take action based on value of runinfo.exists
         action = check_wd_exist(self.runinfo.exists,self.runinfo.ungribdir)
         if action == "skip":
             return True

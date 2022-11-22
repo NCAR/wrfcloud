@@ -7,7 +7,7 @@ import os
 import json
 from typing import List, Union
 from wrfcloud.system import get_aws_session
-from wrfcloud.schedule import Schedule
+from wrfcloud.schedule.schedule import Schedule
 from wrfcloud.log import Logger
 
 

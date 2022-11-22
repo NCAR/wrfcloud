@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Functions for setting up and creating namelist.wps
 """
