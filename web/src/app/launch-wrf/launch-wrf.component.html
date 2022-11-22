@@ -1,3 +1,97 @@
-<div class="placeholder-style">
-  Launch a WRF Job
+<div class="launch-container">
+  <div class="launch-title">
+    Launch WRF Model
+  </div>
+
+  <div class="launch-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Model Configuration</mat-label>
+      <mat-select [(ngModel)]="req.configuration_name">
+        <mat-option *ngFor="let option of modelConfigOptions" [value]="option">
+          {{option}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="launch-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Job Name (Optional)</mat-label>
+      <input matInput type="text" [(ngModel)]="req.job_name">
+    </mat-form-field>
+  </div>
+
+  <div class="launch-input-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Cycle Date</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)]="start_time">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="launch-shaded-container launch-input-container">
+    <mat-label class="launch-input-label">Cycle Hour</mat-label>
+    <mat-radio-group [(ngModel)]="cycleHour">
+      <mat-grid-list cols="2" rowHeight="25px">
+        <mat-grid-tile *ngFor="let hour of cycleHourOptions" class="launch-cycle-hour-button">
+          <mat-radio-button color="primary" [value]="hour">
+            {{hour}} UTC
+          </mat-radio-button>
+        </mat-grid-tile>
+      </mat-grid-list>
+    </mat-radio-group>
+  </div>
+
+  <div class="launch-shaded-container launch-input-container">
+    <mat-label class="launch-input-label">Forecast Length: {{secondsToHoursLabel(req.forecast_length, true)}}</mat-label>
+    <mat-slider
+      thumbLabel
+      class="launch-time-slider"
+      [(ngModel)]="req.forecast_length"
+      [displayWith]="secondsToHoursLabel"
+      tickInterval="auto"
+      step="3600"
+      min="3600"
+      max="1382400"
+      aria-label="seconds">
+    </mat-slider>
+  </div>
+
+  <div class="launch-shaded-container launch-input-container">
+    <mat-label class="launch-input-label">Output Frequency: {{secondsToHoursLabel(req.output_frequency, true)}}</mat-label>
+    <mat-slider
+      thumbLabel
+      class="launch-time-slider"
+      [(ngModel)]="req.output_frequency"
+      [displayWith]="secondsToHoursLabel"
+      tickInterval="auto"
+      step="1200"
+      min="1200"
+      max="10800"
+      aria-label="seconds">
+    </mat-slider>
+  </div>
+
+  <div class="launch-input-container">
+    <mat-checkbox class="launch-checkbox" [(ngModel)]="req.notify" labelPosition="after">
+      Notify when finished
+    </mat-checkbox>
+  </div>
+
+  <div class="launch-input-container" *ngIf="!success">
+    <mat-progress-bar *ngIf="busy" class="launch-progress" mode="determinate" [value]="submitProgress">
+    </mat-progress-bar>
+  </div>
+  <div class="launch-input-container">
+    <button mat-raised-button class="launch-button" color="primary" (click)="startWrf()" [disabled]="busy">
+      Launch
+    </button>
+  </div>
+
+  <div class="launch-input-container" *ngIf="success">
+    <div class="launch-success-text">
+      Success.  Forwarding to status page.
+    </div>
+  </div>
 </div>

@@ -37,6 +37,10 @@ import {LayerComponent} from './layer/layer.component';
 import {PreferencesComponent} from './preferences/preferences.component';
 import {LogoutComponent} from './logout/logout.component';
 import {MatBadgeModule} from "@angular/material/badge";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MatMomentDateModule} from "@angular/material-moment-adapter";
+import {MatRadioModule} from "@angular/material/radio";
+
 
 @NgModule({
   declarations: [
@@ -77,9 +81,14 @@ import {MatBadgeModule} from "@angular/material/badge";
         MatProgressBarModule,
         MatSliderModule,
         MatCheckboxModule,
-        MatBadgeModule
+        MatBadgeModule,
+        MatDatepickerModule,
+        MatMomentDateModule,
+        MatRadioModule
     ],
-  providers: [],
+  providers: [
+    {provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule

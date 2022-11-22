@@ -465,6 +465,22 @@ export class ClientApi
 
 
   /**
+   * Launch a WRF run
+   */
+  public sendLaunchWrf(requestData: RunWrfRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'RunWrf',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
    * Send a refresh token request
    *
    * @param requestData
@@ -866,5 +882,22 @@ export interface JobStatusResponse extends ApiResponse
 {
   data: {
     job: Job
+  }
+}
+
+export interface RunWrfRequest
+{
+  job_name: string;
+  configuration_name: string;
+  start_time: number;
+  forecast_length: number;
+  output_frequency: number;
+  notify: boolean;
+}
+
+export interface RunWrfResponse extends ApiResponse
+{
+  data: {
+    ref_id: string;
   }
 }
