@@ -87,6 +87,10 @@ def main() -> None:
         geojson.start()
         log.debug(geojson.get_run_summary())
 
+        # send a notification if requested
+        if job.notify:
+            job.send_complete_notification()
+
         _update_job_status(job, WrfJob.STATUS_CODE_FINISHED, 'Done', 1)
     except Exception as e:
         log.error('Failed to run the model', e)
@@ -112,7 +116,7 @@ def _update_job_status(job: Union[None, WrfJob], status_code: int, status_messag
     if not job:
         return
 
-    print(f'Updating job status {job.job_id} {status_message}')  # TODO: Remove this, use a logger
+    Logger().info(f'Updating job status {job.job_id} {status_message}')
     job.status_code = status_code
     job.progress = progress
     job.status_message = status_message

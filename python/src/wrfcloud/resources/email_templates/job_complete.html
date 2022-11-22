@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>WRF Cloud Account Activation</title>
+    <title>WRF Cloud Job Complete</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=0">
     <style>
@@ -9,7 +9,7 @@
       {
         font-family       : 'Avenir Next', 'Avenir', sans-serif;
         font-size         : 1.2em;
-        background-image  : linear-gradient(#e0ececcc, #9ca3a5cc), url('https://__APP_URL__/assets/bg.jpg');
+        background-color  : rgb(238, 238, 238);
         background-size   : cover;
         background-repeat : no-repeat;
         min-height        : 98vh;
@@ -76,17 +76,16 @@
     __APP_NAME__
 </div>
 <div class="text">
-    You have been invited to join __APP_NAME__ by your organization. Follow the link below to activate your
-    account and set up a new password.
+    Your model run is complete and can be viewed with the link below or copying and pasting the following URL into your browser.
 </div>
-<a href="https://__APP_URL__/activate?email=__EMAIL__&activation_key=__ACTIVATION_KEY__">
+<a href="https://__APP_URL__/view/__JOB_ID__">
     <div class="button">
-        Activate New Account
+        View Output
     </div>
 </a>
 <div class="instructable">
     If the above link does not work, please copy and paste the following URL into your browser:<br/>
-    https://__APP_URL__/activate?email=__EMAIL__&activation_key=__ACTIVATION_KEY__
+    https://__APP_URL__/view/__JOB_ID__
 </div>
 
 </body>

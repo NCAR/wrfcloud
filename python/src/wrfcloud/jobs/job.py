@@ -3,9 +3,12 @@ The WrfJob class is the data model used to represent a user and associated funct
 """
 
 import copy
+import base64
+import pkgutil
 from typing import Union
 from datetime import datetime
 from wrfcloud.log import Logger
+import wrfcloud.system
 
 
 class WrfJob:
@@ -15,7 +18,7 @@ class WrfJob:
 
     # list of all fields supported
     ALL_KEYS = ['job_id', 'job_name', 'configuration_name', 'cycle_time', 'forecast_length',
-                'output_frequency', 'status_code', 'status_message', 'progress']
+                'output_frequency', 'status_code', 'status_message', 'progress', 'user_email']
 
     # do not return these fields to the user
     SANITIZE_KEYS = []
@@ -45,6 +48,8 @@ class WrfJob:
         self.status_code: int = self.STATUS_CODE_PENDING
         self.status_message: Union[str, None] = None
         self.progress: float = 0
+        self.user_email: Union[str, None] = None
+        self.notify: bool = False
 
         # initialize from data if provided
         if data is not None:
@@ -65,7 +70,9 @@ class WrfJob:
             'output_frequency': self.output_frequency,
             'status_code': self.status_code,
             'status_message': self.status_message,
-            'progress': self.progress
+            'progress': self.progress,
+            'user_email': self.user_email,
+            'notify': self.notify
         }
 
     @data.setter
@@ -82,6 +89,8 @@ class WrfJob:
         self.status_code = None if 'status_code' not in data else data['status_code']
         self.status_message = None if 'status_message' not in data else data['status_message']
         self.progress = None if 'progress' not in data else data['progress']
+        self.user_email = None if 'user_email' not in data else data['user_email']
+        self.notify = False if 'notify' not in data else data['notify']
 
         # always store cycle time as an integer
         if isinstance(self.cycle_time, datetime):
@@ -124,3 +133,39 @@ class WrfJob:
             self.status_message = data['status_message']
         if 'progress' in data:
             self.progress = data['progress']
+        if 'notify' in data:
+            self.notify = data['notify']
+
+    def send_complete_notification(self):
+        """
+        Send a complete email notification
+        """
+        try:
+            img = base64.b64encode(pkgutil.get_data('wrfcloud', 'resources/logo.jpg')).decode()
+            html = pkgutil.get_data('wrfcloud', 'resources/email_templates/job_complete.html').decode()
+            html = html.replace('__APP_NAME__', wrfcloud.system.APP_NAME)
+            html = html.replace('__IMAGE_DATA__', img)
+            html = html.replace('__APP_URL__', wrfcloud.system.APP_URL)
+            html = html.replace('__JOB_ID__', self.job_id)
+            source = wrfcloud.system.SYSTEM_EMAIL_SENDER
+            dest = {'ToAddresses': [self.user_email]}
+            message = {
+                'Subject': {
+                    'Data': f'Model Run Complete {self.job_id}',
+                    'Charset': 'utf-8'
+                },
+                'Body': {
+                    'Html': {
+                        'Data': html, 'Charset': 'utf-8'
+                    }
+                }
+            }
+
+            session = wrfcloud.system.get_aws_session()
+            ses = session.client('ses')
+            ses.send_email(Source=source, Destination=dest, Message=message)
+
+            return True
+        except Exception as e:
+            self.log.error('Failed to send model complete email.', e)
+            return False

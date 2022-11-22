@@ -41,8 +41,8 @@ class MetGrid(Process):
         # Link in the FILES from ungrib
         self.log.debug('Linking FILEs from ungrib step')
         filelist = glob.glob(f'{self.runinfo.ungribdir}/FILE*')
-        for ungribfile in filelist:
-            self.symlink(ungribfile, f'{self.runinfo.metgriddir}/' + os.path.basename(ungribfile))
+        for ungrib_file in filelist:
+            self.symlink(ungrib_file, f'{self.runinfo.metgriddir}/' + os.path.basename(ungrib_file))
 
     def run_metgrid(self) -> None:
         """

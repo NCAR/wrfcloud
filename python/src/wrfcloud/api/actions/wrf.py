@@ -304,6 +304,8 @@ class RunWrf(Action):
             job.output_frequency = self.request['output_frequency']
             job.status_code = WrfJob.STATUS_CODE_STARTING
             job.status_message = 'Launching cluster'
+            job.user_email = self.run_as_user.email
+            job.notify = self.request['notify']
 
             # add the job information to the database
             job_dao = JobDao()

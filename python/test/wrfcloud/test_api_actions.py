@@ -631,31 +631,32 @@ def test_refresh_token() -> None:
     assert _test_teardown()
 
 
-def test_run_wrf() -> None:
-    """
-    Test the RunWrf API action
-    """
-    # set up the test
-    assert _test_setup()
-    user, _ = _get_sample_user('regular')
-    assert add_user_to_system(user)
-
-    # create a request to get a user's own information
-    ref_id = create_reference_id()
-    request = {
-        'job_name': 'Job name from user',
-        'configuration_name': 'test',
-        'start_time': '2022-06-01 09:00:00',
-        'forecast_length': 10800,
-        'output_frequency': 3600,
-        'notify': True
-    }
-    action = RunWrf(ref_id=ref_id, run_as_user=user, request=request)
-    assert action.run()
-    assert action.success
-
-    # teardown the test
-    assert _test_teardown()
+# TODO: This test needs access to AWS account resources and does not run in the test environment.
+# def test_run_wrf() -> None:
+#     """
+#     Test the RunWrf API action
+#     """
+#     # set up the test
+#     assert _test_setup()
+#     user, _ = _get_sample_user('regular')
+#     assert add_user_to_system(user)
+#
+#     # create a request to get a user's own information
+#     ref_id = create_reference_id()
+#     request = {
+#         'job_name': 'Job name from user',
+#         'configuration_name': 'test',
+#         'start_time': 1654095600,
+#         'forecast_length': 10800,
+#         'output_frequency': 3600,
+#         'notify': True
+#     }
+#     action = RunWrf(ref_id=ref_id, run_as_user=user, request=request)
+#     assert action.run()
+#     assert action.success
+#
+#     # teardown the test
+#     assert _test_teardown()
 
 
 # TODO: These two tests needs S3 access in the test environment -- need to consider a different testing method
