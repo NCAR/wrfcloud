@@ -601,7 +601,7 @@ Resources:
             ViewerProtocolPolicy: redirect-to-https
         Origins:
           - Id: !Ref CloudFrontOriginAccessIdentity
-            DomainName: !Sub '${WebHostName}.s3.amazonaws.com'
+            DomainName: !GetAtt CloudFormationOriginBucket.RegionalDomainName
             S3OriginConfig:
               OriginAccessIdentity:
                 Fn::Join:

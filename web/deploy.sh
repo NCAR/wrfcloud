@@ -3,7 +3,7 @@
 profile="wrfcloud"
 region="us-east-2"
 distribution_id="E1X9K3GKJ3DMF6"
-bucket="www.wrfcloud.com"
+bucket="app.wrfcloud.com"
 
 rm -Rf dist/
 ng build
