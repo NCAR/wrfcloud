@@ -5,7 +5,7 @@ The WrfJob class is the data model used to represent a user and associated funct
 import copy
 import base64
 import pkgutil
-from typing import Union
+from typing import Union, List
 from datetime import datetime
 from wrfcloud.log import Logger
 import wrfcloud.system
@@ -18,7 +18,8 @@ class WrfJob:
 
     # list of all fields supported
     ALL_KEYS = ['job_id', 'job_name', 'configuration_name', 'cycle_time', 'forecast_length',
-                'output_frequency', 'status_code', 'status_message', 'progress', 'user_email']
+                'output_frequency', 'status_code', 'status_message', 'progress', 'user_email',
+                'layers', 'domain_center']
 
     # do not return these fields to the user
     SANITIZE_KEYS = []
@@ -36,7 +37,7 @@ class WrfJob:
         Initialize the user data object
         """
         # get a logger for this object
-        self.log = Logger()
+        self.log = Logger(self.__class__.__name__)
 
         # initialize the properties
         self.job_id: Union[str, None] = None
@@ -50,6 +51,8 @@ class WrfJob:
         self.progress: float = 0
         self.user_email: Union[str, None] = None
         self.notify: bool = False
+        self.layers: List[WrfLayer] = []
+        self.domain_center: Union[LatLonPoint, None] = None
 
         # initialize from data if provided
         if data is not None:
@@ -79,6 +82,7 @@ class WrfJob:
     def data(self, data: dict):
         """
         Set the full or partial set of attributes
+        :param data: Values to set
         """
         self.job_id = None if 'job_id' not in data else data['job_id']
         self.job_name = None if 'job_name' not in data else data['job_name']
@@ -169,3 +173,140 @@ class WrfJob:
         except Exception as e:
             self.log.error('Failed to send model complete email.', e)
             return False
+
+
+class LatLonPoint:
+    """
+    Latitude and longitude point object
+    """
+    def __init__(self, data: dict = None):
+        """
+        Initialize the lat/lon point
+        """
+        # initialize the properties
+        self.latitude: float = 0
+        self.longitude: float = 0
+
+        # initialize from data if provided
+        if data is not None:
+            self.data = data
+
+    @property
+    def data(self) -> dict:
+        """
+        Get the data dictionary
+        :return: A dictionary with all attributes
+        """
+        return {
+            'latitude': self.latitude,
+            'longitude': self.longitude
+        }
+
+    @data.setter
+    def data(self, data: dict):
+        """
+        Set the full or partial set of attributes
+        :param data: Values to set
+        """
+        self.latitude = self.latitude if 'latitude' not in data else data['latitude']
+        self.longitude = self.longitude if 'longitude' not in data else data['longitude']
+
+
+class WrfLayer:
+    """
+    View details of a WRF layer
+    """
+    def __init__(self, data: dict = None):
+        """
+        Initialize the WRF layer object
+        """
+        # initialize the properties
+        self.variable_name: str = ''
+        self.display_name: str = ''
+        self.palette: Union[Palette, None] = None
+        self.units: str = ''
+        self.visible: bool = False
+        self.opacity: float = 1
+        self.layer_data: any = None
+
+        # initialize from data if provided
+        if data is not None:
+            self.data = data
+
+    @property
+    def data(self) -> dict:
+        """
+        Get the data dictionary
+        :return: A dictionary with all attributes
+        """
+        return {
+            'variable_name': self.variable_name,
+            'display_name': self.display_name,
+            'palette': self.palette.data,
+            'units': self.units,
+            'visible': self.visible,
+            'opacity': self.opacity,
+            'layer_data': self.layer_data if isinstance(self.data, str) else None
+        }
+
+    @data.setter
+    def data(self, data: dict):
+        """
+        Set the full or partial set of attributes
+        :param data: Values to set
+        """
+        self.variable_name = data['variable_name'] if 'variable_name' in data else ''
+        self.display_name = data['display_name'] if 'display_name' in data else ''
+        self.palette = Palette(data['palette']) if 'palette' in data else None
+        self.units = data['units'] if 'units' in data else ''
+        self.visible = data['visible'] if 'visible' in data else False
+        self.opacity = data['opacity'] if 'opacity' in data else 1
+        self.layer_data = data['layer_data'] if 'layer_data' in data else None
+
+
+class Palette:
+    """
+    Details of a color palette
+    """
+    def __init__(self, data: dict = None):
+        """
+        Initialize the palette layer object
+        """
+        # initialize the properties
+        self.palette_name: str = ''
+        self.min_value: float = 0
+        self.max_value: float = 100
+
+        # initialize from data if provided
+        if data is not None:
+            self.data = data
+
+    @property
+    def data(self) -> dict:
+        """
+        Get the data dictionary
+        :return: A dictionary with all attributes
+        """
+        return {
+            'variable_name': self.variable_name,
+            'display_name': self.display_name,
+            'palette': self.palette.data,
+            'units': self.units,
+            'visible': self.visible,
+            'opacity': self.opacity,
+            'layer_data': self.layer_data if isinstance(self.data, str) else None
+        }
+
+    @data.setter
+    def data(self, data: dict):
+        """
+        Set the full or partial set of attributes
+        :param data: Values to set
+        """
+        self.variable_name = data['variable_name'] if 'variable_name' in data else ''
+        self.display_name = data['display_name'] if 'display_name' in data else ''
+        self.palette = Palette(data['palette']) if 'palette' in data else None
+        self.units = data['units'] if 'units' in data else ''
+        self.visible = data['visible'] if 'visible' in data else False
+        self.opacity = data['opacity'] if 'opacity' in data else 1
+        self.layer_data = data['layer_data'] if 'layer_data' in data else None

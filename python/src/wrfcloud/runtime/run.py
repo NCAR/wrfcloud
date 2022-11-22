@@ -51,37 +51,37 @@ def main() -> None:
         job = get_job_from_system(runinfo.ref_id) if runinfo.ref_id is not None else None
 
         log.debug('Starting ungrib task')
-        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Starting ungrib task', 0)
+        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running UNGRIB', 0)
         ungrib = Ungrib(runinfo)
         ungrib.start()
         log.debug(ungrib.get_run_summary())
 
         log.debug('Starting metgrid task')
-        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Starting metgrid task', 0.1)
+        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running METGRID', 0.1)
         metgrid = MetGrid(runinfo)
         metgrid.start()
         log.debug(metgrid.get_run_summary())
 
         log.debug('Starting real task')
-        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Starting real task', 0.2)
+        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running REAL', 0.2)
         real = Real(runinfo)
         real.start()
         log.debug(real.get_run_summary())
 
         log.debug('Starting wrf task')
-        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Starting wrf task', 0.3)
+        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running WRF', 0.3)
         wrf = Wrf(runinfo)
         wrf.start()
         log.debug(wrf.get_run_summary())
 
         log.debug('Starting UPP task')
-        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Starting UPP task', 0.6)
+        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running UPP', 0.6)
         upp = UPP(runinfo)
         upp.start()
         log.debug(upp.get_run_summary())
 
         log.debug('Starting GeoJSON task')
-        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Starting GeoJSON task', 0.8)
+        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running GeoJSON converter', 0.8)
         geojson = GeoJson(runinfo)
         geojson.set_grib_files(upp.grib_files)
         geojson.start()
@@ -102,7 +102,8 @@ def main() -> None:
         cluster.delete_cluster()
     except Exception as e:
         log.error('Failed to delete cluster.', e)
-        _update_job_status(job, WrfJob.STATUS_CODE_FAILED, 'Failed to delete cluster, shutdown from AWS web console to avoid additional costs.', 1)
+        _update_job_status(job, WrfJob.STATUS_CODE_FAILED,
+                           'Failed to delete cluster, shutdown from AWS web console to avoid additional costs.', 1)
 
 
 def _update_job_status(job: Union[None, WrfJob], status_code: int, status_message: str, progress: float) -> None:

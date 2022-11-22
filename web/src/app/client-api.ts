@@ -769,7 +769,7 @@ export interface WrfLayer
 
 export interface WrfJob
 {
-  name: string;
+  job_name: string;
   domainCenter: LatLonPoint;
   layers: WrfLayer[];
   initializationTime: number[];

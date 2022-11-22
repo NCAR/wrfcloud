@@ -8,6 +8,9 @@ from typing import Union, List
 from datetime import datetime, timedelta
 import yaml
 from f90nml import Namelist
+
+from wrfcloud.jobs import WrfJob
+from wrfcloud.jobs.job import WrfLayer
 from wrfcloud.runtime import RunInfo, Process
 from wrfcloud.log import Logger
 from wrfcloud.runtime.tools import check_wd_exist
@@ -132,13 +135,14 @@ class GeoJson(Process):
     """
     Class for setting up, executing, and monitoring a run of WRF post-processing tasks
     """
-    def __init__(self, runinfo: RunInfo):
+    def __init__(self, runinfo: RunInfo, job: WrfJob):
         """
         Initialize the ProcProc object
         """
         super().__init__()
         self.log = Logger(self.__class__.__name__)
         self.runinfo = runinfo
+        self.job: WrfJob = job
         self.namelist: Union[None, Namelist] = None
         self.grib_files: List[str] = []
         self.geojson_files: List[str] = []
@@ -197,6 +201,11 @@ class GeoJson(Process):
             file_suffix = file_name[file_name.find('_') + 1:]
             domain = 'DXX'
             key = f'{prefix}/{self.runinfo.configuration}/{start_dt}/wrf_{domain}_{start_dt}_{file_suffix}'
+
+            # create a WrfLayer
+            layer: WrfLayer = WrfLayer()
+            layer.variable_name =
+
             try:
                 s3.upload_file(Filename=file, Bucket=bucket, Key=key)
                 upload_count += 1
