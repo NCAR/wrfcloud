@@ -41,8 +41,8 @@ class MetGrid(Process):
         # Link in the FILES from ungrib
         self.log.debug('Linking FILEs from ungrib step')
         filelist = glob.glob(f'{self.runinfo.ungribdir}/FILE*')
-        for ungribfile in filelist:
-            self.symlink(ungribfile, f'{self.runinfo.metgriddir}/' + os.path.basename(ungribfile))
+        for ungrib_file in filelist:
+            self.symlink(ungrib_file, f'{self.runinfo.metgriddir}/' + os.path.basename(ungrib_file))
 
     def run_metgrid(self) -> None:
         """
@@ -59,9 +59,13 @@ class MetGrid(Process):
         """
         Main routine that sets up, runs, and monitors metgrid end-to-end
         """
+        self.log.info('Unsetting I_MPI_OFI_PROVIDER so that EFA support is not required')
+        if 'I_MPI_OFI_PROVIDER' in os.environ:
+            os.environ.pop('I_MPI_OFI_PROVIDER')
+
         self.log.info(f'Setting up metgrid for "{self.runinfo.name}"')
 
-        #Check if experiment working directory already exists, take action based on value of runinfo.exists
+        # Check if experiment working directory already exists, take action based on value of runinfo.exists
         action = check_wd_exist(self.runinfo.exists,self.runinfo.metgriddir)
         if action == "skip":
             return True

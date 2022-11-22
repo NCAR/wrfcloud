@@ -4,16 +4,18 @@ Functions for setting up, executing, and monitoring a run of WRF post-processing
 
 import os
 import pkgutil
-from typing import Union
+from typing import Union, List
 from datetime import datetime, timedelta
 import yaml
 from f90nml import Namelist
 from wrfcloud.runtime import RunInfo, Process
 from wrfcloud.log import Logger
 from wrfcloud.runtime.tools import check_wd_exist
+from wrfcloud.runtime.tools.geojson import automate_geojson_products
+from wrfcloud.system import get_aws_session
 
 
-class PostProc(Process):
+class UPP(Process):
     """
     Class for setting up, executing, and monitoring a run of WRF post-processing tasks
     """
@@ -25,6 +27,7 @@ class PostProc(Process):
         self.log = Logger(self.__class__.__name__)
         self.runinfo = runinfo
         self.namelist: Union[None, Namelist] = None
+        self.grib_files: List[str] = []
 
     def _get_files(self) -> None:
         """
@@ -114,9 +117,94 @@ class PostProc(Process):
             self.log.debug('Calling run_upp')
             self._run_upp()
 
+            # create list of grib files
+            self.grib_files.append(f'{fhrdir}/WRFPRS.GrbF{fhrstr[1:]}')
+
             # increment the date and forecast hour
             this_date = this_date + increment
             fhr = fhr + 1
 
         # TODO: Check for successful completion of postproc
         return True
+
+
+class GeoJson(Process):
+    """
+    Class for setting up, executing, and monitoring a run of WRF post-processing tasks
+    """
+    def __init__(self, runinfo: RunInfo):
+        """
+        Initialize the ProcProc object
+        """
+        super().__init__()
+        self.log = Logger(self.__class__.__name__)
+        self.runinfo = runinfo
+        self.namelist: Union[None, Namelist] = None
+        self.grib_files: List[str] = []
+        self.geojson_files: List[str] = []
+
+    def set_grib_files(self, grib_files: List[str]) -> None:
+        """
+        Set the list of GRIB2 files to convert
+        :param grib_files: List of files (full path)
+        """
+        self.grib_files = grib_files
+
+    def run(self) -> bool:
+        """
+        Main routine that sets up, runs, and monitors post-processing end-to-end
+        """
+        try:
+            # create the geojson files
+            self._convert_to_geojson()
+
+            # upload the geojson files to S3
+            return self._upload_geojson_files()
+
+        except Exception as e:
+            self.log.error('Failed to convert and/or upload GeoJSON files.', e)
+            return False
+
+    def _convert_to_geojson(self):
+        """
+        Convert the GRIB2 files into GeoJSON files
+        """
+        self.geojson_files = []
+        for grib_file in self.grib_files:
+            for geojson_file in automate_geojson_products(grib_file, 'grib2'):
+                self.geojson_files.append(geojson_file)
+
+        return self.geojson_files
+
+    def _upload_geojson_files(self) -> bool:
+        """
+        Upload all geojson files to S3
+        :return: True if successful, otherwise False
+        """
+        # find S3 parameters
+        bucket: str = os.environ['WRF_OUTPUT_BUCKET']
+        prefix: str = os.environ['WRF_OUTPUT_PREFIX']
+        start_dt: str = self.runinfo.start_datetime.strftime('%Y%m%d%H%M%S')
+
+        # get an S3 client
+        session = get_aws_session()
+        s3 = session.client('s3')
+
+        # upload each file
+        upload_count = 0
+        for file in self.geojson_files:
+            file_name = file.split('/')[-1]
+            file_suffix = file_name[file_name.find('_') + 1:]
+            domain = 'DXX'
+            key = f'{prefix}/{self.runinfo.configuration}/{start_dt}/wrf_{domain}_{start_dt}_{file_suffix}'
+            try:
+                s3.upload_file(Filename=file, Bucket=bucket, Key=key)
+                upload_count += 1
+            except Exception as e:
+                self.log.warn(f'Failed to upload GeoJSON file: {file}', e)
+
+        # log a message if some files failed to upload
+        if upload_count != len(self.geojson_files):
+            self.log.warn(f'Failed to upload all GeoJSON files: {upload_count} of {len(self.geojson_files)}')
+
+        return upload_count > 0

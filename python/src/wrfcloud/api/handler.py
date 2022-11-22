@@ -64,7 +64,7 @@ def lambda_handler(event: dict, context: any) -> dict:
             return create_unauthorized_action_response(ref_id)
 
         # create the action
-        action_object = create_action(request, user, context)
+        action_object = create_action(request, user, context, ref_id)
 
         # run the action
         try:
@@ -231,15 +231,16 @@ def create_reference_id() -> str:
     """
     random = secrets.token_bytes(5)
     ref_id = base64.b16encode(random).decode()
-    return ref_id
+    return f'W{ref_id}'
 
 
-def create_action(request: Request, user: User, lambda_context: any) -> Union[Action, None]:
+def create_action(request: Request, user: User, lambda_context: any, ref_id: str) -> Union[Action, None]:
     """
     Create an action object
     :param request: Request object
     :param user: Run as user
     :param lambda_context: Lambda context or None
+    :param ref_id: Reference ID for the request
     :return: An action object or None
     """
     import importlib  # slow deferred import
@@ -248,8 +249,14 @@ def create_action(request: Request, user: User, lambda_context: any) -> Union[Ac
     try:
         action_package = 'wrfcloud.api.actions'
         action_class = getattr(importlib.import_module(action_package), request.action)
-        action_object: Action = action_class(run_as_user=user, request=request.data, client_url=request.client_url)
+        action_object: Action = action_class(
+            run_as_user=user,
+            request=request.data,
+            client_url=request.client_url,
+            ref_id=ref_id
+        )
         action_object.additional['lambda_context'] = lambda_context
+        action_object.client_ip = request.client_ip
         return action_object
     except Exception as e:
         Logger().error('Error creating action: %s' % request.action, e)

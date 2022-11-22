@@ -66,7 +66,7 @@ class Wrf(Process):
             wrf_cmd = './wrf.exe >& wrf.log'
             os.system(wrf_cmd)
         else:
-            self.submit_job('wrf.exe',self.runinfo.wrfcores,'wrf')
+            self.submit_job('wrf.exe', self.runinfo.wrfcores, 'wrf')
 
     def run(self) -> bool:
         """Main routine that sets up, runs, and monitors WRF end-to-end"""

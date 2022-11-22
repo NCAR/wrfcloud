@@ -75,4 +75,13 @@ def get_aws_session():
     :return: AWS session
     """
     import boto3
-    return boto3.Session(profile_name=AWS_PROFILE, region_name=AWS_REGION)
+
+    if AWS_PROFILE is not None and AWS_PROFILE != '' and AWS_REGION is not None and AWS_REGION != '':
+        return boto3.Session(profile_name=AWS_PROFILE, region_name=AWS_REGION)
+    elif AWS_PROFILE is not None and AWS_PROFILE != '':
+        return boto3.Session(profile_name=AWS_PROFILE)
+    elif AWS_REGION is not None and AWS_REGION != '':
+        return boto3.Session(region_name=AWS_REGION)
+    else:
+        return boto3.Session()
+

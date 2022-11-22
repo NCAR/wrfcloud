@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Functions for checking if experiment's working directory already exists, and
 if it does, taking the action specified by the config file argument "exists"

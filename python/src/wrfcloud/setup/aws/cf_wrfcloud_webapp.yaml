@@ -116,9 +116,146 @@ Resources:
                 Action:
                   - s3:ListBucket
                   - s3:GetObject
+                  - s3:PutObject
                 Resource:
                   - !Sub 'arn:aws:s3:::${S3ModelOutputBucketName}'
                   - !Sub 'arn:aws:s3:::${S3ModelOutputBucketName}/*'
+              - Effect: Allow
+                Action: iam:PassRole
+                Condition:
+                  StringEqualsIfExists:
+                    iam:PassedToService:
+                    - lambda.amazonaws.com
+                    - ec2.amazonaws.com
+                    - spotfleet.amazonaws.com
+                Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/parallelcluster/*'
+              - Effect: Allow
+                Action:
+                  - iam:CreateInstanceProfile
+                  - iam:DeleteInstanceProfile
+                  - iam:DetachRolePolicy
+                  - iam:DeleteRolePolicy
+                  - iam:RemoveRoleFromInstanceProfile
+                  - iam:DeleteRole
+                  - iam:AddRoleToInstanceProfile
+                Resource:
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:instance-profile/parallelcluster/*'
+              - Effect: Allow
+                Action:
+                  - dynamodb:CreateTable
+                  - dynamodb:DeleteTable
+                  - dynamodb:DescribeTable
+                  - dynamodb:GetItem
+                  - dynamodb:ListTagsOfResource
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                  - dynamodb:TagResource
+                  - dynamodb:UpdateItem
+                  - lambda:AddPermission
+                  - lambda:CreateFunction
+                  - lambda:DeleteFunction
+                  - lambda:GetFunction
+                  - lambda:GetFunctionConfiguration
+                  - lambda:InvokeFunction
+                  - lambda:ListTags
+                  - lambda:RemovePermission
+                  - lambda:TagResource
+                  - lambda:UntagResource
+                  - lambda:UpdateFunctionConfiguration
+                  - iam:AttachRolePolicy
+                  - iam:GetInstanceProfile
+                  - iam:GetPolicy
+                  - iam:GetRole
+                  - iam:GetRolePolicy
+                  - iam:PutRolePolicy
+                  - iam:SimulatePrincipalPolicy
+                  - secretsmanager:DescribeSecret
+                Resource:
+                  - !Sub 'arn:aws:dynamodb:*:${AWS::AccountId}:table/parallelcluster-*'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/*'
+                  - !Sub 'arn:aws:iam::aws:policy/*'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:instance-profile/*'
+                  - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:parallelcluster-*'
+                  - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:pcluster-*'
+                  - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:*'
+              - Effect: Allow
+                Action:
+                  - iam:CreateRole
+                Resource:
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/parallelcluster/*'
+              - Effect: Allow
+                Action:
+                  - cloudformation:*
+                  - cloudwatch:PutDashboard
+                  - cloudwatch:ListDashboards
+                  - cloudwatch:GetDashboard
+                  - cloudwatch:DeleteDashboards
+                  - ec2:AllocateAddress
+                  - ec2:AssociateAddress
+                  - ec2:AuthorizeSecurityGroupEgress
+                  - ec2:AuthorizeSecurityGroupIngress
+                  - ec2:CreateSecurityGroup
+                  - ec2:CreateSnapshot
+                  - ec2:DeleteLaunchTemplate
+                  - ec2:DeletePlacementGroup
+                  - ec2:DisassociateAddress
+                  - ec2:ModifyVolume
+                  - ec2:ModifyVolumeAttribute
+                  - ec2:ReleaseAddress
+                  - ec2:TerminateInstances
+                  - ec2:CreateLaunchTemplateVersion
+                  - ec2:Describe*
+                  - ec2:CreateLaunchTemplate
+                  - ec2:DeleteSecurityGroup
+                  - ec2:ModifyLaunchTemplate
+                  - ec2:AttachNetworkInterface
+                  - ec2:CreateVolume
+                  - ec2:RevokeSecurityGroupIngress
+                  - ec2:CreateNetworkInterface
+                  - ec2:RunInstances
+                  - ec2:CreateFleet
+                  - ec2:DeleteNetworkInterface
+                  - ec2:CreateTags
+                  - ec2:ModifyNetworkInterfaceAttribute
+                  - ec2:DeleteVolume
+                  - ec2:CreatePlacementGroup
+                  - ec2:RevokeSecurityGroupEgress
+                  - logs:GetLogEvents
+                  - logs:FilterLogEvents
+                  - logs:CreateLogGroup
+                  - logs:TagLogGroup
+                  - logs:UntagLogGroup
+                  - logs:DescribeExportTasks
+                  - logs:DescribeLogStreams
+                  - logs:CreateExportTask
+                  - logs:DescribeLogGroups
+                  - logs:DeleteLogGroup
+                  - logs:PutRetentionPolicy
+                  - resource-groups:ListGroupResources
+                  - route53:GetHostedZone
+                  - route53:ListResourceRecordSets
+                  - route53:CreateHostedZone
+                  - route53:ChangeResourceRecordSets
+                  - route53:ChangeTagsForResource
+                  - route53:GetChange
+                  - route53:ListQueryLoggingConfigs
+                  - route53:DeleteHostedZone
+                Resource: '*'
+              - Effect: Allow
+                Action: s3:*
+                Resource:
+                  - arn:aws:s3:::parallelcluster-*
+                  - arn:aws:s3:::aws-parallelcluster-*
+              - Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:List*
+                Resource: arn:aws:s3:::*-aws-parallelcluster*
+              - Effect: Allow
+                Action: elasticfilesystem:*
+                Resource: !Sub 'arn:aws:elasticfilesystem:*:${AWS::AccountId}:*'
   LambdaLayerPythonDeps:
     Type: AWS::Lambda::LayerVersion
     Properties:
@@ -146,7 +283,9 @@ Resources:
           DEPLOYMENT_TYPE: !Ref DeploymentType
           STAGE: !Ref StageName
           HELP_TOPIC_ARN: !Ref HelpTopic
+          PATH: '/opt/node/bin:${PATH}'
           PYTHONPATH: /opt/python/lib
+          WRFCLOUD_BUCKET_NAME: !Sub '${S3ModelOutputBucketName}'
       InlineCode: |
         import os
         import json

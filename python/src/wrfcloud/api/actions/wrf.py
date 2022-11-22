@@ -4,11 +4,15 @@ API actions that are responsible for reading WRF data
 import base64
 import os
 import gzip
+import pkgutil
+import yaml
 from typing import List, Union
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz import utc
-from wrfcloud.api.actions import Action
+from wrfcloud.api.actions.action import Action
 from wrfcloud.system import get_aws_session
+from wrfcloud.aws.pcluster import WrfCloudCluster, CustomAction
+from wrfcloud.jobs import WrfJob, JobDao
 
 
 class GetWrfMetaData(Action):
@@ -218,6 +222,7 @@ class GetWrfGeoJson(Action):
         # build the S3 object key
         cycle_time_str = utc.localize(datetime.utcfromtimestamp(cycle_time / 1000)).strftime('%Y%m%d%H%M%S')
         valid_time_str = utc.localize(datetime.utcfromtimestamp(valid_time / 1000)).strftime('%Y-%m-%d_%H-%M-%S')
+
         key = f'{self.prefix}/{configuration}/{cycle_time_str}/wrfout_d01_{valid_time_str}_{variable}.geojson.gz'
 
         # read the object from S3
@@ -256,7 +261,7 @@ class RunWrf(Action):
         Validate the request object
         :return: True if the request is valid, otherwise False
         """
-        required_fields = ['configuration_name', 'start_time', 'forecast_length', 'output_frequency', 'notify']
+        required_fields = ['job_name', 'configuration_name', 'start_time', 'forecast_length', 'output_frequency', 'notify']
         return self.check_request_fields(required_fields, [])
 
     def perform_action(self) -> bool:
@@ -264,27 +269,59 @@ class RunWrf(Action):
         Abstract method that performs the action and sets the response field
         :return: True if the action ran successfully
         """
-        print('Running RunWrf Action')
-        # TODO: Replace this test function with code to start the cluster and run WRF
-        if not self.run_as_user._send_email_enabled():
-            print('Not sending email')
-            return True
+        try:
+            # create the run configuration file
+            config_file = yaml.safe_load(pkgutil.get_data('wrfcloud', 'runtime/test.yml'))
+            config_name = self.request['configuration_name']
+            config_file['ref_id'] = self.ref_id
+            config_file['run']['workdir'] = f'/data/{config_name}_run'
+            forecast_len_sec = self.request['forecast_length']
+            start_date = utc.localize(datetime.utcfromtimestamp(self.request['start_time']))
+            increment = timedelta(seconds=forecast_len_sec)
+            end_time = start_date + increment
+            config_file['run']['start'] = start_date.strftime('%Y-%m-%d_%H:%M:%S')
+            config_file['run']['end'] = end_time.strftime('%Y-%m-%d_%H:%M:%S')
+            config_file['run']['output_freq_sec'] = self.request['output_frequency']
+            config_file['run']['configuration'] = config_name
+            config_data = yaml.dump(config_file)
+            config_b64_gz = base64.b64encode(gzip.compress(bytes(config_data, encoding='utf8'))).decode()
 
-        print(f'Sending email to {self.run_as_user.email}')
+            # create the custom action to start the model
+            script_template = pkgutil.get_data('wrfcloud', 'api/actions/resources/run_wrf_template.sh').decode()
+            script = script_template\
+                .replace('__REF_ID__', self.ref_id)\
+                .replace('__CONFIG_NAME__', config_name)\
+                .replace('__CONFIG_B64_GZ__', config_b64_gz)
+            ca = CustomAction(self.ref_id, script)
 
-        session = get_aws_session()
-        ses = session.client('ses')
-        dest = {'ToAddresses': [self.run_as_user.email]}
-        message = {
-            'Subject': {
-                'Data': 'Scheduled WRF job is running',
-                'Charset': 'utf-8'
-            },
-            'Body': {
-                'Text': {
-                    'Data': 'WRF is fake running.', 'Charset': 'utf-8'
-                }
-            }
-        }
-        ses.send_email(Source='hahnd@ucar.edu', Destination=dest, Message=message)
+            # create information for a new job
+            job: WrfJob = WrfJob()
+            job.job_id = self.ref_id
+            job.job_name = self.request['job_name']
+            job.configuration_name = self.request['configuration_name']
+            job.cycle_time = int(start_date.timestamp())
+            job.forecast_length = forecast_len_sec
+            job.output_frequency = self.request['output_frequency']
+            job.status_code = WrfJob.STATUS_CODE_STARTING
+            job.status_message = 'Launching cluster'
+            job.user_email = self.run_as_user.email
+            job.notify = self.request['notify']
+
+            # add the job information to the database
+            job_dao = JobDao()
+            job_added = job_dao.add_job(job)
+            if not job_added:
+                self.log.warn('Failed to add job information to database.')
+
+            # start the cluster
+            wrfcloud_cluster = WrfCloudCluster(self.ref_id)
+            if self.client_ip is not None:
+                wrfcloud_cluster.set_ssh_security_group_ip(self.client_ip + '/32')
+            wrfcloud_cluster.create_cluster(ca, False)
+
+        except Exception as e:
+            self.log.error('Failed to launch WRF job', e)
+            self.errors.append('Failed to launch WRF job')
+            return False
+
         return True

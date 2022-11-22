@@ -8,8 +8,8 @@ setup(
     author_email='hahnd@ucar.edu',
     maintainer='David Hahn',
     maintainer_email='hahnd@ucar.edu',
-    packages=['wrfcloud', 'wrfcloud/api', 'wrfcloud/aws', 'wrfcloud/dynamodb',
-              'wrfcloud/user', 'wrfcloud/runtime', 'wrfcloud/runtime/tools'],
+    packages=['wrfcloud', 'wrfcloud/api', 'wrfcloud/aws', 'wrfcloud/jobs', 'wrfcloud/dynamodb',
+              'wrfcloud/subscribers', 'wrfcloud/user', 'wrfcloud/runtime', 'wrfcloud/runtime/tools'],
     install_requires=[
         'boto3>=1.24.8',
         'botocore>=1.27.8',
@@ -33,10 +33,14 @@ setup(
             'resources/password_reset.html',
             'resources/welcome_email.html',
             'imagebuilder/imagebuilder.yaml',
+            'jobs/table.yaml',
             'user/table.yaml',
+            'subscribers/table.yaml',
             'aws/resources/cf_imagebuilder_wrf_intel.yaml',
             'aws/resources/cluster.wrfcloud.yaml',
-            'runtime/resources/*.yaml'
+            'runtime/configurations/test/namelist.*',
+            'runtime/resources/*.yaml',
+            'api/actions/resources/run_wrf_template.sh'
         ]
     },
     include_package_data=True,

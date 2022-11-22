@@ -15,6 +15,9 @@ HeadNode:
   Iam:
     AdditionalIamPolicies:
       - Policy: arn:aws:iam::aws:policy/AmazonS3FullAccess
+      - Policy: arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+      - Policy: arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
+      - Policy: arn:aws:iam::119569266530:policy/wrfcloud_parallelcluster
 Scheduling:
   Scheduler: slurm
   SlurmSettings:
@@ -43,6 +46,6 @@ SharedStorage:
     EbsSettings:
       VolumeType: gp3
       DeletionPolicy: Delete
-      Size: 50
+      Size: 500
       Encrypted: false
       Throughput: 720
