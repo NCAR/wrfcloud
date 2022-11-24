@@ -5,6 +5,7 @@ The WrfJob class is the data model used to represent a user and associated funct
 import copy
 import base64
 import pkgutil
+import pytz
 from typing import Union, List
 from datetime import datetime
 from wrfcloud.log import Logger
@@ -75,7 +76,9 @@ class WrfJob:
             'status_message': self.status_message,
             'progress': self.progress,
             'user_email': self.user_email,
-            'notify': self.notify
+            'notify': self.notify,
+            'layers': [layer.data for layer in self.layers],
+            'domain_center': self.domain_center.data
         }
 
     @data.setter
@@ -95,6 +98,8 @@ class WrfJob:
         self.progress = None if 'progress' not in data else data['progress']
         self.user_email = None if 'user_email' not in data else data['user_email']
         self.notify = False if 'notify' not in data else data['notify']
+        self.layers = [] if 'layers' not in data else [WrfLayer(layer) for layer in data['layers']]
+        self.domain_center = LatLonPoint() if 'domain_center' not in data else LatLonPoint(data['domain_center'])
 
         # always store cycle time as an integer
         if isinstance(self.cycle_time, datetime):
@@ -228,10 +233,21 @@ class WrfLayer:
         self.visible: bool = False
         self.opacity: float = 1
         self.layer_data: any = None
+        self.z_level: Union[int, None] = None
+        self.time_step: int = 0
+        self.dt: int = 0
 
         # initialize from data if provided
         if data is not None:
             self.data = data
+
+    @property
+    def dt_str(self) -> str:
+        """
+        Get the date/time formatted as yyyymmddHHMMSS
+        :return: Date/time as string
+        """
+        return pytz.utc.localize(datetime.utcfromtimestamp(self.dt)).strftime('%Y%m%d%H%M%S')
 
     @property
     def data(self) -> dict:
@@ -246,7 +262,10 @@ class WrfLayer:
             'units': self.units,
             'visible': self.visible,
             'opacity': self.opacity,
-            'layer_data': self.layer_data if isinstance(self.data, str) else None
+            'layer_data': self.layer_data if isinstance(self.layer_data, str) else None,
+            'z_level': self.z_level,
+            'time_step': self.time_step,
+            'dt': self.dt,
         }
 
     @data.setter
@@ -262,6 +281,9 @@ class WrfLayer:
         self.visible = data['visible'] if 'visible' in data else False
         self.opacity = data['opacity'] if 'opacity' in data else 1
         self.layer_data = data['layer_data'] if 'layer_data' in data else None
+        self.z_level = data['z_level'] if 'z_level' in data else None
+        self.time_step = data['time_step'] if 'time_step' in data else 0
+        self.dt = data['dt'] if 'dt' in data else 0
 
 
 class Palette:
@@ -288,13 +310,9 @@ class Palette:
         :return: A dictionary with all attributes
         """
         return {
-            'variable_name': self.variable_name,
-            'display_name': self.display_name,
-            'palette': self.palette.data,
-            'units': self.units,
-            'visible': self.visible,
-            'opacity': self.opacity,
-            'layer_data': self.layer_data if isinstance(self.data, str) else None
+            'palette_name': self.palette_name,
+            'min_value': self.min_value,
+            'max_value': self.max_value
         }
 
     @data.setter
@@ -303,10 +321,6 @@ class Palette:
         Set the full or partial set of attributes
         :param data: Values to set
         """
-        self.variable_name = data['variable_name'] if 'variable_name' in data else ''
-        self.display_name = data['display_name'] if 'display_name' in data else ''
-        self.palette = Palette(data['palette']) if 'palette' in data else None
-        self.units = data['units'] if 'units' in data else ''
-        self.visible = data['visible'] if 'visible' in data else False
-        self.opacity = data['opacity'] if 'opacity' in data else 1
-        self.layer_data = data['layer_data'] if 'layer_data' in data else None
+        self.palette_name = data['palette_name'] if 'palette_name' in data else ''
+        self.min_value = data['min_value'] if 'min_value' in data else 0
+        self.max_value = data['max_value'] if 'max_value' in data else 100

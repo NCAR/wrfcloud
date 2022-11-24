@@ -82,7 +82,7 @@ def main() -> None:
 
         log.debug('Starting GeoJSON task')
         _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running GeoJSON converter', 0.8)
-        geojson = GeoJson(runinfo)
+        geojson = GeoJson(runinfo, job)
         geojson.set_grib_files(upp.grib_files)
         geojson.start()
         log.debug(geojson.get_run_summary())
@@ -91,6 +91,7 @@ def main() -> None:
         if job.notify:
             job.send_complete_notification()
 
+        # final job and status update
         _update_job_status(job, WrfJob.STATUS_CODE_FINISHED, 'Done', 1)
     except Exception as e:
         log.error('Failed to run the model', e)

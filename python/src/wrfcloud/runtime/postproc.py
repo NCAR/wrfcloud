@@ -145,7 +145,7 @@ class GeoJson(Process):
         self.job: WrfJob = job
         self.namelist: Union[None, Namelist] = None
         self.grib_files: List[str] = []
-        self.geojson_files: List[str] = []
+        self.wrf_layers: List[WrfLayer] = []
 
     def set_grib_files(self, grib_files: List[str]) -> None:
         """
@@ -163,22 +163,26 @@ class GeoJson(Process):
             self._convert_to_geojson()
 
             # upload the geojson files to S3
-            return self._upload_geojson_files()
+            ok = self._upload_geojson_files()
+
+            # set the WRF layers in the job
+            self.job.layers = self.wrf_layers
+
+            return ok
 
         except Exception as e:
             self.log.error('Failed to convert and/or upload GeoJSON files.', e)
             return False
 
-    def _convert_to_geojson(self):
+    def _convert_to_geojson(self) -> None:
         """
         Convert the GRIB2 files into GeoJSON files
+        :return: List of WRF layer details
         """
-        self.geojson_files = []
+        self.wrf_layers = []
         for grib_file in self.grib_files:
-            for geojson_file in automate_geojson_products(grib_file, 'grib2'):
-                self.geojson_files.append(geojson_file)
-
-        return self.geojson_files
+            for wrf_layer in automate_geojson_products(grib_file, 'grib2'):
+                self.wrf_layers.append(wrf_layer)
 
     def _upload_geojson_files(self) -> bool:
         """
@@ -188,7 +192,6 @@ class GeoJson(Process):
         # find S3 parameters
         bucket: str = os.environ['WRF_OUTPUT_BUCKET']
         prefix: str = os.environ['WRF_OUTPUT_PREFIX']
-        start_dt: str = self.runinfo.start_datetime.strftime('%Y%m%d%H%M%S')
 
         # get an S3 client
         session = get_aws_session()
@@ -196,24 +199,27 @@ class GeoJson(Process):
 
         # upload each file
         upload_count = 0
-        for file in self.geojson_files:
-            file_name = file.split('/')[-1]
-            file_suffix = file_name[file_name.find('_') + 1:]
+        for layer in self.wrf_layers:
+            # TODO: The date/time should be set on the layer once the information is available in the GRIB2 files
+            layer.dt = self.runinfo.start_datetime.timestamp() + (layer.time_step * self.runinfo.output_freq_sec)
+
+            # construct the S3 key
+            job_id = self.job.job_id
             domain = 'DXX'
-            key = f'{prefix}/{self.runinfo.configuration}/{start_dt}/wrf_{domain}_{start_dt}_{file_suffix}'
+            var_name = layer.variable_name
+            z_level = layer.z_level if layer.z_level is not None else 0
+            key = f'{prefix}/{job_id}/wrf_{domain}_{layer.dt_str}_{var_name}_{z_level}.geojson.gz'
 
-            # create a WrfLayer
-            layer: WrfLayer = WrfLayer()
-            layer.variable_name =
-
+            # upload the file to an S3 object
             try:
-                s3.upload_file(Filename=file, Bucket=bucket, Key=key)
+                s3.upload_file(Filename=layer.layer_data, Bucket=bucket, Key=key)
                 upload_count += 1
+                layer.layer_data = f's3://{bucket}/{key}'
             except Exception as e:
-                self.log.warn(f'Failed to upload GeoJSON file: {file}', e)
+                self.log.warn(f'Failed to upload GeoJSON file: {layer.layer_data}', e)
 
         # log a message if some files failed to upload
-        if upload_count != len(self.geojson_files):
-            self.log.warn(f'Failed to upload all GeoJSON files: {upload_count} of {len(self.geojson_files)}')
+        if upload_count != len(self.wrf_layers):
+            self.log.warn(f'Failed to upload all GeoJSON files: {upload_count} of {len(self.wrf_layers)}')
 
         return upload_count > 0

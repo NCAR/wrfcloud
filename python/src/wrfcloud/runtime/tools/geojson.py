@@ -15,6 +15,8 @@ from matplotlib import pyplot
 import numpy
 from numpy.ma.core import MaskedArray
 import pygrib
+
+from wrfcloud.jobs.job import WrfLayer, Palette
 from wrfcloud.log import Logger
 from wrfcloud.system import init_environment
 
@@ -47,6 +49,7 @@ class GeoJson:
         self.max = value_range[1]
         self.contour_interval = contour_interval
         self.palette = palette
+        self.time_step = 0
 
     def convert(self, out_file: Union[str, None]) -> Union[None, dict]:
         """
@@ -56,6 +59,13 @@ class GeoJson:
         """
         # log status info
         self.log.info(f'Converting {self.variable} to {out_file}')
+
+        # TODO: The date/time of the data should come from within the file, not the file name,
+        #       however this information does not seem to be available within the GRIB file.
+        #       As a work-around for now, we are getting the time step from the file name,
+        #       and this can be used in conjunction with the start time and output frequency
+        #       to compute the data time.  Yuch!
+        self.time_step = int(self.wrf_file.split('/')[-1].split('GrbF')[1])
 
         # get the data, lat, and lon grids
         if self.file_type == 'grib2':
@@ -321,7 +331,7 @@ def _manual_product(wrf_file: str, file_type: str, out_file: Union[str, None], v
         print(json.dumps(output, indent=2))
 
 
-def automate_geojson_products(wrf_file: str, file_type: str) -> List[str]:
+def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
     """
     Generate all the products defined in the geojson_products.yaml file
     :param wrf_file: Input file name
@@ -337,23 +347,38 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[str]:
     futures = []
 
     # create each product
-    out_files: List[str] = []
+    out_layers: List[WrfLayer] = []
     for product in products:
         variable = product[file_type]['variable']
         value_range = [product['range']['min'], product['range']['max']]
         contour_interval = product['contour_interval']
-        palette = product['palette']
+        palette_name = product['palette']
         z_levels = product['z_levels'] if 'z_levels' in product else [None]
         for z_level in z_levels:
             out_file = (f'{wrf_file}_{variable}' if z_level is None else f'{wrf_file}_{variable}_{z_level}')
             out_file += '.geojson.gz'
-            out_files.append(out_file)
-            converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette, z_level)
+            converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette_name, z_level)
             future = ppe.submit(converter.convert, out_file)
             futures.append(future)
+
+            # create the WRF Layer details for this output product
+            wrf_layer = WrfLayer()
+            wrf_layer.variable_name = variable
+            wrf_layer.display_name = product['display_name']
+            wrf_layer.palette = Palette({
+                'palette_name': palette_name,
+                'min_value': value_range[0],
+                'max_value': value_range[1]
+            })
+            wrf_layer.units = product['units']
+            wrf_layer.layer_data = out_file
+            wrf_layer.z_level = z_level
+            wrf_layer.time_step = converter.time_step
+            out_layers.append(wrf_layer)
+
     wait(futures)
 
-    return out_files
+    return out_layers
 
 
 if __name__ == '__main__':

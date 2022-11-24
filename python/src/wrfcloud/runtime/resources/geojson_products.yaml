@@ -15,13 +15,13 @@ products:
   # 2D variables
   - grib2:
       variable: 2t
-    netcdf:
-      variable: T2
     range:
       min: 258
       max: 318
     contour_interval: 2
     palette: viridis
+    display_name: 2-m Temperature
+    units: K
   - grib2:
       variable: dpt
     range:
@@ -29,6 +29,8 @@ products:
       max: 308
     contour_interval: 2
     palette: BrBG_r
+    display_name: ''
+    units: '%'
   - grib2:
       variable: 10u
     range:
@@ -36,6 +38,8 @@ products:
       max: 60
     contour_interval: 2
     palette: PuOr
+    display_name: ''
+    units: ''
   - grib2:
       variable: 10v
     range:
@@ -43,6 +47,8 @@ products:
       max: 60
     contour_interval: 2
     palette: PuOr
+    display_name: ''
+    units: ''
   - grib2:
       variable: prmsl
     range:
@@ -50,6 +56,8 @@ products:
       max: 104000
     contour_interval: 200
     palette: winter
+    display_name: ''
+    units: ''
   - grib2:
       variable: r
     range:
@@ -57,6 +65,8 @@ products:
       max: 100
     contour_interval: 5
     palette: BrBG
+    display_name: ''
+    units: ''
   - grib2:
       variable: cape
     range:
@@ -64,6 +74,8 @@ products:
       max: 6000
     contour_interval: 500
     palette: BrBG
+    display_name: ''
+    units: ''
   - grib2:
       variable: cin
     range:
@@ -71,6 +83,8 @@ products:
       max: 0
     contour_interval: 10
     palette: viridis
+    display_name: ''
+    units: ''
   - grib2:
       variable: refc
     range:
@@ -78,6 +92,8 @@ products:
       max: 70
     contour_interval: 5
     palette: viridis
+    display_name: ''
+    units: ''
 
   # 3D variables - 700mb
   - grib2:
@@ -87,6 +103,8 @@ products:
       max: 313
     contour_interval: 1
     palette: viridis
+    display_name: ''
+    units: ''
     z_levels:
       - 1000
       - 925
