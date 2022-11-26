@@ -451,7 +451,7 @@ export class ClientApi
    *
    * @param responseHandler
    */
-  public sendListJobsRequest(responseHandler: Function): void
+  public sendListJobsRequest(requestData: ListJobRequest, responseHandler: Function): void
   {
     /* create the API request */
     const request: ApiRequest = {
@@ -749,30 +749,42 @@ export interface LatLonPoint
 
 export interface Palette
 {
-  name: string;
-  min: number;
-  max: number;
+  palette_name: string;
+  min_value: number;
+  max_value: number;
 }
 
 export interface WrfLayer
 {
-  name: string;
-  displayName: string;
+  variable_name: string;
+  display_name: string;
   palette: Palette;
   units: string;
   visible: boolean;
   opacity: number;
-  data?: any;
+  layer_data: string;
+  z_level: number;
+  time_step: number;
+  dt: number;
   visibilityChange: Function;
   opacityChange: Function;
 }
 
 export interface WrfJob
 {
+  job_id: string;
   job_name: string;
-  domainCenter: LatLonPoint;
-  layers: WrfLayer[];
-  initializationTime: number[];
+  configuration_name: string;
+  cycle_time: number;
+  forecast_length: number;
+  output_frequency: number;
+  status_code: number;
+  status_message: string;
+  progress: number;
+  user_email: string;
+  notify: boolean;
+  layers: Array<WrfLayer>;
+  domain_center: LatLonPoint;
 }
 
 export interface LayerRequest
@@ -845,25 +857,30 @@ export interface GetWrfGeoJsonResponse extends ApiResponse
   }
 }
 
+export interface ListJobRequest
+{
+  job_id?: string;
+}
+
 export interface ListJobResponse extends ApiResponse
 {
   data: {
-    jobs: Job[];
+    jobs: WrfJob[];
   }
 }
 
-export interface Job
-{
-  job_id: string;
-  job_name: string;
-  configuration_name: string;
-  cycle_time: number;
-  forecast_length: number;
-  output_frequency: number;
-  status_code: number;
-  status_message: string;
-  progress: number;
-}
+// export interface Job
+// {
+//   job_id: string;
+//   job_name: string;
+//   configuration_name: string;
+//   cycle_time: number;
+//   forecast_length: number;
+//   output_frequency: number;
+//   status_code: number;
+//   status_message: string;
+//   progress: number;
+// }
 
 export interface WebsocketListener
 {
@@ -881,7 +898,7 @@ export interface WebsocketMessage
 export interface JobStatusResponse extends ApiResponse
 {
   data: {
-    job: Job
+    job: WrfJob
   }
 }
 

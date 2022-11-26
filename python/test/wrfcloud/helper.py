@@ -72,7 +72,7 @@ def _get_sample_user(role_id: str) -> (User, str):
     :return: A sample user and its plain text password
     """
     # load sample users
-    sample_users = yaml.load(open('resources/sample_users.yaml'))
+    sample_users = yaml.safe_load(open('resources/sample_users.yaml'))
 
     # get the first admin entry
     admin_data = sample_users['users'][role_id][0]
@@ -91,7 +91,7 @@ def _get_all_sample_users() -> List[User]:
     :return: A sample user and its plain text password
     """
     # load sample users
-    sample_users = yaml.load(open('resources/sample_users.yaml'))
+    sample_users = yaml.safe_load(open('resources/sample_users.yaml'))
 
     # get the first admin entry
     users = []
@@ -105,38 +105,18 @@ def _get_all_sample_users() -> List[User]:
     return users
 
 
-def _get_sample_job(status_code: int) -> WrfJob:
+def _get_all_sample_jobs() -> List[WrfJob]:
     """
     Get a sample job with a given status
-    :return: A sample job object
-    """
-    # load sample users
-    sample_jobs = yaml.load(open('resources/sample_jobs.yaml'))
-
-    # get the first admin entry
-    job_data = sample_jobs['jobs'][status_code][0]
-    return WrfJob(job_data)
-
-
-def _get_all_sample_jobs(status_code: int = None) -> List[WrfJob]:
-    """
-    Get a sample job with a given status
-    :param status_code: See wrfcloud.jobs.WrfJob.STATUS_CODE_* for definitions
     :return: A sample job object
     """
     # load sample jobs
-    sample_jobs = yaml.load(open('resources/sample_jobs.yaml'))['jobs']
+    sample_jobs = [yaml.safe_load(open('resources/sample_job.yaml'))]
     jobs_data = []
 
     # get jobs of all status codes if status code is not provided...
-    if status_code is None:
-        for sc in range(0, 6):
-            for job_data in sample_jobs[sc]:
-                jobs_data.append(job_data)
-    # ...otherwise, only get the job data for the requested status code
-    else:
-        for job_data in sample_jobs[status_code]:
-            jobs_data.append(job_data)
+    for job_data in sample_jobs:
+        jobs_data.append(job_data)
 
     # build job objects and return them
     return [WrfJob(job_data) for job_data in jobs_data]
@@ -148,7 +128,7 @@ def _get_sample_subscriber() -> Subscriber:
     :return: A sample subscriber object
     """
     # load sample subscribers
-    sample_subscribers = yaml.load(open('resources/sample_subscribers.yaml'))['subscribers']
+    sample_subscribers = yaml.safe_load(open('resources/sample_subscribers.yaml'))['subscribers']
 
     # return the first one in the list
     return Subscriber(sample_subscribers[0])
@@ -160,7 +140,7 @@ def _get_all_sample_subscribers() -> List[Subscriber]:
     :return: A list of sample subscriber objects
     """
     # load sample subscribers
-    sample_subscribers = yaml.load(open('resources/sample_subscribers.yaml'))['subscribers']
+    sample_subscribers = yaml.safe_load(open('resources/sample_subscribers.yaml'))['subscribers']
 
     # create and return a list of all sample subscribers
     return [Subscriber(data) for data in sample_subscribers]

@@ -15,15 +15,15 @@
   <div *ngIf="job !== undefined">
     <div class="viewer-header">
       <span class="viewer-title">
-        {{job.name}}
+        {{job.configuration_name}}
       </span>
       <span class="viewer-init-time-select">
         <mat-form-field appearance="fill" class="viewer-init-time-select-mat">
           <mat-label>
             Forecast Initialization Time
           </mat-label>
-          <mat-select [ngModel]="job.initializationTime[0]">
-            <mat-option *ngFor="let time of job.initializationTime" [value]="time">
+          <mat-select [ngModel]="job.cycle_time">
+            <mat-option *ngFor="let time of [job.cycle_time]" [value]="time">
               {{time | date:'yyyy-MM-dd HH:mm:ss O':'UTC'}}
             </mat-option>
           </mat-select>

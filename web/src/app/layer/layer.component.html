@@ -1,7 +1,7 @@
 <div class="layer-container" *ngIf="layer">
   <div class="layer-visibility">
     <mat-checkbox class="layer-checkbox" color="primary" [(ngModel)]="layer.visible" (change)="layer.visibilityChange(layer)">
-      {{layer.displayName}}
+      {{layer.display_name}}
     </mat-checkbox>
   </div>
   <div [class]="layer.visible ? 'layer-details-open' : 'layer-details-closed'">
@@ -17,12 +17,12 @@
       >
       </mat-slider>
     </div>
-    <div [class]="'layer-color-legend palette-' + layer.palette.name">
+    <div [class]="'layer-color-legend palette-' + layer.palette.palette_name">
     </div>
     <div class="layer-color-legend">
-      <span class="layer-color-legend-min">{{layer.palette.min}}</span>
+      <span class="layer-color-legend-min">{{layer.palette.min_value}}</span>
       <span class="layer-color-legend-units">{{layer.units}}</span>
-      <span class="layer-color-legend-max">{{layer.palette.max}}</span>
+      <span class="layer-color-legend-max">{{layer.palette.max_value}}</span>
     </div>
   </div>
 </div>

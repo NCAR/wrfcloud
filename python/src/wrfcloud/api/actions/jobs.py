@@ -3,7 +3,7 @@ Actions related to WRF jobs
 """
 
 from wrfcloud.api.actions.action import Action
-from wrfcloud.jobs import get_all_jobs_in_system
+from wrfcloud.jobs import get_all_jobs_in_system, get_job_from_system
 from wrfcloud.subscribers import Subscriber, add_subscriber_to_system
 
 
@@ -16,8 +16,14 @@ class ListJobs(Action):
         Validate the request object
         :return: True if the request is valid, otherwise False
         """
-        # No parameters are expected or allowed
-        return self.check_request_fields([], [])
+        # no required parameters
+        required = []
+
+        # optional parameters
+        optional = ['job_id']
+
+        # validate the request
+        return self.check_request_fields(required, optional)
 
     def perform_action(self) -> bool:
         """
@@ -25,8 +31,15 @@ class ListJobs(Action):
         :return: True if the action ran successfully
         """
         try:
-            # get all the users from the system
-            jobs = get_all_jobs_in_system()
+            # get the job(s) from the system
+            jobs = get_all_jobs_in_system() if 'job_id' not in self.request \
+                else [get_job_from_system(self.request['job_id'])]
+
+            # check for the job ID not found case
+            if 'job_id' in self.request and None in jobs:
+                self.errors.append(f'Job ID not found.')
+                self.log.error('Job ID not found: ' + self.request['job_id'])
+                return False
 
             # put the sanitized user data into the response
             self.response['jobs'] = [job.sanitized_data for job in jobs]

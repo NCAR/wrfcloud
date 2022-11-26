@@ -1,6 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {WrfJob, LayerRequest, GetWrfGeoJsonRequest, GetWrfGeoJsonResponse, WrfLayer} from "../client-api";
+import {
+  WrfJob,
+  LayerRequest,
+  GetWrfGeoJsonRequest,
+  GetWrfGeoJsonResponse,
+  WrfLayer,
+  ListJobRequest, ListJobResponse
+} from "../client-api";
 import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import {OSM} from 'ol/source';
@@ -74,6 +81,12 @@ export class WrfViewerComponent implements OnInit
 
 
   /**
+   * WRF job ID (obtained from the router)
+   */
+  public jobId: string;
+
+
+  /**
    * OpenLayers map
    */
   private map: Map|undefined;
@@ -110,6 +123,9 @@ export class WrfViewerComponent implements OnInit
     /* get the WRF meta data */
     this.app.refreshWrfMetaData();
 
+    /* request the job information */
+    this.jobId = this.app.router.url.split('/')[2];
+    this.app.api.sendListJobsRequest({job_id: this.jobId}, this.handleListJobResponse.bind(this));
   }
 
 
@@ -154,45 +170,8 @@ export class WrfViewerComponent implements OnInit
       this.animationFrames.push(new Date(this.app.wrfMetaData[0].cycle_times[0].valid_times[i]));
     this.selectedFrameMs = this.animationFrames[0].getTime();
 
-    /* initialize the WRF job */
-    this.job = {
-      name: this.app.wrfMetaData[0].configuration_name,
-      initializationTime: cycleTimes,
-      domainCenter: {
-        latitude: 20,
-        longitude: -70
-      },
-      layers: [
-        {
-          name: 'T2',
-          displayName: '2m Temperature',
-          palette: {
-            name: 'temperature',
-            min: 270,
-            max: 306
-          },
-          units: 'ºC',
-          visible: false,
-          visibilityChange: this.doToggleLayer.bind(this),
-          opacityChange: this.doChangeOpacity.bind(this),
-          opacity: 1
-        },
-        {
-          name: 'Q2',
-          displayName: 'Mixing Ratio',
-          palette: {
-            name: 'moisture',
-            min: 0,
-            max: 300
-          },
-          units: 'kg/kg',
-          visible: false,
-          visibilityChange: this.doToggleLayer.bind(this),
-          opacityChange: this.doChangeOpacity.bind(this),
-          opacity: 1
-        }
-      ]
-    };
+    /* TODO: initialize the WRF job */
+    this.job = undefined;
   }
 
 
@@ -217,8 +196,8 @@ export class WrfViewerComponent implements OnInit
       ],
       view: new View({
         center: [
-          this.job.domainCenter.longitude,
-          this.job.domainCenter.latitude
+          this.job.domain_center.longitude,
+          this.job.domain_center.latitude
         ],
         zoom: 5.5
       })
@@ -247,6 +226,25 @@ export class WrfViewerComponent implements OnInit
     };
 
     this.app.api.sendGetWrfGeoJsonRequest(requestData, this.handleGetWrfGeoJsonResponse.bind(this));
+  }
+
+
+  /**
+   *
+   * @param response
+   * @private
+   */
+  private handleListJobResponse(response: ListJobResponse): void
+  {
+    /* check for status and errors */
+    if (!response.ok)
+    {
+      this.app.showErrorDialog(response.errors);
+      return;
+    }
+
+    /* get the WRF job data from the response */
+    this.job = response.data.jobs[0];
   }
 
 
@@ -349,7 +347,7 @@ export class WrfViewerComponent implements OnInit
   public doToggleLayer(layer: WrfLayer): void
   {
     if (layer.visible)
-      this.preloadFrames(this.job!.name!, this.job!.initializationTime[0], layer.name);
+      this.preloadFrames(this.job!.configuration_name, this.job!.cycle_time, layer.variable_name);
   }
 
 
@@ -490,7 +488,7 @@ export class WrfViewerComponent implements OnInit
   private doStepAnimation(stepSize: number = 1)
   {
     /* hide the layer that corresponds to the current time */
-    let frameKey = WrfViewerComponent.generateFrameKey({'configuration': this.job!.name, 'cycle_time': this.job!.initializationTime[0], 'valid_time': this.selectedFrameMs, 'variable': 'T2'});
+    let frameKey = WrfViewerComponent.generateFrameKey({'configuration': this.job!.configuration_name, 'cycle_time': this.job!.cycle_time, 'valid_time': this.selectedFrameMs, 'variable': 'T2'});
     if (this.frames[frameKey] !== undefined)
       this.frames[frameKey].setVisible(false);
 
@@ -516,7 +514,7 @@ export class WrfViewerComponent implements OnInit
     this.selectedFrameMs = this.animationFrames[selectedIndex].getTime();
 
     /* show the layer that corresponds to the new time */
-    frameKey = WrfViewerComponent.generateFrameKey({'configuration': this.job!.name, 'cycle_time': this.job!.initializationTime[0], 'valid_time': this.selectedFrameMs, 'variable': 'T2'});
+    frameKey = WrfViewerComponent.generateFrameKey({'configuration': this.job!.configuration_name, 'cycle_time': this.job!.cycle_time, 'valid_time': this.selectedFrameMs, 'variable': 'T2'});
     if (this.frames[frameKey] !== undefined)
       this.frames[frameKey].setVisible(true);
   }

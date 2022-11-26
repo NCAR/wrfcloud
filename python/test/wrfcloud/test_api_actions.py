@@ -20,6 +20,7 @@ from wrfcloud.api.auth import create_jwt, validate_jwt
 from wrfcloud.api.auth import issue_refresh_token
 from wrfcloud.api.auth import get_refresh_token
 from wrfcloud.api.handler import create_reference_id
+from wrfcloud.jobs import add_job_to_system, WrfJob
 from wrfcloud.user import User
 from wrfcloud.user import add_user_to_system
 from wrfcloud.user import get_user_from_system
@@ -28,7 +29,7 @@ from wrfcloud.user import delete_user_from_system
 from wrfcloud.system import init_environment
 from wrfcloud.api.auth import get_user_from_jwt
 
-from helper import _test_teardown, _test_setup, _get_sample_user, _get_all_sample_users
+from helper import _test_teardown, _test_setup, _get_sample_user, _get_all_sample_users, _get_all_sample_jobs
 
 init_environment(env='test')
 os.environ['JWT_KEY'] = secrets.token_hex(64)
@@ -660,61 +661,70 @@ def test_refresh_token() -> None:
 
 
 # TODO: These two tests needs S3 access in the test environment -- need to consider a different testing method
-# def test_get_wrf_meta_data() -> None:
-#     """
-#     Test the GetWrfMetaData action
-#     """
-#     # set up test case
-#     assert _test_setup()
-#     user, _ = _get_sample_user('regular')
-#     assert add_user_to_system(user)
-#
-#     # create a request to get WRF meta data
-#     request = {}
-#
-#     # create and run the action
-#     action = GetWrfMetaData(run_as_user=user, request=request)
-#     assert action.run()
-#
-#     # check the response value
-#     assert action.success
-#     assert 'configurations' in action.response
-#     assert len(action.response['configurations']) == 1
-#     assert 1654041600000 == action.response['configurations'][0]['cycle_times'][0]['cycle_time']
-#     assert len(action.response['configurations'][0]['cycle_times'][0]['valid_times']) == 25
-#
-#     # teardown test case
-#     assert _test_teardown()
-# def test_get_wrf_geojson() -> None:
-#     """
-#     Test the GetWrfGeoJson action
-#     """
-#     # set up test case
-#     assert _test_setup()
-#     user, _ = _get_sample_user('regular')
-#     assert add_user_to_system(user)
-#
-#     # create a request to get WRF meta data
-#     request = {
-#         'configuration': 'test',
-#         'cycle_time': 1654041600000,
-#         'valid_time': 1654041600000,
-#         'variable': 'T2'
-#     }
-#
-#     # create and run the action
-#     action = GetWrfGeoJson(run_as_user=user, request=request)
-#     assert action.run()
-#
-#     # check the response value
-#     assert action.success
-#     assert 'geojson' in action.response
-#     assert action.response['geojson'] is not None
-#     assert len(action.response['geojson']) == 403132
-#     hash_alg = hashlib.sha256()
-#     hash_alg.update(action.response['geojson'])
-#     checksum = base64.b16encode(hash_alg.digest()).decode()
-#     assert checksum == '21E2C5233E86C9E8187C2C907F96AE90AA0933340744C9E575C5F468CFDE79B1'
-#
-#     # teardown test case
-#     assert _test_teardown()
+def test_get_wrf_meta_data() -> None:
+    """
+    Test the GetWrfMetaData action
+    """
+    # set up test case
+    assert _test_setup()
+    user, _ = _get_sample_user('regular')
+    assert add_user_to_system(user)
+    jobs = _get_all_sample_jobs()
+    for job in jobs:
+        assert add_job_to_system(job)
+
+    # create a request to get WRF meta data
+    request = {}
+
+    # create and run the action
+    action = GetWrfMetaData(ref_id=create_reference_id(), run_as_user=user, request=request)
+    assert action.run()
+
+    # check the response value
+    assert action.success
+    assert 'jobs' in action.response
+    assert len(action.response['jobs']) == 1
+    job = WrfJob(action.response['jobs'][0])
+    assert 'W70BA135451' == job.job_id
+    assert len(job.layers) == 119
+
+    # teardown test case
+    assert _test_teardown()
+
+
+def test_get_wrf_geojson() -> None:
+    """
+    Test the GetWrfGeoJson action
+    """
+    # set up test case
+    assert _test_setup()
+    user, _ = _get_sample_user('regular')
+    assert add_user_to_system(user)
+    jobs = _get_all_sample_jobs()
+    for job in jobs:
+        assert add_job_to_system(job)
+
+    # create a request to get WRF meta data
+    request = {
+        'configuration': 'test',
+        'cycle_time': 1654041600000,
+        'valid_time': 1654041600000,
+        'variable': 'T2'
+    }
+
+    # create and run the action
+    action = GetWrfGeoJson(run_as_user=user, request=request)
+    assert action.run()
+
+    # check the response value
+    assert action.success
+    assert 'geojson' in action.response
+    assert action.response['geojson'] is not None
+    assert len(action.response['geojson']) == 403132
+    hash_alg = hashlib.sha256()
+    hash_alg.update(action.response['geojson'])
+    checksum = base64.b16encode(hash_alg.digest()).decode()
+    assert checksum == '21E2C5233E86C9E8187C2C907F96AE90AA0933340744C9E575C5F468CFDE79B1'
+
+    # teardown test case
+    assert _test_teardown()

@@ -107,6 +107,6 @@ class RefreshToken(Action):
             wrfcloud.api.auth.KEY_EMAIL: user.email,
             wrfcloud.api.auth.KEY_ROLE: user.role_id
         }
-        self.response[Action.REQ_KEY_JWT] = create_jwt(payload)
+        self.response[Action.REQ_KEY_JWT] = create_jwt(payload, 2592000)
         self.response[Action.REQ_KEY_REFRESH] = issue_refresh_token(user)
         return True

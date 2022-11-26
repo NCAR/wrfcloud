@@ -121,11 +121,15 @@ class WrfJob:
                     data.pop(field)
 
             # remove any extraneous keys that may have been added
+            extra_pop_keys = []
             for key in data:
                 if key not in self.ALL_KEYS:
-                    data.pop(key)
+                    extra_pop_keys.append(key)
+            for extra_pop_key in extra_pop_keys:
+                data.pop(extra_pop_key)
 
-        except Exception:
+        except Exception as e:
+            self.log.error('Failed to sanitize data', e)
             return None
         return data
 

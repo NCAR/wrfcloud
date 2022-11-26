@@ -1,6 +1,12 @@
 import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {AppComponent} from "../app.component";
-import {JobStatusResponse, Job, ListJobResponse, WebsocketListener, WebsocketMessage} from "../client-api";
+import {
+  JobStatusResponse,
+  WrfJob,
+  ListJobResponse,
+  WebsocketListener,
+  WebsocketMessage,
+} from "../client-api";
 import {MatSort} from "@angular/material/sort";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatTableDataSource} from "@angular/material/table";
@@ -26,13 +32,13 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   /**
    * A list of WRF jobs in the system
    */
-  public jobs: Job[] = [];
+  public jobs: WrfJob[] = [];
 
 
   /**
    * Table data
    */
-  public dataSource: MatTableDataSource<Job> = new MatTableDataSource<Job>([]);
+  public dataSource: MatTableDataSource<WrfJob> = new MatTableDataSource<WrfJob>([]);
 
 
   /**
@@ -79,7 +85,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   {
     /* get a reference to the application singleton */
     this.app = AppComponent.singleton;
-    
+
     /* refresh job data from the API */
     this.refreshJobData();
     this.app.api.connectWebsocket(this);
@@ -124,7 +130,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
     this.busy = true;
 
     /* load the job data */
-    this.app.api.sendListJobsRequest(this.handleJobDataResponse.bind(this));
+    this.app.api.sendListJobsRequest({}, this.handleJobDataResponse.bind(this));
   }
 
 
@@ -156,9 +162,9 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
    *
    * @param job Job object for the row clicked
    */
-  public jobClicked(job: Job): void
+  public jobClicked(job: WrfJob): void
   {
-    this.app.routeTo('/view/jobid1');
+    this.app.routeTo('/view/' + job.job_id);
   }
 
 
@@ -174,6 +180,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   public websocketOpen(event: Event): void
   {
     /* subscribe to job status changes */
+    console.log('websocket subscribe');
     this.subscribed = this.app.api.subscribeToJobChanges();
   }
 
@@ -181,6 +188,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   public websocketClose(event: CloseEvent): void
   {
     /* connect again if we get disconnected */
+    console.log('websocket closed');
     this.subscribed = false;
     if (!this.destructing)
       this.app.api.connectWebsocket(this);
@@ -210,7 +218,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   private handleJobStatusMessage(message: JobStatusResponse)
   {
     /* extract the job from the message */
-    const job: Job = message.data.job;
+    const job: WrfJob = message.data.job;
 
     /* find the job in the table */
     for (let job_ of this.jobs)
@@ -225,6 +233,10 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
         job_.configuration_name = job.configuration_name;
         job_.cycle_time = job.cycle_time;
         job_.progress = job.progress;
+        job_.user_email = job.user_email;
+        job_.notify = job.notify;
+        job_.layers = job.layers;
+        job_.domain_center = job.domain_center;
       }
     }
   }
