@@ -60,13 +60,6 @@ class GeoJson:
         # log status info
         self.log.info(f'Converting {self.variable} to {out_file}')
 
-        # TODO: The date/time of the data should come from within the file, not the file name,
-        #       however this information does not seem to be available within the GRIB file.
-        #       As a work-around for now, we are getting the time step from the file name,
-        #       and this can be used in conjunction with the start time and output frequency
-        #       to compute the data time.  Yuch!
-        self.time_step = int(self.wrf_file.split('/')[-1].split('GrbF')[1])
-
         # get the data, lat, and lon grids
         if self.file_type == 'grib2':
             grid, self.grid_lat, self.grid_lon = self._read_from_grib()
@@ -355,11 +348,9 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
         palette_name = product['palette']
         z_levels = product['z_levels'] if 'z_levels' in product else [None]
         for z_level in z_levels:
+            # create the output file name
             out_file = (f'{wrf_file}_{variable}' if z_level is None else f'{wrf_file}_{variable}_{z_level}')
             out_file += '.geojson.gz'
-            converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette_name, z_level)
-            future = ppe.submit(converter.convert, out_file)
-            futures.append(future)
 
             # create the WRF Layer details for this output product
             wrf_layer = WrfLayer()
@@ -373,8 +364,18 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
             wrf_layer.units = product['units']
             wrf_layer.layer_data = out_file
             wrf_layer.z_level = z_level
-            wrf_layer.time_step = converter.time_step
+            # TODO: The date/time of the data should come from within the file, not the file name,
+            #       however this information does not seem to be available within the GRIB file.
+            #       As a work-around for now, we are getting the time step from the file name,
+            #       and this can be used in conjunction with the start time and output frequency
+            #       to compute the data time.  Yuch!
+            wrf_layer.time_step = int(wrf_file.split('/')[-1].split('GrbF')[1])
             out_layers.append(wrf_layer)
+
+            # convert the file
+            converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette_name, z_level)
+            future = ppe.submit(converter.convert, out_file)
+            futures.append(future)
 
     wait(futures)
 
