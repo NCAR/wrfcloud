@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {WrfLayer} from "../client-api";
+import {WrfLayerGroup} from "../client-api";
 import {WrfViewerComponent} from "../wrf-viewer/wrf-viewer.component";
 
 @Component({
@@ -9,7 +9,7 @@ import {WrfViewerComponent} from "../wrf-viewer/wrf-viewer.component";
 })
 export class LayerComponent implements OnInit
 {
-  @Input() layer: WrfLayer|undefined;
+  @Input() layerGroup: WrfLayerGroup|undefined;
 
 
   /**
@@ -26,5 +26,11 @@ export class LayerComponent implements OnInit
 
   ngOnInit(): void
   {
+  }
+
+
+  public percentLabel(value: number): string
+  {
+    return Math.round(value * 100) + '%';
   }
 }

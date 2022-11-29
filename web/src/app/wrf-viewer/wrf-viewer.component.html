@@ -13,23 +13,6 @@
 
 <div class="viewer-container" *ngIf="!app.isMobile || forceMobile">
   <div *ngIf="job !== undefined">
-    <div class="viewer-header">
-      <span class="viewer-title">
-        {{job.configuration_name}}
-      </span>
-      <span class="viewer-init-time-select">
-        <mat-form-field appearance="fill" class="viewer-init-time-select-mat">
-          <mat-label>
-            Forecast Initialization Time
-          </mat-label>
-          <mat-select [ngModel]="job.cycle_time">
-            <mat-option *ngFor="let time of [job.cycle_time]" [value]="time">
-              {{time | date:'yyyy-MM-dd HH:mm:ss O':'UTC'}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </span>
-    </div>
     <div class="viewer-mid-panel">
       <span class="viewer-height-selector">
         <mat-slider
@@ -48,7 +31,7 @@
       </span>
       <div id="map" class="map"></div>
       <span class="viewer-layers">
-        <app-layer *ngFor="let layer of job.layers" [layer]="layer">
+        <app-layer *ngFor="let layerGroup of layerGroups" [layerGroup]="layerGroup">
         </app-layer>
       </span>
     </div>

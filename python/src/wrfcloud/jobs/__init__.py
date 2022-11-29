@@ -3,7 +3,7 @@ Other code calling the wrfcloud.jobs module should mainly use functions from
 this file.  Calling other functions and classes may have unexpected results.
 """
 __all__ = ['WrfJob', 'JobDao', 'add_job_to_system', 'get_job_from_system', 'get_all_jobs_in_system',
-           'update_job_in_system', 'delete_job_from_system']
+           'update_job_in_system', 'delete_job_from_system', 'LatLonPoint']
 
 import os
 from typing import Union, List
@@ -11,6 +11,7 @@ from wrfcloud.log import Logger
 from wrfcloud.jobs.job import WrfJob
 from wrfcloud.jobs.job_dao import JobDao
 from wrfcloud.subscribers import message_all_subscribers
+from wrfcloud.jobs.job import LatLonPoint
 
 
 log = Logger()

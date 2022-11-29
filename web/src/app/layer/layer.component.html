@@ -1,28 +1,38 @@
-<div class="layer-container" *ngIf="layer">
+<div class="layer-container" *ngIf="layerGroup">
   <div class="layer-visibility">
-    <mat-checkbox class="layer-checkbox" color="primary" [(ngModel)]="layer.visible" (change)="layer.visibilityChange(layer)">
-      {{layer.display_name}}
+    <mat-checkbox class="layer-checkbox" color="primary" [(ngModel)]="layerGroup.visible" (change)="layerGroup.visibilityChange(layerGroup)">
+      {{layerGroup.display_name}}
     </mat-checkbox>
   </div>
-  <div [class]="layer.visible ? 'layer-details-open' : 'layer-details-closed'">
-    <div class="layer-opacity">
+  <div [class]="layerGroup.visible ? 'layer-details-open' : 'layer-details-closed'">
+    <div>
+      <mat-progress-bar *ngIf="layerGroup.loaded < layerGroup.layers.length"
+        class="layer-loading-progress"
+        color="primary"
+        [mode]="layerGroup.loaded > 0 ? 'determinate' : 'indeterminate'"
+        [value]="(layerGroup.loaded / layerGroup.layers.length) * 100">
+      </mat-progress-bar>
+    </div>
+    <div class="layer-opacity" *ngIf="layerGroup.loaded === layerGroup.layers.length">
       <mat-slider color="primary" class="layer-opacity-slider"
         [min]="0"
         [max]="1"
         [step]="0.1"
         [tickInterval]="0.1"
         [thumbLabel]="true"
-        [(ngModel)]="layer.opacity"
-        (change)="layer.opacityChange(layer)"
+        [(ngModel)]="layerGroup.opacity"
+        (change)="layerGroup.opacityChange(layerGroup)"
+        [displayWith]="percentLabel"
       >
+        <input matSliderThumb>
       </mat-slider>
     </div>
-    <div [class]="'layer-color-legend palette-' + layer.palette.palette_name">
+    <div [class]="'layer-color-legend palette-' + layerGroup.layers[0].palette.palette_name">
     </div>
     <div class="layer-color-legend">
-      <span class="layer-color-legend-min">{{layer.palette.min_value}}</span>
-      <span class="layer-color-legend-units">{{layer.units}}</span>
-      <span class="layer-color-legend-max">{{layer.palette.max_value}}</span>
+      <span class="layer-color-legend-min">{{layerGroup.layers[0].palette.min_value}}</span>
+      <span class="layer-color-legend-units">{{layerGroup.layers[0].units}}</span>
+      <span class="layer-color-legend-max">{{layerGroup.layers[0].palette.max_value}}</span>
     </div>
   </div>
 </div>

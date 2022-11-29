@@ -255,30 +255,6 @@ export class AppComponent
   {
     this.user = response.ok ? response.data.user : undefined;
   }
-
-
-  /**
-   * Request the latest WRF meta data
-   */
-  public refreshWrfMetaData(): void
-  {
-    const req: GetWrfMetaDataRequest = {};
-    this.api.sendGetWrfMetaDataRequest(req, this.handleWrfMetaDataResponse.bind(this));
-  }
-
-
-  /**
-   * Handle the GetWrfMetaData response
-   *
-   * @param response Response containing WRF meta data or errors
-   */
-  public handleWrfMetaDataResponse(response: GetWrfMetaDataResponse): void
-  {
-    if (response.ok)
-      this.wrfMetaData = response.data.configurations;
-    else
-      this.showErrorDialog(response.errors);
-  }
 }
 
 

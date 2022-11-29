@@ -11,7 +11,7 @@ from pytz import utc
 from wrfcloud.api.actions.action import Action
 from wrfcloud.system import get_aws_session
 from wrfcloud.aws.pcluster import WrfCloudCluster, CustomAction
-from wrfcloud.jobs import WrfJob, JobDao
+from wrfcloud.jobs import WrfJob, JobDao, LatLonPoint
 
 
 class GetWrfMetaData(Action):
@@ -209,6 +209,7 @@ class RunWrf(Action):
             job.status_message = 'Launching cluster'
             job.user_email = self.run_as_user.email
             job.notify = self.request['notify']
+            job.domain_center = LatLonPoint()
 
             # add the job information to the database
             job_dao = JobDao()

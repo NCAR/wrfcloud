@@ -754,6 +754,19 @@ export interface Palette
   max_value: number;
 }
 
+export interface WrfLayerGroup
+{
+  layers: WrfLayer[];
+  loaded: number;
+  variable_name: string;
+  display_name: string;
+  opacity: number;
+  visible: boolean;
+  z_level: number;
+  visibilityChange: Function;
+  opacityChange: Function;
+}
+
 export interface WrfLayer
 {
   variable_name: string;
@@ -766,8 +779,6 @@ export interface WrfLayer
   z_level: number;
   time_step: number;
   dt: number;
-  visibilityChange: Function;
-  opacityChange: Function;
 }
 
 export interface WrfJob
@@ -840,8 +851,7 @@ export interface WrfMetaDataCycleTime
 
 export interface GetWrfGeoJsonRequest
 {
-  configuration: string;
-  cycle_time: number;
+  job_id: string;
   valid_time: number;
   variable: string;
 }
@@ -849,10 +859,10 @@ export interface GetWrfGeoJsonRequest
 export interface GetWrfGeoJsonResponse extends ApiResponse
 {
   data: {
-    configuration: string;
-    cycle_time: number;
+    job_id: string;
     valid_time: number;
     variable: string;
+    z_level: number;
     geojson: string
   }
 }

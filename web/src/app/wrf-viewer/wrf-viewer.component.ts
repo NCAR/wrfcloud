@@ -5,8 +5,7 @@ import {
   LayerRequest,
   GetWrfGeoJsonRequest,
   GetWrfGeoJsonResponse,
-  WrfLayer,
-  ListJobRequest, ListJobResponse
+  ListJobRequest, ListJobResponse, WrfLayerGroup, WrfLayer
 } from "../client-api";
 import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
@@ -18,6 +17,7 @@ import {GeoJSON} from "ol/format";
 import VectorLayer from "ol/layer/Vector";
 import {Fill, Stroke, Style} from "ol/style";
 import {Layer} from "ol/layer";
+import LayerGroup from "ol/layer/Group";
 
 @Component({
   selector: 'app-wrf-viewer',
@@ -81,9 +81,15 @@ export class WrfViewerComponent implements OnInit
 
 
   /**
-   * WRF job ID (obtained from the router)
+   * A list of layers taken from the job
    */
-  public jobId: string;
+  public layers: WrfLayer[] = [];
+
+
+  /**
+   * Layer groups organized by variable name
+   */
+  public layerGroups: WrfLayerGroup[] = [];
 
 
   /**
@@ -120,12 +126,8 @@ export class WrfViewerComponent implements OnInit
     WrfViewerComponent.singleton = this;
     this.app = AppComponent.singleton;
 
-    /* get the WRF meta data */
-    this.app.refreshWrfMetaData();
-
     /* request the job information */
-    this.jobId = this.app.router.url.split('/')[2];
-    this.app.api.sendListJobsRequest({job_id: this.jobId}, this.handleListJobResponse.bind(this));
+    this.sendGetJobRequest();
   }
 
 
@@ -142,36 +144,7 @@ export class WrfViewerComponent implements OnInit
    */
   ngAfterViewInit(): void
   {
-    this.initWrfJob();
     this.initMap();
-  }
-
-
-  /**
-   * Wait for the WRF metadata, then init the WRF job values
-   * @private
-   */
-  private initWrfJob(): void
-  {
-    /* wait for the metadata to be initialized */
-    if (this.app.wrfMetaData === undefined)
-    {
-      setTimeout(this.initWrfJob.bind(this), 100);
-      return;
-    }
-
-    /* set the wrf job data to be the first configuration in the metadata */
-    let cycleTimes: Array<number> = [];
-    for (let i = 0; i < this.app.wrfMetaData[0].cycle_times.length; i++)
-      cycleTimes.push(this.app.wrfMetaData[0].cycle_times[i].cycle_time);
-
-    /* set the list of valid times */
-    for (let i = 0; i < this.app.wrfMetaData[0].cycle_times[0].valid_times.length; i++)
-      this.animationFrames.push(new Date(this.app.wrfMetaData[0].cycle_times[0].valid_times[i]));
-    this.selectedFrameMs = this.animationFrames[0].getTime();
-
-    /* TODO: initialize the WRF job */
-    this.job = undefined;
   }
 
 
@@ -209,42 +182,21 @@ export class WrfViewerComponent implements OnInit
 
   /**
    *
-   * @param configName
-   * @param cycleTime
+   * @param jobId
    * @param validTime
    * @param variable
    * @private
    */
-  private loadLayer(configName: string, cycleTime: number, validTime: number, variable: string): void
+  private loadLayer(jobId: string, validTime: number, variable: string): void
   {
     /* create the request data */
     const requestData: GetWrfGeoJsonRequest = {
-      configuration: configName,
-      cycle_time: cycleTime,
+      job_id: jobId,
       valid_time: validTime,
       variable: variable
     };
 
     this.app.api.sendGetWrfGeoJsonRequest(requestData, this.handleGetWrfGeoJsonResponse.bind(this));
-  }
-
-
-  /**
-   *
-   * @param response
-   * @private
-   */
-  private handleListJobResponse(response: ListJobResponse): void
-  {
-    /* check for status and errors */
-    if (!response.ok)
-    {
-      this.app.showErrorDialog(response.errors);
-      return;
-    }
-
-    /* get the WRF job data from the response */
-    this.job = response.data.jobs[0];
   }
 
 
@@ -262,13 +214,27 @@ export class WrfViewerComponent implements OnInit
       return;
     }
 
+    /* find the metadata layer */
+    let layerIndex = 0;
+    while (layerIndex < this.layers.length)
+    {
+      if (response.data.variable === this.layers[layerIndex].variable_name)
+        if (response.data.valid_time === this.layers[layerIndex].dt)
+          if (response.data.z_level === this.layers[layerIndex].z_level)
+            break;
+      layerIndex++;
+    }
+    const layer: WrfLayer|undefined = (layerIndex < this.layers.length) ? this.layers[layerIndex] : undefined;
+
     /* decode the base64 data */
     const geojsonObject = JSON.parse(atob(response.data.geojson));
+    if (layer)
+      layer.layer_data = geojsonObject;
 
     /* create a new layer for the map */
     const vectorSource = new VectorSource({features: new GeoJSON().readFeatures(geojsonObject)});
     const vectorLayer = new VectorLayer({source: vectorSource, style: WrfViewerComponent.selfStyle});
-    vectorLayer.setOpacity(0.6);
+    if (layer) vectorLayer.setOpacity(layer.opacity);
 
     /* cache the layer in the frames map */
     const frameKey = WrfViewerComponent.generateFrameKey(response.data);
@@ -277,6 +243,94 @@ export class WrfViewerComponent implements OnInit
     /* add the invisible layer to the map */
     vectorLayer.setVisible(false);
     this.map!.addLayer(vectorLayer);
+
+    /* advance the loading progress */
+    let layerGroup: WrfLayerGroup = this.layerGroups[0];
+    for (let lg of this.layerGroups)
+    {
+      const varMatch: boolean = response.data.variable === lg.variable_name;
+      const zMatch: boolean = response.data.z_level === lg.z_level || lg.z_level === null || lg.z_level === undefined;
+      if (varMatch && zMatch)
+        lg.loaded += 1;
+    }
+
+    /* load the first frame if finished loading */
+    if (layerGroup.loaded === layerGroup.layers.length)
+    {
+      const key = WrfViewerComponent.generateFrameKey({
+        'job_id': response.data.job_id,
+        'valid_time': this.selectedFrameMs / 1000,
+        'variable': response.data.variable
+      });
+      this.frames[key].setVisible(true);
+    }
+  }
+
+
+  /**
+   * Send a request to get selected job details
+   * @private
+   */
+  private sendGetJobRequest(): void
+  {
+    /* get the job ID from the URI */
+    const jobId: string = this.app.router.url.split('/')[2];
+
+    /* send an API request to get the job details */
+    const req: ListJobRequest = {job_id: jobId};
+    this.app.api.sendListJobsRequest(req, this.handleGetJobResponse.bind(this));
+  }
+
+
+  /**
+   * Receive the job details
+   *
+   * @param response
+   * @private
+   */
+  private handleGetJobResponse(response: ListJobResponse): void
+  {
+    /* check for status and errors */
+    if (!response.ok)
+    {
+      this.app.showErrorDialog(response.errors);
+      return;
+    }
+
+    /* extract the WRF job data from the response */
+    this.job = response.data.jobs[0];
+
+    /* extract the layers from the job data */
+    this.layers = this.job.layers;
+    this.layerGroups = [];
+    const tmpMap: {[key: string]: WrfLayerGroup} = {};
+    for (let layer of this.job.layers)
+    {
+      let group: WrfLayerGroup = tmpMap[layer.variable_name];
+      if (group === undefined)
+      {
+        group = {
+          layers: [],
+          loaded: 0,
+          opacity: layer.opacity,
+          variable_name: layer.variable_name,
+          visible: layer.visible,
+          z_level: layer.z_level,
+          display_name: layer.display_name,
+          opacityChange: this.doChangeOpacity.bind(this),
+          visibilityChange: this.doToggleLayer.bind(this)
+        };
+        tmpMap[layer.variable_name] = group;
+        this.layerGroups[this.layerGroups.length] = group;
+      }
+      group.layers[group.layers.length] = layer;
+    }
+
+    /* set up the animation frame list */
+    for (let layer of this.layerGroups[0].layers)
+      this.animationFrames[this.animationFrames.length] = new Date(layer.dt * 1000);
+    this.animationFrames = this.animationFrames.sort();
+    this.selectedFrameMs = this.animationFrames[0].getTime();
   }
 
 
@@ -287,7 +341,7 @@ export class WrfViewerComponent implements OnInit
    */
   private static generateFrameKey(data: {[key: string]: string|number}): string
   {
-    return data['configuration'] + '-' + data['cycle_time'] + '-' + data['valid_time'] + '-' + data['variable'];
+    return data['job_id'] + '-' + data['valid_time'] + '-' + data['variable'];
   }
 
 
@@ -344,14 +398,14 @@ export class WrfViewerComponent implements OnInit
    * Toggle a data layer on/off
    * @param layer
    */
-  public doToggleLayer(layer: WrfLayer): void
+  public doToggleLayer(layer: WrfLayerGroup): void
   {
     if (layer.visible)
-      this.preloadFrames(this.job!.configuration_name, this.job!.cycle_time, layer.variable_name);
+      this.preloadFrames(this.job!.job_id, layer.variable_name);
   }
 
 
-  public doChangeOpacity(layer: WrfLayer): void
+  public doChangeOpacity(layer: WrfLayerGroup): void
   {
     for (let key of Object.keys(this.frames))
     {
@@ -363,25 +417,24 @@ export class WrfViewerComponent implements OnInit
   /**
    * Start the process of preloading data frames
    *
-   * @param configurationName
-   * @param cycleTime
+   * @param jobId
    * @param variable
    */
-  public preloadFrames(configurationName: string, cycleTime: number, variable: string): void
+  public preloadFrames(jobId: string, variable: string): void
   {
     /* load a data layer if it is not yet loaded */
     for (let validTime of this.animationFrames)
     {
+      const timestamp: number = Math.trunc(validTime.getTime() / 1000);
       const frameKey = WrfViewerComponent.generateFrameKey(
         {
-          'configuration': configurationName,
-          'cycle_time': cycleTime,
-          'valid_time': validTime.getTime(),
+          'job_id': jobId,
+          'valid_time': timestamp,
           'variable': variable
         }
       );
       if (this.frames[frameKey] === undefined)
-        this.loadLayer(configurationName, cycleTime, validTime.getTime(), variable);
+        this.loadLayer(jobId, timestamp, variable);
     }
   }
 
@@ -487,8 +540,18 @@ export class WrfViewerComponent implements OnInit
    */
   private doStepAnimation(stepSize: number = 1)
   {
+    let variableName: string = '';
+    for (let lg of this.layerGroups)
+      if (lg.visible)
+        variableName = lg.variable_name;
+
     /* hide the layer that corresponds to the current time */
-    let frameKey = WrfViewerComponent.generateFrameKey({'configuration': this.job!.configuration_name, 'cycle_time': this.job!.cycle_time, 'valid_time': this.selectedFrameMs, 'variable': 'T2'});
+    let frameKey = WrfViewerComponent.generateFrameKey(
+      {'job_id': this.job!.job_id,
+        'valid_time': Math.trunc(this.selectedFrameMs / 1000),
+        'variable': variableName
+      }
+    );
     if (this.frames[frameKey] !== undefined)
       this.frames[frameKey].setVisible(false);
 
@@ -504,7 +567,7 @@ export class WrfViewerComponent implements OnInit
     /* calculate the new index */
     selectedIndex += stepSize;
 
-    /* adjust the frame index to be within array index bounds */
+    /* adjust the frame index to be within array index bounds -- loop the animation if we go passed the end (or beginning) */
     while (selectedIndex < 0)
       selectedIndex += this.animationFrames.length;
     while (selectedIndex >= this.animationFrames.length)
@@ -514,7 +577,13 @@ export class WrfViewerComponent implements OnInit
     this.selectedFrameMs = this.animationFrames[selectedIndex].getTime();
 
     /* show the layer that corresponds to the new time */
-    frameKey = WrfViewerComponent.generateFrameKey({'configuration': this.job!.configuration_name, 'cycle_time': this.job!.cycle_time, 'valid_time': this.selectedFrameMs, 'variable': 'T2'});
+    frameKey = WrfViewerComponent.generateFrameKey(
+      {
+        'job_id': this.job!.job_id,
+        'valid_time': Math.trunc(this.selectedFrameMs / 1000),
+        'variable': variableName
+      }
+    );
     if (this.frames[frameKey] !== undefined)
       this.frames[frameKey].setVisible(true);
   }

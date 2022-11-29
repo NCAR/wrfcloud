@@ -30,9 +30,6 @@ table
   width: 100vw
   overflow: hidden
 
-.viewer-header
-  margin: 0 10em
-
 .viewer-title
   font-size: 2.0rem
   width: 50%
@@ -65,13 +62,15 @@ table
 
 .map
   width: calc(98vw - 400px)
-  min-height: calc(100vh - 350px)
+  min-height: calc(100vh - 250px)
   float: top
 
 .viewer-layers
   min-width: 350px
   background-image: linear-gradient(180deg, $bg1, $bg2)
   border-top-right-radius: 12px
+  height: calc(100vh - 250px)
+  overflow-y: scroll
 
 .viewer-lower-panel
   width: 98vw
@@ -131,3 +130,10 @@ table
 .viewer-anim-time-slider
   width: 80%
   margin: 22px auto auto 100px
+
+::ng-deep .mat-primary .mat-slider-track-fill
+  background-color: rgba(0,0,0,0.25) !important
+
+::ng-deep .mat-slider-thumb-label-text
+  color: $accent-blue-dark !important
+  margin-left: 0 !important

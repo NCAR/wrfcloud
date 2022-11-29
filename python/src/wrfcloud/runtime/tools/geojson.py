@@ -181,6 +181,7 @@ class GeoJson:
         """
         # read grib2 file with pygrib & eccodes
         variable = wrf.select(shortName=self.variable)
+        # TODO: self.layer.dt = variable[0].validDate
         grid = MaskedArray(variable[0].values)
 
         return grid
