@@ -449,6 +449,7 @@ export class ClientApi
   /**
    * Send a list user request
    *
+   * @param requestData
    * @param responseHandler
    */
   public sendListJobsRequest(requestData: ListJobRequest, responseHandler: Function): void
@@ -456,7 +457,7 @@ export class ClientApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'ListJobs',
-      data: {}
+      data: requestData
     };
 
     /* send the API request */
