@@ -23,7 +23,7 @@ products:
     display_name: '2-m Temperature'
     units: 'ºK'
   - grib2:
-      variable: dpt
+      variable: 2d
     range:
       min: 248
       max: 308
@@ -59,10 +59,10 @@ products:
     display_name: 'Mean Sea-Level Pressure'
     units: 'Pascals'
   - grib2:
-      variable: r
+      variable: 2r
     range:
       min: 0
-      max: 100
+      max: 101
     contour_interval: 5
     palette: BrBG
     display_name: 'Relative Humidity'
@@ -94,8 +94,44 @@ products:
     palette: viridis
     display_name: 'Composite Reflectivity'
     units: 'dBz'
+  - grib2:
+      variable: tp
+    range:
+      min: 1
+      max: 101
+    contour_interval: 5
+    palette: BrBG
+    display_name: 'Precipitation Accumulation'
+    units: 'mm'
+  - grib2:
+      variable: lcc
+    range:
+      min: 0
+      max: 101
+    contour_interval: 5
+    palette: Blues_r
+    display_name: 'Low-Level Cloud Cover'
+    units: '%'
+  - grib2:
+      variable: mcc
+    range:
+      min: 0
+      max: 101
+    contour_interval: 5
+    palette: Blues_r
+    display_name: 'Medium-Level Cloud Cover'
+    units: '%'
+  - grib2:
+      variable: hcc
+    range:
+      min: 0
+      max: 101
+    contour_interval: 5
+    palette: Blues_r
+    display_name: 'High-Level Cloud Cover'
+    units: '%'
 
-  # 3D variables - 700mb
+  # 3D variables - 1000mb 925mb 850mb 700mb 500mb 300mb 250mb 100mb
   - grib2:
       variable: t
     range:
@@ -103,7 +139,7 @@ products:
       max: 313
     contour_interval: 1
     palette: viridis
-    display_name: 'Temperature'
+    display_name: 'Temperature (3D)'
     units: 'ºK'
     z_levels:
       - 1000
@@ -115,34 +151,40 @@ products:
       - 250
       - 100
 
-for layer in job.layers:
-  if layer.variable_name == '2t':
-    layer.display_name = '2-m Temperature'
-    layer.units = 'ºK'
-  if layer.variable_name == 'dpt':
-    layer.display_name = 'Dew Point Temperature'
-    layer.units = 'ºK'
-  if layer.variable_name == '10u':
-    layer.display_name = '10-m East/West Wind Component'
-    layer.units = 'm/s'
-  if layer.variable_name == '10v':
-    layer.display_name = '10-m North/South Wind Component'
-    layer.units = 'm/s'
-  if layer.variable_name == 'prmsl':
-    layer.display_name = 'Mean Sea-Level Pressure'
-    layer.units = 'Pascals'
-  if layer.variable_name == 'r':
-    layer.display_name = 'Relative Humidity'
-    layer.units = '%'
-  if layer.variable_name == 'cape':
-    layer.display_name = 'CAPE'
-    layer.units = 'kJ/kg'
-  if layer.variable_name == 'cin':
-    layer.display_name = 'CIN'
-    layer.units = 'J/kg'
-  if layer.variable_name == 'refc':
-    layer.display_name = 'Composite Reflectivity'
-    layer.units = 'dBz'
-  if layer.variable_name == 't':
-    layer.display_name = 'Temperature'
-    layer.units = 'ºK'
+  - grib2:
+      variable: r
+    range:
+      min: 0
+      max: 100
+    contour_interval: 5
+    palette: viridis
+    display_name: 'Relative Humidity (3D)'
+    units: '%'
+    z_levels:
+      - 1000
+      - 925
+      - 850
+      - 700
+      - 500
+      - 300
+      - 250
+      - 100
+
+  - grib2:
+      variable: w
+    range:
+      min: -60
+      max: 20
+    contour_interval: 2
+    palette: viridis
+    display_name: 'Vertical Velocity (3D)'
+    units: 'Pa/s'
+    z_levels:
+      - 1000
+      - 925
+      - 850
+      - 700
+      - 500
+      - 300
+      - 250
+      - 100

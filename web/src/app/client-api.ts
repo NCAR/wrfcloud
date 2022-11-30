@@ -855,6 +855,7 @@ export interface GetWrfGeoJsonRequest
   job_id: string;
   valid_time: number;
   variable: string;
+  z_level: number;
 }
 
 export interface GetWrfGeoJsonResponse extends ApiResponse

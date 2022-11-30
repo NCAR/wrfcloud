@@ -185,15 +185,17 @@ export class WrfViewerComponent implements OnInit
    * @param jobId
    * @param validTime
    * @param variable
+   * @param z_level
    * @private
    */
-  private loadLayer(jobId: string, validTime: number, variable: string): void
+  private loadLayer(jobId: string, validTime: number, variable: string, z_level: number): void
   {
     /* create the request data */
     const requestData: GetWrfGeoJsonRequest = {
       job_id: jobId,
       valid_time: validTime,
-      variable: variable
+      variable: variable,
+      z_level: z_level
     };
 
     this.app.api.sendGetWrfGeoJsonRequest(requestData, this.handleGetWrfGeoJsonResponse.bind(this));
@@ -245,20 +247,12 @@ export class WrfViewerComponent implements OnInit
     this.map!.addLayer(vectorLayer);
 
     /* advance the loading progress */
-    let layerGroup: WrfLayerGroup = this.layerGroups[0];
-    for (let lg of this.layerGroups)
-    {
-      const varMatch: boolean = response.data.variable === lg.variable_name;
-      const zMatch: boolean = response.data.z_level === lg.z_level || lg.z_level === null || lg.z_level === undefined;
-      if (varMatch && zMatch)
-      {
-        layerGroup = lg;
-        lg.loaded += 1;
-      }
-    }
+    const layerGroup: WrfLayerGroup|undefined = this.findLayerGroup(response.data.variable, response.data.z_level);
+    if (layerGroup)
+      layerGroup.loaded += 1;
 
     /* load the first frame if finished loading */
-    if (layerGroup.loaded === layerGroup.layers.length)
+    if (layerGroup && layerGroup.loaded === layerGroup.layers.length)
       this.showSelectedTimeFromLayerGroup(layerGroup);
   }
 
@@ -273,7 +267,8 @@ export class WrfViewerComponent implements OnInit
     const key = WrfViewerComponent.generateFrameKey({
       'job_id': this.job!.job_id,
       'valid_time': this.selectedFrameMs / 1000,
-      'variable': layerGroup.variable_name
+      'variable': layerGroup.variable_name,
+      'z_level': layerGroup.z_level
     });
     this.frames[key].setVisible(true);
   }
@@ -314,13 +309,15 @@ export class WrfViewerComponent implements OnInit
     /* extract the layers from the job data */
     this.layers = this.job.layers;
     this.layerGroups = [];
-    const tmpMap: {[key: string]: WrfLayerGroup} = {};
     for (let layer of this.job.layers)
     {
-      let group: WrfLayerGroup = tmpMap[layer.variable_name];
-      if (group === undefined)
+      /* find the layer group for this layer */
+      let layerGroup: WrfLayerGroup|undefined = this.findLayerGroup(layer.variable_name, layer.z_level);
+
+      /* create and add the layer group if it is not found */
+      if (layerGroup === undefined)
       {
-        group = {
+        layerGroup = {
           layers: [],
           loaded: 0,
           opacity: layer.opacity,
@@ -331,13 +328,14 @@ export class WrfViewerComponent implements OnInit
           opacityChange: this.doChangeOpacity.bind(this),
           visibilityChange: this.doToggleLayer.bind(this)
         };
-        tmpMap[layer.variable_name] = group;
-        this.layerGroups[this.layerGroups.length] = group;
+        this.layerGroups[this.layerGroups.length] = layerGroup;
       }
-      group.layers[group.layers.length] = layer;
+
+      /* add this layer to the layer group */
+      layerGroup.layers[layerGroup.layers.length] = layer;
     }
 
-    /* set up the animation frame list */
+    /* set up the list of animation times from the first layer group in the list */
     for (let layer of this.layerGroups[0].layers)
       this.animationFrames[this.animationFrames.length] = new Date(layer.dt * 1000);
     this.animationFrames = this.animationFrames.sort(this.dateCompare);
@@ -368,7 +366,7 @@ export class WrfViewerComponent implements OnInit
    */
   private static generateFrameKey(data: {[key: string]: string|number}): string
   {
-    return data['job_id'] + '-' + data['valid_time'] + '-' + data['variable'];
+    return data['job_id'] + '-' + data['valid_time'] + '-' + data['variable'] + '-' + data['z_level'];
   }
 
 
@@ -433,7 +431,7 @@ export class WrfViewerComponent implements OnInit
       /* turn off all other layers */
       for (let lg of this.layerGroups)
       {
-        if (layerGroup.variable_name !== lg.variable_name && lg.visible)
+        if (layerGroup.variable_name !== lg.variable_name && layerGroup.z_level !== lg.z_level && lg.visible)
         {
           lg.visible = false;
           this.setLayerVisibility(lg, false);
@@ -441,7 +439,7 @@ export class WrfViewerComponent implements OnInit
       }
 
       /* make sure data are loaded for the visible layer */
-      this.preloadFrames(this.job!.job_id, layerGroup.variable_name);
+      this.preloadFrames(this.job!.job_id, layerGroup.variable_name, layerGroup.z_level);
 
       /* make a single animation from visible from the new group if everything is loaded */
       if (layerGroup.loaded === layerGroup.layers.length)
@@ -450,6 +448,7 @@ export class WrfViewerComponent implements OnInit
     else
     {
       /* hide all the animation frames from this layer group */
+      this.doPauseAnimation();
       this.setLayerVisibility(layerGroup, false);
     }
   }
@@ -472,7 +471,9 @@ export class WrfViewerComponent implements OnInit
         {
           'job_id': this.job!.job_id,
           'valid_time': layer.dt,
-          'variable': layerGroup.variable_name}
+          'variable': layerGroup.variable_name,
+          'z_level': layerGroup.z_level
+        }
       );
 
       /* if the layer exists, then set the visibility */
@@ -496,8 +497,9 @@ export class WrfViewerComponent implements OnInit
    *
    * @param jobId
    * @param variable
+   * @param z_level
    */
-  public preloadFrames(jobId: string, variable: string): void
+  public preloadFrames(jobId: string, variable: string, z_level: number): void
   {
     /* load a data layer if it is not yet loaded */
     for (let validTime of this.animationFrames)
@@ -507,11 +509,12 @@ export class WrfViewerComponent implements OnInit
         {
           'job_id': jobId,
           'valid_time': timestamp,
-          'variable': variable
+          'variable': variable,
+          'z_level': z_level
         }
       );
       if (this.frames[frameKey] === undefined)
-        this.loadLayer(jobId, timestamp, variable);
+        this.loadLayer(jobId, timestamp, variable, z_level);
     }
   }
 
@@ -618,15 +621,22 @@ export class WrfViewerComponent implements OnInit
   private doStepAnimation(stepSize: number = 1)
   {
     let variableName: string = '';
+    let z_level: number = 0;
     for (let lg of this.layerGroups)
       if (lg.visible)
+      {
         variableName = lg.variable_name;
+        z_level = lg.z_level;
+        break;
+      }
 
     /* hide the layer that corresponds to the current time */
     let frameKey = WrfViewerComponent.generateFrameKey(
-      {'job_id': this.job!.job_id,
+      {
+        'job_id': this.job!.job_id,
         'valid_time': Math.trunc(this.selectedFrameMs / 1000),
-        'variable': variableName
+        'variable': variableName,
+        'z_level': z_level
       }
     );
     if (this.frames[frameKey] !== undefined)
@@ -658,10 +668,28 @@ export class WrfViewerComponent implements OnInit
       {
         'job_id': this.job!.job_id,
         'valid_time': Math.trunc(this.selectedFrameMs / 1000),
-        'variable': variableName
+        'variable': variableName,
+        'z_level': z_level
       }
     );
     if (this.frames[frameKey] !== undefined)
       this.frames[frameKey].setVisible(true);
+  }
+
+
+  /**
+   * Find a layer group for a given variable name and vertical level
+   *
+   * @param variableName
+   * @param zLevel
+   * @private
+   */
+  private findLayerGroup(variableName: string, zLevel: number): WrfLayerGroup|undefined
+  {
+    for (let layerGroup of this.layerGroups)
+      if (layerGroup.variable_name === variableName && layerGroup.z_level === zLevel)
+        return layerGroup;
+
+    return undefined;
   }
 }

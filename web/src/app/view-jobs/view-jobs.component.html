@@ -60,17 +60,15 @@
           <div *ngIf="item.progress < 1">
             <mat-progress-bar
               [mode]="item.status_code <= 1 ? 'indeterminate' : 'determinate'"
-              [value]="item.progress * 100"
-            >
+              [value]="item.progress * 100">
             </mat-progress-bar>
             <span class="job-status-message">{{item.status_message || 'Pending'}}</span>
           </div>
           <div *ngIf="item.progress >= 1">
             <button mat-stroked-button
                     class="job-open-button"
-                    (click)="app.routeTo('/view/' + item.job_id)"
-            >
-              View
+                    (click)="app.routeTo('/view/' + item.job_id)">
+              Open Viewer
             </button>
           </div>
         </td>
@@ -85,12 +83,10 @@
 </div>
 
 <div class="jobs-configuration-container">
-
   <div class="jobs-configuration" *ngFor="let configuration of app.wrfMetaData">
     {{configuration.configuration_name}}
     <div class="jobs-cycle-time" *ngFor="let cycleTime of configuration.cycle_times">
       {{cycleTime.cycle_time | date:'yyyy-MM-dd HH:mm:ss O':'UTC'}}
     </div>
   </div>
-
 </div>
