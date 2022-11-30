@@ -251,21 +251,32 @@ export class WrfViewerComponent implements OnInit
       const varMatch: boolean = response.data.variable === lg.variable_name;
       const zMatch: boolean = response.data.z_level === lg.z_level || lg.z_level === null || lg.z_level === undefined;
       if (varMatch && zMatch)
+      {
+        layerGroup = lg;
         lg.loaded += 1;
+      }
     }
 
     /* load the first frame if finished loading */
     if (layerGroup.loaded === layerGroup.layers.length)
-    {
-      const key = WrfViewerComponent.generateFrameKey({
-        'job_id': response.data.job_id,
-        'valid_time': this.selectedFrameMs / 1000,
-        'variable': response.data.variable
-      });
-      this.frames[key].setVisible(true);
-    }
+      this.showSelectedTimeFromLayerGroup(layerGroup);
   }
 
+
+  /**
+   *
+   * @param layerGroup
+   * @private
+   */
+  private showSelectedTimeFromLayerGroup(layerGroup: WrfLayerGroup): void
+  {
+    const key = WrfViewerComponent.generateFrameKey({
+      'job_id': this.job!.job_id,
+      'valid_time': this.selectedFrameMs / 1000,
+      'variable': layerGroup.variable_name
+    });
+    this.frames[key].setVisible(true);
+  }
 
   /**
    * Send a request to get selected job details
@@ -329,8 +340,24 @@ export class WrfViewerComponent implements OnInit
     /* set up the animation frame list */
     for (let layer of this.layerGroups[0].layers)
       this.animationFrames[this.animationFrames.length] = new Date(layer.dt * 1000);
-    this.animationFrames = this.animationFrames.sort();
+    this.animationFrames = this.animationFrames.sort(this.dateCompare);
     this.selectedFrameMs = this.animationFrames[0].getTime();
+  }
+
+
+  /**
+   * Function to compare two dates used by a list sorting function
+   * @param a
+   * @param b
+   * @private
+   */
+  private dateCompare(a: Date, b: Date): number
+  {
+    if (a.getTime() < b.getTime())
+      return -1;
+    if (a.getTime() > b.getTime())
+      return 1;
+    return 0;
   }
 
 
@@ -396,12 +423,62 @@ export class WrfViewerComponent implements OnInit
 
   /**
    * Toggle a data layer on/off
-   * @param layer
+   * @param layerGroup
    */
-  public doToggleLayer(layer: WrfLayerGroup): void
+  public doToggleLayer(layerGroup: WrfLayerGroup): void
   {
-    if (layer.visible)
-      this.preloadFrames(this.job!.job_id, layer.variable_name);
+    /* show a new layer */
+    if (layerGroup.visible)
+    {
+      /* turn off all other layers */
+      for (let lg of this.layerGroups)
+      {
+        if (layerGroup.variable_name !== lg.variable_name && lg.visible)
+        {
+          lg.visible = false;
+          this.setLayerVisibility(lg, false);
+        }
+      }
+
+      /* make sure data are loaded for the visible layer */
+      this.preloadFrames(this.job!.job_id, layerGroup.variable_name);
+
+      /* make a single animation from visible from the new group if everything is loaded */
+      if (layerGroup.loaded === layerGroup.layers.length)
+        this.showSelectedTimeFromLayerGroup(layerGroup);
+    }
+    else
+    {
+      /* hide all the animation frames from this layer group */
+      this.setLayerVisibility(layerGroup, false);
+    }
+  }
+
+
+  /**
+   * Set the visibility of all frames of a layer group
+   *
+   * @param layerGroup
+   * @param visibility
+   * @private
+   */
+  private setLayerVisibility(layerGroup: WrfLayerGroup, visibility: boolean): void
+  {
+    /* loop through all the animation frames */
+    for (let layer of layerGroup.layers)
+    {
+      /* generate the key value for the frame */
+      const key: string = WrfViewerComponent.generateFrameKey(
+        {
+          'job_id': this.job!.job_id,
+          'valid_time': layer.dt,
+          'variable': layerGroup.variable_name}
+      );
+
+      /* if the layer exists, then set the visibility */
+      if (this.frames[key] !== undefined)
+        this.frames[key].setVisible(visibility);
+    }
   }
 
 
