@@ -50,31 +50,31 @@
       class="launch-time-slider"
       [(ngModel)]="req.forecast_length"
       [displayWith]="secondsToHoursLabel"
-      tickInterval="auto"
-      step="3600"
-      min="3600"
-      max="1382400"
+      tickInterval="6"
+      step="21600"
+      min="21600"
+      max="604800"
       aria-label="seconds">
     </mat-slider>
   </div>
 
   <div class="launch-shaded-container launch-input-container">
-    <mat-label class="launch-input-label">Output Frequency: {{secondsToHoursLabel(req.output_frequency, true)}}</mat-label>
+    <mat-label class="launch-input-label">Output Frequency: {{secondsToHoursLabelOutFreq(outputFrequencyIndex, true)}}</mat-label>
     <mat-slider
       thumbLabel
       class="launch-time-slider"
-      [(ngModel)]="req.output_frequency"
-      [displayWith]="secondsToHoursLabel"
+      [(ngModel)]="outputFrequencyIndex"
+      [displayWith]="secondsToHoursLabelOutFreq.bind(this)"
       tickInterval="auto"
-      step="1200"
-      min="1200"
-      max="10800"
+      step="1"
+      min="0"
+      [max]="outputFrequencyOptions.length - 1"
       aria-label="seconds">
     </mat-slider>
   </div>
 
   <div class="launch-input-container">
-    <mat-checkbox class="launch-checkbox" [(ngModel)]="req.notify" labelPosition="after">
+    <mat-checkbox class="launch-checkbox" color="warn" [(ngModel)]="req.notify" labelPosition="after">
       Notify when finished
     </mat-checkbox>
   </div>
@@ -84,7 +84,7 @@
     </mat-progress-bar>
   </div>
   <div class="launch-input-container">
-    <button mat-raised-button class="launch-button" color="primary" (click)="startWrf()" [disabled]="busy">
+    <button mat-raised-button class="launch-button" color="primary" (click)="startWrf()" [disabled]="busy || success">
       Launch
     </button>
   </div>

@@ -41,6 +41,9 @@ export class LaunchWrfComponent implements OnInit
     notify: true
   };
 
+  /* selected index for output frequency option */
+  public outputFrequencyIndex: number = 0;
+
   /* start time represented as a date to be added to the request before sending */
   public start_time = LaunchWrfComponent.getDefaultStartTime();
 
@@ -49,6 +52,9 @@ export class LaunchWrfComponent implements OnInit
 
   /* list of valid cycle hour options */
   public cycleHourOptions = [0, 6, 12, 18];
+
+  /* list of valid output frequency options */
+  public outputFrequencyOptions: number[] = [900, 1800, 3600, 10800, 21600, 43200, 86400];
 
   /* list of valid model configuration options */
   public modelConfigOptions = ['test'];
@@ -90,6 +96,9 @@ export class LaunchWrfComponent implements OnInit
     /* set the start time in the request */
     this.req.start_time = this.start_time.unix();
 
+    /* set the output frequency value */
+    this.req.output_frequency = this.outputFrequencyOptions[this.outputFrequencyIndex];
+
     /* send the API request */
     this.app.api.sendLaunchWrf(this.req, this.handleStartWrfResponse.bind(this));
   }
@@ -113,7 +122,7 @@ export class LaunchWrfComponent implements OnInit
 
     /* show success message and route to the job status page */
     this.success = true;
-    setTimeout(this.app.routeTo.bind(this.app), 1500, '/jobs');
+    setTimeout(this.app.routeTo.bind(this.app), 1250, '/jobs');
   }
 
 
@@ -140,6 +149,18 @@ export class LaunchWrfComponent implements OnInit
     }
 
     return label;
+  }
+
+
+  /**
+   * Convert seconds from an array index
+   * @param index
+   * @param full
+   */
+  public secondsToHoursLabelOutFreq(index: number, full: boolean = false): string
+  {
+    const seconds: number = this.outputFrequencyOptions[index];
+    return this.secondsToHoursLabel(seconds, full);
   }
 
 

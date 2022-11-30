@@ -69,7 +69,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   /**
    * Column names to display on a desktop computer
    */
-  public desktopColumns: Array<string> = ['job_id', 'configuration_name', 'cycle_time', 'forecast_length', 'status'];
+  public desktopColumns: Array<string> = ['job_id', 'job_name', 'configuration_name', 'cycle_time', 'forecast_length', 'status'];
 
 
   /**
@@ -164,7 +164,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
    */
   public jobClicked(job: WrfJob): void
   {
-    this.app.routeTo('/view/' + job.job_id);
+    // TODO: Open dialog to view all job details or delete/cancel job;
   }
 
 
