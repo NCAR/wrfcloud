@@ -420,13 +420,44 @@ export class WrfViewerComponent implements OnInit
   }
 
 
+  /**
+   *
+   * @param event
+   */
   public heightChanged(event: MatSliderChange): void
   {
+    console.log(event);
+    
     /* ignore changes with no value */
     if (event.value === null)
       return;
 
+    /* find the visible layer group */
+    let visibleLG: WrfLayerGroup|undefined = undefined;
+    for (let lg of this.layerGroups)
+      if (lg.visible)
+        visibleLG = lg;
+
+    /* hide the current group */
+    if (visibleLG) this.setLayerVisibility(visibleLG, false);
+
+    /* set the z-level in the request */
     this.req.height = this.getClosestValidHeight(event.value);
+
+    /* return if there is nothing else to do */
+    if (visibleLG === undefined) return;
+
+    /* make the new level visible */
+    /* determine if these layers are already loaded or not */
+    const layers: WrfLayer[] = visibleLG.layers[this.req.height];
+    let loaded: number = 0;
+    for (let layer of layers)
+      if (typeof(layer.layer_data) !== 'string')
+        loaded += 1;
+    visibleLG.loaded = loaded;
+    visibleLG.progress = (loaded / layers.length) * 100;
+    visibleLG.visible = true;
+    this.doToggleLayer(visibleLG);
   }
 
 
@@ -514,6 +545,9 @@ export class WrfViewerComponent implements OnInit
           this.frames[key].setVisible(visibility);
       }
     }
+
+    /* finally, set the group visibility */
+    layerGroup.visible = false;
   }
 
 

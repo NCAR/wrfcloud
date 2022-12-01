@@ -18,6 +18,7 @@
         <mat-slider
           class="viewer-height-selector-widget"
           color="primary"
+          [(ngModel)]="req.height"
           [max]="validHeights[0]"
           [min]="validHeights[validHeights.length - 1]"
           [step]="1"

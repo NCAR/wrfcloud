@@ -2,6 +2,7 @@
  * Collection of API functions
  */
 import {HttpClient} from "@angular/common/http";
+import {Layer} from "ol/layer";
 
 
 export class ClientApi
@@ -778,7 +779,7 @@ export interface WrfLayer
   units: string;
   visible: boolean;
   opacity: number;
-  layer_data: string;
+  layer_data: string|Layer;
   z_level: number;
   time_step: number;
   dt: number;
