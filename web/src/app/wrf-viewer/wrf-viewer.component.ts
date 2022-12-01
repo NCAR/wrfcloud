@@ -284,7 +284,6 @@ export class WrfViewerComponent implements OnInit
       'variable': layerGroup.variable_name,
       'z_level': zLevel
     });
-    console.log(key);
     this.frames[key].setVisible(true);
   }
 
@@ -426,8 +425,6 @@ export class WrfViewerComponent implements OnInit
    */
   public heightChanged(event: MatSliderChange): void
   {
-    console.log(event);
-    
     /* ignore changes with no value */
     if (event.value === null)
       return;
