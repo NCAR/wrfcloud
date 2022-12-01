@@ -42,7 +42,7 @@ export class LaunchWrfComponent implements OnInit
   };
 
   /* selected index for output frequency option */
-  public outputFrequencyIndex: number = 0;
+  public outputFrequencyIndex: number = 2;
 
   /* start time represented as a date to be added to the request before sending */
   public start_time = LaunchWrfComponent.getDefaultStartTime();
