@@ -6,14 +6,14 @@
   </div>
   <div [class]="layerGroup.visible ? 'layer-details-open' : 'layer-details-closed'">
     <div>
-      <mat-progress-bar *ngIf="layerGroup.loaded < layerGroup.layers.length"
+      <mat-progress-bar *ngIf="layerGroup.progress < 100"
         class="layer-loading-progress"
         color="primary"
         [mode]="layerGroup.loaded > 0 ? 'determinate' : 'indeterminate'"
-        [value]="(layerGroup.loaded / layerGroup.layers.length) * 100">
+        [value]="layerGroup.progress">
       </mat-progress-bar>
     </div>
-    <div class="layer-opacity" *ngIf="layerGroup.loaded === layerGroup.layers.length">
+    <div class="layer-opacity" *ngIf="layerGroup.progress >= 100">
       <mat-slider color="primary" class="layer-opacity-slider"
         [min]="0"
         [max]="1"
@@ -27,12 +27,12 @@
         <input matSliderThumb>
       </mat-slider>
     </div>
-    <div [class]="'layer-color-legend palette-' + layerGroup.layers[0].palette.palette_name">
+    <div [class]="'layer-color-legend palette-' + layerGroup.palette.palette_name">
     </div>
     <div class="layer-color-legend">
-      <span class="layer-color-legend-min">{{layerGroup.layers[0].palette.min_value}}</span>
-      <span class="layer-color-legend-units">{{layerGroup.layers[0].units}}</span>
-      <span class="layer-color-legend-max">{{layerGroup.layers[0].palette.max_value}}</span>
+      <span class="layer-color-legend-min">{{layerGroup.palette.min_value}}</span>
+      <span class="layer-color-legend-units">{{layerGroup.units}}</span>
+      <span class="layer-color-legend-max">{{layerGroup.palette.max_value}}</span>
     </div>
   </div>
 </div>

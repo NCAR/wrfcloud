@@ -99,17 +99,17 @@ export class WrfViewerComponent implements OnInit
 
 
   /**
-   * Initialize the layer request
+   * List of valid height value selections
    */
-  public req: LayerRequest = {
-    height: 950
-  };
+  public validHeights: number[] = [1000, 925, 850, 700, 500, 300, 250, 100];
 
 
   /**
-   * List of valid height value selections
+   * Initialize the layer request
    */
-  public validHeights: number[] = [950, 850, 700, 500, 300, 200];
+  public req: LayerRequest = {
+    height: this.validHeights[0]
+  };
 
 
   /**
@@ -190,6 +190,11 @@ export class WrfViewerComponent implements OnInit
    */
   private loadLayer(jobId: string, validTime: number, variable: string, z_level: number): void
   {
+    /* override z_level for a 2D variable */
+    const lg: WrfLayerGroup|undefined = this.findLayerGroup(variable);
+    if (lg !== undefined && lg.layers[0] !== undefined)
+      z_level = 0;
+
     /* create the request data */
     const requestData: GetWrfGeoJsonRequest = {
       job_id: jobId,
@@ -216,7 +221,7 @@ export class WrfViewerComponent implements OnInit
       return;
     }
 
-    /* find the metadata layer */
+    /* find the layer */
     let layerIndex = 0;
     while (layerIndex < this.layers.length)
     {
@@ -228,15 +233,18 @@ export class WrfViewerComponent implements OnInit
     }
     const layer: WrfLayer|undefined = (layerIndex < this.layers.length) ? this.layers[layerIndex] : undefined;
 
+    /* cannot continue without a layer */
+    if (layer === undefined)
+      return;
+
     /* decode the base64 data */
     const geojsonObject = JSON.parse(atob(response.data.geojson));
-    if (layer)
-      layer.layer_data = geojsonObject;
+    layer.layer_data = geojsonObject;
 
     /* create a new layer for the map */
     const vectorSource = new VectorSource({features: new GeoJSON().readFeatures(geojsonObject)});
     const vectorLayer = new VectorLayer({source: vectorSource, style: WrfViewerComponent.selfStyle});
-    if (layer) vectorLayer.setOpacity(layer.opacity);
+    vectorLayer.setOpacity(layer.opacity);
 
     /* cache the layer in the frames map */
     const frameKey = WrfViewerComponent.generateFrameKey(response.data);
@@ -247,12 +255,13 @@ export class WrfViewerComponent implements OnInit
     this.map!.addLayer(vectorLayer);
 
     /* advance the loading progress */
-    const layerGroup: WrfLayerGroup|undefined = this.findLayerGroup(response.data.variable, response.data.z_level);
-    if (layerGroup)
-      layerGroup.loaded += 1;
+    const layerGroup: WrfLayerGroup|undefined = this.findLayerGroup(response.data.variable);
+    if (layerGroup === undefined) return;
+    layerGroup.loaded += 1;
+    layerGroup.progress = (layerGroup.loaded / layerGroup.layers[layer.z_level].length) * 100;
 
     /* load the first frame if finished loading */
-    if (layerGroup && layerGroup.loaded === layerGroup.layers.length)
+    if (layerGroup && layerGroup.loaded === layerGroup.layers[layer.z_level].length)
       this.showSelectedTimeFromLayerGroup(layerGroup);
   }
 
@@ -264,12 +273,18 @@ export class WrfViewerComponent implements OnInit
    */
   private showSelectedTimeFromLayerGroup(layerGroup: WrfLayerGroup): void
   {
+    /* find the right zLevel */
+    let zLevel: number = this.req.height;
+    if (layerGroup.layers[0] !== undefined)
+      zLevel = 0;
+
     const key = WrfViewerComponent.generateFrameKey({
       'job_id': this.job!.job_id,
       'valid_time': this.selectedFrameMs / 1000,
       'variable': layerGroup.variable_name,
-      'z_level': layerGroup.z_level
+      'z_level': zLevel
     });
+    console.log(key);
     this.frames[key].setVisible(true);
   }
 
@@ -311,19 +326,24 @@ export class WrfViewerComponent implements OnInit
     this.layerGroups = [];
     for (let layer of this.job.layers)
     {
+      /* if the z_level of the layer is 'null', this means it is a 2D variable and should be set to 0 */
+      if (layer.z_level === null) layer.z_level = 0;
+
       /* find the layer group for this layer */
-      let layerGroup: WrfLayerGroup|undefined = this.findLayerGroup(layer.variable_name, layer.z_level);
+      let layerGroup: WrfLayerGroup|undefined = this.findLayerGroup(layer.variable_name);
 
       /* create and add the layer group if it is not found */
       if (layerGroup === undefined)
       {
         layerGroup = {
-          layers: [],
+          layers: {},
           loaded: 0,
+          progress: 0,
+          palette: layer.palette,
+          units: layer.units,
           opacity: layer.opacity,
           variable_name: layer.variable_name,
           visible: layer.visible,
-          z_level: layer.z_level,
           display_name: layer.display_name,
           opacityChange: this.doChangeOpacity.bind(this),
           visibilityChange: this.doToggleLayer.bind(this)
@@ -332,11 +352,17 @@ export class WrfViewerComponent implements OnInit
       }
 
       /* add this layer to the layer group */
-      layerGroup.layers[layerGroup.layers.length] = layer;
+      if (layerGroup.layers[layer.z_level] === undefined)
+        layerGroup.layers[layer.z_level] = []
+      layerGroup.layers[layer.z_level][layerGroup.layers[layer.z_level].length] = layer;
     }
 
-    /* set up the list of animation times from the first layer group in the list */
-    for (let layer of this.layerGroups[0].layers)
+    /* grab a list of animation times from the first layer group in the list */
+    const zLevelKeys: number[] = [];
+    for (let zLevel in this.layerGroups[0].layers)
+      zLevelKeys[zLevelKeys.length] = Number(zLevel);
+    const layers: WrfLayer[] = this.layerGroups[0].layers[zLevelKeys[0]];
+    for (let layer of layers)
       this.animationFrames[this.animationFrames.length] = new Date(layer.dt * 1000);
     this.animationFrames = this.animationFrames.sort(this.dateCompare);
     this.selectedFrameMs = this.animationFrames[0].getTime();
@@ -400,22 +426,27 @@ export class WrfViewerComponent implements OnInit
     if (event.value === null)
       return;
 
+    this.req.height = this.getClosestValidHeight(event.value);
+  }
+
+
+  private getClosestValidHeight(value: number): number
+  {
     /* find the closest valid height and set it */
     let closest: number = this.validHeights[0];
-    let diff: number = Math.abs(closest - event.value);
+    let diff: number = Math.abs(closest - value);
 
     /* check each valid height */
     for (let height of this.validHeights)
     {
-      if (diff > Math.abs(height - event.value))
+      if (diff > Math.abs(height - value))
       {
         closest = height;
-        diff = Math.abs(closest - event.value);
+        diff = Math.abs(closest - value);
       }
     }
 
-    /* set the slider value to the closest valid height */
-    setTimeout(() => {this.req.height = closest;}, 50);
+    return closest;
   }
 
 
@@ -431,7 +462,7 @@ export class WrfViewerComponent implements OnInit
       /* turn off all other layers */
       for (let lg of this.layerGroups)
       {
-        if (layerGroup.variable_name !== lg.variable_name && layerGroup.z_level !== lg.z_level && lg.visible)
+        if (layerGroup.variable_name !== lg.variable_name && lg.visible)
         {
           lg.visible = false;
           this.setLayerVisibility(lg, false);
@@ -439,10 +470,10 @@ export class WrfViewerComponent implements OnInit
       }
 
       /* make sure data are loaded for the visible layer */
-      this.preloadFrames(this.job!.job_id, layerGroup.variable_name, layerGroup.z_level);
+      this.preloadFrames(this.job!.job_id, layerGroup.variable_name, this.req.height);
 
       /* make a single animation from visible from the new group if everything is loaded */
-      if (layerGroup.loaded === layerGroup.layers.length)
+      if (layerGroup.loaded === layerGroup.layers[this.req.height].length)
         this.showSelectedTimeFromLayerGroup(layerGroup);
     }
     else
@@ -464,21 +495,24 @@ export class WrfViewerComponent implements OnInit
   private setLayerVisibility(layerGroup: WrfLayerGroup, visibility: boolean): void
   {
     /* loop through all the animation frames */
-    for (let layer of layerGroup.layers)
+    for (let z_level in layerGroup.layers)
     {
-      /* generate the key value for the frame */
-      const key: string = WrfViewerComponent.generateFrameKey(
-        {
-          'job_id': this.job!.job_id,
-          'valid_time': layer.dt,
-          'variable': layerGroup.variable_name,
-          'z_level': layerGroup.z_level
-        }
-      );
+      for (let layer of layerGroup.layers[z_level])
+      {
+        /* generate the key value for the frame */
+        const key: string = WrfViewerComponent.generateFrameKey(
+          {
+            'job_id': this.job!.job_id,
+            'valid_time': layer.dt,
+            'variable': layerGroup.variable_name,
+            'z_level': z_level
+          }
+        );
 
-      /* if the layer exists, then set the visibility */
-      if (this.frames[key] !== undefined)
-        this.frames[key].setVisible(visibility);
+        /* if the layer exists, then set the visibility */
+        if (this.frames[key] !== undefined)
+          this.frames[key].setVisible(visibility);
+      }
     }
   }
 
@@ -626,7 +660,7 @@ export class WrfViewerComponent implements OnInit
       if (lg.visible)
       {
         variableName = lg.variable_name;
-        z_level = lg.z_level;
+        z_level = lg.layers[0] !== undefined ? z_level : this.req.height;
         break;
       }
 
@@ -681,15 +715,25 @@ export class WrfViewerComponent implements OnInit
    * Find a layer group for a given variable name and vertical level
    *
    * @param variableName
-   * @param zLevel
    * @private
    */
-  private findLayerGroup(variableName: string, zLevel: number): WrfLayerGroup|undefined
+  private findLayerGroup(variableName: string): WrfLayerGroup|undefined
   {
     for (let layerGroup of this.layerGroups)
-      if (layerGroup.variable_name === variableName && layerGroup.z_level === zLevel)
+      if (layerGroup.variable_name === variableName)
         return layerGroup;
 
     return undefined;
+  }
+
+
+  /**
+   * Create a label for the height selector
+   * @param value
+   */
+  public pressureLabel(value: number): string
+  {
+    const closest = this.getClosestValidHeight(value);
+    return closest + '';
   }
 }

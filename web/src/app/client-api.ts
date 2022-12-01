@@ -757,13 +757,15 @@ export interface Palette
 
 export interface WrfLayerGroup
 {
-  layers: WrfLayer[];
+  layers: {[z_level: number]: WrfLayer[]};
+  palette: Palette;
+  units: string;
   loaded: number;
+  progress: number;
   variable_name: string;
   display_name: string;
   opacity: number;
   visible: boolean;
-  z_level: number;
   visibilityChange: Function;
   opacityChange: Function;
 }
