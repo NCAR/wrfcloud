@@ -34,7 +34,7 @@ export class LaunchWrfComponent implements OnInit
   /* request to send the API */
   public req: RunWrfRequest = {
     job_name: '',
-    configuration_name: 'test',
+    configuration_name: 'Caribbean 6km',
     start_time: 0,
     forecast_length: 86400,
     output_frequency: 3600,
@@ -57,7 +57,7 @@ export class LaunchWrfComponent implements OnInit
   public outputFrequencyOptions: number[] = [900, 1800, 3600, 10800, 21600, 43200, 86400];
 
   /* list of valid model configuration options */
-  public modelConfigOptions = ['test'];
+  public modelConfigOptions = ['Caribbean 6km'];
 
 
   constructor()
@@ -100,7 +100,10 @@ export class LaunchWrfComponent implements OnInit
     this.req.output_frequency = this.outputFrequencyOptions[this.outputFrequencyIndex];
 
     /* send the API request */
-    this.app.api.sendLaunchWrf(this.req, this.handleStartWrfResponse.bind(this));
+    // TODO: Get rid of this copy nonsense once we get configurations added
+    let copy: RunWrfRequest = JSON.parse(JSON.stringify(this.req));
+    copy.configuration_name = 'test';
+    this.app.api.sendLaunchWrf(copy, this.handleStartWrfResponse.bind(this));
   }
 
 

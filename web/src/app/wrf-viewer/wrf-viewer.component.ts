@@ -497,11 +497,14 @@ export class WrfViewerComponent implements OnInit
         }
       }
 
+      /* get the height 2D vs 3D */
+      const zLevel = layerGroup.layers[0] !== undefined ? 0 : this.req.height;
+
       /* make sure data are loaded for the visible layer */
-      this.preloadFrames(this.job!.job_id, layerGroup.variable_name, this.req.height);
+      this.preloadFrames(this.job!.job_id, layerGroup.variable_name, zLevel);
 
       /* make a single animation from visible from the new group if everything is loaded */
-      if (layerGroup.loaded === layerGroup.layers[this.req.height].length)
+      if (layerGroup.loaded === layerGroup.layers[zLevel].length)
         this.showSelectedTimeFromLayerGroup(layerGroup);
     }
     else

@@ -11,7 +11,7 @@
   </div>
 </div>
 
-<div class="viewer-container" *ngIf="!app.isMobile || forceMobile">
+<div class="viewer-container" [class.viewer-hide]="app.isMobile && !forceMobile">
   <div *ngIf="job !== undefined">
     <div class="viewer-mid-panel">
       <span class="viewer-height-selector">

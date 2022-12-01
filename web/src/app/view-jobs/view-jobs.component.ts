@@ -147,6 +147,9 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
     /* handle the response */
     if (response.ok)
     {
+      // TODO: Get rid of this nonsense
+      for (let job of response.data.jobs)
+        job.configuration_name = 'Caribbean 6km';
       this.jobs = response.data.jobs;
       this.dataSource.data = this.jobs;
     }
