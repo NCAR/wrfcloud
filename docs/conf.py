@@ -114,7 +114,7 @@ html_static_path = ['_static']
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = os.path.join('_static','ncarucar-stacked-gray.png')
+html_logo = os.path.join('_static','wrf_cloud_logo_color.png')
 
 # -- Intersphinx control -----------------------------------------------------
 intersphinx_mapping = {'numpy':("https://docs.scipy.org/doc/numpy/", None)}
