@@ -67,4 +67,4 @@ Users may manage their own preferences in this tab. Currently the only option is
 Forecast Viewer 
 ===============
 
-The forecast plots can be accessed by clicking on the Job ID or Status of a run in the WRF Jobs tab. Each available product will be listed in the right-hand menu and can be toggled on/off with the checkmark. Each product also has a transparency slider bar to adjust the field's transparency. Automation play/pause/advance buttons and slider can be found at the bottom of the map. On the left, a vertical slider bar allows users to select different vertical levels for appropriate products. 
+The forecast plots can be accessed by clicking on the Job ID or Status of a run in the WRF Jobs tab. See Graphics page for more information.
