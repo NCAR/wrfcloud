@@ -19,12 +19,12 @@ print(sys.path)
 
 project = 'WRF Cloud'
 author = 'UCAR/UCP/COMET and UCAR/NCAR/RAL'
-author_list = 'Wolff, J., K. Fossell, D. Hahn, M. Harrold, M. Kavlich, J. Halley Gotway, P. Kucera'
+author_list = 'Fossell, K., D. Hahn, M. Harrold, M. Kavlich, J. Halley Gotway, P. Kucera'
 version = '0.1.0'
 verinfo = version
 release = f'{version}'
 release_year = '2022'
-release_date = f'{release_year}-09-30'
+release_date = f'{release_year}-12-13'
 copyright = f'{release_year}, {author}'
 
 # -- General configuration ---------------------------------------------------
