@@ -38,7 +38,7 @@ extensions = ['sphinx.ext.autodoc','sphinx.ext.intersphinx','sphinx_panels',]
 # settings for ReadTheDocs PDF creation
 latex_engine = 'pdflatex'
 latex_theme = 'manual'
-latex_logo = os.path.join('_static','ncarucar-stacked-gray.png')
+latex_logo = os.path.join('_static','wrf_cloud_logo_color.png')
 latex_show_pagerefs = True
 latex_master_doc = 'Users_Guide/index'
 
