@@ -1,20 +1,19 @@
 ===========================
 WRF Cloud version |version|
 ===========================
-Developed by the `UCAR/UCP/COMET <https://www.comet.ucar.edu/>`_ and `UCAR/NCAR/RAL <https://ral.ucar.edu/>`_
+Developed by the `UCAR/UCP/COMET <https://www.comet.ucar.edu/>`_ and `UCAR/NCAR/RAL <https://ral.ucar.edu/>`_ and `UCAR/NCAR/MMM <https://mmm.ucar.edu/>`_
 Boulder, CO
 
-.. image:: _static/wrfcloud_banner_photo_web.jpeg
+.. image:: _static/wrf_cloud_logo_color_horizontal.png
 
 Welcome
 -------
-
-WRF Cloud Concept
------------------
+The WRF Cloud framework is the realization of a idea years in the making to leverage maturing cloud computing techonologies to make numerical weather predition more accessible and efficient. The cloud-based forecasting system is designed to easily facilitate cost-effective state-of-the-art numerical weather prediction system forecasts in communities that lack the large computational resources. 
 
 Acronyms
 --------
 
+* **MMM***  - Mesoscale and Microscale Meteorology Lab
 * **NCAR**  - National Center for Atmospheric Research
 * **RAL**   - Research Applications Laboratory
 * **UCAR**  - University Corporation for Atmospheric Research
