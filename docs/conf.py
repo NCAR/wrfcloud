@@ -19,12 +19,12 @@ print(sys.path)
 
 project = 'WRF Cloud'
 author = 'UCAR/UCP/COMET and UCAR/NCAR/RAL'
-author_list = 'Wolff, J., K. Fossell, D. Hahn, M. Harrold, M. Kavlich, J. Halley Gotway, P. Kucera'
+author_list = 'Fossell, K., D. Hahn, M. Harrold, M. Kavlich, J. Halley Gotway, P. Kucera'
 version = '0.1.0'
 verinfo = version
 release = f'{version}'
 release_year = '2022'
-release_date = f'{release_year}-09-30'
+release_date = f'{release_year}-12-13'
 copyright = f'{release_year}, {author}'
 
 # -- General configuration ---------------------------------------------------
@@ -38,7 +38,7 @@ extensions = ['sphinx.ext.autodoc','sphinx.ext.intersphinx','sphinx_panels',]
 # settings for ReadTheDocs PDF creation
 latex_engine = 'pdflatex'
 latex_theme = 'manual'
-latex_logo = os.path.join('_static','ncarucar-stacked-gray.png')
+latex_logo = os.path.join('_static','wrf_cloud_logo_color.png')
 latex_show_pagerefs = True
 latex_master_doc = 'Users_Guide/index'
 
@@ -114,7 +114,7 @@ html_static_path = ['_static']
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = os.path.join('_static','ncarucar-stacked-gray.png')
+html_logo = os.path.join('_static','wrf_cloud_logo_color.png')
 
 # -- Intersphinx control -----------------------------------------------------
 intersphinx_mapping = {'numpy':("https://docs.scipy.org/doc/numpy/", None)}

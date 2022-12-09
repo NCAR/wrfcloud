@@ -4,11 +4,57 @@
 System Administration
 *********************
 
+User Roles & Permissions
+========================
+
+The following definitions and table describe the user roles and corresponding permissions for each role that exist in this framework.
+
+* **anonymous:** unknown user, will be prompted to sign up
+* **readonly:** Active user in the system who will view forecasts only
+* **regular:** Active user in the system who will schedule, launch, and view forecasts
+* **admin:** Active user with admin permissions to manage users and configure systems
+
+.. list-table:: Roles and Permissions
+   :widths: 10 10 10 10 10
+   :header-rows: 1
+   
+   * -   
+     - admin
+     - regular
+     - readonly
+     - anonymous
+   * - Change Password
+     -   X
+     -   X
+     -   X 
+     -  
+   * - Run and Schedule Forecasts
+     -  X
+     -  X
+     -  
+     -  
+   * - View Forecasts 
+     - X
+     - X
+     - X
+     - 
+   * - List jobs  
+     - X
+     - X
+     - X
+     - 
+   * - Manage Users  
+     - X
+     - 
+     - 
+     - 
+
+
 Adding Users
 ============
 
-User Permissions
-================
+Users with the **Admin** role have permission to add new users to the system. This option will be available to users with these permissions on the system's website under the "Manage Users" tab. Click the Add User to begin the process.
+
 
 Audit Logs
 ==========
