@@ -40,9 +40,9 @@ System overview
 ---------------
 The main components of the framework and how they interact with eachother are shown in the overview schematic below. Details about each of the components follows.  
 
-.. _overivew-figure_2:
+.. _system-overivew:
 
-.. figure:: figure/overview-figure_2.png
+.. figure:: figure/system-overview.png
 
 Cloud Formation
 ---------------
