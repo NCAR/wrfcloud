@@ -57,7 +57,7 @@ When a run is finished, this column will say Open in Viewer and can be clicked t
 Manage Users (Admins only)
 ==========================
 
-For users with Admin priviledges, the users of the system can me managed in this tab. Click on any user name to change their role and permissions or remove from system access. To add new users, click on the "Add user" button and enter their email, Name, and select a role for permissions. (See roles and permissions for more information)
+For users with Admin privileges, the users of the system can me managed in this tab. Click on any user name to change their role and permissions or remove from system access. To add new users, click on the "Add user" button and enter their email, Name, and select a role for permissions. (See roles and permissions for more information)
 
 Preferences 
 ===========
