@@ -96,10 +96,6 @@ production:
   LANGUAGE: en
   LOCALE: us
 
-  # AWS Account Profile
-  AWS_PROFILE: wrfcloud
-  AWS_REGION: us-east-2
-
   # API Gateway Options
   API_URL: api.domainname.com
   APP_URL: www.domainname.com
