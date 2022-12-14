@@ -72,7 +72,18 @@ Resources:
                   commands:
                     - mkdir -p /opt/src
                     - cd /opt/src
-                    - aws s3 sync s3://wrfcloud-dep-src .
+                    - wget https://www.wrfcloud.com/libs/cmake-3.25.0-rc3.tar.gz
+                    - wget https://www.wrfcloud.com/libs/eccodes-2.27.0.tar.gz
+                    - wget https://www.wrfcloud.com/libs/g2clib-1.6.0-patch.tar.gz
+                    - wget https://www.wrfcloud.com/libs/hdf5-1.10.5.tar.gz
+                    - wget https://www.wrfcloud.com/libs/jasper-1.900.1.tar.gz
+                    - wget https://www.wrfcloud.com/libs/libaec-v1.0.6.tar.gz
+                    - wget https://www.wrfcloud.com/libs/libpng-1.2.50.tar.gz
+                    - wget https://www.wrfcloud.com/libs/ncview-2.1.7.tar.gz
+                    - wget https://www.wrfcloud.com/libs/netcdf-4.7.3.tar.gz
+                    - wget https://www.wrfcloud.com/libs/netcdf-cxx-4.3.1.tar.gz
+                    - wget https://www.wrfcloud.com/libs/netcdf-fortran-4.5.2.tar.gz
+                    - wget https://www.wrfcloud.com/libs/szip-2.1.1.tar.gz
 
               - name: build-zlib
                 action: ExecuteBash
@@ -259,8 +270,8 @@ Resources:
                   commands:
                     - source /etc/bashrc
                     - cd /opt/src
-                    - tar -xzf cmake-3.25.0-rc3.tar.gz
-                    - cd cmake-3.25.0-rc3
+                    - tar -xzf cmake-3.25.0.tar.gz
+                    - cd cmake-3.25.0
                     - ./configure --prefix=/opt/cmake 2>&1 | tee configure.log
                     - gmake install 2>&1 | tee build.log
                     - echo 'export CMAKE=/opt/cmake' | tee -a /etc/bashrc
