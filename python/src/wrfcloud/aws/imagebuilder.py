@@ -50,7 +50,7 @@ class WrfCloudImageBuilder:
 
         # get cloudformation client
         cloudformation = self._get_cloudformation_client()
-        res = cloudformation.create_stack(StackName=self.stack_name, TemplateBody=template_body)
+        res = cloudformation.create_stack(StackName=self.stack_name, TemplateBody=template_body, Capabilities=['CAPABILITY_IAM'])
 
         # get the stack ID from the response if there is one
         self.stack_id = res['StackId'] if 'StackId' in res else None
