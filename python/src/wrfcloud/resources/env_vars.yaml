@@ -104,11 +104,11 @@ production:
   NOTIFY_WEB_CLIENTS: True
 
   # DynamoDB Options
-  USER_TABLE_NAME: wrfcloud_users_prod
-  AUDIT_TABLE_NAME: wrfcloud_audit_prod
-  REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_prod
-  JOB_TABLE_NAME: wrfcloud_jobs_prod
-  SUBSCRIBER_TABLE_NAME: wrfcloud_subscribers_prod
+  USER_TABLE_NAME: production_wrfcloud_users
+  AUDIT_TABLE_NAME: production_wrfcloud_audit
+  REFRESH_TOKEN_TABLE_NAME: production_wrfcloud_refresh_tokens
+  JOB_TABLE_NAME: production_wrfcloud_jobs
+  SUBSCRIBER_TABLE_NAME: production_wrfcloud_subscribers
 
   # EventBridge Options
   EVENTBRIDGE_RULE_PREFIX: wrfcloud-

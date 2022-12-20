@@ -10,5 +10,6 @@ __all__ = [
     'log',
     'system',
     'runtime',
-    'jobs'
+    'jobs',
+    'setup'
 ]

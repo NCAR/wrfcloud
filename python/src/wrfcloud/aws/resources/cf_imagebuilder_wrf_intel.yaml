@@ -401,7 +401,6 @@ Resources:
       Name: wrf-4-4-0
       InstanceTypes:
         - c5.xlarge
-      KeyPair: hahnd
       InstanceProfileName: WrfCloudImageBuilderInstanceProfile
       TerminateInstanceOnFailure: true
 
