@@ -11,23 +11,24 @@ function main()
   mkdir -p "${build_dir}" && cd "${build_dir}"
   git clone https://github.com/NCAR/wrfcloud
 
-  ### Parameters
-  s3_bucket="wrfcloud_8c672d53f5"
-  deployment_type="production"
-
   ### Configure CloudShell Environment
   install_os_packages
   install_python39
   install_nodejs16
-  install_angular14
 
   ### Create WRF Cloud Build Artifacts
   create_wrfcloud_lambda_layer
   create_wrfcloud_lambda_function
+
+  ### Compile angular web application
+  install_angular14
   create_wrfcloud_web_application
+
+  ### Install wrfcloud Python package
   install_wrfcloud
 
   ### Run WRF Cloud Setup Tool
+  cd "${build_dir}"
   wrfcloud-setup
 }
 
@@ -36,7 +37,7 @@ function main()
 # Post-condition: Required os-level packages are installed
 function install_os_packages()
 {
-  sudo yum -y install gcc gcc-c++ bzip2-devel zlib-devel openssl-devel make libffi-devel
+  sudo yum -y install gcc gcc-c++ bzip2-devel zlib-devel openssl-devel make libffi-devel git sudo wget tar zip
 }
 
 # Install python 3.9
@@ -53,6 +54,7 @@ function install_python39()
   sudo make install 2>&1 | tee python_install.log
   export PYTHON39="/opt/python"
   export PATH="${PYTHON39}/bin:${PATH}"
+  pip3 install wheel
 }
 
 # Install node 16
@@ -60,6 +62,7 @@ function install_python39()
 # Post-condition: Node 16 interpreter available in the path as "node"
 function install_nodejs16()
 {
+  touch "${HOME}/.bashrc"
   wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
   source ~/.bashrc
   nvm install 16
@@ -71,6 +74,7 @@ function install_nodejs16()
 function install_angular14()
 {
   npm install -g @angular/cli@14
+  chmod +x ${HOME}/.nvm/versions/node/v16.19.0/lib/node_modules/@angular/cli/bin/ng.js
 }
 
 # Create a zip file for the lambda layer
@@ -84,7 +88,8 @@ function create_wrfcloud_lambda_layer()
   cd install/python/lib
   rm -Rf pygrib pygrib.libs matplotlib numpy numpy.libs pyproj netCDF4 netCDF4.libs Pillow.libs fontTools kiwisolver setuptools cftime PIL contourpy botocore pyproj.libs mpl_toolkits wrfcloud *.dist-info
   cd ../../
-  zip -r "${build_dir}/lambda_layer.zip" python/lib
+  ln -s ~/.nvm/versions/node/v16.19.0 $(pwd)/node
+  zip -r "${build_dir}/lambda_layer.zip" python/lib node
 }
 
 # Create a zip file for the lambda function

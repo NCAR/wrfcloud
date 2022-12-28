@@ -1,9 +1,14 @@
 __all__ = ['aws', 'setup']
 
+import os
 import yaml
 import getpass
+import hashlib
+import random
+import base64
+import glob
 from time import sleep
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from typing import List, Union
 from wrfcloud.system import init_environment, get_aws_session
 from wrfcloud.aws.imagebuilder import WrfCloudImageBuilder
@@ -18,25 +23,36 @@ def setup():
     # Initialize the environment
     init_environment('production')
     user_data = {}
+    s3_bucket = _create_s3_bucket_name()
+    s3_bucket = 'wrfcloud-ce86e2cf'  # TODO: Remove this line
 
     # Collect input parameters - custom domain names (app, api, ws); admin email/password
     _setup_get_user_data(user_data)
 
     # Image Builder - create stack and run image builder pipeline
-    print('Creating WRF Image...')
-    image_builder = WrfCloudImageBuilder()
-    image_builder.create_stack()
-    image_builder.build_image()
+    # print('Creating WRF Image...')
+    # image_builder = WrfCloudImageBuilder()
+    # image_builder.create_stack()
+    # image_builder.build_image()
 
     # CloudFormation - Data stack
-    data_stack = CloudFormation()
-    data_stack.stack_name = 'WrfCloudApiData'
-    data_stack.cf_template_resource = 'setup/aws/cf_wrfcloud_data.yaml'
-    data_stack.parameters.append({'ParameterKey': 'AppName', 'ParameterValue': 'wrfcloud'})
-    data_stack.parameters.append({'ParameterKey': 'DeploymentType', 'ParameterValue': 'production'})
-    data_stack.create_stack()
+    # print('Creating CloudFormation Data Stack...')
+    # data_stack = CloudFormation()
+    # data_stack.stack_name = 'WrfCloudApiData'
+    # data_stack.cf_template_resource = 'setup/aws/cf_wrfcloud_data.yaml'
+    # data_stack.parameters.append({'ParameterKey': 'AppName', 'ParameterValue': 'wrfcloud'})
+    # data_stack.parameters.append({'ParameterKey': 'DeploymentType', 'ParameterValue': 'production'})
+    # data_stack.parameters.append({'ParameterKey': 'WrfCloudBucket', 'ParameterValue': s3_bucket})
+    # data_stack.create_stack()
+
+    # Deploy build artifacts (lambda layer, function, web app)
+    # print(f'Uploading build artifacts to S3 bucket ({s3_bucket}) ...')
+    # _upload_to_s3(s3_bucket, 'artifacts/lambda_layer.zip', 'lambda_layer.zip', 'Enter the location of the lambda layer zip file: ')
+    # _upload_to_s3(s3_bucket, 'artifacts/lambda_function.zip', 'lambda_function.zip', 'Enter the location of the lambda function zip file: ')
+    # _sync_to_s3(s3_bucket, 'web', 'web', 'Enter the location of the Angular web application build: ')
 
     # CloudFormation - Certificate stack - DNS certificate verification
+    print('Creating CloudFormation Web Certificate Stack...')
     certificate_stack = WrfCloudCertificates(user_data['hosted_zone_id'])
     certificate_stack.stack_name = 'WrfCloudWebCertificate'
     certificate_stack.cf_template_resource = 'setup/aws/cf_wrfcloud_certificate.yaml'
@@ -46,25 +62,60 @@ def setup():
     certificate_stack.parameters.append({'ParameterKey': 'WebsocketHostName', 'ParameterValue': user_data['ws_domain']})
     tpe = ThreadPoolExecutor(max_workers=1)
     validate_future = tpe.submit(certificate_stack.validate_certificates)
-    certificate_stack.create_stack()
+    # certificate_stack.create_stack()
     validate_future.result()
 
     # CloudFormation - Web application stack
+    print('Creating CloudFormation Web Application Stack...')
+    webapp_stack = CloudFormation()
+    webapp_stack.stack_name = 'WrfCloudWebApp'
+    webapp_stack.cf_template_resource = 'setup/aws/cf_wrfcloud_webapp.yaml'
+    webapp_stack.parameters.append({'ParameterKey': 'AdminUserEmail', 'ParameterValue': user_data['admin_email']})
+    webapp_stack.parameters.append({'ParameterKey': 'AppName', 'ParameterValue': 'wrfcloud'})
+    webapp_stack.parameters.append({'ParameterKey': 'DeploymentType', 'ParameterValue': 'production'})
+    webapp_stack.parameters.append({'ParameterKey': 'DomainName', 'ParameterValue': user_data['domain']})
+    webapp_stack.parameters.append({'ParameterKey': 'WebHostName', 'ParameterValue': user_data['app_domain']})
+    webapp_stack.parameters.append({'ParameterKey': 'ApiHostName', 'ParameterValue': user_data['api_domain']})
+    webapp_stack.parameters.append({'ParameterKey': 'WebsocketHostName', 'ParameterValue': user_data['ws_domain']})
+    webapp_stack.parameters.append({'ParameterKey': 'StageName', 'ParameterValue': 'v1'})
+    webapp_stack.parameters.append({'ParameterKey': 'HostedZoneId', 'ParameterValue': user_data['hosted_zone_id']})
+    webapp_stack.parameters.append({'ParameterKey': 'CertificateArn', 'ParameterValue': certificate_stack.certificate_arn})
+    webapp_stack.parameters.append({'ParameterKey': 'WrfCloudBucket', 'ParameterValue': s3_bucket})
+    webapp_stack.create_stack()
 
     # Enable SES identity
-    _add_email_identity(user_data['admin_email'])
-    _wait_for_email_identity_confirmation(user_data['admin_email'])
+    # print('Verify email identity to allow sending email on your behalf...')
+    # _add_email_identity(user_data['admin_email'])
+    # _wait_for_email_identity_confirmation(user_data['admin_email'])
 
     # Create admin user
-    admin = User()
-    admin.full_name = user_data['full_name']
-    admin.email = user_data['admin_email']
-    admin.password = user_data['admin_password']
-    admin.role_id = 'admin'
-    admin.active = True
-    add_user_to_system(admin)
+    # print('Creating admin user in WRF Cloud...')
+    # admin = User()
+    # admin.full_name = user_data['full_name']
+    # admin.email = user_data['admin_email']
+    # admin.password = user_data['admin_password']
+    # admin.role_id = 'admin'
+    # admin.active = True
+    # add_user_to_system(admin)
 
-    # Deploy web application
+    # Complete confirmation
+    print('----------------------------------------------------------')
+    print('WRF Cloud installation is complete.')
+    print('Open your browser to https://' + user_data['app_domain'])
+    print('----------------------------------------------------------')
+
+
+def _create_s3_bucket_name() -> str:
+    """
+    Get the S3 bucket name
+    """
+    # make one up
+    sha = hashlib.sha256()
+    for i in range(10):
+        sha.update(str(random.random()).encode())
+    suffix = base64.b16encode(sha.digest()).decode()[0:8].lower()
+    s3_bucket = 'wrfcloud-' + suffix
+    return s3_bucket
 
 
 def _setup_get_user_data(user_data: dict):
@@ -84,6 +135,10 @@ def _setup_get_user_data(user_data: dict):
     user_data['full_name'] = full_name
     user_data['admin_email'] = email
     user_data['admin_password'] = password
+
+    # get option to install example model configurations
+    include_examples = _setup_yes_no('Do you want to install example model configurations (yes/no)? ')
+    user_data['include_examples'] = include_examples
 
     # print a summary of the entries
     pw = user_data['admin_password']
@@ -144,6 +199,12 @@ def _setup_get_admin_data() -> (str, str, str):
     password: str = _get_input('Enter administrator\'s new password: ', secret=True)
 
     return full_name, email, password
+
+
+def _setup_yes_no(prompt: str) -> bool:
+    """
+
+    """
 
 
 def _get_input(prompt: str, **kwargs) -> str:
@@ -242,6 +303,63 @@ def _wait_for_email_identity_confirmation(email: str) -> None:
         _wait_for_email_identity_confirmation(email)
 
 
+def _upload_to_s3(bucket: str, key: str, default_file: str, not_found_prompt: str) -> None:
+    """
+    Upload the lambda function to the S3 bucket
+    :param bucket: S3 bucket name
+    :param key: S3 key
+    :param default_file: Check for this file first
+    :param not_found_prompt: User prompt if file is not found
+    :return: None
+    """
+    # ask for the lambda layer zip file location if not found
+    while not os.path.isfile(default_file):
+        default_file = _get_input(not_found_prompt, default=default_file)
+
+    # upload the zip file as lambda layer
+    try:
+        print(f'Uploading {default_file} to s3://{bucket}/{key} ...')
+        s3 = get_aws_session().client('s3')
+        s3.upload_file(Filename=default_file, Bucket=bucket, Key=key)
+    except Exception as e:
+        print(f'Failed to upload file: {default_file}')
+        print(e)
+
+
+def _sync_to_s3(bucket: str, prefix: str, default_dir: str, not_found_prompt: str) -> None:
+    """
+    Sync the directory to the S3 bucket
+    :param bucket: S3 bucket name
+    :param prefix: S3 key
+    :param default_dir: Check for this file first
+    :param not_found_prompt: User prompt if file is not found
+    :return: None
+    """
+    # ask for the lambda layer zip file location if not found
+    while not os.path.isdir(default_dir):
+        default_dir = _get_input(not_found_prompt, default=default_dir)
+
+    # strip off trailing '/' characters
+    while default_dir.endswith('/'):
+        default_dir = default_dir[:-1]
+
+    # get the files that need to be uploaded
+    files = []
+    for f in glob.iglob(f'{default_dir}/*', recursive=True):
+        if os.path.isfile(f):
+            files.append(f[len(default_dir) + 1:])
+
+    # upload the zip file as lambda layer
+    s3 = get_aws_session().client('s3')
+    for file in files:
+        try:
+            print(f'Uploading {file} to s3://{bucket}/{prefix}/{file} ...')
+            s3.upload_file(Filename=f'{default_dir}/{file}', Bucket=bucket, Key=f'{prefix}/{file}')
+        except Exception as e:
+            print(f'Failed to upload file: {file}')
+            print(e)
+
+
 class WrfCloudCertificates(CloudFormation):
     """
     Help manipulate the CloudFormation stack that contains the web certificates
@@ -253,6 +371,7 @@ class WrfCloudCertificates(CloudFormation):
         self.acm_client = None
         self.r53_client = None
         self.hosted_zone_id = hosted_zone_id
+        self.certificate_arn = None
         super().__init__(region='us-east-1')
 
     def _get_acm_client(self) -> any:
@@ -280,18 +399,18 @@ class WrfCloudCertificates(CloudFormation):
         sleep(20)
 
         # get the certificate ARN
-        certificate_arn: Union[str, None] = None
-        while certificate_arn is None:
+        self.certificate_arn: Union[str, None] = None
+        while self.certificate_arn is None:
             try:
-                certificate_arn = self.get_stack_resource(logical='Certificate')
+                self.certificate_arn = self.get_stack_resource(logical='Certificate')
                 sleep(1)
             except Exception as ignore:
                 pass
-        print(f'Found certificate: {certificate_arn}')
+        print(f'Found certificate: {self.certificate_arn}')
 
         # describe the certificate
         acm = self._get_acm_client()
-        res = acm.describe_certificate(CertificateArn=certificate_arn)
+        res = acm.describe_certificate(CertificateArn=self.certificate_arn)
         validations = res['Certificate']['DomainValidationOptions']
 
         # create a list of record set changes
@@ -319,16 +438,18 @@ class WrfCloudCertificates(CloudFormation):
                 )
 
         # add record sets to route53 to validate the certificates
-        r53 = self._get_route53_client()
-        res = r53.change_resource_record_sets(
-            HostedZoneId=self.hosted_zone_id,
-            ChangeBatch={
-                'Comment': 'wrfcloud certificates',
-                'Changes': changes
-            }
-        )
+        if len(changes) > 0:
+            r53 = self._get_route53_client()
+            res = r53.change_resource_record_sets(
+                HostedZoneId=self.hosted_zone_id,
+                ChangeBatch={
+                    'Comment': 'wrfcloud certificates',
+                    'Changes': changes
+                }
+            )
 
-        return res['ResponseMetadata']['HTTPStatusCode'] == 200
+            return res['ResponseMetadata']['HTTPStatusCode'] == 200
+        return True
 
 
 if __name__ == '__main__':

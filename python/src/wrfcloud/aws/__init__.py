@@ -37,9 +37,6 @@ class CloudFormation:
             print('Stack already exists, use replace or delete command.')
             return
 
-        # create a new stack
-        print('Creating stack...')
-
         # read the CloudFormation template
         template_body = pkgutil.get_data('wrfcloud', self.cf_template_resource).decode()
 
@@ -48,7 +45,7 @@ class CloudFormation:
         res = cloudformation.create_stack(
             StackName=self.stack_name,
             TemplateBody=template_body,
-            Capabilities=['CAPABILITY_IAM'],
+            Capabilities=['CAPABILITY_IAM', 'CAPABILITY_AUTO_EXPAND', 'CAPABILITY_NAMED_IAM'],
             Parameters=self.parameters
         )
 
