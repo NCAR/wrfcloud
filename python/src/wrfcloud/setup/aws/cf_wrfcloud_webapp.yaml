@@ -397,7 +397,7 @@ Resources:
       Type: CNAME
       TTL: 300
       ResourceRecords:
-        - !ImportValue 'wrfcloud-s3-bucket-regional-domain-name'
+        - !GetAtt WebsocketApiDomainName.RegionalDomainName
   WebsocketStage:
     Type: AWS::ApiGatewayV2::Stage
     DependsOn: WebsocketApi
