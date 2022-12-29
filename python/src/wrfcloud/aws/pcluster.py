@@ -81,7 +81,7 @@ class WrfCloudCluster:
         :param ami: AMI ID to use for the cluster nodes or None for default value
         :param cluster_config: Path to cluster configuration
         """
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'wrfcloud-admin'
         self.log = Logger(WrfCloudCluster.__class__.__name__)
         self.cluster_name = cluster_name or user
         self.region = region or get_aws_session().region_name
@@ -91,6 +91,17 @@ class WrfCloudCluster:
         self.cluster_config = cluster_config or 'aws/resources/cluster.wrfcloud.yaml'
         self.cf_client = None
         self.ssh_cidr_ip_range: Union[str, None] = None
+
+    def print_summary(self) -> None:
+        """
+        Print a summary of options
+        """
+        self.log.info(f'Cluster Name: {self.cluster_name}')
+        self.log.info(f'AWS Region: {self.region}')
+        self.log.info(f'Profile: {self.profile}')
+        self.log.info(f'Subnet ID: {self.subnet}')
+        self.log.info(f'AMI ID: {self.ami}')
+        self.log.info(f'SSH Access: {self.ssh_cidr_ip_range}')
 
     def set_ssh_security_group_ip(self, cidr_ip_range: str) -> None:
         """
@@ -279,7 +290,7 @@ class WrfCloudCluster:
         :return: Updated ParallelCluster configuration data with SSH confirmation
         """
         # get the current user
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'wrfcloud-admin'
 
         # check for the named ssh key in the account
         session = get_aws_session()
