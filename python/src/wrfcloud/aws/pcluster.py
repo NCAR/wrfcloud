@@ -11,7 +11,6 @@ import tempfile
 import time
 import yaml
 from datetime import datetime
-from pcluster.cli.entrypoint import run as pcluster
 from wrfcloud.log import Logger
 from wrfcloud.system import init_environment, get_aws_session
 
@@ -106,6 +105,9 @@ class WrfCloudCluster:
         :param custom_action: Script contents to run when cluster is configured and ready
         :param wait: Do not return until the stack status is CREATE_COMPLETE
         """
+        # slow import deferred
+        from pcluster.cli.entrypoint import run as pcluster
+
         # create the configuration file data
         user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
@@ -146,6 +148,9 @@ class WrfCloudCluster:
         """
         Use pcluster to update an existing cluster for the current user
         """
+        # slow import deferred
+        from pcluster.cli.entrypoint import run as pcluster
+
         status = self._get_stack_status()
         if status not in ['CREATE_COMPLETE', 'UPDATE_COMPLETE']:
             print(f'Cluster {self.cluster_name} is not ready for an update. Check its status.')
@@ -182,6 +187,9 @@ class WrfCloudCluster:
         """
         Use pcluster to stop the current user's cluster
         """
+        # slow import deferred
+        from pcluster.cli.entrypoint import run as pcluster
+
         status = self._get_stack_status()
         if status is None or status == '':
             print(f'Cluster {self.cluster_name} is not running.')
@@ -206,6 +214,9 @@ class WrfCloudCluster:
         """
         Connect to the cluster via SSH
         """
+        # slow import deferred
+        from pcluster.cli.entrypoint import run as pcluster
+
         # check if the cluster exists
         status = self._print_status_message()
         if status is None or status == '':

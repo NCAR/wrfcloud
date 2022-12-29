@@ -89,6 +89,7 @@ function create_wrfcloud_lambda_layer()
   rm -Rf pygrib pygrib.libs matplotlib numpy numpy.libs pyproj netCDF4 netCDF4.libs Pillow.libs fontTools kiwisolver setuptools cftime PIL contourpy botocore pyproj.libs mpl_toolkits wrfcloud *.dist-info
   cd ../../
   ln -s ~/.nvm/versions/node/v16.19.0 $(pwd)/node
+  rm -f ~/.nvm/versions/node/v16.19.0/v16.19.0
   zip -r "${build_dir}/lambda_layer.zip" python/lib node
 }
 
