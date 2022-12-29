@@ -108,6 +108,9 @@ class WrfCloudCluster:
         # slow import deferred
         from pcluster.cli.entrypoint import run as pcluster
 
+        # get this AWS account ID
+        account_id: str = self._get_aws_account_id()
+
         # create the configuration file data
         user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
@@ -115,6 +118,7 @@ class WrfCloudCluster:
         data = data.replace('__SUBNET_ID__', self.subnet)
         data = data.replace('__AMI_ID__', self.ami)
         data = data.replace('__REGION__', self.region)
+        data = data.replace('__AWS_ACCOUNT_ID__', account_id)
 
         # maybe add the custom action to the configuration
         if custom_action:
@@ -402,6 +406,22 @@ class WrfCloudCluster:
 
         # did not find a match
         return None
+
+    def _get_aws_account_id(self) -> str:
+        """
+        Get the AWS account ID
+        :return: AWS account ID (12-digit string)
+        """
+        # get an STS client from the default session
+        session = get_aws_session()
+        sts = session.client('sts')
+
+        # get the caller identify and return account ID
+        res = sts.get_caller_identity()
+        if res['ResponseMetadata']['HTTPStatusCode'] != 200:
+            self.log.warn('Unable to get AWS account ID')
+            return '000000000000'
+        return res['Account']
 
 
 def _print_usage_and_exit() -> None:

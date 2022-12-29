@@ -17,7 +17,7 @@ HeadNode:
       - Policy: arn:aws:iam::aws:policy/AmazonS3FullAccess
       - Policy: arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
       - Policy: arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
-      - Policy: arn:aws:iam::119569266530:policy/wrfcloud_parallelcluster
+      - Policy: arn:aws:iam::__AWS_ACCOUNT_ID__:policy/wrfcloud_parallelcluster
 Scheduling:
   Scheduler: slurm
   SlurmSettings:

@@ -86,7 +86,7 @@ function create_wrfcloud_lambda_layer()
   mkdir -p install/python/lib
   pip3 install -t install/python/lib .
   cd install/python/lib
-  rm -Rf pygrib pygrib.libs matplotlib numpy numpy.libs pyproj netCDF4 netCDF4.libs Pillow.libs fontTools kiwisolver setuptools cftime PIL contourpy botocore pyproj.libs mpl_toolkits wrfcloud *.dist-info
+  rm -Rf pygrib pygrib.libs matplotlib numpy numpy.libs pyproj netCDF4 netCDF4.libs Pillow.libs fontTools kiwisolver setuptools cftime PIL contourpy botocore pyproj.libs mpl_toolkits wrfcloud
   cd ../../
   ln -s ~/.nvm/versions/node/v16.19.0 $(pwd)/node
   rm -f ~/.nvm/versions/node/v16.19.0/v16.19.0
