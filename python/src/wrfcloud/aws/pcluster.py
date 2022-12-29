@@ -112,7 +112,7 @@ class WrfCloudCluster:
         account_id: str = self._get_aws_account_id()
 
         # create the configuration file data
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'wrfcloud-admin'
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
         data = data.replace('__USER__', user)
         data = data.replace('__SUBNET_ID__', self.subnet)
@@ -164,7 +164,7 @@ class WrfCloudCluster:
         account_id = self._get_aws_account_id()
 
         # create the configuration file data
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'wrfcloud-admin'
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
         data = data.replace('__USER__', user)
         data = data.replace('__SUBNET_ID__', self.subnet)

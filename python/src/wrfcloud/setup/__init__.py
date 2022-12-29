@@ -9,7 +9,6 @@ import hashlib
 import random
 import base64
 import glob
-import json
 import requests
 import secrets
 from time import sleep
@@ -52,6 +51,10 @@ def setup():
     data_stack.parameters.append({'ParameterKey': 'DeploymentType', 'ParameterValue': 'production'})
     data_stack.parameters.append({'ParameterKey': 'WrfCloudBucket', 'ParameterValue': s3_bucket})
     data_stack.create_stack()
+
+    # Upload public key
+    print('Uploading public SSH key to AWS...')
+    _upload_public_ssh_key(user_data['ssh_key'])
 
     # Deploy build artifacts (lambda layer, function, web app)
     print(f'Uploading build artifacts to S3 bucket ({s3_bucket}) ...')
@@ -155,6 +158,11 @@ def _setup_get_user_data(user_data: dict):
     include_examples = _setup_yes_no('Do you want to install example model configurations (yes/no)? ')
     user_data['include_examples'] = include_examples
 
+    # get SSH public key for admin user
+    add_ssh = _setup_yes_no('Do you want to upload an SSH public key for an admin?  Without it, you cannot access your clusters to debug. (yes/no)? ')
+    if add_ssh:
+        user_data['ssh_key'] = _get_input('Paste your public key, often found at ${HOME}/.ssh/id_rsa.pub: ')
+
     # print a summary of the entries
     pw = user_data['admin_password']
     user_data['admin_password'] = '*'
@@ -221,7 +229,7 @@ def _setup_yes_no(prompt: str) -> bool:
     Ask a yes/no question
     :return: True=yes, False=no
     """
-    answer: str = _get_input(f'{prompt} (y/n) ', options=['yes', 'y', 'no', 'n', 'Y', 'N'])
+    answer: str = _get_input(f'{prompt} ', options=['yes', 'y', 'no', 'n', 'Y', 'N'])
     return answer[0].upper() == 'Y'
 
 
@@ -460,6 +468,25 @@ def _install_sample_data(s3_bucket: str) -> None:
             out.write(res.content)
             out.close()
         _upload_to_s3(s3_bucket, f'configurations/test/{file}', file, None)
+
+
+def _upload_public_ssh_key(pub_key: str) -> None:
+    """
+    Upload public key to AWS account
+    :param pub_key: Public key material
+    :return: None
+    """
+    try:
+        ec2 = get_aws_session().client('ec2')
+        res = ec2.import_key_pair(
+            KeyName='wrfcloud-admin',
+            PublicKeyMaterial=pub_key.encode()
+        )
+        if res['ResponseMetadata']['HTTPStatusCode'] != 200:
+            raise Exception('Failed to import SSH key')
+    except Exception as e:
+        print('Failed to upload SSH key pair.  You can do this in the AWS console at https://us-east-2.console.aws.amazon.com/ec2/v2/home?region=us-east-2#KeyPairs:')
+        print('Be sure to name the new key: wrfcloud-admin')
 
 
 class WrfCloudCertificates(CloudFormation):
