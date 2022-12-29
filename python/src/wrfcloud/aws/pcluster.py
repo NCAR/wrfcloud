@@ -160,6 +160,9 @@ class WrfCloudCluster:
             print(f'Cluster {self.cluster_name} is not ready for an update. Check its status.')
             return
 
+        # get the account ID
+        account_id = self._get_aws_account_id()
+
         # create the configuration file data
         user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
@@ -167,6 +170,7 @@ class WrfCloudCluster:
         data = data.replace('__SUBNET_ID__', self.subnet)
         data = data.replace('__AMI_ID__', self.ami)
         data = data.replace('__REGION__', self.region)
+        data = data.replace('__AWS_ACCOUNT_ID__', account_id)
 
         # write the configuration file
         config_file = tempfile.mkstemp()[1]

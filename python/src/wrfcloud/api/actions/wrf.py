@@ -1,6 +1,7 @@
 """
 API actions that are responsible for reading WRF data
 """
+import os
 import base64
 import gzip
 import pkgutil
@@ -194,7 +195,8 @@ class RunWrf(Action):
             script = script_template\
                 .replace('__REF_ID__', self.ref_id)\
                 .replace('__CONFIG_NAME__', config_name)\
-                .replace('__CONFIG_B64_GZ__', config_b64_gz)
+                .replace('__CONFIG_B64_GZ__', config_b64_gz)\
+                .replace('__S3_BUCKET__', os.environ['WRFCLOUD_BUCKET_NAME'])
             ca = CustomAction(self.ref_id, script)
 
             # create information for a new job

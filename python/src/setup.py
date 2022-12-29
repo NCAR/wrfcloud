@@ -43,6 +43,7 @@ setup(
             'setup/aws/cf_wrfcloud_data.yaml',
             'setup/aws/cf_wrfcloud_certificate.yaml',
             'setup/aws/cf_wrfcloud_webapp.yaml',
+            'setup/aws/wrfcloud_cluster_policy.json',
             'runtime/configurations/test/namelist.*',
             'runtime/resources/*.yaml',
             'api/actions/resources/run_wrf_template.sh'

@@ -6,8 +6,7 @@ mkdir -p /data/__REF_ID__
 cd /data/__REF_ID__
 echo -n "__CONFIG_B64_GZ__" | base64 -d | gunzip > run.yml
 
-# TODO: Namelist files should come from a different bucket
-aws s3 sync s3://wrfcloud-xfer-tmp/ .
+aws s3 sync s3://__S3_BUCKET__/configurations/__CONFIG_NAME__ .
 mkdir -p configurations/__CONFIG_NAME__
 mv geo_em.d01.nc configurations/__CONFIG_NAME__
 cp namelist.wps configurations/__CONFIG_NAME__
