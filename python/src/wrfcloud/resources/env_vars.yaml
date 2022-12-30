@@ -180,11 +180,11 @@ cli:
   LOCALE: us
 
   # DynamoDB Options
-  USER_TABLE_NAME: development_wrfcloud_users
-  AUDIT_TABLE_NAME: development_wrfcloud_audit
-  REFRESH_TOKEN_TABLE_NAME: development_wrfcloud_refresh_tokens
-  JOB_TABLE_NAME: development_wrfcloud_jobs
-  SUBSCRIBER_TABLE_NAME: development_wrfcloud_subscribers
+  USER_TABLE_NAME: production_wrfcloud_users
+  AUDIT_TABLE_NAME: production_wrfcloud_audit
+  REFRESH_TOKEN_TABLE_NAME: production_wrfcloud_refresh_tokens
+  JOB_TABLE_NAME: production_wrfcloud_jobs
+  SUBSCRIBER_TABLE_NAME: production_wrfcloud_subscribers
 
   # EventBridge Options
   EVENTBRIDGE_RULE_PREFIX: wrfcloud-
