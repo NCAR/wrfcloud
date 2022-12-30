@@ -28,7 +28,6 @@ def setup():
     init_environment('production')
     user_data = {}
     s3_bucket = _create_s3_bucket_name()
-    s3_bucket = 'wrfcloud-ce86e2cf'  # TODO: Remove this line
 
     # Collect input parameters - custom domain names (app, api, ws); admin email/password
     _setup_get_user_data(user_data)
