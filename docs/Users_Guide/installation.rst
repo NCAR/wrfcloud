@@ -23,16 +23,18 @@ From the AWS web console, switch the region to us-east-2 (Ohio), then click on t
 From CloudShell:
 
 
-* git clone https://github.com/NCAR/wrfcloud
+* git clone --branch feature/auto-install https://github.com/NCAR/wrfcloud
 * ./wrfcloud/install_bootstrap.sh
-
+* The bootstrap takes about 25 minutes to complete and is followed by some questions before WRF Cloud is installed in your account.
 
 Procedures to uninstall the application
 =======================================
 
-* Remove data from S3 bucket named wrfcloud-XXXXXXX
+* Remove data from S3 bucket named wrfcloud-XXXXXXX (do not remove the bucket as CloudFormation will handle this)
 * Remove the wrfcloud_parallelcluster IAM policy
 * Remove the AMI from the EC2 service (be sure to deregister the AMI and delete the snapshots!)
 * Remove the SSH key from the EC2 service named wrfcloud-admin
 * Remove the SES email identity for your admin's email address
-* Delete CloudFormation stacks: WrfIntelImageBuilder, WrfCloudWebApp, WrfCloudApiData, WrfCloudWebCertificate (us-east-1)
+* Delete CloudFormation stacks: WrfIntelImageBuilder, WrfCloudWebApp
+* Wait for WrfCloudWebApp stack to finish deleting.  If a delete fails, delete it again, and DO NOT retain the resources.
+* Delete WrfCloudApiData, WrfCloudWebCertificate (us-east-1)

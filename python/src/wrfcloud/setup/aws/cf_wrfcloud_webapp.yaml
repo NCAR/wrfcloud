@@ -277,7 +277,10 @@ Resources:
         Key: artifacts/lambda_function.zip
       Environment:
         Variables:
+          ADMIN_EMAIL: !Ref AdminUserEmail
+          APP_NAME: !Ref AppName
           API_HOSTNAME: !Ref ApiHostName
+          APP_HOSTNAME: !Ref WebHostName
           DEPLOYMENT_TYPE: !Ref DeploymentType
           STAGE: !Ref StageName
           HELP_TOPIC_ARN: !Ref HelpTopic

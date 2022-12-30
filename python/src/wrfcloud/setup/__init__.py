@@ -32,6 +32,11 @@ def setup():
     # Collect input parameters - custom domain names (app, api, ws); admin email/password
     _setup_get_user_data(user_data)
 
+    # Enable SES identity
+    print('Verify email identity to allow sending email on your behalf...')
+    _add_email_identity(user_data['admin_email'])
+    _wait_for_email_identity_confirmation(user_data['admin_email'])
+
     # Create an additional policy for the WRF cluster
     _create_cluster_policy()
 
@@ -94,11 +99,6 @@ def setup():
     webapp_stack.parameters.append({'ParameterKey': 'CertificateArn', 'ParameterValue': certificate_stack.certificate_arn})
     webapp_stack.parameters.append({'ParameterKey': 'WrfCloudBucket', 'ParameterValue': s3_bucket})
     webapp_stack.create_stack()
-
-    # Enable SES identity
-    print('Verify email identity to allow sending email on your behalf...')
-    _add_email_identity(user_data['admin_email'])
-    _wait_for_email_identity_confirmation(user_data['admin_email'])
 
     # Create admin user
     print('Creating admin user in WRF Cloud...')
@@ -371,9 +371,11 @@ def _finalize_and_upload_webapp_to_s3(bucket: str, prefix: str, default_dir: str
     while default_dir.endswith('/'):
         default_dir = default_dir[:-1]
 
+    # TODO: This function does not quite work yet.
+
     # get the files that need to be uploaded
     files = []
-    for f in glob.iglob(f'{default_dir}/*', recursive=True):
+    for f in glob.iglob(f'{default_dir}/**/*', recursive=True):
         if os.path.isfile(f):
             files.append(f[len(default_dir) + 1:])
 
@@ -381,8 +383,9 @@ def _finalize_and_upload_webapp_to_s3(bucket: str, prefix: str, default_dir: str
     s3 = get_aws_session().client('s3')
     for file in files:
         try:
-            _search_and_replace(file, '__API_HOSTNAME__', api)
-            _search_and_replace(file, '__WS_HOSTNAME__', ws)
+            file_with_path = f'{default_dir}/{file}'
+            _search_and_replace(file_with_path, '__API_HOSTNAME__', api)
+            _search_and_replace(file_with_path, '__WS_HOSTNAME__', ws)
             print(f'Uploading {file} to s3://{bucket}/{prefix}/{file} ...')
             s3.upload_file(Filename=f'{default_dir}/{file}', Bucket=bucket, Key=f'{prefix}/{file}')
         except Exception as e:
@@ -398,6 +401,11 @@ def _search_and_replace(file: str, stub: str, value: str) -> None:
     :param value: The value to substitute
     :return: None
     """
+    # make sure the file type is amenable to a text search and replace
+    if not file.endswith('.html') and not file.endswith('.js') and \
+            not file.endswith('.css') and not file.endswith('.txt'):
+        return
+
     # read the file data
     with open(file, 'r') as in_file:
         data = in_file.read()
@@ -581,4 +589,12 @@ class WrfCloudCertificates(CloudFormation):
 
 
 if __name__ == '__main__':
-    setup()
+    _finalize_and_upload_webapp_to_s3(
+        'wrfcloud-6a8fdcdf',
+        'web',
+        'web/dist/web',
+        'where is it? ',
+        'wcapi.superlazy.org',
+        'wcws.superlazy.org'
+    )
+    # setup()

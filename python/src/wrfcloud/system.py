@@ -12,24 +12,11 @@ from wrfcloud.log import LogLevel
 
 # App
 APP_NAME = None
-SYSTEM_EMAIL_SENDER = None
-SYSTEM_EMAIL_RECEIVER = None
 LANGUAGE = None
 
 # AWS Account Profile
 AWS_PROFILE = ''
 AWS_REGION = ''
-
-# API Gateway Options
-API_URL = None
-APP_URL = None
-API_STAGE = None
-ALLOW_CORS = None
-
-# DynamoDB Options
-SESSION_TABLE_NAME = None
-USER_TABLE_NAME = None
-ENDPOINT_URL = None
 
 # The environment that has been set
 ENVIRONMENT = None

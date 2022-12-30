@@ -3,8 +3,6 @@ test:
   # App
   APP_NAME: WRF Cloud
   SEND_EMAIL: False
-  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
-  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
   WRFCLOUD_BUCKET_NAME: wrfcloud-output
 
@@ -48,8 +46,6 @@ codebuild:
   # App
   APP_NAME: WRF Cloud
   SEND_EMAIL: False
-  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
-  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
 
   # AWS Account Profile
@@ -91,8 +87,6 @@ production:
   # App
   APP_NAME: WRF Cloud
   SEND_EMAIL: True
-  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
-  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
   LOCALE: us
 
@@ -131,8 +125,6 @@ development:
   # App
   APP_NAME: WRF Cloud (development)
   SEND_EMAIL: True
-  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
-  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
 
   # AWS Account Profile
@@ -174,8 +166,6 @@ cli:
   # App
   APP_NAME: WRF Cloud
   SEND_EMAIL: True
-  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
-  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
   LOCALE: us
 
