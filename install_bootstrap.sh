@@ -9,7 +9,7 @@ function main()
   time=$(date +%Y%m%d_%H%M%S)
   export build_dir="/tmp/wrfcloud-build-${time}"
   mkdir -p "${build_dir}" && cd "${build_dir}"
-  git clone https://github.com/NCAR/wrfcloud
+  git clone --branch feature/auto-install https://github.com/NCAR/wrfcloud
 
   ### Configure CloudShell Environment
   install_os_packages
