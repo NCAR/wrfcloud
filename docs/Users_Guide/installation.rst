@@ -13,7 +13,7 @@ Prerequisites
 =============
 
 * AWS Account
-* Domain name in Route 53 (optional)
+* Domain name in Route 53
 
 Procedures for initial installation
 ===================================
@@ -22,10 +22,9 @@ From the AWS web console, switch the region to us-east-2 (Ohio), then click on t
 
 From CloudShell:
 
-
 * git clone --branch feature/auto-install https://github.com/NCAR/wrfcloud
 * ./wrfcloud/install_bootstrap.sh
-* The bootstrap takes about 25 minutes to complete and is followed by some questions before WRF Cloud is installed in your account.
+[The bootstrap takes about 25 minutes to complete and is followed by some questions before WRF Cloud is installed in your account.]
 
 Procedures to uninstall the application
 =======================================

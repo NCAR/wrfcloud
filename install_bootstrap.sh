@@ -75,6 +75,7 @@ function install_angular14()
 {
   npm install -g @angular/cli@14
   chmod +x ${HOME}/.nvm/versions/node/v16.19.0/lib/node_modules/@angular/cli/bin/ng.js
+  echo -n 'ewogICIkc2NoZW1hIjogIi4vbm9kZV9tb2R1bGVzL0Bhbmd1bGFyL2NsaS9saWIvY29uZmlnL3NjaGVtYS5qc29uIiwKICAidmVyc2lvbiI6IDEsCiAgImNsaSI6IHsKICAgICJjb21wbGV0aW9uIjogewogICAgICAicHJvbXB0ZWQiOiB0cnVlCiAgICB9CiAgfSwKICAicHJvamVjdHMiOiB7fQp9' | base64 -d > .angular-config.json
 }
 
 # Create a zip file for the lambda layer
