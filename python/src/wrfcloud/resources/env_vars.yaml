@@ -113,7 +113,6 @@ production:
   LOG_APPLICATION_NAME: wrfcloud-production
 
   # WRF Output
-  WRF_OUTPUT_BUCKET: wrfcloud-output
   WRF_OUTPUT_PREFIX: 'test'
 
   # Location of input data
@@ -189,7 +188,6 @@ cli:
   AWS_REGION: us-east-2
 
   # WRF Output
-  WRF_OUTPUT_BUCKET: wrfcloud-output
   WRF_OUTPUT_PREFIX: 'output'
 
   # Location of input data
