@@ -314,7 +314,7 @@ Resources:
                     - source /etc/bashrc
                     - mkdir -p /opt/src
                     - cd /opt/src
-                    - git clone -b feature/ui-read-real-wrf-data https://github.com/NCAR/wrfcloud
+                    - git clone -b feature/auto-install https://github.com/NCAR/wrfcloud
                     - pip3 install wrfcloud/python/src
 
               - name: build-wrf

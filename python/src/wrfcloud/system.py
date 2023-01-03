@@ -72,7 +72,7 @@ def get_aws_session(region: str = None, profile: str = None):
         return boto3.Session(profile_name=profile, region_name=region)
     elif profile is not None and profile != '':
         return boto3.Session(profile_name=profile)
-    elif profile is not None and region != '':
+    elif region is not None and region != '':
         return boto3.Session(region_name=region)
     else:
         return boto3.Session()
