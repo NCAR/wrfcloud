@@ -239,7 +239,7 @@ class WrfLayer:
         self.opacity: float = 1
         self.layer_data: any = None
         self.z_level: Union[int, None] = None
-        self.time_step: int = 0
+        self.time_step: float = 0
         self.dt: int = 0
 
         # initialize from data if provided

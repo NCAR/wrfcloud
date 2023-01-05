@@ -370,7 +370,10 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
             #       As a work-around for now, we are getting the time step from the file name,
             #       and this can be used in conjunction with the start time and output frequency
             #       to compute the data time.  Yuch!
-            wrf_layer.time_step = int(wrf_file.split('/')[-1].split('GrbF')[1])
+            file_name_time: str = wrf_file.split('/')[-1].split('GrbF')[1]
+            file_name_hours: str = file_name_time if '.' not in file_name_time else file_name_time.split('.')[0]
+            file_name_minutes: str = '0' if '.' not in file_name_time else file_name_time.split('.')[1]
+            wrf_layer.time_step = float(file_name_hours) + (float(file_name_minutes) / 60)
             out_layers.append(wrf_layer)
 
             # convert the file
