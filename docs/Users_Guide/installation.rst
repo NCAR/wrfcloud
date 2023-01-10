@@ -14,6 +14,8 @@ Prerequisites
 
 * AWS Account
 * Domain name in Route 53
+* AWS account limit for "Running On-Demand All HPC instances" in us-east-2 must be 96 vCPUs or higher
+* Simple Email Service (SES) must be out of the sandbox in us-east-2
 
 Procedures for initial installation
 ===================================
