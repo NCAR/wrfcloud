@@ -52,7 +52,7 @@ class WrfJob:
         self.progress: float = 0
         self.user_email: Union[str, None] = None
         self.notify: bool = False
-        self.layers: List[WrfLayer] = []
+        self.layers: Union[str, List[WrfLayer]] = []
         self.domain_center: Union[LatLonPoint, None] = None
 
         # initialize from data if provided

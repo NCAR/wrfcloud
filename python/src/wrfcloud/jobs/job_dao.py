@@ -7,8 +7,11 @@ import os
 import pkgutil
 from typing import Union, List
 import yaml
+import base64
+import hashlib
 from wrfcloud.dynamodb import DynamoDao
 from wrfcloud.jobs.job import WrfJob
+from wrfcloud.system import get_aws_session
 
 
 class JobDao(DynamoDao):
@@ -43,8 +46,16 @@ class JobDao(DynamoDao):
         :param job: Job object to store
         :return: True if successful, otherwise False
         """
+        # clone the job because we will modify the data
+        job_clone: WrfJob = WrfJob(job.data)
+
+        # save layers to S3
+        if isinstance(job_clone.layers, dict):
+            ok = self._save_layers(job_clone)
+            if not ok: return False
+
         # save the item to the database
-        return super().put_item(job.data)
+        return super().put_item(job_clone.data)
 
     def get_job_by_id(self, job_id: str) -> Union[WrfJob, None]:
         """
@@ -63,7 +74,9 @@ class JobDao(DynamoDao):
             return None
 
         # build a new job object
-        return WrfJob(data)
+        job: WrfJob = WrfJob(data)
+        self._load_layers(job)
+        return job
 
     def get_all_jobs(self) -> List[WrfJob]:
         """
@@ -71,7 +84,10 @@ class JobDao(DynamoDao):
         :return: List of all jobs
         """
         # Convert a list of items into a list of User objects
-        return [WrfJob(item) for item in super().get_all_items()]
+        jobs: List[WrfJob] = [WrfJob(item) for item in super().get_all_items()]
+        for job in jobs:
+            self._load_layers(job)
+        return jobs
 
     def update_job(self, job: WrfJob) -> bool:
         """
@@ -79,6 +95,7 @@ class JobDao(DynamoDao):
         :param job: Job data values to update, which must include the key field (job_id)
         :return: True if successful, otherwise False
         """
+        # TODO: update the job data in S3, and pop the layers attribute from the data we store
         return super().update_item(job.data)
 
     def delete_job(self, job: WrfJob) -> bool:
@@ -88,7 +105,12 @@ class JobDao(DynamoDao):
         :return: True if successful, otherwise False
         """
         job_id = job.job_id
-        return super().delete_item({'job_id': job_id})
+        ok = super().delete_item({'job_id': job_id})
+
+        # delete the layers object from S3
+        self._delete_layers(job)
+
+        return ok
 
     def create_job_table(self) -> bool:
         """
@@ -99,3 +121,75 @@ class JobDao(DynamoDao):
             self.table_definition['attribute_definitions'],
             self.table_definition['key_schema']
         )
+
+    def _save_layers(self, job: WrfJob) -> bool:
+        """
+        Write layers data to S3 and replace job attribute with S3 URL
+        :param job: User layer data from this object
+        :return: True if successful
+        """
+        # get the data as a dictionary
+        job_data: dict = job.data
+
+        # pop the layers dictionary out of the data dictionary and make sure it is a dictionary
+        layers: Union[str, dict] = job_data.pop('layers')
+        if not isinstance(layers, dict):
+            return False
+
+        # create a yaml representation of the data
+        layers_yaml: bytes = yaml.dump(layers, indent=2).encode()
+
+        # generate the S3 url -- key comes from hashing the data
+        bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
+        key: str = self._get_layers_s3key(job)
+        prefix: str = 'jobs/{job.job_id}'  # TODO: find right prefixes to store next to the GeoJSON data
+
+        # upload the data to S3
+        try:
+            s3 = get_aws_session().client('s3')
+            s3.put_object(
+                Body=layers_yaml,
+                Bucket=bucket_name,
+                Key=f'{prefix}/{key}'
+            )
+        except Exception as e:
+            self.log.error('Failed to write WrfJob.layer data to S3', e)
+            return False
+
+        # set the S3 url in the job data
+        job.layers = f's3://{bucket_name}/{prefix}/{key}'
+
+        return True
+
+    def _load_layers(self, job: WrfJob) -> bool:
+        """
+        Load the layers attribute from S3
+        :param job: Load layers into this object
+        :return: True if successful, otherwise False
+        """
+        # TODO:  Implement (reverse the process in _save_layers)
+
+    def _delete_layers(self, job: WrfJob) -> bool:
+        """
+        Delete the layers from the S3 bucket
+        :param job: Delete layers in S3 for this job
+        :return: True if successful, otherwise False
+        """
+        # TODO: Implement
+
+    @staticmethod
+    def _get_layers_s3key(job: WrfJob) -> str:
+        """
+        Get the S3 key for the layers S3 object
+        :param job: Get key for layers in this job
+        :return: S3 key for layers of this job
+        """
+        # easy if the layers value is already an S3 url (i.e., a string)
+        if isinstance(job.layers, str):
+            return job.layers.split('/')[-1]
+
+        # harder if to have to compute the MD5 sum of data
+        layers_yaml: bytes = yaml.dump(job.layers, indent=2).encode()
+        key: str = base64.b16encode(hashlib.md5(layers_yaml).digest()).decode()
+
+        return key
