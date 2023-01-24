@@ -1,0 +1,6 @@
+__pycache__/
+.idea/
+python/src/build/
+python/src/wrfcloud.egg-info/
+python/test/.coverage
+python/test/coverage.xml
