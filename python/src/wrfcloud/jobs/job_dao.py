@@ -96,7 +96,26 @@ class JobDao(DynamoDao):
         :return: True if successful, otherwise False
         """
         # TODO: update the job data in S3, and pop the layers attribute from the data we store
-        return super().update_item(job.data)
+        if not self._load_layers(job):
+            return False
+
+        layers: Union[str, dict] = job.data.pop('layers')
+        if not isinstance(layers, dict):
+            return False
+
+        # remove or update value in layers for each data key not in key fields
+        for key in [item for item in job.data if item not in self.key_fields]:
+            if job.data[key] is None:
+                layers.pop(key)
+            else:
+                layers[key] = job.data[key]
+
+        job.data.layers = layers
+        if not self._save_layers(job):
+            return False
+
+        return True
+        #return super().update_item(job.data)
 
     def delete_job(self, job: WrfJob) -> bool:
         """
@@ -168,6 +187,31 @@ class JobDao(DynamoDao):
         :return: True if successful, otherwise False
         """
         # TODO:  Implement (reverse the process in _save_layers)
+        # pop the layers URL out of the data dictionary and make sure it is a string
+        layers: Union[str, dict] = job.data.pop('layers')
+        if not isinstance(layers, str):
+            return False
+
+        # extract bucker name and prefix/key from S3 URL
+        bucket_name, prefix_key = _get_layers_s3bucket_and_key(layers)
+        if bucket_name is None:
+            return False
+
+        # retrieve data from S3
+        try:
+            s3 = get_aws_session().client('s3')
+            layers_yaml: bytes = s3.get_object(
+                Bucket=bucket_name,
+                Key=prefix_key,
+            )['Body']
+        except Exception as e:
+            self.log.error('Failed to read WrfJob.layer data from S3', e)
+            return False
+
+        # convert YAML to Python dictionary and set job data
+        job.layers = yaml.load(layers_yaml, Loader=yaml.Loader)
+
+        return True
 
     def _delete_layers(self, job: WrfJob) -> bool:
         """
@@ -176,6 +220,28 @@ class JobDao(DynamoDao):
         :return: True if successful, otherwise False
         """
         # TODO: Implement
+        # pop the layers URL out of the data dictionary and make sure it is a string
+        layers: Union[str, dict] = job.data.pop('layers')
+        if not isinstance(layers, str):
+            return False
+
+        # extract bucket name and prefix/key from S3 URL
+        bucket_name, prefix_key = _get_layers_s3bucket_and_key(layers)
+        if bucket_name is None:
+            return False
+
+        # delete layer data from S3
+        try:
+            s3 = get_aws_session().client('s3')
+            s3.delete_object(
+                Bucket=bucket_name,
+                Key=prefix_key,
+            )
+        except Exception as e:
+            self.log.error('Failed to delete WrfJob.layer data from S3', e)
+            return False
+
+        return True
 
     @staticmethod
     def _get_layers_s3key(job: WrfJob) -> str:
@@ -193,3 +259,16 @@ class JobDao(DynamoDao):
         key: str = base64.b16encode(hashlib.md5(layers_yaml).digest()).decode()
 
         return key
+
+    @staticmethod
+    def _get_layers_s3bucket_and_key(layers_url: str) -> tuple[str, str]:
+        """
+        Get the S3 bucket name and key with prefix for the layers S3 object
+        :param layers_url: String with S3 URl
+        :return: Tuple with S3 bucket name and S3 key for layers of this job
+        or None if info cannot be parsed
+        """
+        if not isinstance(layers_url, str):
+            return None, None
+
+        return layers_url.split('/', maxsplit=3)[2:]
