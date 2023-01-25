@@ -189,8 +189,6 @@ class JobDao(DynamoDao):
         # TODO:  Implement (reverse the process in _save_layers)
         # pop the layers URL out of the data dictionary and make sure it is a string
         layers: Union[str, dict] = job.data.pop('layers')
-        if not isinstance(layers, str):
-            return False
 
         # extract bucker name and prefix/key from S3 URL
         bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layers)
@@ -222,8 +220,6 @@ class JobDao(DynamoDao):
         # TODO: Implement
         # pop the layers URL out of the data dictionary and make sure it is a string
         layers: Union[str, dict] = job.data.pop('layers')
-        if not isinstance(layers, str):
-            return False
 
         # extract bucket name and prefix/key from S3 URL
         bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layers)
@@ -266,7 +262,7 @@ class JobDao(DynamoDao):
         Get the S3 bucket name and key with prefix for the layers S3 object
         :param layers_url: String with S3 URl
         :return: Tuple with S3 bucket name and S3 key for layers of this job
-        or None if info cannot be parsed
+        or (None, None) if info cannot be parsed
         """
         if not isinstance(layers_url, str):
             return None, None
