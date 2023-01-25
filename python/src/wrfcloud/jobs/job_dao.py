@@ -193,7 +193,7 @@ class JobDao(DynamoDao):
             return False
 
         # extract bucker name and prefix/key from S3 URL
-        bucket_name, prefix_key = _get_layers_s3bucket_and_key(layers)
+        bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layers)
         if bucket_name is None:
             return False
 
@@ -226,7 +226,7 @@ class JobDao(DynamoDao):
             return False
 
         # extract bucket name and prefix/key from S3 URL
-        bucket_name, prefix_key = _get_layers_s3bucket_and_key(layers)
+        bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layers)
         if bucket_name is None:
             return False
 
