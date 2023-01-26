@@ -411,6 +411,24 @@ export class ClientApi
 
 
   /**
+   * Send a request to list all model configurations
+   *
+   * @param responseHandler
+   */
+  public sendListModelConfigurations(responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'ListModelConfigurations',
+      data: {},
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
    * Send a request for WRF meta data
    *
    * @param requestData
@@ -932,5 +950,23 @@ export interface RunWrfResponse extends ApiResponse
 {
   data: {
     ref_id: string;
+  }
+}
+
+export interface ModelConfiguration
+{
+  id: string;
+  name: string;
+  description: string;
+  model_name: string;  /* This should always be WRF until we support other models */
+  wrf_namelist: string;
+  wps_namelist: string;
+  core_count: number;
+}
+
+export interface ListModelConfigurationsResponse extends ApiResponse
+{
+  data: {
+    model_configs: Array<ModelConfiguration>;
   }
 }

@@ -10,6 +10,7 @@ import {ViewJobsComponent} from "./view-jobs/view-jobs.component";
 import {WrfViewerComponent} from "./wrf-viewer/wrf-viewer.component";
 import {ActivateComponent} from './activate/activate.component';
 import {ResetPasswordComponent} from './reset-password/reset-password.component';
+import {ModelConfigComponent} from "./model-config/model-config.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -23,7 +24,8 @@ const routes: Routes = [
   {path: 'view/:job_id', component: WrfViewerComponent},
   {path: 'prefs', component: PreferencesComponent},
   {path: 'activate', component: ActivateComponent},
-  {path: 'reset', component: ResetPasswordComponent}
+  {path: 'reset', component: ResetPasswordComponent},
+  {path: 'configs', component: ModelConfigComponent}
 ];
 
 @NgModule({

@@ -162,10 +162,22 @@ export class AppComponent
     }
 
     /* add actions for regular user */
+    else if (this.user!.role_id === 'maintainer')
+    {
+      this.menuOptions = [
+        {title: 'Run WRF', route: 'launch', icon: 'queue'},
+        {title: 'WRF Configs', route: 'configs', icon: 'satellite'},
+        {title: 'WRF Jobs', route: 'jobs', icon: 'view_list'},
+        {title: 'Preferences', route: 'prefs', icon: 'settings'}
+      ];
+    }
+
+    /* add actions for regular user */
     else if (this.user!.role_id === 'admin')
     {
       this.menuOptions = [
         {title: 'Run WRF', route: 'launch', icon: 'queue'},
+        {title: 'WRF Configs', route: 'configs', icon: 'satellite'},
         {title: 'WRF Jobs', route: 'jobs', icon: 'view_list'},
         {title: 'Manage Users', route: 'users', icon: 'account_circle'},
         {title: 'Preferences', route: 'prefs', icon: 'settings'}
@@ -173,7 +185,7 @@ export class AppComponent
     }
 
     /* route to an appropriate screen */
-    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset')
+    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset' || this.router.url === '/configs')
       return;  /* do not interfere with these routes for anonymous users */
     else if (this.user !== undefined && (this.router.url.startsWith('/view') || this.router.url.startsWith('/jobs')))
       return;  /* do not interfere with these routes for authenticated users */
