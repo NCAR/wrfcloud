@@ -105,10 +105,21 @@ def _get_all_sample_users() -> List[User]:
     return users
 
 
-def _get_all_sample_jobs() -> List[WrfJob]:
+def _get_sample_job(status_code: int) -> WrfJob:
     """
     Get a sample job with a given status
     :return: A sample job object
+    """
+    # load sample jobs
+    sample_jobs = yaml.safe_load(open('resources/sample_jobs.yaml'))['jobs']
+    job_data = sample_jobs[status_code][0]
+    return WrfJob(job_data)
+
+
+def _get_all_sample_jobs() -> List[WrfJob]:
+    """
+    Get a list of all sample jobs
+    :return: List of sample jobs
     """
     # load sample jobs
     sample_jobs = [yaml.safe_load(open('resources/sample_job.yaml'))]

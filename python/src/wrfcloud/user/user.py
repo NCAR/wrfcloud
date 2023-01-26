@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 from typing import Union, List
 import bcrypt
-import wrfcloud.system
+from wrfcloud.system import get_aws_session
 from wrfcloud.log import Logger
 
 
@@ -171,7 +171,8 @@ class User:
             for field in self.SANITIZE_KEYS:
                 if field in data:
                     data.pop(field)
-        except Exception:
+        except Exception as e:
+            self.log.error('Failed to sanitize user data', e)
             return None
         return data
 
@@ -214,7 +215,8 @@ class User:
         """
         try:
             return bcrypt.checkpw(plain_text.encode(), self._pwhash)
-        except Exception:
+        except Exception as e:
+            self.log.error('Failed to validate password', e)
             return False
 
     def get_seconds_since_reset_token_sent(self) -> float:
@@ -271,12 +273,12 @@ class User:
         try:
             img = base64.b64encode(pkgutil.get_data('wrfcloud', 'resources/logo.jpg')).decode()
             html = pkgutil.get_data('wrfcloud', 'resources/email_templates/password_reset.html').decode()
-            html = html.replace('__APP_NAME__', wrfcloud.system.APP_NAME)
+            html = html.replace('__APP_NAME__', os.environ['APP_NAME'])
             html = html.replace('__IMAGE_DATA__', img)
-            html = html.replace('__APP_URL__', wrfcloud.system.APP_URL)
+            html = html.replace('__APP_URL__', os.environ['APP_HOSTNAME'])
             html = html.replace('__EMAIL__', urllib.request.quote(self.email))
             html = html.replace('__RESET_TOKEN__', urllib.request.quote(self.reset_token_bare))
-            source = wrfcloud.system.SYSTEM_EMAIL_SENDER
+            source = os.environ['ADMIN_EMAIL']
             dest = {'ToAddresses': [self.email]}
             message = {
                 'Subject': {
@@ -290,7 +292,7 @@ class User:
                 }
             }
 
-            session = wrfcloud.system.get_aws_session()
+            session = get_aws_session()
             ses = session.client('ses')
             ses.send_email(Source=source, Destination=dest, Message=message)
 
@@ -312,16 +314,16 @@ class User:
         try:
             img = base64.b64encode(pkgutil.get_data('wrfcloud', 'resources/logo.jpg')).decode()
             html = pkgutil.get_data('wrfcloud', 'resources/email_templates/welcome_email.html').decode()
-            html = html.replace('__APP_NAME__', wrfcloud.system.APP_NAME)
+            html = html.replace('__APP_NAME__', os.environ['APP_NAME'])
             html = html.replace('__IMAGE_DATA__', img)
-            html = html.replace('__APP_URL__', wrfcloud.system.APP_URL)
+            html = html.replace('__APP_URL__', os.environ['APP_HOSTNAME'])
             html = html.replace('__EMAIL__', urllib.request.quote(self.email))
             html = html.replace('__ACTIVATION_KEY__', urllib.request.quote(self.activation_key))
-            source = wrfcloud.system.SYSTEM_EMAIL_SENDER
+            source = os.environ['ADMIN_EMAIL']
             dest = {'ToAddresses': [self.email]}
             message = {
                 'Subject': {
-                    'Data': f'Activate New Account for {wrfcloud.system.APP_NAME}',
+                    'Data': 'Activate New Account for ' + os.environ['APP_NAME'],
                     'Charset': 'utf-8'
                 },
                 'Body': {
@@ -331,7 +333,7 @@ class User:
                 }
             }
 
-            session = wrfcloud.system.get_aws_session()
+            session = get_aws_session()
             ses = session.client('ses')
             ses.send_email(Source=source, Destination=dest, Message=message)
 

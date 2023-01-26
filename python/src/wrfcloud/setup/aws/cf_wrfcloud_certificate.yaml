@@ -10,7 +10,10 @@ Parameters:
     Description: Hostname for the web page (e.g. www.mydomain.com)
     Type: String
   ApiHostName:
-    Description: Hostname for the REST or Websocket API (e.g. api.mydomain.com)
+    Description: Hostname for the REST API (e.g. api.mydomain.com)
+    Type: String
+  WebsocketHostName:
+    Description: Hostname for the Websocket API (e.g. ws.mydomain.com)
     Type: String
 
 
@@ -24,5 +27,5 @@ Resources:
       SubjectAlternativeNames:
         - !Sub '${WebHostName}'
         - !Sub '${ApiHostName}'
-        - !Sub '*.${DomainName}'  # TODO: This may not be desired, but cannot be changed after creation
+        - !Sub '${WebsocketHostName}'
       ValidationMethod: DNS
