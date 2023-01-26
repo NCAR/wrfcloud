@@ -95,27 +95,7 @@ class JobDao(DynamoDao):
         :param job: Job data values to update, which must include the key field (job_id)
         :return: True if successful, otherwise False
         """
-        # TODO: update the job data in S3, and pop the layers attribute from the data we store
-        if not self._load_layers(job):
-            return False
-
-        layers: Union[str, dict] = job.data.pop('layers')
-        if not isinstance(layers, dict):
-            return False
-
-        # remove or update value in layers for each data key not in key fields
-        for key in [item for item in job.data if item not in self.key_fields]:
-            if job.data[key] is None:
-                layers.pop(key)
-            else:
-                layers[key] = job.data[key]
-
-        job.data.layers = layers
-        if not self._save_layers(job):
-            return False
-
-        return True
-        #return super().update_item(job.data)
+        return self._save_layers(job)
 
     def delete_job(self, job: WrfJob) -> bool:
         """
@@ -150,8 +130,8 @@ class JobDao(DynamoDao):
         # get the data as a dictionary
         job_data: dict = job.data
 
-        # pop the layers dictionary out of the data dictionary and make sure it is a dictionary
-        layers: Union[str, dict] = job_data.pop('layers')
+        # ensure layers is a dictionary
+        layers: Union[str, dict] = job.layers
         if not isinstance(layers, dict):
             return False
 
@@ -160,7 +140,7 @@ class JobDao(DynamoDao):
 
         # generate the S3 url -- key comes from hashing the data
         bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
-        key: str = self._get_layers_s3key(job)
+        key: str = 'layers.json'
         prefix: str = 'jobs/{job.job_id}'  # TODO: find right prefixes to store next to the GeoJSON data
 
         # upload the data to S3
@@ -186,9 +166,11 @@ class JobDao(DynamoDao):
         :param job: Load layers into this object
         :return: True if successful, otherwise False
         """
-        # TODO:  Implement (reverse the process in _save_layers)
-        # pop the layers URL out of the data dictionary and make sure it is a string
-        layers: Union[str, dict] = job.data.pop('layers')
+        layers: Union[str, dict] = job.layers
+
+        # if layers is dictionary, it is already loaded, so return True
+        if isinstance(layers, dict):
+            return True
 
         # extract bucker name and prefix/key from S3 URL
         bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layers)
@@ -207,7 +189,7 @@ class JobDao(DynamoDao):
             return False
 
         # convert YAML to Python dictionary and set job data
-        job.layers = yaml.load(layers_yaml, Loader=yaml.Loader)
+        job.layers = yaml.safe_load(layers_yaml)
 
         return True
 
@@ -217,9 +199,11 @@ class JobDao(DynamoDao):
         :param job: Delete layers in S3 for this job
         :return: True if successful, otherwise False
         """
-        # TODO: Implement
-        # pop the layers URL out of the data dictionary and make sure it is a string
-        layers: Union[str, dict] = job.data.pop('layers')
+        layers: Union[str, dict] = job.layers
+
+        # if layers is dictionary, we can't delete S3, so return False
+        if isinstance(layers, dict):
+            return False
 
         # extract bucket name and prefix/key from S3 URL
         bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layers)
@@ -240,23 +224,6 @@ class JobDao(DynamoDao):
         return True
 
     @staticmethod
-    def _get_layers_s3key(job: WrfJob) -> str:
-        """
-        Get the S3 key for the layers S3 object
-        :param job: Get key for layers in this job
-        :return: S3 key for layers of this job
-        """
-        # easy if the layers value is already an S3 url (i.e., a string)
-        if isinstance(job.layers, str):
-            return job.layers.split('/')[-1]
-
-        # harder if to have to compute the MD5 sum of data
-        layers_yaml: bytes = yaml.dump(job.layers, indent=2).encode()
-        key: str = base64.b16encode(hashlib.md5(layers_yaml).digest()).decode()
-
-        return key
-
-    @staticmethod
     def _get_layers_s3bucket_and_key(layers_url: str) -> tuple[str, str]:
         """
         Get the S3 bucket name and key with prefix for the layers S3 object
@@ -264,7 +231,8 @@ class JobDao(DynamoDao):
         :return: Tuple with S3 bucket name and S3 key for layers of this job
         or (None, None) if info cannot be parsed
         """
-        if not isinstance(layers_url, str):
+        try:
+            bucket_name, prefix_key = layers_url.split('/', maxsplit=3)[2:]
+        except ValueError:
             return None, None
-
-        return layers_url.split('/', maxsplit=3)[2:]
+        return bucket_name, prefix_key
