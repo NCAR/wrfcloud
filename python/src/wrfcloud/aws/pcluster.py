@@ -11,7 +11,6 @@ import tempfile
 import time
 import yaml
 from datetime import datetime
-from pcluster.cli.entrypoint import run as pcluster
 from wrfcloud.log import Logger
 from wrfcloud.system import init_environment, get_aws_session
 
@@ -82,7 +81,7 @@ class WrfCloudCluster:
         :param ami: AMI ID to use for the cluster nodes or None for default value
         :param cluster_config: Path to cluster configuration
         """
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'wrfcloud-admin'
         self.log = Logger(WrfCloudCluster.__class__.__name__)
         self.cluster_name = cluster_name or user
         self.region = region or get_aws_session().region_name
@@ -92,6 +91,17 @@ class WrfCloudCluster:
         self.cluster_config = cluster_config or 'aws/resources/cluster.wrfcloud.yaml'
         self.cf_client = None
         self.ssh_cidr_ip_range: Union[str, None] = None
+
+    def print_summary(self) -> None:
+        """
+        Print a summary of options
+        """
+        self.log.info(f'Cluster Name: {self.cluster_name}')
+        self.log.info(f'AWS Region: {self.region}')
+        self.log.info(f'Profile: {self.profile}')
+        self.log.info(f'Subnet ID: {self.subnet}')
+        self.log.info(f'AMI ID: {self.ami}')
+        self.log.info(f'SSH Access: {self.ssh_cidr_ip_range}')
 
     def set_ssh_security_group_ip(self, cidr_ip_range: str) -> None:
         """
@@ -106,13 +116,20 @@ class WrfCloudCluster:
         :param custom_action: Script contents to run when cluster is configured and ready
         :param wait: Do not return until the stack status is CREATE_COMPLETE
         """
+        # slow import deferred
+        from pcluster.cli.entrypoint import run as pcluster
+
+        # get this AWS account ID
+        account_id: str = self._get_aws_account_id()
+
         # create the configuration file data
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'wrfcloud-admin'
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
         data = data.replace('__USER__', user)
         data = data.replace('__SUBNET_ID__', self.subnet)
         data = data.replace('__AMI_ID__', self.ami)
         data = data.replace('__REGION__', self.region)
+        data = data.replace('__AWS_ACCOUNT_ID__', account_id)
 
         # maybe add the custom action to the configuration
         if custom_action:
@@ -146,18 +163,25 @@ class WrfCloudCluster:
         """
         Use pcluster to update an existing cluster for the current user
         """
+        # slow import deferred
+        from pcluster.cli.entrypoint import run as pcluster
+
         status = self._get_stack_status()
         if status not in ['CREATE_COMPLETE', 'UPDATE_COMPLETE']:
             print(f'Cluster {self.cluster_name} is not ready for an update. Check its status.')
             return
 
+        # get the account ID
+        account_id = self._get_aws_account_id()
+
         # create the configuration file data
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'wrfcloud-admin'
         data = pkgutil.get_data('wrfcloud', self.cluster_config).decode()
         data = data.replace('__USER__', user)
         data = data.replace('__SUBNET_ID__', self.subnet)
         data = data.replace('__AMI_ID__', self.ami)
         data = data.replace('__REGION__', self.region)
+        data = data.replace('__AWS_ACCOUNT_ID__', account_id)
 
         # write the configuration file
         config_file = tempfile.mkstemp()[1]
@@ -182,6 +206,9 @@ class WrfCloudCluster:
         """
         Use pcluster to stop the current user's cluster
         """
+        # slow import deferred
+        from pcluster.cli.entrypoint import run as pcluster
+
         status = self._get_stack_status()
         if status is None or status == '':
             print(f'Cluster {self.cluster_name} is not running.')
@@ -206,6 +233,9 @@ class WrfCloudCluster:
         """
         Connect to the cluster via SSH
         """
+        # slow import deferred
+        from pcluster.cli.entrypoint import run as pcluster
+
         # check if the cluster exists
         status = self._print_status_message()
         if status is None or status == '':
@@ -260,7 +290,7 @@ class WrfCloudCluster:
         :return: Updated ParallelCluster configuration data with SSH confirmation
         """
         # get the current user
-        user = os.environ['USER'] if 'USER' in os.environ else 'ec2user'
+        user = os.environ['USER'] if 'USER' in os.environ else 'wrfcloud-admin'
 
         # check for the named ssh key in the account
         session = get_aws_session()
@@ -391,6 +421,22 @@ class WrfCloudCluster:
 
         # did not find a match
         return None
+
+    def _get_aws_account_id(self) -> str:
+        """
+        Get the AWS account ID
+        :return: AWS account ID (12-digit string)
+        """
+        # get an STS client from the default session
+        session = get_aws_session()
+        sts = session.client('sts')
+
+        # get the caller identify and return account ID
+        res = sts.get_caller_identity()
+        if res['ResponseMetadata']['HTTPStatusCode'] != 200:
+            self.log.warn('Unable to get AWS account ID')
+            return '000000000000'
+        return res['Account']
 
 
 def _print_usage_and_exit() -> None:

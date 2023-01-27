@@ -2,6 +2,7 @@
 The WrfJob class is the data model used to represent a user and associated functions
 """
 
+import os
 import copy
 import base64
 import pkgutil
@@ -156,11 +157,11 @@ class WrfJob:
         try:
             img = base64.b64encode(pkgutil.get_data('wrfcloud', 'resources/logo.jpg')).decode()
             html = pkgutil.get_data('wrfcloud', 'resources/email_templates/job_complete.html').decode()
-            html = html.replace('__APP_NAME__', wrfcloud.system.APP_NAME)
+            html = html.replace('__APP_NAME__', os.environ['APP_NAME'])
             html = html.replace('__IMAGE_DATA__', img)
-            html = html.replace('__APP_URL__', wrfcloud.system.APP_URL)
+            html = html.replace('__APP_URL__', os.environ['APP_HOSTNAME'])
             html = html.replace('__JOB_ID__', self.job_id)
-            source = wrfcloud.system.SYSTEM_EMAIL_SENDER
+            source = os.environ['ADMIN_EMAIL']
             dest = {'ToAddresses': [self.user_email]}
             message = {
                 'Subject': {
@@ -238,7 +239,7 @@ class WrfLayer:
         self.opacity: float = 1
         self.layer_data: any = None
         self.z_level: Union[int, None] = None
-        self.time_step: int = 0
+        self.time_step: float = 0
         self.dt: int = 0
 
         # initialize from data if provided

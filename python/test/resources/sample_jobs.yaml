@@ -84,7 +84,7 @@ jobs:
       cycle_time: 1661364000
       forecast_length: 604800
       output_frequency: 3600
-      status_code: 2
+      status_code: 4
       status_message: Canceled by user
       progress: 0.472
 
@@ -94,7 +94,7 @@ jobs:
       cycle_time: 1661320800
       forecast_length: 86400
       output_frequency: 900
-      status_code: 2
+      status_code: 5
       status_message: Failed while running metgrid
       progress: 0.05
     - job_id: E22222222

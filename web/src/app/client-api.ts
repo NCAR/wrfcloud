@@ -3,6 +3,7 @@
  */
 import {HttpClient} from "@angular/common/http";
 import {Layer} from "ol/layer";
+import {HostConfig} from "./host-config";
 
 
 export class ClientApi
@@ -58,8 +59,8 @@ export class ClientApi
   /**
    * A URL to the API
    */
-  public static API_URL = 'https://api.wrfcloud.com/v1/action';
-  public static WEBSOCKET_URL = 'wss://ws.wrfcloud.com/v1';
+  public static API_URL = 'https://' + HostConfig.API_HOSTNAME + '/v1/action';
+  public static WEBSOCKET_URL = 'wss://' + HostConfig.WS_HOSTNAME + '/v1';
 
 
   /**

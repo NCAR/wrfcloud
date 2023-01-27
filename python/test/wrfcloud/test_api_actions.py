@@ -713,7 +713,7 @@ def test_get_wrf_geojson() -> None:
     }
 
     # create and run the action
-    action = GetWrfGeoJson(run_as_user=user, request=request)
+    action = GetWrfGeoJson(ref_id=create_reference_id(), run_as_user=user, request=request)
     assert action.run()
 
     # check the response value
