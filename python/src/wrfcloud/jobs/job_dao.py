@@ -11,6 +11,7 @@ import base64
 import hashlib
 from wrfcloud.dynamodb import DynamoDao
 from wrfcloud.jobs.job import WrfJob
+from wrfcloud.jobs.job import WrfLayer
 from wrfcloud.system import get_aws_session
 
 
@@ -50,7 +51,7 @@ class JobDao(DynamoDao):
         job_clone: WrfJob = WrfJob(job.data)
 
         # save layers to S3
-        if isinstance(job_clone.layers, dict):
+        if isinstance(job_clone.layers, list):
             ok = self._save_layers(job_clone)
             if not ok: return False
 
@@ -127,12 +128,9 @@ class JobDao(DynamoDao):
         :param job: User layer data from this object
         :return: True if successful
         """
-        # get the data as a dictionary
-        job_data: dict = job.data
-
         # ensure layers is a dictionary
-        layers: Union[str, dict] = job.layers
-        if not isinstance(layers, dict):
+        layers: Union[str, List[WrfLayer]] = job.layers
+        if not isinstance(layers, list):
             return False
 
         # create a yaml representation of the data
@@ -166,10 +164,10 @@ class JobDao(DynamoDao):
         :param job: Load layers into this object
         :return: True if successful, otherwise False
         """
-        layers: Union[str, dict] = job.layers
+        layers: Union[str, List[WrfLayer]] = job.layers
 
         # if layers is dictionary, it is already loaded, so return True
-        if isinstance(layers, dict):
+        if isinstance(layers, list):
             return True
 
         # extract bucker name and prefix/key from S3 URL
@@ -199,10 +197,10 @@ class JobDao(DynamoDao):
         :param job: Delete layers in S3 for this job
         :return: True if successful, otherwise False
         """
-        layers: Union[str, dict] = job.layers
+        layers: Union[str, List[WrfLayer]] = job.layers
 
         # if layers is dictionary, we can't delete S3, so return False
-        if isinstance(layers, dict):
+        if isinstance(layers, list):
             return False
 
         # extract bucket name and prefix/key from S3 URL
