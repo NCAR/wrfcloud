@@ -230,8 +230,7 @@ class JobDao(DynamoDao):
 
         return True
 
-    @staticmethod
-    def _get_layers_s3bucket_and_key(layers_url: str) -> tuple[str, str]:
+    def _get_layers_s3bucket_and_key(self, layers_url: str) -> tuple[str, str]:
         """
         Get the S3 bucket name and key with prefix for the layers S3 object
         :param layers_url: String with S3 URl
@@ -240,6 +239,10 @@ class JobDao(DynamoDao):
         """
         try:
             bucket_name, prefix_key = layers_url.split('/', maxsplit=3)[2:]
-        except ValueError:
+            if not bucket_name or not prefix_key:
+                raise ValueError('bucket name or key are empty')
+        except ValueError as e:
+            self.log.error('Could not parse bucket and key '
+                           f'from S3 URL: {layers_url}', e)
             return None, None
         return bucket_name, prefix_key
