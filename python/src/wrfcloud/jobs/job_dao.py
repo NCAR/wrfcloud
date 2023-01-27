@@ -148,7 +148,7 @@ class JobDao(DynamoDao):
         # generate the S3 url -- key comes from hashing the data
         bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
         key: str = 'layers.json'
-        prefix: str = 'jobs/{job.job_id}'  # TODO: find right prefixes to store next to the GeoJSON data
+        prefix: str = 'jobs/{job.job_id}'
 
         # upload the data to S3
         try:
