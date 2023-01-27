@@ -1,5 +1,5 @@
 <div class="edit-model-config-title">
-  {{edit ? 'Edit User Information' : 'Create New User'}}
+  {{edit ? 'Edit WRF Configuration' : 'Create WRF Configuration'}}
 </div>
 <div class="edit-model-config-container">
   <div class="edit-model-config-field-container">
@@ -18,7 +18,7 @@
     <input class="edit-model-config-hidden-file-input" type="file" id="wps-namelist-file" (change)="fileSelected($event, 'wps')">
     <mat-form-field class="edit-model-config-field" appearance="fill">
       <mat-label>WPS Namelist</mat-label>
-      <textarea matInput [(ngModel)]="modelConfig.wps_namelist"></textarea>
+      <textarea [rows]="modelConfig.wps_namelist?6:1" matInput [(ngModel)]="modelConfig.wps_namelist"></textarea>
       <button mat-stroked-button (click)="loadNamelistFile('wps')">Load File</button>
     </mat-form-field>
   </div>
@@ -26,16 +26,18 @@
     <input class="edit-model-config-hidden-file-input" type="file" id="wrf-namelist-file" (change)="fileSelected($event, 'wrf')">
     <mat-form-field class="edit-model-config-field" appearance="fill">
       <mat-label>WRF Namelist</mat-label>
-      <textarea matInput [(ngModel)]="modelConfig.wrf_namelist"></textarea>
+      <textarea [rows]="modelConfig.wrf_namelist?6:1" matInput [(ngModel)]="modelConfig.wrf_namelist"></textarea>
       <button mat-stroked-button (click)="loadNamelistFile('wrf')">Load File</button>
     </mat-form-field>
   </div>
   <div class="edit-model-config-field-container edit-model-config-shaded">
-    <div class="edit-model-config-slider-label">Core Count: {{modelConfig.core_count}} (Nodes: {{round(modelConfig.core_count / 96)}})</div>
+    <div class="edit-model-config-slider-label">Core Count: {{autoCoreCount ? 'auto' : modelConfig.core_count}}</div>
+    <mat-checkbox class="edit-model-config-checkbox" color="primary" [(ngModel)]="autoCoreCount">Set automatically</mat-checkbox>
     <mat-slider
+      *ngIf="!autoCoreCount"
       class="edit-model-config-slider"
       min="1"
-      max="576"
+      max="96"
       step="1"
       thumbLabel
       [(ngModel)]="modelConfig.core_count">

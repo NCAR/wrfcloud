@@ -1,11 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {
-  CreateUserRequest, CreateUserResponse,
-  DeleteUserRequest,
+  CreateUserResponse,
   DeleteUserResponse, ModelConfiguration,
-  UpdateUserRequest,
   UpdateUserResponse,
-  User
 } from "../client-api";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {AppComponent} from "../app.component";
@@ -43,6 +40,12 @@ export class EditModelConfigurationComponent implements OnInit
    * User to edit
    */
   public modelConfig: ModelConfiguration;
+
+
+  /**
+   * Option to automatically decide the core count
+   */
+  public autoCoreCount: boolean = true;
 
 
   /**
