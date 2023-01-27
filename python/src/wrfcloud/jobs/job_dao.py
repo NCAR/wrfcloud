@@ -7,8 +7,6 @@ import os
 import pkgutil
 from typing import Union, List
 import yaml
-import base64
-import hashlib
 from wrfcloud.dynamodb import DynamoDao
 from wrfcloud.jobs.job import WrfJob
 from wrfcloud.jobs.job import WrfLayer
