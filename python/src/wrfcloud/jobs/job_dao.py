@@ -143,7 +143,8 @@ class JobDao(DynamoDao):
             return False
 
         # create a yaml representation of the data
-        layers_yaml: bytes = yaml.dump(layers, indent=2).encode()
+        layers_yaml: bytes = yaml.dump([layer.data for layer in layers],
+                                       indent=2).encode()
 
         # generate the S3 url -- key comes from hashing the data
         bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
@@ -195,9 +196,9 @@ class JobDao(DynamoDao):
             self.log.error('Failed to read WrfJob.layer data from S3', e)
             return False
 
-        # convert YAML to Python dictionary and set job data
-        job.layers = yaml.load(layers_yaml)
-
+        # convert YAML to Python list of dictionaries, then convert
+        # dictionaries to WrfLayer and set job layers
+        job.layers = [WrfLayer(layer) for layer in yaml.safe_load(layers_yaml)]
         return True
 
     def _delete_layers(self, job: WrfJob) -> bool:
