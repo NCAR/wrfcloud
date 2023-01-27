@@ -190,13 +190,13 @@ class JobDao(DynamoDao):
             layers_yaml: bytes = s3.get_object(
                 Bucket=bucket_name,
                 Key=prefix_key,
-            )['Body']
+            )['Body'].read()
         except Exception as e:
             self.log.error('Failed to read WrfJob.layer data from S3', e)
             return False
 
         # convert YAML to Python dictionary and set job data
-        job.layers = yaml.safe_load(layers_yaml)
+        job.layers = yaml.load(layers_yaml)
 
         return True
 
