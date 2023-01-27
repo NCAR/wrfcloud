@@ -96,7 +96,16 @@ class JobDao(DynamoDao):
         :param job: Job data values to update, which must include the key field (job_id)
         :return: True if successful, otherwise False
         """
-        return self._save_layers(job)
+        # clone the job because we will modify the data
+        job_clone: WrfJob = WrfJob(job.data)
+
+        # save layers to S3
+        if isinstance(job_clone.layers, list):
+            ok = self._save_layers(job_clone)
+            if not ok: return False
+
+        # update the item to the database
+        return super().update_item(job_clone.data)
 
     def delete_job(self, job: WrfJob) -> bool:
         """
