@@ -961,7 +961,7 @@ export interface ModelConfiguration
   model_name: string;  /* This should always be WRF until we support other models */
   wrf_namelist: string;
   wps_namelist: string;
-  core_count: number;
+  cores: number;
 }
 
 export interface ListModelConfigurationsResponse extends ApiResponse

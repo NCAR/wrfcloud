@@ -6,7 +6,8 @@ import os
 import glob
 from typing import Union
 from f90nml import Namelist
-from wrfcloud.runtime import RunInfo, Process
+from wrfcloud.runtime import Process
+from wrfcloud.jobs import WrfJob
 from wrfcloud.log import Logger
 from wrfcloud.runtime.tools import check_wd_exist
 
@@ -15,13 +16,13 @@ class Wrf(Process):
     """
     Class for setting up, executing, and monitoring a run of the WRF model
     """
-    def __init__(self, runinfo: RunInfo):
+    def __init__(self, job: WrfJob):
         """
         Initialize the Wrf object
         """
         super().__init__()
         self.log = Logger(self.__class__.__name__)
-        self.runinfo = runinfo
+        self.job = job
         self.namelist: Union[None, Namelist] = None
 
     def get_files(self) -> None:
@@ -30,55 +31,55 @@ class Wrf(Process):
         """
         self.log.debug('Getting wrfinput and wrfbdy file(s)')
 
-        filelist = glob.glob(f'{self.runinfo.realdir}/wrfinput_d*')
-        for initfile in filelist:
-            self.symlink(initfile, f'{self.runinfo.wrfdir}/' + os.path.basename(initfile))
-        bdyfile=f'{self.runinfo.realdir}/wrfbdy_d01'
-        self.symlink(bdyfile, f'{self.runinfo.wrfdir}/' + os.path.basename(bdyfile))
+        filelist = glob.glob(f'{self.job.real_dir}/wrfinput_d*')
+        for init_file in filelist:
+            self.symlink(init_file, f'{self.job.wrf_dir}/' + os.path.basename(init_file))
+        body_file = f'{self.job.real_dir}/wrfbdy_d01'
+        self.symlink(body_file, f'{self.job.wrf_dir}/' + os.path.basename(body_file))
 
         self.log.debug('Linking namelist.input from real working directory')
-        self.symlink(f'{self.runinfo.realdir}/namelist.input', 'namelist.input')
+        self.symlink(f'{self.job.real_dir}/namelist.input', 'namelist.input')
 
         self.log.debug('Linking other necessary static files')
-        static_files = [ 'CAMtr_volume_mixing_ratio',
-                         'ozone.formatted',
-                         'ozone_lat.formatted',
-                         'ozone_plev.formatted',
-                         'RRTMG_LW_DATA',
-                         'RRTMG_SW_DATA',
-                         'GENPARM.TBL',
-                         'LANDUSE.TBL',
-                         'SOILPARM.TBL',
-                         'VEGPARM.TBL' ]
+        static_files = ['CAMtr_volume_mixing_ratio',
+                        'ozone.formatted',
+                        'ozone_lat.formatted',
+                        'ozone_plev.formatted',
+                        'RRTMG_LW_DATA',
+                        'RRTMG_SW_DATA',
+                        'GENPARM.TBL',
+                        'LANDUSE.TBL',
+                        'SOILPARM.TBL',
+                        'VEGPARM.TBL']
 
-        for statfile in static_files:
-            self.symlink(f'{self.runinfo.wrfcodedir}/run/' + statfile, statfile)
+        for static_file in static_files:
+            self.symlink(f'{self.job.wrf_code_dir}/run/' + static_file, static_file)
 
     def run_wrf(self) -> None:
         """
         Executes the wrf.exe program
         """
         self.log.debug('Linking wrf.exe to wrf working directory')
-        self.symlink(f'{self.runinfo.wrfcodedir}/main/wrf.exe', 'wrf.exe')
+        self.symlink(f'{self.job.wrf_code_dir}/main/wrf.exe', 'wrf.exe')
 
         self.log.debug('Executing wrf.exe')
-        if self.runinfo.wrfcores == 1:
+        if self.job.cores == 1:
             wrf_cmd = './wrf.exe >& wrf.log'
             os.system(wrf_cmd)
         else:
-            self.submit_job('wrf.exe', self.runinfo.wrfcores, 'wrf')
+            self.submit_job('wrf.exe', self.job.cores, 'wrf')
 
     def run(self) -> bool:
         """Main routine that sets up, runs, and monitors WRF end-to-end"""
-        self.log.info(f'Setting up wrf.exe for "{self.runinfo.name}"')
+        self.log.info(f'Setting up wrf.exe for "{self.job.job_id}"')
 
         # Check if experiment working directory already exists, take action based on value of runinfo.exists
-        action = check_wd_exist(self.runinfo.exists,self.runinfo.wrfdir)
+        action = check_wd_exist(self.job.exists, self.job.wrf_dir)
         if action == "skip":
             return True
 
-        os.mkdir(self.runinfo.wrfdir)
-        os.chdir(self.runinfo.wrfdir)
+        os.mkdir(self.job.wrf_dir)
+        os.chdir(self.job.wrf_dir)
 
         self.log.debug('Calling get_files')
         self.get_files()

@@ -42,7 +42,7 @@ export class ModelConfigComponent implements OnInit
    * List of model configurations
    */
   public modelConfigs: Array<ModelConfiguration> = [
-    {id: '00001', name: 'boulder_co_4km', description: 'Boulder, CO, USA (4km)', model_name: 'wrf', wrf_namelist: '', wps_namelist: '', core_count: 96}
+    {id: '00001', name: 'boulder_co_4km', description: 'Boulder, CO, USA (4km)', model_name: 'wrf', wrf_namelist: '', wps_namelist: '', cores: 96}
   ];
 
 
@@ -163,7 +163,7 @@ export class ModelConfigComponent implements OnInit
   public addModelConfig(): void
   {
     const editData: {modelConfig: ModelConfiguration, edit: boolean} = {
-      modelConfig: {id: '', name: '', description: '', model_name: 'wrf', core_count: 96, wps_namelist: '', wrf_namelist: ''},
+      modelConfig: {id: '', name: '', description: '', model_name: 'wrf', cores: 96, wps_namelist: '', wrf_namelist: ''},
       edit: false
     };
 

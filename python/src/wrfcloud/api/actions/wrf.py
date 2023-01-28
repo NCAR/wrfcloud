@@ -175,7 +175,7 @@ class RunWrf(Action):
         """
         try:
             # create the run configuration file
-            config_file = yaml.safe_load(pkgutil.get_data('wrfcloud', 'runtime/test.yml'))
+            config_file = yaml.safe_load(pkgutil.get_data('wrfcloud', 'runtime/resources/run_template.yaml'))
             config_name = self.request['configuration_name']
             config_file['ref_id'] = self.ref_id
             config_file['run']['workdir'] = f'/data/{config_name}_run'

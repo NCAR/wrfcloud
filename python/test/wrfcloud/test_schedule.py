@@ -4,7 +4,7 @@ from wrfcloud.api.handler import create_reference_id
 from wrfcloud.api.auth import create_jwt
 
 # Initialize the test environment
-init_environment('development')
+init_environment('test')
 
 
 # TODO: This test needs access to AWS account resources and does not run in the test environment.

@@ -2,16 +2,16 @@
 Functions for getting input GRIB data from remote sources.
 """
 
-import datetime
+from datetime import datetime
+import pytz
 import math
 import os
 import requests
-
-from wrfcloud.runtime import RunInfo
+from wrfcloud.jobs import WrfJob
 from wrfcloud.log import Logger
 
 
-def get_grib_input(runinfo: RunInfo) -> None:
+def get_grib_input(job: WrfJob) -> None:
     """
     Gets GRIB files from external source for processing by ungrib
 
@@ -21,25 +21,25 @@ def get_grib_input(runinfo: RunInfo) -> None:
     If there is a data outage or are running a retrospective case >10 days old, will attempt to pull from NOAA S3 bucket
     https://registry.opendata.aws/noaa-gfs-bdp-pds/
 
-    :param runinfo: Run information object
+    :param job: Run information object
     :return: None
     """
     log = Logger()
     log.debug('Getting GRIB file(s) from external source (NOMADS or AWS S3)')
 
     # Get requested input data frequency (in sec) from namelist and convert to hours.
-    input_freq_sec = runinfo.input_freq_sec
+    input_freq_sec = job.input_freq_sec
     input_freq_h = input_freq_sec / 3600.
 
     # Get requested initialization start time and set/format necessary start time info.
-    cycle_start = runinfo.startdate
-    cycle_start = datetime.datetime.strptime(cycle_start, '%Y-%m-%d_%H:%M:%S')
+    cycle_start = job.start_date
+    cycle_start = pytz.utc.localize(datetime.utcfromtimestamp(cycle_start))
     cycle_start_ymd = cycle_start.strftime('%Y%m%d')
     cycle_start_h = cycle_start.strftime('%H')
 
     # Get requested end time of initialization and set/format necessary end time info.
-    cycle_end = runinfo.enddate
-    cycle_end = datetime.datetime.strptime(cycle_end, '%Y-%m-%d_%H:%M:%S')
+    cycle_end = job.end_date
+    cycle_end = pytz.utc.localize(datetime.utcfromtimestamp(cycle_end))
 
     # Calculate the forecast length in seconds and hours. Hours must be an integer.
     cycle_dt = cycle_end - cycle_start

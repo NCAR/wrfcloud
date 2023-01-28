@@ -21,10 +21,11 @@ class WrfJob:
     # list of all fields supported
     ALL_KEYS = ['job_id', 'job_name', 'configuration_name', 'cycle_time', 'forecast_length',
                 'output_frequency', 'status_code', 'status_message', 'progress', 'user_email',
-                'layers', 'domain_center']
+                'layers', 'domain_center', 'start_date', 'end_date', 'input_freq_sec', 'cores',
+                'queue']
 
     # do not return these fields to the user
-    SANITIZE_KEYS = []
+    SANITIZE_KEYS = ['input_freq_sec', 'queue']
 
     # Status code values
     STATUS_CODE_PENDING: int = 0
@@ -55,6 +56,11 @@ class WrfJob:
         self.notify: bool = False
         self.layers: List[WrfLayer] = []
         self.domain_center: Union[LatLonPoint, None] = None
+        self.start_date: Union[int, None] = None
+        self.end_date: Union[int, None] = None
+        self.input_freq_sec: Union[int, None] = None
+        self.cores: Union[int, None] = None
+        self.queue: Union[str, None] = None
 
         # initialize from data if provided
         if data is not None:
@@ -79,7 +85,12 @@ class WrfJob:
             'user_email': self.user_email,
             'notify': self.notify,
             'layers': [layer.data for layer in self.layers],
-            'domain_center': self.domain_center.data
+            'domain_center': self.domain_center.data,
+            'start_date': self.start_date,
+            'end_date': self.end_date,
+            'input_freq_sec': self.input_freq_sec,
+            'cores': self.cores,
+            'queue': self.queue
         }
 
     @data.setter
@@ -101,10 +112,18 @@ class WrfJob:
         self.notify = False if 'notify' not in data else data['notify']
         self.layers = [] if 'layers' not in data else [WrfLayer(layer) for layer in data['layers']]
         self.domain_center = LatLonPoint() if 'domain_center' not in data else LatLonPoint(data['domain_center'])
+        self.start_date = 0 if 'start_date' not in data else data['start_date']
+        self.end_date = 0 if 'end_date' not in data else data['end_date']
+        self.cores = 0 if 'cores' not in data else data['cores']
+        self.queue = None if 'queue' not in data else data['queue']
 
-        # always store cycle time as an integer
+        # always store time fields as integers
         if isinstance(self.cycle_time, datetime):
             self.cycle_time = int(self.cycle_time.timestamp())
+        if isinstance(self.start_date, datetime):
+            self.start_date = int(self.start_date.timestamp())
+        if isinstance(self.end_date, datetime):
+            self.end_date = int(self.end_date.timestamp())
 
     @property
     def sanitized_data(self) -> Union[dict, None]:
@@ -134,6 +153,85 @@ class WrfJob:
             return None
         return data
 
+    @property
+    def wps_code_dir(self) -> str:
+        """
+        Get the directory with WPS code
+        """
+        return os.environ['WPS_HOME'] if 'WPS_HOME' in os.environ else '/home/ec2-user/WPS'
+
+    @property
+    def wrf_code_dir(self) -> str:
+        """
+        Get the directory with WRF code
+        """
+        return os.environ['WRF_HOME'] if 'WRF_HOME' in os.environ else '/home/ec2-user/WRF'
+
+    @property
+    def exists(self) -> str:
+        """
+        Get the action to perform if a working directory exists.  For example if /data/<job_id>/wrf
+        already exists, we want to remove the directory and re-run WRF.
+        """
+        return 'remove'
+
+    @property
+    def local_data(self) -> str:
+        """
+        Get the directory containing GFS data, or empty string to force download
+        """
+        return ''
+
+    @property
+    def work_dir(self) -> str:
+        """
+        Get the working directory for the job
+        """
+        base_dir: str = os.environ['WORK_DIR'] if 'WORK_DIR' in os.environ else '/data'
+        return f'{base_dir}/{self.job_id}'
+
+    @property
+    def static_dir(self) -> str:
+        """
+        Get the static dir
+        """
+        return f'{self.work_dir}/configurations/{self.configuration_name}'
+
+    @property
+    def ungrib_dir(self):
+        """
+        Get the ungrib directory
+        """
+        return f'${self.work_dir}/ungrib'
+
+    @property
+    def metgrid_dir(self):
+        """
+        Get the metgrid directory
+        """
+        return f'${self.work_dir}/metgrid'
+
+    @property
+    def real_dir(self):
+        """
+        Get the real directory
+        """
+        return f'${self.work_dir}/real'
+
+    @property
+    def wrf_dir(self):
+        """
+        Get the wrf directory
+        """
+        return f'${self.work_dir}/wrf'
+
+    @property
+    def upp_dir(self):
+        """
+        Get the upp directory
+        """
+        return f'${self.work_dir}/upp'
+
     def update(self, data: dict):
         """
         Update only the mutable fields provided in the data
@@ -149,6 +247,30 @@ class WrfJob:
             self.progress = data['progress']
         if 'notify' in data:
             self.notify = data['notify']
+        if 'configuration_name' in data:
+            self.configuration_name = data['configuration_name']
+        if 'cycle_time' in data:
+            self.cycle_time = data['cycle_time']
+        if 'forecast_length' in data:
+            self.forecast_length = data['forecast_length']
+        if 'output_frequency' in data:
+            self.output_frequency = data['output_frequency']
+        if 'user_email' in data:
+            self.user_email = data['user_email']
+        if 'layers' in data:
+            self.layers = [WrfLayer(layer) for layer in data['layers']]
+        if 'domain_center' in data:
+            self.domain_center = LatLonPoint(data['domain_center'])
+        if 'start_date' in data:
+            self.start_date = data['start_date']
+        if 'end_date' in data:
+            self.end_date = data['end_date']
+        if 'input_freq_sec' in data:
+            self.input_freq_sec = data['input_freq_sec']
+        if 'cores' in data:
+            self.cores = data['cores']
+        if 'queue' in data:
+            self.queue = data['queue']
 
     def send_complete_notification(self):
         """

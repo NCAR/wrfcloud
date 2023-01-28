@@ -31,7 +31,7 @@
     </mat-form-field>
   </div>
   <div class="edit-model-config-field-container edit-model-config-shaded">
-    <div class="edit-model-config-slider-label">Core Count: {{autoCoreCount ? 'auto' : modelConfig.core_count}}</div>
+    <div class="edit-model-config-slider-label">Core Count: {{autoCoreCount ? 'auto' : modelConfig.cores}}</div>
     <mat-checkbox class="edit-model-config-checkbox" color="primary" [(ngModel)]="autoCoreCount">Set automatically</mat-checkbox>
     <mat-slider
       *ngIf="!autoCoreCount"
@@ -40,7 +40,7 @@
       max="96"
       step="1"
       thumbLabel
-      [(ngModel)]="modelConfig.core_count">
+      [(ngModel)]="modelConfig.cores">
     </mat-slider>
   </div>
 </div>
