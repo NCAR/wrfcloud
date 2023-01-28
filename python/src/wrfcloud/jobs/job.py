@@ -202,35 +202,115 @@ class WrfJob:
         """
         Get the ungrib directory
         """
-        return f'${self.work_dir}/ungrib'
+        return f'{self.work_dir}/ungrib'
 
     @property
     def metgrid_dir(self):
         """
         Get the metgrid directory
         """
-        return f'${self.work_dir}/metgrid'
+        return f'{self.work_dir}/metgrid'
 
     @property
     def real_dir(self):
         """
         Get the real directory
         """
-        return f'${self.work_dir}/real'
+        return f'{self.work_dir}/real'
 
     @property
     def wrf_dir(self):
         """
         Get the wrf directory
         """
-        return f'${self.work_dir}/wrf'
+        return f'{self.work_dir}/wrf'
 
     @property
     def upp_dir(self):
         """
         Get the upp directory
         """
-        return f'${self.work_dir}/upp'
+        return f'{self.work_dir}/upp'
+
+    @property
+    def start_year(self) -> int:
+        """
+        parse the start year from the start date
+        :return: year as an int
+        """
+        return pytz.utc.localize(datetime.utcfromtimestamp(self.start_date)).year
+
+    @property
+    def start_month(self) -> int:
+        """
+        parse the start month from the start date
+        :return: month as an int
+        """
+        return pytz.utc.localize(datetime.utcfromtimestamp(self.start_date)).month
+
+    @property
+    def start_day(self) -> int:
+        """
+        parse the start day from the start date
+        :return: year as an int
+        """
+        return pytz.utc.localize(datetime.utcfromtimestamp(self.start_date)).day
+
+    @property
+    def start_hour(self) -> int:
+        """
+        parse the start hour from the start date
+        :return: year as an int
+        """
+        return pytz.utc.localize(datetime.utcfromtimestamp(self.start_date)).hour
+
+    @property
+    def end_year(self) -> int:
+        """
+        parse the end year from the end date
+        :return: year as an int
+        """
+        return pytz.utc.localize(datetime.utcfromtimestamp(self.end_date)).year
+
+    @property
+    def end_month(self) -> int:
+        """
+        parse the end month from the end date
+        :return: month as an int
+        """
+        return pytz.utc.localize(datetime.utcfromtimestamp(self.end_date)).month
+
+    @property
+    def end_day(self) -> int:
+        """
+        parse the end day from the end date
+        :return: year as an int
+        """
+        return pytz.utc.localize(datetime.utcfromtimestamp(self.end_date)).day
+
+    @property
+    def end_hour(self) -> int:
+        """
+        parse the end hour from the end date
+        :return: year as an int
+        """
+        return pytz.utc.localize(datetime.utcfromtimestamp(self.end_date)).hour
+
+    @property
+    def run_hours(self) -> float:
+        """
+        Get the difference from start to end in hours
+        :return: Forecast length in hours
+        """
+        return (self.end_date - self.start_date) / 3600
+
+    @property
+    def output_freq_min(self) -> float:
+        """
+        Get the output frequency in minutes
+        :return: Output frequency in minutes
+        """
+        return self.output_frequency / 60
 
     def update(self, data: dict):
         """
