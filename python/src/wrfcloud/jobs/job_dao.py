@@ -144,12 +144,12 @@ class JobDao(DynamoDao):
             return False
 
         # create a yaml representation of the data
-        layers_yaml: bytes = yaml.dump([layer.data for layer in layers],
-                                       indent=2).encode()
+        layers_yaml: bytes = yaml.safe_dump([layer.data for layer in layers],
+                                            indent=2).encode()
 
         # generate the S3 url -- key comes from hashing the data
         bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
-        key: str = 'layers.json'
+        key: str = 'layers.yaml'
         prefix: str = f'jobs/{job.job_id}'
 
         # upload the data to S3
