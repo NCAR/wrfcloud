@@ -2,12 +2,19 @@ jobs:
 
   # pending jobs
   - - job_id: P11111111
+      job_name: ''
       configuration_name: boulder_co
       cycle_time: 1661320800
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 86400
       output_frequency: 900
       status_code: 0
+      status_message: Pending
       progress: 0
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
@@ -1557,12 +1564,19 @@ jobs:
           visible: false
           z_level: 100
     - job_id: P22222222
+      job_name: ''
       configuration_name: boulder_co_summer
       cycle_time: 1661364000
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 604800
       output_frequency: 3600
       status_code: 0
+      status_message: Pending
       progress: 0
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
@@ -3114,13 +3128,19 @@ jobs:
 
   # starting jobs
   - - job_id: S11111111
+      job_name: ''
       configuration_name: boulder_co
       cycle_time: 1661320800
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 86400
       output_frequency: 900
       status_code: 1
       status_message: Initializing cluster
       progress: 0
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
@@ -4670,13 +4690,19 @@ jobs:
           visible: false
           z_level: 100
     - job_id: S22222222
+      job_name: ''
       configuration_name: boulder_co_summer
       cycle_time: 1661364000
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 604800
       output_frequency: 3600
       status_code: 1
       status_message: Initializing cluster
       progress: 0
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
@@ -6228,13 +6254,19 @@ jobs:
 
   # running jobs
   - - job_id: R11111111
+      job_name: ''
       configuration_name: boulder_co
       cycle_time: 1661320800
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 86400
       output_frequency: 900
       status_code: 2
       status_message: Running metgrid
       progress: 0.05
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
@@ -7784,13 +7816,19 @@ jobs:
           visible: false
           z_level: 100
     - job_id: R22222222
+      job_name: ''
       configuration_name: boulder_co_summer
       cycle_time: 1661364000
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 604800
       output_frequency: 3600
       status_code: 2
       status_message: Running wrf
       progress: 0.472
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
@@ -9342,13 +9380,19 @@ jobs:
 
   # finished jobs
   - - job_id: F11111111
+      job_name: ''
       configuration_name: boulder_co
       cycle_time: 1661320800
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 86400
       output_frequency: 900
       status_code: 3
       status_message: Finished
       progress: 1
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
@@ -10898,13 +10942,19 @@ jobs:
           visible: false
           z_level: 100
     - job_id: F22222222
+      job_name: ''
       configuration_name: boulder_co_summer
       cycle_time: 1661364000
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 604800
       output_frequency: 3600
       status_code: 3
       status_message: Finished
       progress: 1
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
@@ -12456,13 +12506,19 @@ jobs:
 
   # canceled jobs
   - - job_id: X11111111
+      job_name: ''
       configuration_name: boulder_co
       cycle_time: 1661320800
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 86400
       output_frequency: 900
       status_code: 2
       status_message: Canceled by user
       progress: 0.05
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
@@ -14012,13 +14068,19 @@ jobs:
           visible: false
           z_level: 100
     - job_id: X22222222
+      job_name: ''
       configuration_name: boulder_co_summer
       cycle_time: 1661364000
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 604800
       output_frequency: 3600
       status_code: 4
       status_message: Canceled by user
       progress: 0.472
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
@@ -15570,13 +15632,19 @@ jobs:
 
   # failed jobs
   - - job_id: E11111111
+      job_name: ''
       configuration_name: boulder_co
       cycle_time: 1661320800
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 86400
       output_frequency: 900
       status_code: 5
       status_message: Failed while running metgrid
       progress: 0.05
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
@@ -17126,13 +17194,19 @@ jobs:
           visible: false
           z_level: 100
     - job_id: E22222222
+      job_name: ''
       configuration_name: boulder_co_summer
       cycle_time: 1661364000
+      domain_center:
+        latitude: 0
+        longitude: 0
       forecast_length: 604800
       output_frequency: 3600
       status_code: 2
       status_message: Failed while running wrf
       progress: 0.472
+      notify: false
+      user_email: testuser@fakemail.edu
       layers:
         - display_name: 2-m Temperature
           dt: 1669075200
