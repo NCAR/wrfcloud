@@ -18,8 +18,11 @@ fi
 coverage run "$(which py.test)" .
 coverage xml --include=../src/wrfcloud/\*.py
 
-# open results in a browser window if we're on macOS
+coverage html --include=../src/wrfcloud/\*.py
+
+# open results in a browser window if we're on macOS or Linux
 if [[ "$(uname -s)" == "Darwin" ]]; then
-  coverage html --include=../src/wrfcloud/\*.py
   open htmlcov/index.html
+elif [[ "$(uname -s)" == "Linux" ]]; then
+  google-chrome htmlcov/index.html
 fi

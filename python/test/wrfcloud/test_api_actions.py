@@ -683,9 +683,9 @@ def test_get_wrf_meta_data() -> None:
     # check the response value
     assert action.success
     assert 'jobs' in action.response
-    assert len(action.response['jobs']) == 1
+    assert len(action.response['jobs']) == 12
     job = WrfJob(action.response['jobs'][0])
-    assert 'W70BA135451' == job.job_id
+    assert 'E22222222' == job.job_id
     assert len(job.layers) == 119
 
     # teardown test case
@@ -706,10 +706,9 @@ def test_get_wrf_geojson() -> None:
 
     # create a request to get WRF meta data
     request = {
-        'configuration': 'test',
-        'cycle_time': 1654041600000,
-        'valid_time': 1654041600000,
-        'variable': 'T2'
+        'valid_time': 1669075200,
+        'variable': '2t',
+        'job_id': 'P11111111',
     }
 
     # create and run the action
@@ -720,11 +719,11 @@ def test_get_wrf_geojson() -> None:
     assert action.success
     assert 'geojson' in action.response
     assert action.response['geojson'] is not None
-    assert len(action.response['geojson']) == 403132
+    assert len(action.response['geojson']) == 1539776
     hash_alg = hashlib.sha256()
-    hash_alg.update(action.response['geojson'])
+    hash_alg.update(action.response['geojson'].encode())
     checksum = base64.b16encode(hash_alg.digest()).decode()
-    assert checksum == '21E2C5233E86C9E8187C2C907F96AE90AA0933340744C9E575C5F468CFDE79B1'
+    assert checksum == 'A39561195C93F10F1EB17D148444F6DE30DC2797E829B9A722B0DD7F93259EC9'
 
     # teardown test case
     assert _test_teardown()

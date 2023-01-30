@@ -97,7 +97,6 @@ class DynamoDao:
 
         return results
 
-
     def update_item(self, data) -> bool:
         """
         Update an item in the dynamodb table
@@ -198,19 +197,6 @@ class DynamoDao:
             print(e)
             return False
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     def _make_dynamo_key(self, data: dict) -> dict:
         """
         Create a key dictionary for a dynamodb item
@@ -251,7 +237,7 @@ class DynamoDao:
                 if key not in self.key_fields:
                     remove_fields.append(key)
 
-        if len(remove_fields) == 0:
+        if not remove_fields:
             return None
 
         update_expression = 'REMOVE ' + ','.join(remove_fields)
