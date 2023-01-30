@@ -28,7 +28,7 @@ def test_add_job() -> None:
     # retrieve the job from the database
     job_ = get_job_from_system(job_id=job.job_id)
 
-    isinstance(job_.layers, str)
+    assert isinstance(job_.layers, list)
 
     # compare the original and retrieved job data
     for key in job.data:
@@ -72,7 +72,7 @@ def test_update_job() -> None:
     job.update(updated_job.data)
     assert update_job_in_system(job)
 
-    isinstance(job.layers, list)
+    assert isinstance(job.layers, list)
 
     # retrieve the job from the database
     job_ = get_job_from_system(job_id=job.job_id)
