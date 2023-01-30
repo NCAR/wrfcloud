@@ -56,10 +56,11 @@ class JobDao(DynamoDao):
         # save the item to the database
         return super().put_item(job_clone.data)
 
-    def get_job_by_id(self, job_id: str) -> Union[WrfJob, None]:
+    def get_job_by_id(self, job_id: str, load_layers_from_s3: bool = True) -> Union[WrfJob, None]:
         """
         Get a job by job id
         :param job_id: Job ID
+        :param load_layers_from_s3: If True, load layers from S3 bucket
         :return: The job with the given job id, or None if not found
         """
         # build the database key
@@ -74,7 +75,8 @@ class JobDao(DynamoDao):
 
         # build a new job object
         job: WrfJob = WrfJob(data)
-        self._load_layers(job)
+        if load_layers_from_s3:
+            self._load_layers(job)
         return job
 
     def get_all_jobs(self) -> List[WrfJob]:
@@ -111,12 +113,13 @@ class JobDao(DynamoDao):
         :param job: WrfJob object
         :return: True if successful, otherwise False
         """
+        job: WrfJob = self.get_job_by_id(job.job_id, load_layers_from_s3=False)
         job_id = job.job_id
+
         ok = super().delete_item({'job_id': job_id})
 
         # delete the layers object from S3
         self._delete_layers(job)
-
         return ok
 
     def create_job_table(self) -> bool:
