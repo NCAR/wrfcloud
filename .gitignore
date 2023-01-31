@@ -2,7 +2,10 @@ web/.browserslistrc
 web/.editorconfig
 web/.gitignore
 web/package-lock.json
-web/.vscode/extensions.json
-web/.vscode/launch.json
-web/.vscode/tasks.json
 web/.vscode
+__pycache__/
+.idea/
+python/src/build/
+python/src/wrfcloud.egg-info/
+python/test/.coverage
+python/test/coverage.xml

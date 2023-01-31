@@ -54,7 +54,7 @@ class WrfJob:
         self.progress: float = 0
         self.user_email: Union[str, None] = None
         self.notify: bool = False
-        self.layers: List[WrfLayer] = []
+        self.layers: Union[str, List[WrfLayer]] = []
         self.domain_center: Union[LatLonPoint, None] = None
         self.start_date: Union[str, None] = None
         self.end_date: Union[str, None] = None
@@ -84,7 +84,7 @@ class WrfJob:
             'progress': self.progress,
             'user_email': self.user_email,
             'notify': self.notify,
-            'layers': [layer.data for layer in self.layers],
+            'layers': [layer.data for layer in self.layers] if isinstance(self.layers, list) else self.layers,
             'domain_center': self.domain_center.data,
             'start_date': self.start_date,
             'end_date': self.end_date,
@@ -110,7 +110,7 @@ class WrfJob:
         self.progress = None if 'progress' not in data else data['progress']
         self.user_email = None if 'user_email' not in data else data['user_email']
         self.notify = False if 'notify' not in data else data['notify']
-        self.layers = [] if 'layers' not in data else [WrfLayer(layer) for layer in data['layers']]
+        self.layers = [] if 'layers' not in data else [WrfLayer(layer) for layer in data['layers']] if isinstance(data['layers'], list) else data['layers']
         self.domain_center = LatLonPoint() if 'domain_center' not in data else LatLonPoint(data['domain_center'])
         self.start_date = 0 if 'start_date' not in data else data['start_date']
         self.end_date = 0 if 'end_date' not in data else data['end_date']
@@ -517,7 +517,7 @@ class WrfLayer:
         return {
             'variable_name': self.variable_name,
             'display_name': self.display_name,
-            'palette': self.palette.data,
+            'palette': self.palette.data if self.palette is not None else None,
             'units': self.units,
             'visible': self.visible,
             'opacity': self.opacity,

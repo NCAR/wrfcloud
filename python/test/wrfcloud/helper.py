@@ -123,11 +123,11 @@ def _get_all_sample_jobs() -> List[WrfJob]:
     :return: List of sample jobs
     """
     # load sample jobs
-    sample_jobs = [yaml.safe_load(open('resources/sample_job.yaml'))]
+    sample_jobs = yaml.safe_load(open('resources/sample_jobs.yaml'))['jobs']
     jobs_data = []
 
     # get jobs of all status codes if status code is not provided...
-    for job_data in sample_jobs:
+    for job_data in [job for job_group in sample_jobs for job in job_group]:
         jobs_data.append(job_data)
 
     # build job objects and return them
