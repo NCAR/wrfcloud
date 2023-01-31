@@ -17,7 +17,7 @@ from wrfcloud.runtime.postproc import UPP, GeoJson
 from wrfcloud.config import WrfConfig, get_config_from_system
 from wrfcloud.jobs import WrfJob, get_job_from_system, update_job_in_system
 from wrfcloud.aws.pcluster import WrfCloudCluster
-from wrfcloud.system import init_environment
+from wrfcloud.system import init_environment, get_aws_session
 from wrfcloud.log import Logger
 
 
@@ -145,5 +145,13 @@ def _load_model_configuration(job: WrfJob) -> WrfConfig:
     with open(f'{job.static_dir}/namelist.wps', 'w') as wps_namelist:
         wps_namelist.write(config.wps_namelist)
         wrf_namelist.close()
+    try:
+        s3 = get_aws_session().client('s3')
+        bucket = os.environ['WRFCLOUD_BUCKET']
+        key = config.s3_key_geo_em
+        file = f'{job.static_dir}/geo_em.d01.nc'
+        s3.download_file(bucket, key, file)
+    except Exception as e:
+        Logger().error('Failed to download geo_em file(s).', e)
 
     return config

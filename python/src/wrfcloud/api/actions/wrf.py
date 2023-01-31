@@ -175,27 +175,15 @@ class RunWrf(Action):
         """
         try:
             # create the run configuration file
-            config_file = yaml.safe_load(pkgutil.get_data('wrfcloud', 'runtime/resources/run_template.yaml'))
-            config_name = self.request['configuration_name']
-            config_file['ref_id'] = self.ref_id
-            config_file['run']['workdir'] = f'/data/{config_name}_run'
             forecast_len_sec = self.request['forecast_length']
             start_date = utc.localize(datetime.utcfromtimestamp(self.request['start_time']))
             increment = timedelta(seconds=forecast_len_sec)
             end_time = start_date + increment
-            config_file['run']['start'] = start_date.strftime('%Y-%m-%d_%H:%M:%S')
-            config_file['run']['end'] = end_time.strftime('%Y-%m-%d_%H:%M:%S')
-            config_file['run']['output_freq_sec'] = self.request['output_frequency']
-            config_file['run']['configuration'] = config_name
-            config_data = yaml.dump(config_file)
-            config_b64_gz = base64.b64encode(gzip.compress(bytes(config_data, encoding='utf8'))).decode()
 
             # create the custom action to start the model
             script_template = pkgutil.get_data('wrfcloud', 'api/actions/resources/run_wrf_template.sh').decode()
             script = script_template\
-                .replace('__REF_ID__', self.ref_id)\
-                .replace('__CONFIG_NAME__', config_name)\
-                .replace('__CONFIG_B64_GZ__', config_b64_gz)\
+                .replace('__JOB_ID__', self.ref_id)\
                 .replace('__S3_BUCKET__', os.environ['WRFCLOUD_BUCKET_NAME'])
             ca = CustomAction(self.ref_id, script)
 
@@ -204,9 +192,11 @@ class RunWrf(Action):
             job.job_id = self.ref_id
             job.job_name = self.request['job_name']
             job.configuration_name = self.request['configuration_name']
-            job.cycle_time = int(start_date.timestamp())
+            job.start_dt = start_date
+            job.end_dt = end_time
             job.forecast_length = forecast_len_sec
             job.output_frequency = self.request['output_frequency']
+            job.input_frequency = 10800
             job.status_code = WrfJob.STATUS_CODE_STARTING
             job.status_message = 'Launching cluster'
             job.user_email = self.run_as_user.email

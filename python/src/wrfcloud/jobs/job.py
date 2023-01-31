@@ -19,12 +19,12 @@ class WrfJob:
     """
 
     # list of all fields supported
-    ALL_KEYS = ['job_id', 'job_name', 'configuration_name', 'cycle_time', 'forecast_length',
-                'output_frequency', 'input_frequency', 'status_code', 'status_message', 'progress',
-                'user_email', 'layers', 'domain_center', 'start_date', 'end_date', 'cores', 'queue']
+    ALL_KEYS = ['job_id', 'job_name', 'configuration_name', 'forecast_length', 'output_frequency',
+                'input_frequency', 'status_code', 'status_message', 'progress', 'user_email',
+                'layers', 'domain_center', 'start_date', 'end_date', 'cores']
 
     # do not return these fields to the user
-    SANITIZE_KEYS = ['input_frequency', 'queue']
+    SANITIZE_KEYS = ['input_frequency']
 
     # Status code values
     STATUS_CODE_PENDING: int = 0
@@ -45,7 +45,6 @@ class WrfJob:
         self.job_id: Union[str, None] = None
         self.job_name: Union[str, None] = None
         self.configuration_name: Union[str, None] = None
-        self.cycle_time: Union[int, None] = None
         self.forecast_length: Union[int, None] = None
         self.output_frequency: Union[int, None] = None
         self.input_frequency: Union[int, None] = None
@@ -59,7 +58,6 @@ class WrfJob:
         self.start_date: Union[str, None] = None
         self.end_date: Union[str, None] = None
         self.cores: Union[int, None] = None
-        self.queue: Union[str, None] = None
 
         # initialize from data if provided
         if data is not None:
@@ -75,7 +73,6 @@ class WrfJob:
             'job_id': self.job_id,
             'job_name': self.job_name,
             'configuration_name': self.configuration_name,
-            'cycle_time': self.cycle_time,
             'forecast_length': self.forecast_length,
             'input_frequency': self.input_frequency,
             'output_frequency': self.output_frequency,
@@ -88,8 +85,7 @@ class WrfJob:
             'domain_center': self.domain_center.data,
             'start_date': self.start_date,
             'end_date': self.end_date,
-            'cores': self.cores,
-            'queue': self.queue
+            'cores': self.cores
         }
 
     @data.setter
@@ -101,7 +97,6 @@ class WrfJob:
         self.job_id = None if 'job_id' not in data else data['job_id']
         self.job_name = None if 'job_name' not in data else data['job_name']
         self.configuration_name = None if 'configuration_name' not in data else data['configuration_name']
-        self.cycle_time = None if 'cycle_time' not in data else data['cycle_time']
         self.forecast_length = None if 'forecast_length' not in data else data['forecast_length']
         self.output_frequency = None if 'output_frequency' not in data else data['output_frequency']
         self.input_frequency = None if 'input_frequency' not in data else data['input_frequency']
@@ -110,20 +105,22 @@ class WrfJob:
         self.progress = None if 'progress' not in data else data['progress']
         self.user_email = None if 'user_email' not in data else data['user_email']
         self.notify = False if 'notify' not in data else data['notify']
-        self.layers = [] if 'layers' not in data else [WrfLayer(layer) for layer in data['layers']] if isinstance(data['layers'], list) else data['layers']
+        if 'layers' not in data:
+            self.layers = []
+        elif isinstance(data['layers'], list):
+            self.layers = [WrfLayer(layer) for layer in data['layers']]
+        else:
+            self.layers = data['layers']
         self.domain_center = LatLonPoint() if 'domain_center' not in data else LatLonPoint(data['domain_center'])
-        self.start_date = 0 if 'start_date' not in data else data['start_date']
-        self.end_date = 0 if 'end_date' not in data else data['end_date']
+        self.start_date = None if 'start_date' not in data else data['start_date']
+        self.end_date = None if 'end_date' not in data else data['end_date']
         self.cores = 0 if 'cores' not in data else data['cores']
-        self.queue = None if 'queue' not in data else data['queue']
 
-        # always store time fields as integers
-        if isinstance(self.cycle_time, datetime):
-            self.cycle_time = int(self.cycle_time.timestamp())
+        # always store time fields as strings
         if isinstance(self.start_date, datetime):
-            self.start_date = int(self.start_date.timestamp())
+            self.start_date = self._datetime_to_str(self.start_date)
         if isinstance(self.end_date, datetime):
-            self.end_date = int(self.end_date.timestamp())
+            self.end_date = self._datetime_to_str(self.end_date)
 
     @property
     def sanitized_data(self) -> Union[dict, None]:
@@ -279,6 +276,15 @@ class WrfJob:
         """
         return self._str_to_datetime(self.start_date)
 
+    @start_dt.setter
+    def start_dt(self, datelike: Union[str, datetime, int, float]) -> None:
+        """
+        Set the start datetime from a datelike value
+        :param datelike: 'yyyy-mm-dd_HH:MM:SS', datetime object, or unix timestamp as int or float
+        :return None:
+        """
+        self.start_date = self._datelike_to_str(datelike)
+
     @property
     def end_year(self) -> int:
         """
@@ -319,6 +325,15 @@ class WrfJob:
         """
         return self._str_to_datetime(self.end_date)
 
+    @end_dt.setter
+    def end_dt(self, datelike: Union[str, datetime, int, float]) -> None:
+        """
+        Set the end datetime from a datelike value
+        :param datelike: 'yyyy-mm-dd_HH:MM:SS', datetime object, or unix timestamp as int or float
+        :return None:
+        """
+        self.end_dt = self._datelike_to_str(datelike)
+
     @property
     def run_hours(self) -> float:
         """
@@ -355,6 +370,20 @@ class WrfJob:
         return self.input_frequency
 
     @staticmethod
+    def _datelike_to_str(datelike: Union[str, datetime, int, float]) -> str:
+        """
+        Set the end datetime from a datelike value
+        :param datelike: 'yyyy-mm-dd_HH:MM:SS', datetime object, or unix timestamp as int or float
+        :return: UTC string in the format 'yyyy-mm-dd_HH:MM:SS'
+        """
+        if isinstance(datelike, str):
+            return datelike
+        if isinstance(datelike, datetime):
+            return WrfJob._datetime_to_str(datelike)
+        if isinstance(datelike, int) or isinstance(datelike, float):
+            return WrfJob._datetime_to_str(pytz.utc.localize(datetime.utcfromtimestamp(datelike)))
+
+    @staticmethod
     def _str_to_datetime(date: str) -> datetime:
         """
         Convert a UTC date string to a datetime object
@@ -363,6 +392,16 @@ class WrfJob:
         """
         date_format: str = '%Y-%m-%d_%H:%M:%S'
         return pytz.utc.localize(datetime.strptime(date, date_format))
+
+    @staticmethod
+    def _datetime_to_str(date: datetime) -> str:
+        """
+        Convert a UTC datetime object to a string
+        :param date: datetime object
+        :return: UTC date in the format YYYY-mm-dd_HH:MM:SS
+        """
+        date_format: str = '%Y-%m-%d_%H:%M:%S'
+        return date.strftime(date_format)
 
     def update(self, data: dict):
         """
@@ -381,8 +420,6 @@ class WrfJob:
             self.notify = data['notify']
         if 'configuration_name' in data:
             self.configuration_name = data['configuration_name']
-        if 'cycle_time' in data:
-            self.cycle_time = data['cycle_time']
         if 'forecast_length' in data:
             self.forecast_length = data['forecast_length']
         if 'output_frequency' in data:
@@ -401,8 +438,6 @@ class WrfJob:
             self.end_date = data['end_date']
         if 'cores' in data:
             self.cores = data['cores']
-        if 'queue' in data:
-            self.queue = data['queue']
 
     def send_complete_notification(self):
         """

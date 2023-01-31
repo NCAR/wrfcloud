@@ -2,11 +2,10 @@
 Shared classes and functions for the WRF runtime
 """
 
-__all__ = ['tools', 'metgrid', 'postproc', 'real', 'run', 'ungrib', 'wrf', 'Process', 'WrfConfig']
+__all__ = ['tools', 'metgrid', 'postproc', 'real', 'run', 'ungrib', 'wrf', 'Process']
 
 import os
-import copy
-from typing import Union, List
+from typing import Union
 from datetime import datetime
 import pytz
 from wrfcloud.log import Logger
