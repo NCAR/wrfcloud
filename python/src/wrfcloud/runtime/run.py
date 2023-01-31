@@ -14,6 +14,7 @@ from wrfcloud.runtime.metgrid import MetGrid
 from wrfcloud.runtime.real import Real
 from wrfcloud.runtime.wrf import Wrf
 from wrfcloud.runtime.postproc import UPP, GeoJson
+from wrfcloud.config import WrfConfig, get_config_from_system
 from wrfcloud.jobs import WrfJob, get_job_from_system, update_job_in_system
 from wrfcloud.aws.pcluster import WrfCloudCluster
 from wrfcloud.system import init_environment
@@ -30,7 +31,7 @@ def main() -> None:
     try:
         log.debug('Reading command line arguments')
         parser = argparse.ArgumentParser()
-        parser.add_argument('--job-id', type=str, help='Job ID with run details.')
+        parser.add_argument('--job-id', type=str, help='Job ID with run details.', required=True)
         args = parser.parse_args()
         job_id = args.job_id
 
@@ -42,6 +43,10 @@ def main() -> None:
         log.debug('Creating new RunInfo')
         log.info(f'Setting up working directory {job.work_dir}')
         os.makedirs(job.work_dir, exist_ok=True)
+
+        # set up the configuration
+        config: WrfConfig = _load_model_configuration(job)
+        job.cores = config.cores
 
         # maybe update the logger's application name to the reference ID
         log.APPLICATION_NAME = job.job_id or 'wrfcloud-run'
@@ -121,3 +126,24 @@ def _update_job_status(job: Union[None, WrfJob], status_code: int, status_messag
     job.progress = progress
     job.status_message = status_message
     update_job_in_system(job, True)
+
+
+def _load_model_configuration(job: WrfJob) -> WrfConfig:
+    """
+    Pull the namelists and geo_em file from S3 for the given config
+    :param job: Details for the job
+    :return: WRF model configuration object
+    """
+    # load the configuration data
+    config: WrfConfig = get_config_from_system(job.configuration_name)
+
+    # write out the namelist files
+    os.makedirs(job.static_dir, exist_ok=True)
+    with open(f'{job.static_dir}/namelist.input', 'w') as wrf_namelist:
+        wrf_namelist.write(config.wrf_namelist)
+        wrf_namelist.close()
+    with open(f'{job.static_dir}/namelist.wps', 'w') as wps_namelist:
+        wps_namelist.write(config.wps_namelist)
+        wrf_namelist.close()
+
+    return config

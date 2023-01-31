@@ -20,12 +20,11 @@ class WrfJob:
 
     # list of all fields supported
     ALL_KEYS = ['job_id', 'job_name', 'configuration_name', 'cycle_time', 'forecast_length',
-                'output_frequency', 'status_code', 'status_message', 'progress', 'user_email',
-                'layers', 'domain_center', 'start_date', 'end_date', 'input_freq_sec', 'cores',
-                'queue']
+                'output_frequency', 'input_frequency', 'status_code', 'status_message', 'progress',
+                'user_email', 'layers', 'domain_center', 'start_date', 'end_date', 'cores', 'queue']
 
     # do not return these fields to the user
-    SANITIZE_KEYS = ['input_freq_sec', 'queue']
+    SANITIZE_KEYS = ['input_frequency', 'queue']
 
     # Status code values
     STATUS_CODE_PENDING: int = 0
@@ -49,6 +48,7 @@ class WrfJob:
         self.cycle_time: Union[int, None] = None
         self.forecast_length: Union[int, None] = None
         self.output_frequency: Union[int, None] = None
+        self.input_frequency: Union[int, None] = None
         self.status_code: int = self.STATUS_CODE_PENDING
         self.status_message: Union[str, None] = None
         self.progress: float = 0
@@ -56,9 +56,8 @@ class WrfJob:
         self.notify: bool = False
         self.layers: List[WrfLayer] = []
         self.domain_center: Union[LatLonPoint, None] = None
-        self.start_date: Union[int, None] = None
-        self.end_date: Union[int, None] = None
-        self.input_freq_sec: Union[int, None] = None
+        self.start_date: Union[str, None] = None
+        self.end_date: Union[str, None] = None
         self.cores: Union[int, None] = None
         self.queue: Union[str, None] = None
 
@@ -78,6 +77,7 @@ class WrfJob:
             'configuration_name': self.configuration_name,
             'cycle_time': self.cycle_time,
             'forecast_length': self.forecast_length,
+            'input_frequency': self.input_frequency,
             'output_frequency': self.output_frequency,
             'status_code': self.status_code,
             'status_message': self.status_message,
@@ -88,7 +88,6 @@ class WrfJob:
             'domain_center': self.domain_center.data,
             'start_date': self.start_date,
             'end_date': self.end_date,
-            'input_freq_sec': self.input_freq_sec,
             'cores': self.cores,
             'queue': self.queue
         }
@@ -105,6 +104,7 @@ class WrfJob:
         self.cycle_time = None if 'cycle_time' not in data else data['cycle_time']
         self.forecast_length = None if 'forecast_length' not in data else data['forecast_length']
         self.output_frequency = None if 'output_frequency' not in data else data['output_frequency']
+        self.input_frequency = None if 'input_frequency' not in data else data['input_frequency']
         self.status_code = None if 'status_code' not in data else data['status_code']
         self.status_message = None if 'status_message' not in data else data['status_message']
         self.progress = None if 'progress' not in data else data['progress']
@@ -238,7 +238,7 @@ class WrfJob:
         parse the start year from the start date
         :return: year as an int
         """
-        return pytz.utc.localize(datetime.utcfromtimestamp(self.start_date)).year
+        return self.start_dt.year
 
     @property
     def start_month(self) -> int:
@@ -246,7 +246,7 @@ class WrfJob:
         parse the start month from the start date
         :return: month as an int
         """
-        return pytz.utc.localize(datetime.utcfromtimestamp(self.start_date)).month
+        return self.start_dt.month
 
     @property
     def start_day(self) -> int:
@@ -254,7 +254,7 @@ class WrfJob:
         parse the start day from the start date
         :return: year as an int
         """
-        return pytz.utc.localize(datetime.utcfromtimestamp(self.start_date)).day
+        return self.start_dt.day
 
     @property
     def start_hour(self) -> int:
@@ -262,7 +262,15 @@ class WrfJob:
         parse the start hour from the start date
         :return: year as an int
         """
-        return pytz.utc.localize(datetime.utcfromtimestamp(self.start_date)).hour
+        return self.start_dt.hour
+
+    @property
+    def start_dt(self) -> datetime:
+        """
+        Get the start date/time
+        :return: UTC-localized datetime
+        """
+        return self._str_to_datetime(self.start_date)
 
     @property
     def end_year(self) -> int:
@@ -270,7 +278,7 @@ class WrfJob:
         parse the end year from the end date
         :return: year as an int
         """
-        return pytz.utc.localize(datetime.utcfromtimestamp(self.end_date)).year
+        return self.end_dt.year
 
     @property
     def end_month(self) -> int:
@@ -278,7 +286,7 @@ class WrfJob:
         parse the end month from the end date
         :return: month as an int
         """
-        return pytz.utc.localize(datetime.utcfromtimestamp(self.end_date)).month
+        return self.end_dt.month
 
     @property
     def end_day(self) -> int:
@@ -286,7 +294,7 @@ class WrfJob:
         parse the end day from the end date
         :return: year as an int
         """
-        return pytz.utc.localize(datetime.utcfromtimestamp(self.end_date)).day
+        return self.end_dt.day
 
     @property
     def end_hour(self) -> int:
@@ -294,7 +302,15 @@ class WrfJob:
         parse the end hour from the end date
         :return: year as an int
         """
-        return pytz.utc.localize(datetime.utcfromtimestamp(self.end_date)).hour
+        return self.end_dt.hour
+
+    @property
+    def end_dt(self) -> datetime:
+        """
+        Get the end date/time
+        :return: UTC-localized datetime
+        """
+        return self._str_to_datetime(self.end_date)
 
     @property
     def run_hours(self) -> float:
@@ -302,7 +318,10 @@ class WrfJob:
         Get the difference from start to end in hours
         :return: Forecast length in hours
         """
-        return (self.end_date - self.start_date) / 3600
+        end_dt: datetime = self._str_to_datetime(self.end_date)
+        start_dt: datetime = self._str_to_datetime(self.start_date)
+
+        return (end_dt.timestamp() - start_dt.timestamp()) / 3600
 
     @property
     def output_freq_min(self) -> float:
@@ -311,6 +330,24 @@ class WrfJob:
         :return: Output frequency in minutes
         """
         return self.output_frequency / 60
+
+    @property
+    def input_freq_sec(self) -> float:
+        """
+        Get the input frequency in seconds
+        :return: Input frequency in seconds
+        """
+        return self.input_frequency
+
+    @staticmethod
+    def _str_to_datetime(date: str) -> datetime:
+        """
+        Convert a UTC date string to a datetime object
+        :param date: UTC date in the format YYYY-mm-dd_HH:MM:SS
+        :return: datetime object representing the string value
+        """
+        date_format: str = '%Y-%m-%d_%H:%M:%S'
+        return pytz.utc.localize(datetime.strptime(date, date_format))
 
     def update(self, data: dict):
         """
@@ -335,6 +372,8 @@ class WrfJob:
             self.forecast_length = data['forecast_length']
         if 'output_frequency' in data:
             self.output_frequency = data['output_frequency']
+        if 'input_frequency' in data:
+            self.input_frequency = data['input_frequency']
         if 'user_email' in data:
             self.user_email = data['user_email']
         if 'layers' in data:
@@ -345,8 +384,6 @@ class WrfJob:
             self.start_date = data['start_date']
         if 'end_date' in data:
             self.end_date = data['end_date']
-        if 'input_freq_sec' in data:
-            self.input_freq_sec = data['input_freq_sec']
         if 'cores' in data:
             self.cores = data['cores']
         if 'queue' in data:
