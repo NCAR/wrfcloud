@@ -2,7 +2,7 @@
 Shared classes and functions for the WRF runtime
 """
 
-__all__ = ['tools', 'metgrid', 'postproc', 'real', 'run', 'ungrib', 'wrf', 'RunInfo', 'Process']
+__all__ = ['tools', 'metgrid', 'postproc', 'real', 'run', 'ungrib', 'wrf', 'RunInfo', 'Process', 'geogrid']
 
 import os
 from typing import Union
@@ -24,16 +24,17 @@ class RunInfo:
         self.log = Logger(self.__class__.__name__)
         self.name = name
         self.topdir = os.getcwd()
-        self.staticdir = self.topdir + '/configurations/' + name
+        self.staticdir = os.path.join(self.topdir, 'configurations', name)
         self.log.debug(f'Static data directory is {self.staticdir}')
         self.read_config(name)
 
         self.log.debug(f'Working directory set to {self.wd}')
-        self.ungribdir = self.wd + '/ungrib'
-        self.metgriddir = self.wd + '/metgrid'
-        self.realdir = self.wd + '/real'
-        self.wrfdir = self.wd + '/wrf'
-        self.uppdir = self.wd + '/upp'
+        self.geogriddir = os.path.join(self.wd, 'geogrid')
+        self.ungribdir = os.path.join(self.wd, 'ungrib')
+        self.metgriddir = os.path.join(self.wd, 'metgrid')
+        self.realdir = os.path.join(self.wd, 'real')
+        self.wrfdir = os.path.join(self.wd, 'wrf')
+        self.uppdir = os.path.join(self.wd, 'upp')
 
     def read_config(self, name: str) -> None:
         """
