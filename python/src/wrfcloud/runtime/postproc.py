@@ -5,7 +5,7 @@ Functions for setting up, executing, and monitoring a run of WRF post-processing
 import os
 import pkgutil
 from typing import Union, List
-from datetime import datetime, timedelta
+from datetime import timedelta
 import yaml
 from f90nml import Namelist
 
@@ -89,12 +89,12 @@ class UPP(Process):
         os.makedirs(self.job.upp_dir)
         os.chdir(self.job.upp_dir)
 
-        startdate = datetime.strptime(self.job.start_date, '%Y-%m-%d_%H:%M:%S')
-        enddate = datetime.strptime(self.job.end_date, '%Y-%m-%d_%H:%M:%S')
+        start_date = self.job.start_dt
+        end_date = self.job.end_dt
         increment = timedelta(seconds=self.job.output_freq_sec)
-        this_date = startdate
+        this_date = start_date
         fhr = 0
-        while this_date <= enddate:
+        while this_date <= end_date:
             # Create subdirs by forecast hour
             fhr_str = ('%03d' % fhr)
             fhr_dir = f'{self.job.upp_dir}/fhr_{fhr_str}'
@@ -203,7 +203,7 @@ class GeoJson(Process):
         upload_count = 0
         for layer in self.wrf_layers:
             # TODO: The date/time should be set on the layer once the information is available in the GRIB2 files
-            layer.dt = self.job.start_date + (layer.time_step * self.job.output_freq_sec)
+            layer.dt = self.job.start_dt.timestamp() + (layer.time_step * self.job.output_freq_sec)
 
             # construct the S3 key
             job_id = self.job.job_id

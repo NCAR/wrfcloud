@@ -168,6 +168,13 @@ class WrfJob:
         return os.environ['WRF_HOME'] if 'WRF_HOME' in os.environ else '/home/ec2-user/WRF'
 
     @property
+    def upp_code_dir(self) -> str:
+        """
+        Get the directory with UPP code
+        """
+        return os.environ['UPP_HOME'] if 'UPP_HOME' in os.environ else '/home/ec2-user/UPP'
+
+    @property
     def exists(self) -> str:
         """
         Get the action to perform if a working directory exists.  For example if /data/<job_id>/wrf
@@ -330,6 +337,14 @@ class WrfJob:
         :return: Output frequency in minutes
         """
         return self.output_frequency / 60
+
+    @property
+    def output_freq_sec(self) -> float:
+        """
+        Get the output frequency in seconds
+        :return: Output frequency in seconds
+        """
+        return self.output_frequency
 
     @property
     def input_freq_sec(self) -> float:
