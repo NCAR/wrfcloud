@@ -100,7 +100,7 @@ class GeoGrid(Process):
         Set geog_data_path in namelist and write modified file to geogrid dir
         """
         # set geog data path to use cluster directory structure
-        self.namelist['share']['geog_data_path'] = self.geog_data_path
+        self.namelist['geogrid']['geog_data_path'] = self.geog_data_path
 
         # write updated namelist.wps file to geogrid dir
         self.namelist.write(os.path.join(self.data_dir, 'namelist.wps'))
