@@ -91,8 +91,8 @@ class GeoGrid(Process):
             os.makedirs(self.data_dir)
 
         # link geogrid exe and directory into geogrid dir
-        self.symlink(os.path.join(self.wpscodedir, 'geogrid.exe'), self.geogrid_exe)
-        self.symlink(os.path.join(self.wpscodedir, 'geogrid'),
+        self.symlink(os.path.join(self.run_info.wpscodedir, 'geogrid.exe'), self.geogrid_exe)
+        self.symlink(os.path.join(self.run_info.wpscodedir, 'geogrid'),
                      os.path.join(self.data_dir, 'geogrid'))
 
     def _update_and_write_namelist(self):
