@@ -36,7 +36,6 @@ class GeoGrid(Process):
             self.namelist = f90nml.read(nml_file_read)
 
         self.data_dir = self.run_info.geogriddir
-        self.geog_data_path: str = os.path.join(self.data_dir, 'WPS_GEOG')
         self.geogrid_exe: str = os.path.join(self.data_dir, 'geogrid.exe')
         self.geogrid_log: str = os.path.join(self.data_dir, 'geogrid.log')
 
@@ -100,7 +99,7 @@ class GeoGrid(Process):
         Set geog_data_path in namelist and write modified file to geogrid dir
         """
         # set geog data path to use cluster directory structure
-        self.namelist['geogrid']['geog_data_path'] = self.geog_data_path
+        self.namelist['geogrid']['geog_data_path'] = os.path.join(self.data_dir, 'WPS_GEOG')
 
         # write updated namelist.wps file to geogrid dir
         self.namelist.write(os.path.join(self.data_dir, 'namelist.wps'))
@@ -109,16 +108,12 @@ class GeoGrid(Process):
         """
         Download static terrestrial file and uncompress it
         """
-        # create geog data path directory if it doesn't exist
-        if not os.path.exists(self.geog_data_path):
-            os.makedirs(self.geog_data_path)
-
         self.log.info(f'Downloading terrestrial file: {self.INPUT_DATA_URL}')
 
         try:
             dl_request = requests.get(self.INPUT_DATA_URL, allow_redirects=True)
             with tarfile.open(fileobj=io.BytesIO(dl_request.content)) as handle:
-                handle.extractall(self.geog_data_path)
+                handle.extractall(self.data_dir)
         except Exception as e:
             self.log.error(f'Could not obtain terrestrial file: {e}')
             return False
