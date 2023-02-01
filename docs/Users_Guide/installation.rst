@@ -21,6 +21,7 @@ Check existing permissions:
 * In the **AWS Management Console**, use the top-level search bar to find and launch **IAM** for the AWS Identity and Access Management (IAM) Service.
 * In **Access management > Users**, find your user name, and inspect the **Permissions policies**.
 * Check that you have full **AdministratorAccess** or work with your AWS account administrator to add the following permissions policies:
+
    * TODO: list full set of required permissions
 
 Prerequisites
