@@ -3,11 +3,15 @@ import requests
 import io
 import tarfile
 import glob
-from f90nml.namelist import Namelist
+import f90nml
 
 from wrfcloud.system import get_aws_session
 from wrfcloud.runtime import RunInfo, Process
 
+# for testing
+import argparse
+from wrfcloud.system import init_environment
+from wrfcloud.log import Logger
 
 class GeoGrid(Process):
     """
@@ -19,21 +23,24 @@ class GeoGrid(Process):
     """
     INPUT_DATA_URL = 'https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz'
 
-    def __init__(self, run_info: RunInfo, namelist: Namelist):
+    def __init__(self, run_info: RunInfo):
         """
         Construct a geo_em file generator
         :param run_info: RunInfo information about current run
-        :param namelist: NameList info used to run
         """
         super().__init__()
         self.run_info: RunInfo = run_info
-        self.namelist: Namelist = namelist
+
+        nml_file = os.path.join(self.run_info.staticdir, 'namelist.wps')
+        with open(nml_file, encoding='utf-8') as nml_file_read:
+            self.namelist = f90nml.read(nml_file_read)
+
         self.data_dir = self.run_info.geogriddir
         self.geog_data_path: str = os.path.join(self.data_dir, 'WPS_GEOG')
         self.geogrid_exe: str = os.path.join(self.data_dir, 'geogrid.exe')
         self.geogrid_log: str = os.path.join(self.data_dir, 'geogrid.log')
 
-    def run(self):
+    def start(self):
         """
         Run geogrid.exe and upload geo_em file to S3
         """
@@ -156,3 +163,24 @@ class GeoGrid(Process):
                 return False
 
         return True
+
+def main() -> None:
+    init_environment('cli')
+    log = Logger()
+
+    log.debug('Reading command line arguments')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--name', type=str, default='test',
+                        help='"name" should be a unique alphanumeric name for this particular run')
+    args = parser.parse_args()
+    name = args.name
+    log.info(f'Testing geogrid with run "{name}"')
+    log.debug('Creating new RunInfo')
+    runinfo = RunInfo(name)
+    log.info(f'Setting up working directory {runinfo.wd}')
+    os.makedirs(runinfo.wd, exist_ok=True)
+    geogrid = GeoGrid(runinfo)
+    geogrid.start()
+
+if __name__ == "__main__":
+    main()
