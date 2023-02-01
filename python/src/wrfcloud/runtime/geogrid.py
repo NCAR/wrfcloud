@@ -179,8 +179,10 @@ def main() -> None:
     runinfo = RunInfo(name)
     log.info(f'Setting up working directory {runinfo.wd}')
     os.makedirs(runinfo.wd, exist_ok=True)
+    log.info('Running geogrid')
     geogrid = GeoGrid(runinfo)
     geogrid.start()
+    log.info('Finished geogrid')
 
 if __name__ == "__main__":
     main()
