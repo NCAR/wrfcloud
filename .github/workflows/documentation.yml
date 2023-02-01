@@ -6,8 +6,9 @@ on:
   push:
     branches:
       - develop
-      - feature*
-      - bugfix*
+      - 'main**'
+      - 'feature**'
+      - 'bugfix**'
     paths: 
       - docs/**
   pull_request:
