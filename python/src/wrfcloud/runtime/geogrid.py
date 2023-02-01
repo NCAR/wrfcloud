@@ -46,7 +46,7 @@ class GeoGrid(Process):
         """
         # if any geo_em files already exist, skip running geogrid
         if self._any_geo_em_files_exist():
-            self.log.debug('geo_em files already exist. Skip running geogrid')
+            self.log.info('geo_em files already exist. Skip running geogrid')
             return True
 
         # set up geogrid.exe to run
@@ -113,7 +113,7 @@ class GeoGrid(Process):
         if not os.path.exists(self.geog_data_path):
             os.makedirs(self.geog_data_path)
 
-        self.log.debug(f'Downloading terrestrial file: {self.INPUT_DATA_URL}')
+        self.log.info(f'Downloading terrestrial file: {self.INPUT_DATA_URL}')
 
         try:
             dl_request = requests.get(self.INPUT_DATA_URL, allow_redirects=True)
