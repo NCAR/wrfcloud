@@ -9,6 +9,7 @@ run.
 import argparse
 import os
 from typing import Union
+from wrfcloud.runtime.geogrid import GeoGrid
 from wrfcloud.runtime.ungrib import Ungrib
 from wrfcloud.runtime.metgrid import MetGrid
 from wrfcloud.runtime.real import Real
