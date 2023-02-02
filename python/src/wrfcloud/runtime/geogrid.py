@@ -22,6 +22,7 @@ class GeoGrid(Process):
     URL of static terrestrial file used by geogrid
     """
     INPUT_DATA_URL = 'https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz'
+    EXE = 'geogrid.exe'
 
     def __init__(self, run_info: RunInfo):
         """
@@ -31,12 +32,12 @@ class GeoGrid(Process):
         super().__init__()
         self.run_info: RunInfo = run_info
 
+        # read namelist.wps file from workding dir and read it into Namelist
         nml_file = os.path.join(self.run_info.staticdir, 'namelist.wps')
         with open(nml_file, encoding='utf-8') as nml_file_read:
             self.namelist = f90nml.read(nml_file_read)
 
         self.data_dir = self.run_info.geogriddir
-        self.geogrid_exe: str = os.path.join(self.data_dir, 'geogrid.exe')
         self.geogrid_log: str = os.path.join(self.data_dir, 'geogrid.log')
 
     def run(self):
@@ -95,7 +96,8 @@ class GeoGrid(Process):
             os.environ.pop('I_MPI_OFI_PROVIDER')
 
         # link geogrid exe and directory into geogrid dir
-        self.symlink(os.path.join(self.run_info.wpscodedir, 'geogrid.exe'), self.geogrid_exe)
+        self.symlink(os.path.join(self.run_info.wpscodedir, EXE),
+                     os.path.join(self.data_dir, EXE))
         self.symlink(os.path.join(self.run_info.wpscodedir, 'geogrid'),
                      os.path.join(self.data_dir, 'geogrid'))
 
@@ -134,8 +136,9 @@ class GeoGrid(Process):
         """
         Run geogrid.exe
         """
-        self.log.info(f'Running {self.geogrid_exe}, logging to {self.geogrid_log}')
-        cmd: str = f'cd {self.data_dir}; ./geogrid.exe >& {self.geogrid_log}'
+        self.log.info(f'Running {self.EXE} from {self.data_dir}, '
+                      f'logging to {self.geogrid_log}')
+        cmd: str = f'cd {self.data_dir}; ./{self.EXE} >& {self.geogrid_log}'
         # if return code is non-zero, return False
         if os.system(cmd):
             self.log.error('geogrid.exe failed')
