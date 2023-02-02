@@ -77,12 +77,32 @@ class GeoGrid(Process):
         Check of geo_em.dXX.nc files already exist in static data dir
         :returns: True if any files are found, False if not
         """
-        # TODO: check if files exist on S3 instead of local
         for domain in range(1, self.namelist['share']['max_dom'] + 1):
             check_path: str = os.path.join(self.run_info.staticdir, f'geo_em.d{domain:02}.nc')
             self.log.debug(f'Checking if file exists: {check_path}')
             if os.path.exists(check_path):
                 return True
+
+        # TODO: check if files exist on S3 instead of local, download if found?
+        # bucket_name = 'bucket_name'
+        # #bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
+        # prefix = f'configurations/{self.run_info.name}/geo_em.d'
+        # try:
+        #     s3 = get_aws_session().client('s3')
+        #     geo_em_files = s3.list_objects_v2(
+        #         Bucket=bucket_name,
+        #         Prefix=prefix,
+        #     )['Contents']
+        # except Exception as e:
+        #     self.log.error(f'Failed to find files that match {prefix} on S3', e)
+        #     return False
+        #
+        # files_found = [os.path.basename(obj['Key']) for obj in geo_em_files]
+        # for domain in range(1, self.namelist['share']['max_dom'] + 1):
+        #     if f'geo_em.d{domain:02}.nc' in files_found:
+        #         self.log.info(f'Found {geo_em.d{domain:02}.nc} on S3')
+        #         return True
+
         return False
 
     def _setup_geogrid(self):
@@ -171,7 +191,7 @@ class GeoGrid(Process):
         """
         bucket_name = 'bucket_name'
         #bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
-        prefix: str = 'geo_em'
+        prefix: str = 'configurations/test'
 
         for filename in glob.glob(os.path.join(self.run_info.staticdir, f'geo_em.d*.nc')):
             key: str = os.path.basename(filename)
