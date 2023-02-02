@@ -31,15 +31,17 @@ class GeoGrid(Process):
         :param run_info: RunInfo information about current run
         """
         super().__init__()
+        # TODO: change uses of RunInfo to WRFInfo
         self.run_info: RunInfo = run_info
+        self.config_dir = self.run_info.staticdir
+        self.geogrid_dir = self.run_info.geogriddir
+        self.run_name = self.run_info.name
+        self.wps_dir = self.run_info.wpscodedir
 
         # read namelist.wps file from workding dir and read it into Namelist
-        nml_file = os.path.join(self.run_info.staticdir, 'namelist.wps')
+        nml_file = os.path.join(self.config_dir, 'namelist.wps')
         with open(nml_file, encoding='utf-8') as nml_file_read:
             self.namelist = f90nml.read(nml_file_read)
-
-        self.data_dir = self.run_info.geogriddir
-        self.geogrid_log: str = os.path.join(self.data_dir, 'geogrid.log')
 
     def run(self):
         """
@@ -80,13 +82,13 @@ class GeoGrid(Process):
 
     def _any_geo_em_files_exist_local(self):
         """
-        Check of geo_em.dXX.nc files already exist in static data dir
+        Check if geo_em.dXX.nc files already exist in static data dir.
+        Assumes if one file is found, then all of them are available.
         :returns: True if any files are found, False if not
         """
-        check_dir = self.run_info.staticdir
-        self.log.debug(f'Checking for geo_em files in {check_dir}')
+        self.log.debug(f'Checking for geo_em files in {self.config_dir}')
         for domain in range(1, self.namelist['share']['max_dom'] + 1):
-            check_path: str = os.path.join(check_dir, f'geo_em.d{domain:02}.nc')
+            check_path: str = os.path.join(self.config_dir, f'geo_em.d{domain:02}.nc')
             self.log.debug(f'Checking if file exists: {check_path}')
             if os.path.exists(check_path):
                 return True
@@ -95,12 +97,12 @@ class GeoGrid(Process):
 
     def _any_geo_em_files_exist_s3(self):
         """
-        Check of geo_em.dXX.nc files already exist in static data dir
+        Check if geo_em.dXX.nc files already exist in static data dir
         :returns: True if any files are found, False if not
         """
         # TODO: get bucket name from WRF info
         bucket_name = 'wrfcloud-output'
-        prefix = f'configurations/{self.run_info.name}'
+        prefix = f'configurations/{self.run_name}'
         self.log.debug(f'Checking for geo_em files on S3 {bucket_name}: {prefix}')
         try:
             s3 = get_aws_session().client('s3')
@@ -119,7 +121,7 @@ class GeoGrid(Process):
                 self.log.info(f'Found {expected_file} on S3')
                 # download file
                 key = f'{prefix}/{expected_file}'
-                filename = os.path.join(self.run_info.staticdir, expected_file)
+                filename = os.path.join(self.config_dir, expected_file)
                 self.log.info(f'Downloading {key} to {filename}')
                 try:
                     s3.download_file(
@@ -128,10 +130,10 @@ class GeoGrid(Process):
                         Filename=filename,
                     )
                 except Exception as e:
-                    self.log.error(f'Could not download file from S3: {prefix}/{expected_file}', e)
+                    self.log.error(f'Could not download file from s3://{prefix}/{expected_file}', e)
                     return False
             else:
-                self.log.error(f'Could not find file on S3: {prefix}/{expected_file}')
+                self.log.info(f'Could not find file s3://{prefix}/{expected_file}')
                 return False
 
         return True
@@ -141,8 +143,8 @@ class GeoGrid(Process):
         Link files into geogrid dir to be able to run geogrid
         """
         # create geogrid data directory if it doesn't exist
-        if not os.path.exists(self.data_dir):
-            os.makedirs(self.data_dir)
+        if not os.path.exists(self.geogrid_dir):
+            os.makedirs(self.geogrid_dir)
 
         # unset I_MPI_OFI_PROVIDER environment variable
         self.log.info('Unsetting I_MPI_OFI_PROVIDER so that EFA support is not required')
@@ -150,17 +152,17 @@ class GeoGrid(Process):
             os.environ.pop('I_MPI_OFI_PROVIDER')
 
         # link geogrid exe and directory into geogrid dir
-        self.symlink(os.path.join(self.run_info.wpscodedir, self.EXE),
-                     os.path.join(self.data_dir, self.EXE))
-        self.symlink(os.path.join(self.run_info.wpscodedir, 'geogrid'),
-                     os.path.join(self.data_dir, 'geogrid'))
+        self.symlink(os.path.join(self.wps_dir, self.EXE),
+                     os.path.join(self.geogrid_dir, self.EXE))
+        self.symlink(os.path.join(self.wps_dir, 'geogrid'),
+                     os.path.join(self.geogrid_dir, 'geogrid'))
 
     def _update_and_write_namelist(self):
         """
         Set geog_data_path in namelist and write modified file to geogrid dir
         """
         # set geog data path to use cluster directory structure
-        self.namelist['geogrid']['geog_data_path'] = os.path.join(self.data_dir, 'WPS_GEOG')
+        self.namelist['geogrid']['geog_data_path'] = os.path.join(self.geogrid_dir, 'WPS_GEOG')
 
         # remove any geogrid variables that start with opt_
         opt_keys = [key for key in self.namelist['geogrid'] if key.startswith('opt_')]
@@ -168,7 +170,7 @@ class GeoGrid(Process):
             del self.namelist['geogrid'][key]
 
         # write updated namelist.wps file to geogrid dir
-        namelist_out = os.path.join(self.data_dir, 'namelist.wps')
+        namelist_out = os.path.join(self.geogrid_dir, 'namelist.wps')
         if os.path.exists(namelist_out):
             self.log.debug(f'Removing existing file before write: {namelist_out}')
             os.remove(namelist_out)
@@ -178,15 +180,15 @@ class GeoGrid(Process):
         """
         Download static terrestrial file and uncompress it
         """
-        if os.path.exists(os.path.join(self.data_dir, 'WPS_GEOG')):
-            self.log.debug(f'Terrestrial data already exists in {self.data_dir}')
+        if os.path.exists(os.path.join(self.geogrid_dir, 'WPS_GEOG')):
+            self.log.debug(f'Terrestrial data already exists in {self.geogrid_dir}')
             return True
         self.log.info(f'Downloading terrestrial file: {self.INPUT_DATA_URL}')
 
         try:
             dl_request = requests.get(self.INPUT_DATA_URL, allow_redirects=True)
             with tarfile.open(fileobj=io.BytesIO(dl_request.content)) as handle:
-                handle.extractall(self.data_dir)
+                handle.extractall(self.geogrid_dir)
         except Exception as e:
             self.log.error(f'Could not obtain terrestrial file: {e}')
             return False
@@ -197,9 +199,9 @@ class GeoGrid(Process):
         """
         Run geogrid.exe
         """
-        self.log.info(f'Running {self.EXE} from {self.data_dir}, '
-                      f'logging to {self.geogrid_log}')
-        cmd: str = f'cd {self.data_dir}; ./{self.EXE} >& {self.geogrid_log}'
+        self.log.info(f'Running {self.EXE} from {self.geogrid_dir}, '
+                      f'logging to geogrid.log')
+        cmd: str = f'cd {self.geogrid_dir}; ./{self.EXE} >& geogrid.log'
         # if return code is non-zero, return False
         if os.system(cmd):
             self.log.error('geogrid.exe failed')
@@ -211,8 +213,8 @@ class GeoGrid(Process):
         """
         Move geo_em files generated from geogrid.exe to static dir
         """
-        for from_name in glob.glob(os.path.join(self.data_dir, f'geo_em.d*.nc')):
-            to_name = os.path.join(self.run_info.staticdir, os.path.basename(from_name))
+        for from_name in glob.glob(os.path.join(self.geogrid_dir, f'geo_em.d*.nc')):
+            to_name = os.path.join(self.config_dir, os.path.basename(from_name))
             self.log.info(f'Moving {from_name} to {to_name}')
             os.rename(from_name, to_name)
 
@@ -224,12 +226,12 @@ class GeoGrid(Process):
         bucket_name = 'wrfcloud-output'
         prefix: str = 'configurations/test'
 
-        self.log.debug(f'Uploading files to S3 {bucket_name} in {prefix}')
-        for filename in glob.glob(os.path.join(self.run_info.staticdir, f'geo_em.d*.nc')):
+        self.log.debug(f'Uploading files to s3://{bucket_name} in {prefix}')
+        for filename in glob.glob(os.path.join(self.config_dir, f'geo_em.d*.nc')):
             key: str = os.path.basename(filename)
 
             # upload the data to S3
-            self.log.info(f'Uploading {filename} to S3 {bucket_name}/{prefix}/{key}')
+            self.log.info(f'Uploading {filename} to s3://{bucket_name}/{prefix}/{key}')
             try:
                 s3 = get_aws_session().client('s3')
                 s3.upload_file(
@@ -242,6 +244,7 @@ class GeoGrid(Process):
                 return False
 
         return True
+
 
 def main() -> None:
     init_environment('cli')
