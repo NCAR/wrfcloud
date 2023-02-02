@@ -184,7 +184,7 @@ class RunWrf(Action):
             script_template = pkgutil.get_data('wrfcloud', 'api/actions/resources/run_wrf_template.sh').decode()
             script = script_template\
                 .replace('__JOB_ID__', self.ref_id)\
-                .replace('__S3_BUCKET__', os.environ['WRFCLOUD_BUCKET_NAME'])
+                .replace('__S3_BUCKET__', os.environ['WRFCLOUD_BUCKET'])
             ca = CustomAction(self.ref_id, script)
 
             # create information for a new job

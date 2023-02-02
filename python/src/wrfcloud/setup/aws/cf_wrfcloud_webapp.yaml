@@ -287,7 +287,7 @@ Resources:
           HELP_TOPIC_ARN: !Ref HelpTopic
           PATH: '/opt/node/bin:${PATH}'
           PYTHONPATH: /opt/python/lib
-          WRFCLOUD_BUCKET_NAME: !Sub '${WrfCloudBucket}'
+          WRFCLOUD_BUCKET: !Sub '${WrfCloudBucket}'
           JWT_KEY: !Sub '${JwtSigningKey}'
   LambdaInvokePermissionFromWebsocketApi:
     Type: AWS::Lambda::Permission

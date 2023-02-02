@@ -332,7 +332,7 @@ class WrfJob:
         :param datelike: 'yyyy-mm-dd_HH:MM:SS', datetime object, or unix timestamp as int or float
         :return None:
         """
-        self.end_dt = self._datelike_to_str(datelike)
+        self.end_date = self._datelike_to_str(datelike)
 
     @property
     def run_hours(self) -> float:

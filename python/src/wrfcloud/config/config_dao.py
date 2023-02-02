@@ -177,7 +177,7 @@ class ConfigDao(DynamoDao):
             s3 = get_aws_session().client('s3')
             return s3.get_object(Bucket=bucket, Key=namelist_key)['Body'].read().decode()
         except Exception as e:
-            self.log.error('Failed to write namelist to S3.', e)
+            self.log.error(f'Failed to read namelist from S3. s3://{bucket}/{namelist_key}', e)
             return None
 
     def _delete_namelist(self, namelist_key: str) -> bool:
