@@ -1,7 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {
-  CreateUserResponse,
-  DeleteUserResponse, ModelConfiguration,
+  AddModelConfigurationRequest, AddModelConfigurationResponse,
+  CreateUserResponse, DeleteModelConfigurationRequest, DeleteModelConfigurationResponse,
+  DeleteUserResponse, ModelConfiguration, UpdateModelConfigurationRequest,
   UpdateUserResponse,
 } from "../client-api";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
@@ -45,7 +46,7 @@ export class EditModelConfigurationComponent implements OnInit
   /**
    * Option to automatically decide the core count
    */
-  public autoCoreCount: boolean = true;
+  public autoCoreCount: boolean = false;
 
 
   /**
@@ -73,6 +74,7 @@ export class EditModelConfigurationComponent implements OnInit
 
     /* deep copy */
     this.modelConfig = JSON.parse(JSON.stringify(data.modelConfig));
+    this.autoCoreCount = this.modelConfig.cores === 0;
 
     /* set the edit/create flag */
     this.edit = data.edit;
@@ -90,6 +92,14 @@ export class EditModelConfigurationComponent implements OnInit
    */
   public updateModelConfiguration(): void
   {
+    /* start the spinner */
+    this.busy = true;
+
+    /* send the update request to the API */
+    const requestData: UpdateModelConfigurationRequest = {
+      model_config: this.modelConfig
+    };
+    this.app.api.sendUpdateModelConfiguration(requestData, this.handleUpdateModelConfigurationResponse.bind(this));
   }
 
 
@@ -114,6 +124,14 @@ export class EditModelConfigurationComponent implements OnInit
    */
   public deleteModelConfiguration(): void
   {
+    /* start the spinner */
+    this.busy = true;
+
+    /* send an API request to delete the configuration */
+    const requestData: DeleteModelConfigurationRequest = {
+      configuration_name: this.modelConfig.name
+    };
+    this.app.api.sendDeleteModelConfiguration(requestData, this.handleDeleteModelConfigurationResponse.bind(this));
   }
 
 
@@ -122,7 +140,7 @@ export class EditModelConfigurationComponent implements OnInit
    *
    * @param response
    */
-  public handleDeleteModelConfigurationResponse(response: DeleteUserResponse): void
+  public handleDeleteModelConfigurationResponse(response: DeleteModelConfigurationResponse): void
   {
     this.busy = false;
 
@@ -138,6 +156,12 @@ export class EditModelConfigurationComponent implements OnInit
    */
   public createModelConfiguration(): void
   {
+    /* start the spinner */
+    this.busy = true;
+
+    /* send an API request to add the configuration */
+    const requestData: AddModelConfigurationRequest = {model_config: this.modelConfig};
+    this.app.api.sendAddModelConfiguration(requestData, this.handleCreateModelConfigurationResponse.bind(this));
   }
 
 
@@ -146,10 +170,12 @@ export class EditModelConfigurationComponent implements OnInit
    *
    * @param response
    */
-  public handleCreateModelConfigurationResponse(response: CreateUserResponse): void
+  public handleCreateModelConfigurationResponse(response: AddModelConfigurationResponse): void
   {
+    /* stop the spinner */
     this.busy = false;
 
+    /* handle the response */
     if (response.ok)
       this.dialogRef.close();
     else
@@ -157,6 +183,10 @@ export class EditModelConfigurationComponent implements OnInit
   }
 
 
+  /**
+   * Load a namelist file from local disk
+   * @param type
+   */
   public loadNamelistFile(type: 'wrf'|'wps'): void
   {
     /* trigger the hidden file input element */
@@ -199,12 +229,6 @@ export class EditModelConfigurationComponent implements OnInit
   {
     /* set as the WRF text */
     this.modelConfig.wrf_namelist = event.target.result;
-  }
-
-  public formatCores(event: any): string
-  {
-    console.log(event);
-    return 'DODO';
   }
 
   public round(val: number): number

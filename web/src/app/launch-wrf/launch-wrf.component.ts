@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {RunWrfRequest, RunWrfResponse} from "../client-api";
+import {ListModelConfigurationsResponse, RunWrfRequest, RunWrfResponse} from "../client-api";
 import * as moment from 'moment';
 import {AppComponent} from "../app.component";
 
@@ -34,7 +34,7 @@ export class LaunchWrfComponent implements OnInit
   /* request to send the API */
   public req: RunWrfRequest = {
     job_name: '',
-    configuration_name: 'Caribbean 6km',
+    configuration_name: '',
     start_time: 0,
     forecast_length: 86400,
     output_frequency: 3600,
@@ -57,11 +57,12 @@ export class LaunchWrfComponent implements OnInit
   public outputFrequencyOptions: number[] = [900, 1800, 3600, 10800, 21600, 43200, 86400];
 
   /* list of valid model configuration options */
-  public modelConfigOptions = ['Caribbean 6km'];
+  public modelConfigOptions: Array<string> = [];
 
 
   constructor()
   {
+    this.refreshModelConfigurations();
   }
 
 
@@ -100,10 +101,7 @@ export class LaunchWrfComponent implements OnInit
     this.req.output_frequency = this.outputFrequencyOptions[this.outputFrequencyIndex];
 
     /* send the API request */
-    // TODO: Get rid of this copy nonsense once we get configurations added
-    let copy: RunWrfRequest = JSON.parse(JSON.stringify(this.req));
-    copy.configuration_name = 'test';
-    this.app.api.sendLaunchWrf(copy, this.handleStartWrfResponse.bind(this));
+    this.app.api.sendLaunchWrf(this.req, this.handleStartWrfResponse.bind(this));
   }
 
 
@@ -190,5 +188,31 @@ export class LaunchWrfComponent implements OnInit
 
     if (this.submitProgress < 100 && this.busy)
       setTimeout(this.runSubmitProgress.bind(this), 1000, seconds);
+  }
+
+
+  public refreshModelConfigurations(): void
+  {
+    this.app.api.sendListModelConfigurations({}, this.handleModelConfigurationResponse.bind(this));
+  }
+
+
+  public handleModelConfigurationResponse(response: ListModelConfigurationsResponse): void
+  {
+    /* handle errors */
+    if (!response.ok)
+    {
+      this.app.showErrorDialog(response.errors);
+      return;
+    }
+
+    /* load up model configurations names */
+    this.modelConfigOptions = [];
+    for (let config of response.data.model_configs)
+      this.modelConfigOptions[this.modelConfigOptions.length] = config.name;
+
+    /* select the first one in the list */
+    if (this.modelConfigOptions.length > 0)
+      this.req.configuration_name = this.modelConfigOptions[0];
   }
 }

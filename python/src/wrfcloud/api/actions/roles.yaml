@@ -48,6 +48,8 @@ regular:
       package: wrfcloud.api.actions
     - action: RunWrf
       package: wrfcloud.api.actions
+    - action: ListModelConfigurations
+      package: wrfcloud.api.actions
 
 maintainer:
   permitted_actions:
@@ -68,6 +70,12 @@ maintainer:
     - action: RunWrf
       package: wrfcloud.api.actions
     - action: ListModelConfigurations
+      package: wrfcloud.api.actions
+    - action: AddModelConfiguration
+      package: wrfcloud.api.actions
+    - action: DeleteModelConfiguration
+      package: wrfcloud.api.actions
+    - action: UpdateModelConfiguration
       package: wrfcloud.api.actions
 
 admin:
@@ -97,4 +105,10 @@ admin:
     - action: RunWrf
       package: wrfcloud.api.actions
     - action: ListModelConfigurations
+      package: wrfcloud.api.actions
+    - action: AddModelConfiguration
+      package: wrfcloud.api.actions
+    - action: DeleteModelConfiguration
+      package: wrfcloud.api.actions
+    - action: UpdateModelConfiguration
       package: wrfcloud.api.actions

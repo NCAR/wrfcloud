@@ -1,4 +1,5 @@
 import copy
+import re
 from typing import List, Union
 from wrfcloud.log import Logger
 
@@ -36,6 +37,7 @@ class WrfConfig:
         """
         return {
             'name': self.name,
+            'description': self.description,
             's3_key_geo_em': self.s3_key_geo_em,
             's3_key_wrf_namelist': self.s3_key_wrf_namelist,
             's3_key_wps_namelist': self.s3_key_wps_namelist,
@@ -51,6 +53,7 @@ class WrfConfig:
         :param data: New values for the object
         """
         self.name = data['name'] if 'name' in data else None
+        self.description = data['description'] if 'description' in data else None
         self.wrf_namelist = data['wrf_namelist'] if 'wrf_namelist' in data else None
         self.wps_namelist = data['wps_namelist'] if 'wps_namelist' in data else None
         self.cores = data['cores'] if 'cores' in data else 0
@@ -113,6 +116,19 @@ class WrfConfig:
         :param core_count: Number of cores to use, or <= 0 to calculate number automatically
         """
         self._cores = self._calculate_optimal_core_count() if core_count <= 0 else core_count
+
+    def validate(self) -> bool:
+        """
+        Validate the model configuration data
+        :return: True if data are valid, otherwise False
+        """
+        # name must match a patter because we use it for an S3 prefix
+        name_pattern = re.compile('[a-zA-Z0-9_-]+')
+        match = re.fullmatch(name_pattern, self.name)
+        if match is None:
+            self.log.error(f'name is invalid: {self.name}')
+            return False
+        return True
 
     def _calculate_optimal_core_count(self) -> int:
         """

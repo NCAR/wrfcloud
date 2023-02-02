@@ -430,6 +430,63 @@ export class ClientApi
 
 
   /**
+   * Send a request to list all model configurations
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendAddModelConfiguration(requestData: AddModelConfigurationRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'AddModelConfiguration',
+      data: requestData,
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
+   * Send a request to delete a model configuration
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendDeleteModelConfiguration(requestData: DeleteModelConfigurationRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'DeleteModelConfiguration',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
+   * Update a model configuration
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendUpdateModelConfiguration(requestData: UpdateModelConfigurationRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'UpdateModelConfiguration',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
    * Send a request for WRF meta data
    *
    * @param requestData
@@ -542,7 +599,6 @@ export class ClientApi
   {
     if (this.websocket === undefined || this.websocket.readyState === WebSocket.CLOSED)
     {
-      console.log('wsconn');
       this.websocket = new WebSocket(ClientApi.WEBSOCKET_URL);
       this.websocket.onopen = listener.websocketOpen.bind(listener);
       this.websocket.onclose = listener.websocketClose.bind(listener);
@@ -975,5 +1031,42 @@ export interface ListModelConfigurationsResponse extends ApiResponse
 {
   data: {
     model_configs: Array<ModelConfiguration>;
+  }
+}
+
+
+export interface AddModelConfigurationRequest
+{
+  model_config: ModelConfiguration;
+}
+
+export interface AddModelConfigurationResponse extends ApiResponse
+{
+  data: {
+    model_config: ModelConfiguration
+  }
+}
+
+export interface DeleteModelConfigurationRequest
+{
+  configuration_name: string;
+}
+
+export interface DeleteModelConfigurationResponse extends ApiResponse
+{
+  data: {
+    model_config: ModelConfiguration
+  }
+}
+
+export interface UpdateModelConfigurationRequest
+{
+  model_config: ModelConfiguration;
+}
+
+export interface UpdateModelConfigurationResponse extends ApiResponse
+{
+  data: {
+    model_config: ModelConfiguration
   }
 }

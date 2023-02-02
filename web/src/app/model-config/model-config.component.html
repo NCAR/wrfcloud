@@ -2,14 +2,14 @@
 
   <!-- action panel -->
   <div class="model-config-action-panel">
-    <mat-grid-list [cols]="2" rowHeight="75px">
+    <mat-grid-list [cols]="this.app.userHasRole('maintainer') ? 2 : 1" rowHeight="75px">
       <mat-grid-tile>
         <button mat-stroked-button class="model-config-action-button" (click)="loadModelConfigList()">
           <mat-icon class="model-config-action-button-icon">autorenew</mat-icon>
           Refresh
         </button>
       </mat-grid-tile>
-      <mat-grid-tile>
+      <mat-grid-tile *ngIf="this.app.userHasRole('maintainer')">
         <button mat-stroked-button class="model-config-action-button" (click)="addModelConfig()">
           <mat-icon class="model-config-action-button-icon">satellite</mat-icon>
           Add Config
