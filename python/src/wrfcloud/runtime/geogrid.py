@@ -63,6 +63,10 @@ class GeoGrid(Process):
         if not self._run_geogrid():
             return False
 
+        # move geo_em output data to static dir
+        if not self._move_geo_em_to_static():
+            return False
+
         # send output file to S3
         if not self._upload_geo_em_to_s3():
             return False
@@ -153,11 +157,21 @@ class GeoGrid(Process):
 
         return True
 
+    def _move_geo_em_to_static(self):
+        """
+        Move geo_em files generated from geogrid.exe to static dir
+        """
+        for from_name in glob.glob(os.path.join(self.data_dir, f'geo_em.d*.nc')):
+            to_name = os.path.join(self.run_info.staticdir, os.path.basename(from_name))
+            self.log.debug(f'Moving {from_name} to {to_name}')
+            os.rename(from_name, to_name)
+
     def _upload_geo_em_to_s3(self):
         """
         Put output from geogrid on S3
         """
-        bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
+        bucket_name = 'bucket_name'
+        #bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
         prefix: str = 'geo_em'
 
         for filename in glob.glob(os.path.join(self.run_info.staticdir, f'geo_em.d*.nc')):
