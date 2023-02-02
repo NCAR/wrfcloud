@@ -39,7 +39,7 @@ class GeoGrid(Process):
         self.geogrid_exe: str = os.path.join(self.data_dir, 'geogrid.exe')
         self.geogrid_log: str = os.path.join(self.data_dir, 'geogrid.log')
 
-    def start(self):
+    def run(self):
         """
         Run geogrid.exe and upload geo_em file to S3
         """
@@ -89,6 +89,11 @@ class GeoGrid(Process):
         if not os.path.exists(self.data_dir):
             os.makedirs(self.data_dir)
 
+        # unset I_MPI_OFI_PROVIDER environment variable
+        self.log.info('Unsetting I_MPI_OFI_PROVIDER so that EFA support is not required')
+        if 'I_MPI_OFI_PROVIDER' in os.environ:
+            os.environ.pop('I_MPI_OFI_PROVIDER')
+
         # link geogrid exe and directory into geogrid dir
         self.symlink(os.path.join(self.run_info.wpscodedir, 'geogrid.exe'), self.geogrid_exe)
         self.symlink(os.path.join(self.run_info.wpscodedir, 'geogrid'),
@@ -130,7 +135,7 @@ class GeoGrid(Process):
         Run geogrid.exe
         """
         self.log.info(f'Running {self.geogrid_exe}, logging to {self.geogrid_log}')
-        cmd: str = f'unset I_MPI_OFI_PROVIDER; {self.geogrid_exe} >& {self.geogrid_log}'
+        cmd: str = f'cd {self.data_dir}; geogrid.exe >& {self.geogrid_log}'
         # if return code is non-zero, return False
         if os.system(cmd):
             self.log.error('geogrid.exe failed')
