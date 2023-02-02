@@ -124,6 +124,9 @@ class GeoGrid(Process):
         """
         Download static terrestrial file and uncompress it
         """
+        if os.path.exists(os.path.join(self.data_dir, 'WPS_GEOG')):
+            self.log.debug(f'Terrestrial data already exists in {self.data_dir}')
+            return True
         self.log.info(f'Downloading terrestrial file: {self.INPUT_DATA_URL}')
 
         try:
