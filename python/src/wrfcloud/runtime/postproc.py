@@ -8,7 +8,7 @@ from typing import Union, List
 from datetime import timedelta
 import yaml
 from f90nml import Namelist
-
+from glob import glob
 from wrfcloud.jobs import WrfJob
 from wrfcloud.jobs.job import WrfLayer
 from wrfcloud.runtime import Process
@@ -86,7 +86,7 @@ class UPP(Process):
         if action == "skip":
             return True
 
-        os.makedirs(self.job.upp_dir)
+        os.makedirs(self.job.upp_dir, exist_ok=True)
         os.chdir(self.job.upp_dir)
 
         start_date = self.job.start_dt
@@ -98,7 +98,7 @@ class UPP(Process):
             # Create subdirs by forecast hour
             fhr_str = ('%03d' % fhr)
             fhr_dir = f'{self.job.upp_dir}/fhr_{fhr_str}'
-            os.makedirs(fhr_dir)
+            os.makedirs(fhr_dir, exist_ok=True)
             os.chdir(fhr_dir)
 
             # link UPP files
@@ -120,11 +120,14 @@ class UPP(Process):
             self.log.debug('Calling run_upp')
             self._run_upp()
 
-            # create list of grib files
-            grib_hour: str = '%02d' % this_date.hour
-            grib_min: str = '' if this_date.minute == 0 else ('.%02d' % this_date.minute)
-            grib_file = f'{fhr_dir}/WRFPRS.GrbF{grib_hour}{grib_min}'
-            self.grib_files.append(grib_file)
+            # collect list of grib files
+            try:
+                files = glob(f'{fhr_dir}/WRFPRS.GrbF*')
+                files.sort()
+                grib_file = files[0]
+                self.grib_files.append(grib_file)
+            except Exception as e:
+                self.log.error(f'Failed to find grib file in directory: {fhr_dir}', e)
 
             # increment the date and forecast hour
             this_date = this_date + increment

@@ -4,7 +4,6 @@ test:
   APP_NAME: WRF Cloud
   SEND_EMAIL: False
   LANGUAGE: en
-  WRFCLOUD_BUCKET: wrfcloud-output
 
   # AWS Account Profile
   AWS_PROFILE: junk

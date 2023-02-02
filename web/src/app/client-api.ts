@@ -809,7 +809,8 @@ export interface WrfJob
   job_id: string;
   job_name: string;
   configuration_name: string;
-  cycle_time: number;
+  start_date: string;
+  end_date: string;
   forecast_length: number;
   output_frequency: number;
   status_code: number;
