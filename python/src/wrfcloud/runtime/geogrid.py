@@ -64,8 +64,7 @@ class GeoGrid(Process):
             return False
 
         # move geo_em output data to static dir
-        if not self._move_geo_em_to_static():
-            return False
+        self._move_geo_em_to_static()
 
         # send output file to S3
         if not self._upload_geo_em_to_s3():
@@ -163,7 +162,7 @@ class GeoGrid(Process):
         """
         for from_name in glob.glob(os.path.join(self.data_dir, f'geo_em.d*.nc')):
             to_name = os.path.join(self.run_info.staticdir, os.path.basename(from_name))
-            self.log.debug(f'Moving {from_name} to {to_name}')
+            self.log.info(f'Moving {from_name} to {to_name}')
             os.rename(from_name, to_name)
 
     def _upload_geo_em_to_s3(self):
