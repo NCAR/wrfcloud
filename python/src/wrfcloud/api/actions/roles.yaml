@@ -49,6 +49,27 @@ regular:
     - action: RunWrf
       package: wrfcloud.api.actions
 
+maintainer:
+  permitted_actions:
+    - action: ChangePassword
+      package: wrfcloud.api.actions
+    - action: WhoAmI
+      package: wrfcloud.api.actions
+    - action: RefreshToken
+      package: wrfcloud.api.actions
+    - action: GetWrfMetaData
+      package: wrfcloud.api.actions
+    - action: GetWrfGeoJson
+      package: wrfcloud.api.actions
+    - action: ListJobs
+      package: wrfcloud.api.actions
+    - action: SubscribeJobs
+      package: wrfcloud.api.actions
+    - action: RunWrf
+      package: wrfcloud.api.actions
+    - action: ListModelConfigurations
+      package: wrfcloud.api.actions
+
 admin:
   permitted_actions:
     - action: ChangePassword
@@ -74,4 +95,6 @@ admin:
     - action: SubscribeJobs
       package: wrfcloud.api.actions
     - action: RunWrf
+      package: wrfcloud.api.actions
+    - action: ListModelConfigurations
       package: wrfcloud.api.actions

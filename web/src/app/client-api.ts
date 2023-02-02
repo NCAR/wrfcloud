@@ -413,14 +413,15 @@ export class ClientApi
   /**
    * Send a request to list all model configurations
    *
+   * @param requestData
    * @param responseHandler
    */
-  public sendListModelConfigurations(responseHandler: Function): void
+  public sendListModelConfigurations(requestData: ListModelConfigurationsRequest, responseHandler: Function): void
   {
     /* create the API request */
     const request: ApiRequest = {
       action: 'ListModelConfigurations',
-      data: {},
+      data: requestData,
     };
 
     /* send the API request */
@@ -963,6 +964,11 @@ export interface ModelConfiguration
   wrf_namelist: string;
   wps_namelist: string;
   cores: number;
+}
+
+export interface ListModelConfigurationsRequest
+{
+  configuration_name?: string;
 }
 
 export interface ListModelConfigurationsResponse extends ApiResponse

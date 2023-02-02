@@ -41,9 +41,7 @@ export class ModelConfigComponent implements OnInit
   /**
    * List of model configurations
    */
-  public modelConfigs: Array<ModelConfiguration> = [
-    {id: '00001', name: 'boulder_co_4km', description: 'Boulder, CO, USA (4km)', model_name: 'wrf', wrf_namelist: '', wps_namelist: '', cores: 96}
-  ];
+  public modelConfigs: Array<ModelConfiguration> = [];
 
 
   /**
@@ -74,7 +72,6 @@ export class ModelConfigComponent implements OnInit
 
     /* load a list of model configurations */
     this.loadModelConfigList();
-    this.dataSource.data = this.modelConfigs;  // TODO: Remove this line once we're loading configurations from the API
   }
 
 
@@ -93,8 +90,6 @@ export class ModelConfigComponent implements OnInit
   {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
-
-    this.rowClicked(this.modelConfigs[0]);  // TODO: Remove this line after testing
   }
 
 
@@ -104,7 +99,7 @@ export class ModelConfigComponent implements OnInit
   public loadModelConfigList(): void
   {
     this.busy = true;
-    this.app.api.sendListModelConfigurations(this.handleModelConfigListResponse.bind(this));
+    this.app.api.sendListModelConfigurations({}, this.handleModelConfigListResponse.bind(this));
   }
 
 
@@ -163,7 +158,7 @@ export class ModelConfigComponent implements OnInit
   public addModelConfig(): void
   {
     const editData: {modelConfig: ModelConfiguration, edit: boolean} = {
-      modelConfig: {id: '', name: '', description: '', model_name: 'wrf', cores: 96, wps_namelist: '', wrf_namelist: ''},
+      modelConfig: {id: '', name: '', description: '', model_name: 'wrf', cores: 0, wps_namelist: '', wrf_namelist: ''},
       edit: false
     };
 

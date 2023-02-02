@@ -5,7 +5,7 @@ This module contains all the Action classes for the API.
 __all__ = ['Action', 'Login', 'ChangePassword', 'CreateUser', 'ActivateUser', 'ListUsers',
            'UpdateUser', 'DeleteUser', 'WhoAmI', 'ResetPassword', 'RefreshToken', 'GetWrfMetaData',
            'GetWrfGeoJson', 'RunWrf', 'ListJobs', 'RequestPasswordRecoveryToken', 'ListJobs',
-           'SubscribeJobs']
+           'SubscribeJobs', 'ListModelConfigurations']
 
 from wrfcloud.api.actions.action import Action
 from wrfcloud.api.actions.login import Login
@@ -24,3 +24,4 @@ from wrfcloud.api.actions.wrf import GetWrfGeoJson
 from wrfcloud.api.actions.wrf import RunWrf
 from wrfcloud.api.actions.jobs import ListJobs
 from wrfcloud.api.actions.jobs import SubscribeJobs
+from wrfcloud.api.actions.configurations import ListModelConfigurations
