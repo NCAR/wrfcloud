@@ -113,8 +113,6 @@ class GeoGrid(Process):
             return False
 
         files_found = [os.path.basename(obj['Key']) for obj in geo_em_files]
-        self.log.info(f'geo_em_files: {geo_em_files}')
-        self.log.info(f'files_found: {files_found}')
         for domain in range(1, self.namelist['share']['max_dom'] + 1):
             expected_file = f'geo_em.d{domain:02}.nc'
             if expected_file in files_found:
