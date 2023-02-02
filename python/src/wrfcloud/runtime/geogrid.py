@@ -100,7 +100,7 @@ class GeoGrid(Process):
         """
         # TODO: get bucket name from WRF info
         bucket_name = 'wrfcloud-output'
-        prefix = f'configurations/{self.run_info.name}/'
+        prefix = f'configurations/{self.run_info.name}'
         self.log.debug(f'Checking for geo_em files on S3 {bucket_name}: {prefix}')
         try:
             s3 = get_aws_session().client('s3')
@@ -226,12 +226,12 @@ class GeoGrid(Process):
         bucket_name = 'wrfcloud-output'
         prefix: str = 'configurations/test'
 
-        self.log.debug(f'Uploading files to {bucket_name} in {prefix}')
+        self.log.debug(f'Uploading files to S3 {bucket_name} in {prefix}')
         for filename in glob.glob(os.path.join(self.run_info.staticdir, f'geo_em.d*.nc')):
             key: str = os.path.basename(filename)
 
             # upload the data to S3
-            self.log.info(f'Uploading {filename} to {bucket_name}/{prefix}/{key}')
+            self.log.info(f'Uploading {filename} to S3 {bucket_name}/{prefix}/{key}')
             try:
                 s3 = get_aws_session().client('s3')
                 s3.upload_file(
