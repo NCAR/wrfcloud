@@ -101,6 +101,11 @@ class GeoGrid(Process):
         # set geog data path to use cluster directory structure
         self.namelist['geogrid']['geog_data_path'] = os.path.join(self.data_dir, 'WPS_GEOG')
 
+        # remove any geogrid variables that start with opt_
+        opt_keys = [key for key in self.namelist['geogrid'] if key.startswith('opt_')]
+        for key in opt_keys:
+            del self.namelist['geogrid'][key]
+
         # write updated namelist.wps file to geogrid dir
         self.namelist.write(os.path.join(self.data_dir, 'namelist.wps'))
 
@@ -175,6 +180,8 @@ def main() -> None:
     log.info(f'Setting up working directory {runinfo.wd}')
     os.makedirs(runinfo.wd, exist_ok=True)
     log.info('Running geogrid')
+    # unset env var if not running via slumr
+    del os.environ['I_MPI_OFI_PROVIDER']
     geogrid = GeoGrid(runinfo)
     geogrid.start()
     log.info('Finished geogrid')
