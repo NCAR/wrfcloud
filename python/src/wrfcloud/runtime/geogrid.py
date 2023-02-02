@@ -50,9 +50,9 @@ class GeoGrid(Process):
             return True
 
         # if geo_em files exist on S3, download them and skip running geogrid
-        # if self._any_geo_em_files_exist_s3():
-        #     self.log.info('geo_em files already exist on S3. Skip running geogrid')
-        #     return True
+        if self._any_geo_em_files_exist_s3():
+            self.log.info('geo_em files already exist on S3. Skip running geogrid')
+            return True
 
         # set up geogrid.exe to run
         self._setup_geogrid()
@@ -126,6 +126,9 @@ class GeoGrid(Process):
                 except Exception as e:
                     self.log.error(f'Could not download file from S3: {prefix}/{expected_file}', e)
                     return False
+            else:
+                self.log.error(f'Could not find file on S3: {prefix}/{expected_file}')
+                return False
 
         return True
 
