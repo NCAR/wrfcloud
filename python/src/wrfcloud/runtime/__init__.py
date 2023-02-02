@@ -158,6 +158,10 @@ class Process:
         if not os.path.isdir(target) and not os.path.isfile(target):
             self.log.error(f'Failed to create symlink from {target} to {link}')
             raise FileNotFoundError(f'{target} does not exist')
+        # remove sym link if it already exists
+        if os.path.islink(link):
+            self.log.debug(f'Removing existing sym link before creating new link: {link}')
+            os.unlink(link)
         os.symlink(target, link)
         return True
 
