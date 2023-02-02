@@ -130,7 +130,7 @@ class GeoGrid(Process):
         Run geogrid.exe
         """
         self.log.info(f'Running {self.geogrid_exe}, logging to {self.geogrid_log}')
-        cmd: str = f'{self.geogrid_exe} >& {self.geogrid_log}'
+        cmd: str = f'unset I_MPI_OFI_PROVIDER; {self.geogrid_exe} >& {self.geogrid_log}'
         # if return code is non-zero, return False
         if os.system(cmd):
             self.log.error('geogrid.exe failed')
@@ -180,8 +180,6 @@ def main() -> None:
     log.info(f'Setting up working directory {runinfo.wd}')
     os.makedirs(runinfo.wd, exist_ok=True)
     log.info('Running geogrid')
-    # unset env var if not running via slumr
-    del os.environ['I_MPI_OFI_PROVIDER']
     geogrid = GeoGrid(runinfo)
     geogrid.start()
     log.info('Finished geogrid')
