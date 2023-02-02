@@ -13,6 +13,7 @@ import argparse
 from wrfcloud.system import init_environment
 from wrfcloud.log import Logger
 
+
 class GeoGrid(Process):
     """
     Class to run geogrid to create geo_em file from static terrestrial file
@@ -95,9 +96,9 @@ class GeoGrid(Process):
         Check of geo_em.dXX.nc files already exist in static data dir
         :returns: True if any files are found, False if not
         """
-        # TODO: check if files exist on S3 instead of local, download if found
-        bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
-        prefix = f'configurations/{self.run_info.name}'
+        # TODO: get bucket name from WRF info
+        bucket_name = 'wrfout-output'
+        prefix = f'configurations/{self.run_info.name}/'
         try:
             s3 = get_aws_session().client('s3')
             geo_em_files = s3.list_objects_v2(
@@ -216,8 +217,8 @@ class GeoGrid(Process):
         """
         Put output from geogrid on S3
         """
-        bucket_name = 'bucket_name'
-        #bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
+        # TODO: get bucket name from WRF info
+        bucket_name = 'wrfout-output'
         prefix: str = 'configurations/test'
 
         for filename in glob.glob(os.path.join(self.run_info.staticdir, f'geo_em.d*.nc')):
@@ -225,7 +226,6 @@ class GeoGrid(Process):
 
             # upload the data to S3
             self.log.info(f'Uploading {filename} to {bucket_name}/{prefix}/{key}')
-            continue
             try:
                 s3 = get_aws_session().client('s3')
                 s3.upload_file(
