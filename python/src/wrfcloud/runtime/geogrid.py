@@ -114,7 +114,10 @@ class GeoGrid(Process):
             del self.namelist['geogrid'][key]
 
         # write updated namelist.wps file to geogrid dir
-        self.namelist.write(os.path.join(self.data_dir, 'namelist.wps'))
+        namelist_out = os.path.join(self.data_dir, 'namelist.wps')
+        if os.path.exists(namelist_out):
+            self.log.debug(f'Removing existing file before write: {namelist_out}')
+        self.namelist.write(namelist_out)
 
     def _get_input_file(self):
         """
