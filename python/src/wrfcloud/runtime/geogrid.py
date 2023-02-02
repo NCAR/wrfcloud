@@ -135,7 +135,7 @@ class GeoGrid(Process):
         Run geogrid.exe
         """
         self.log.info(f'Running {self.geogrid_exe}, logging to {self.geogrid_log}')
-        cmd: str = f'cd {self.data_dir}; geogrid.exe >& {self.geogrid_log}'
+        cmd: str = f'cd {self.data_dir}; ./geogrid.exe >& {self.geogrid_log}'
         # if return code is non-zero, return False
         if os.system(cmd):
             self.log.error('geogrid.exe failed')
