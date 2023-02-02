@@ -83,8 +83,10 @@ class GeoGrid(Process):
         Check of geo_em.dXX.nc files already exist in static data dir
         :returns: True if any files are found, False if not
         """
+        check_dir = self.run_info.staticdir
+        self.log.debug(f'Checking for geo_em files in {check_dir}')
         for domain in range(1, self.namelist['share']['max_dom'] + 1):
-            check_path: str = os.path.join(self.run_info.staticdir, f'geo_em.d{domain:02}.nc')
+            check_path: str = os.path.join(check_dir, f'geo_em.d{domain:02}.nc')
             self.log.debug(f'Checking if file exists: {check_path}')
             if os.path.exists(check_path):
                 return True
@@ -97,8 +99,9 @@ class GeoGrid(Process):
         :returns: True if any files are found, False if not
         """
         # TODO: get bucket name from WRF info
-        bucket_name = 'wrfout-output'
+        bucket_name = 'wrfcloud-output'
         prefix = f'configurations/{self.run_info.name}/'
+        self.log.debug(f'Checking for geo_em files on S3 {bucket_name}: {prefix}')
         try:
             s3 = get_aws_session().client('s3')
             geo_em_files = s3.list_objects_v2(
@@ -218,7 +221,7 @@ class GeoGrid(Process):
         Put output from geogrid on S3
         """
         # TODO: get bucket name from WRF info
-        bucket_name = 'wrfout-output'
+        bucket_name = 'wrfcloud-output'
         prefix: str = 'configurations/test'
 
         for filename in glob.glob(os.path.join(self.run_info.staticdir, f'geo_em.d*.nc')):
