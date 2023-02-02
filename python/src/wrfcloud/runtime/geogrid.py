@@ -96,8 +96,8 @@ class GeoGrid(Process):
             os.environ.pop('I_MPI_OFI_PROVIDER')
 
         # link geogrid exe and directory into geogrid dir
-        self.symlink(os.path.join(self.run_info.wpscodedir, EXE),
-                     os.path.join(self.data_dir, EXE))
+        self.symlink(os.path.join(self.run_info.wpscodedir, self.EXE),
+                     os.path.join(self.data_dir, self.EXE))
         self.symlink(os.path.join(self.run_info.wpscodedir, 'geogrid'),
                      os.path.join(self.data_dir, 'geogrid'))
 
