@@ -113,6 +113,8 @@ class GeoGrid(Process):
             return False
 
         files_found = [os.path.basename(obj['Key']) for obj in geo_em_files]
+        self.log.info(f'geo_em_files: {geo_em_files}')
+        self.log.info(f'files_found: {files_found}')
         for domain in range(1, self.namelist['share']['max_dom'] + 1):
             expected_file = f'geo_em.d{domain:02}.nc'
             if expected_file in files_found:
@@ -224,6 +226,7 @@ class GeoGrid(Process):
         bucket_name = 'wrfcloud-output'
         prefix: str = 'configurations/test'
 
+        self.log.debug(f'Uploading files to {bucket_name} in {prefix}')
         for filename in glob.glob(os.path.join(self.run_info.staticdir, f'geo_em.d*.nc')):
             key: str = os.path.basename(filename)
 
@@ -232,7 +235,7 @@ class GeoGrid(Process):
             try:
                 s3 = get_aws_session().client('s3')
                 s3.upload_file(
-                    Body=filename,
+                    Filename=filename,
                     Bucket=bucket_name,
                     Key=f'{prefix}/{key}'
                 )
