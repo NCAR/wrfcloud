@@ -45,9 +45,14 @@ class GeoGrid(Process):
         Run geogrid.exe and upload geo_em file to S3
         """
         # if any geo_em files already exist, skip running geogrid
-        if self._any_geo_em_files_exist():
-            self.log.info('geo_em files already exist. Skip running geogrid')
+        if self._any_geo_em_files_exist_local():
+            self.log.info('geo_em files already exist locally. Skip running geogrid')
             return True
+
+        # if geo_em files exist on S3, download them and skip running geogrid
+        # if self._any_geo_em_files_exist_s3():
+        #     self.log.info('geo_em files already exist on S3. Skip running geogrid')
+        #     return True
 
         # set up geogrid.exe to run
         self._setup_geogrid()
@@ -72,7 +77,7 @@ class GeoGrid(Process):
 
         return True
 
-    def _any_geo_em_files_exist(self):
+    def _any_geo_em_files_exist_local(self):
         """
         Check of geo_em.dXX.nc files already exist in static data dir
         :returns: True if any files are found, False if not
@@ -83,27 +88,46 @@ class GeoGrid(Process):
             if os.path.exists(check_path):
                 return True
 
-        # TODO: check if files exist on S3 instead of local, download if found?
-        # bucket_name = 'bucket_name'
-        # #bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
-        # prefix = f'configurations/{self.run_info.name}/geo_em.d'
-        # try:
-        #     s3 = get_aws_session().client('s3')
-        #     geo_em_files = s3.list_objects_v2(
-        #         Bucket=bucket_name,
-        #         Prefix=prefix,
-        #     )['Contents']
-        # except Exception as e:
-        #     self.log.error(f'Failed to find files that match {prefix} on S3', e)
-        #     return False
-        #
-        # files_found = [os.path.basename(obj['Key']) for obj in geo_em_files]
-        # for domain in range(1, self.namelist['share']['max_dom'] + 1):
-        #     if f'geo_em.d{domain:02}.nc' in files_found:
-        #         self.log.info(f'Found {geo_em.d{domain:02}.nc} on S3')
-        #         return True
-
         return False
+
+    def _any_geo_em_files_exist_s3(self):
+        """
+        Check of geo_em.dXX.nc files already exist in static data dir
+        :returns: True if any files are found, False if not
+        """
+        # TODO: check if files exist on S3 instead of local, download if found
+        bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
+        prefix = f'configurations/{self.run_info.name}'
+        try:
+            s3 = get_aws_session().client('s3')
+            geo_em_files = s3.list_objects_v2(
+                Bucket=bucket_name,
+                Prefix=prefix,
+            )['Contents']
+        except Exception as e:
+            self.log.error(f'Failed to get contents of {prefix} on S3', e)
+            return False
+
+        files_found = [os.path.basename(obj['Key']) for obj in geo_em_files]
+        for domain in range(1, self.namelist['share']['max_dom'] + 1):
+            expected_file = f'geo_em.d{domain:02}.nc'
+            if expected_file in files_found:
+                self.log.info(f'Found {expected_file} on S3')
+                # download file
+                key = f'{prefix}/{expected_file}'
+                filename = os.path.join(self.run_info.staticdir, expected_file)
+                self.log.info(f'Downloading {key} to {filename}')
+                try:
+                    s3.download_file(
+                        Bucket=bucket_name,
+                        Key=key,
+                        Filename=filename,
+                    )
+                except Exception as e:
+                    self.log.error(f'Could not download file from S3: {prefix}/{expected_file}', e)
+                    return False
+
+        return True
 
     def _setup_geogrid(self):
         """
