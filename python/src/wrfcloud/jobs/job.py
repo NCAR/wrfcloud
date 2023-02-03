@@ -202,6 +202,13 @@ class WrfJob:
         return f'{self.work_dir}/configurations/{self.configuration_name}'
 
     @property
+    def geogrid_dir(self):
+        """
+        Get the ungrib directory
+        """
+        return f'{self.work_dir}/geogrid'
+
+    @property
     def ungrib_dir(self):
         """
         Get the ungrib directory

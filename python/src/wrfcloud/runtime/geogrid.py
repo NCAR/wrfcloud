@@ -4,9 +4,9 @@ import io
 import tarfile
 import glob
 import f90nml
-
+from wrfcloud.jobs import WrfJob
 from wrfcloud.system import get_aws_session
-from wrfcloud.runtime import RunInfo, Process
+from wrfcloud.runtime import Process
 
 
 class GeoGrid(Process):
@@ -24,22 +24,22 @@ class GeoGrid(Process):
     """
     EXE = 'geogrid.exe'
 
-    def __init__(self, run_info: RunInfo):
+    def __init__(self, job: WrfJob):
         """
         Construct a geo_em file generator
-        :param run_info: RunInfo information about current run
+        :param job: RunInfo information about current run
         """
         super().__init__()
         # TODO: change uses of RunInfo to WRF info
-        self.run_info: RunInfo = run_info
-        self.config_dir: str = self.run_info.staticdir
-        self.geogrid_dir: str = self.run_info.geogriddir
-        self.run_name: str = self.run_info.name
-        self.wps_dir: str = self.run_info.wpscodedir
+        self.run_info: WrfJob = job
+        self.config_dir: str = self.run_info.static_dir
+        self.geogrid_dir: str = self.run_info.geogrid_dir
+        self.run_name: str = self.run_info.configuration_name
+        self.wps_dir: str = self.run_info.wps_code_dir
         # TODO: get bucket name from WRF info
         self.bucket_name: str = 'wrfcloud-output'
 
-        # read namelist.wps file from workding dir and read it into Namelist
+        # read namelist.wps file from working dir and read it into Namelist
         nml_file = os.path.join(self.config_dir, 'namelist.wps')
         with open(nml_file, encoding='utf-8') as nml_file_read:
             self.namelist = f90nml.read(nml_file_read)
