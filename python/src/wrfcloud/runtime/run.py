@@ -55,12 +55,12 @@ def main() -> None:
 
         log.debug('Starting geogrid task')
         _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running GEOGRID', 0)
-        geogrid = GeoGrid(runinfo)
+        geogrid = GeoGrid(job)
         geogrid.start()
         log.debug(geogrid.get_run_summary())
 
         log.debug('Starting ungrib task')
-        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running UNGRIB', 0)
+        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running UNGRIB', 0.05)
         ungrib = Ungrib(job)
         ungrib.start()
         log.debug(ungrib.get_run_summary())
