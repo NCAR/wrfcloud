@@ -9,6 +9,7 @@ run.
 import argparse
 import os
 from typing import Union
+from wrfcloud.runtime.geogrid import GeoGrid
 from wrfcloud.runtime.ungrib import Ungrib
 from wrfcloud.runtime.metgrid import MetGrid
 from wrfcloud.runtime.real import Real
@@ -49,6 +50,12 @@ def main() -> None:
 
         # get a job from the database
         job = get_job_from_system(runinfo.ref_id) if runinfo.ref_id is not None else None
+
+        log.debug('Starting geogrid task')
+        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running GEOGRID', 0)
+        geogrid = GeoGrid(runinfo)
+        geogrid.start()
+        log.debug(geogrid.get_run_summary())
 
         log.debug('Starting ungrib task')
         _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running UNGRIB', 0)
