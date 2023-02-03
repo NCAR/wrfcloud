@@ -9,6 +9,7 @@ run.
 import argparse
 import os
 from typing import Union
+from wrfcloud.runtime.geogrid import GeoGrid
 from wrfcloud.runtime.ungrib import Ungrib
 from wrfcloud.runtime.metgrid import MetGrid
 from wrfcloud.runtime.real import Real
@@ -51,6 +52,12 @@ def main() -> None:
         # maybe update the logger's application name to the reference ID
         log.APPLICATION_NAME = job.job_id or 'wrfcloud-run'
         log.application_name = job.job_id or 'wrfcloud-run'
+
+        log.debug('Starting geogrid task')
+        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running GEOGRID', 0)
+        geogrid = GeoGrid(runinfo)
+        geogrid.start()
+        log.debug(geogrid.get_run_summary())
 
         log.debug('Starting ungrib task')
         _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running UNGRIB', 0)

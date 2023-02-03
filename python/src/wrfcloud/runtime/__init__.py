@@ -2,7 +2,7 @@
 Shared classes and functions for the WRF runtime
 """
 
-__all__ = ['tools', 'metgrid', 'postproc', 'real', 'run', 'ungrib', 'wrf', 'Process']
+__all__ = ['run', 'tools', 'geogrid', 'ungrib', 'metgrid', 'real', 'wrf', 'postproc', 'Process']
 
 import os
 from typing import Union
@@ -59,6 +59,10 @@ class Process:
         if not os.path.isdir(target) and not os.path.isfile(target):
             self.log.error(f'Failed to create symlink from {target} to {link}')
             raise FileNotFoundError(f'{target} does not exist')
+        # remove sym link if it already exists
+        if os.path.islink(link):
+            self.log.debug(f'Removing existing sym link before creating new link: {link}')
+            os.unlink(link)
         os.symlink(target, link)
         return True
 
