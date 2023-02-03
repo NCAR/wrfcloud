@@ -4,11 +4,6 @@
 # to be either a Websocket or REST API.
 #
 # CloudFront using Price Class 100 (North America, Europe, and Israel; https://aws.amazon.com/cloudfront/pricing/)
-#
-# Stack Creation Checklist:
-# 1. Look for TODO items this template to customize your application
-# 2. Create a new stack from the web console (https://console.aws.amazon.com/cloudformation)
-# 3. During stack creation, add DNS entries for certificate verification (https://console.aws.amazon.com/acm)
 
 Description: WRF Cloud Web Application
 AWSTemplateFormatVersion: '2010-09-09'
@@ -41,21 +36,21 @@ Parameters:
   WebsocketHostName:
     Description: Hostname for the Websocket API (e.g. ws.mydomain.com)
     Type: String
+  JwtSigningKey:
+    Description: Signing Key for JSON Web Tokens
+    Type: String
   StageName:
     Description: API Gateway Stage (may be version number)
     Type: String
     Default: v1
-  WebAccessLogBucket:
-    Description: Bucket name that will hold the web access logs (e.g. logs.mydomain.com)
-    Type: String
   HostedZoneId:
     Description: Hosted Zone ID of the Route 53 Domain Name Service for desired domain (https://console.aws.amazon.com/route53)
     Type: String
   CertificateArn:
     Description: Amazon resource name (ARN) for the certificate to use
     Type: String
-  S3ModelOutputBucketName:
-    Description: Name of S3 bucket that holds the model output data
+  WrfCloudBucket:
+    Description: Name of S3 bucket used by the entire application
     Type: String
 
 Conditions:
@@ -118,8 +113,8 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                 Resource:
-                  - !Sub 'arn:aws:s3:::${S3ModelOutputBucketName}'
-                  - !Sub 'arn:aws:s3:::${S3ModelOutputBucketName}/*'
+                  - !Sub 'arn:aws:s3:::${WrfCloudBucket}'
+                  - !Sub 'arn:aws:s3:::${WrfCloudBucket}/*'
               - Effect: Allow
                 Action: iam:PassRole
                 Condition:
@@ -264,8 +259,8 @@ Resources:
       CompatibleRuntimes:
         - python3.9
       Content:
-        S3Bucket: !Sub '${DeploymentType}-${AppName}-deploy'
-        S3Key: lambda_layer.zip
+        S3Bucket: !Sub '${WrfCloudBucket}'
+        S3Key: artifacts/lambda_layer.zip
   LambdaFunctionFrontController:
     Type: AWS::Serverless::Function
     Properties:
@@ -277,32 +272,22 @@ Resources:
       Runtime: python3.9
       Layers:
         - !Ref LambdaLayerPythonDeps
+      CodeUri:
+        Bucket: !Sub '${WrfCloudBucket}'
+        Key: artifacts/lambda_function.zip
       Environment:
         Variables:
+          ADMIN_EMAIL: !Ref AdminUserEmail
+          APP_NAME: !Ref AppName
           API_HOSTNAME: !Ref ApiHostName
+          APP_HOSTNAME: !Ref WebHostName
           DEPLOYMENT_TYPE: !Ref DeploymentType
           STAGE: !Ref StageName
           HELP_TOPIC_ARN: !Ref HelpTopic
           PATH: '/opt/node/bin:${PATH}'
           PYTHONPATH: /opt/python/lib
-          WRFCLOUD_BUCKET_NAME: !Sub '${S3ModelOutputBucketName}'
-      InlineCode: |
-        import os
-        import json
-        def handler(event, context):
-            """
-            Sample function
-            """
-            # create a response
-            print(event)  # goes to CloudWatch Logs
-            response = {'ok': True, 'event': event}
-
-            # return response
-            return {
-              'isBase64Encoded': False,
-              'headers': {'Content-Type': 'text/json'},
-              'body': json.dumps(response)
-            }
+          WRFCLOUD_BUCKET_NAME: !Sub '${WrfCloudBucket}'
+          JWT_KEY: !Sub '${JwtSigningKey}'
   LambdaInvokePermissionFromWebsocketApi:
     Type: AWS::Lambda::Permission
     Properties:
@@ -445,7 +430,6 @@ Resources:
       DomainName: !Sub '${DomainName}'
       SubjectAlternativeNames:
         - !Sub '${WebsocketHostName}'
-        - !Sub '*.${DomainName}'  # TODO: This may not be desired, but cannot be changed after creation
       ValidationMethod: DNS
 
   # REST API
@@ -555,12 +539,9 @@ Resources:
   # CloudFront and Origins
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
-    DependsOn:
-      - CloudFormationOriginBucket
-      - CloudFormationAccessLogsBucket
     Properties:
       DistributionConfig:
-        Comment: !Sub '${DeploymentType} ${AppName}'
+        Comment: !Sub '${AppName} ${DeploymentType}'
         Aliases:
           - !Sub '${WebHostName}'
         DefaultRootObject: index.html
@@ -574,7 +555,7 @@ Resources:
             - GET
             - HEAD
           Compress: true
-          DefaultTTL: 10800  # 3 hours
+          DefaultTTL: 86400  # 24 hours
           ForwardedValues:
             Cookies:
               Forward: all
@@ -591,7 +572,7 @@ Resources:
               - HEAD
               - OPTIONS
             Compress: true
-            DefaultTTL: 10800  # 3 hours
+            DefaultTTL: 86400  # 24 hours
             ForwardedValues:
               Cookies:
                 Forward: all
@@ -601,7 +582,8 @@ Resources:
             ViewerProtocolPolicy: redirect-to-https
         Origins:
           - Id: !Ref CloudFrontOriginAccessIdentity
-            DomainName: !GetAtt CloudFormationOriginBucket.RegionalDomainName
+            DomainName: !ImportValue 'wrfcloud-s3-bucket-regional-domain-name'
+            OriginPath: '/web'
             S3OriginConfig:
               OriginAccessIdentity:
                 Fn::Join:
@@ -620,9 +602,8 @@ Resources:
             ResponsePagePath: /index.html
   CloudFrontOriginAppBucketPolicy:
     Type: AWS::S3::BucketPolicy
-    DependsOn: CloudFormationOriginBucket
     Properties:
-      Bucket: !Sub '${WebHostName}'
+      Bucket: !Sub '${WrfCloudBucket}'
       PolicyDocument:
         Version: 2008-10-17
         Id: PolicyForCloudFrontPrivateContent
@@ -636,12 +617,12 @@ Resources:
                   - - arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity
                     - !Ref CloudFrontOriginAccessIdentity
             Action: 's3:GetObject'
-            Resource: !Sub 'arn:aws:s3:::${WebHostName}/*'
+            Resource: !Sub 'arn:aws:s3:::${WrfCloudBucket}/web/*'
   CloudFrontOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
       CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub 'S3-${WebHostName}'
+        Comment: !Sub 'S3-${WrfCloudBucket}'
   CloudFrontDnsEntry:
     Type: AWS::Route53::RecordSet
     DependsOn:
@@ -653,14 +634,6 @@ Resources:
       TTL: 300
       ResourceRecords:
         - !GetAtt CloudFrontDistribution.DomainName
-  CloudFormationAccessLogsBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Ref WebAccessLogBucket
-  CloudFormationOriginBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Ref WebHostName
 
   # SNS Topic
   HelpTopic:
@@ -671,9 +644,3 @@ Resources:
       Subscription:
         - Endpoint: !Ref AdminUserEmail
           Protocol: EMAIL
-
-  # Email
-  EmailIdentity:
-    Type: AWS::SES::EmailIdentity
-    Properties:
-      EmailIdentity: !Sub '${AdminUserEmail}'

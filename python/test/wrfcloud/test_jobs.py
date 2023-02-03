@@ -28,6 +28,8 @@ def test_add_job() -> None:
     # retrieve the job from the database
     job_ = get_job_from_system(job_id=job.job_id)
 
+    assert isinstance(job_.layers, list)
+
     # compare the original and retrieved job data
     for key in job.data:
         assert key in job_.data
@@ -69,6 +71,8 @@ def test_update_job() -> None:
     updated_job = _get_sample_job(WrfJob.STATUS_CODE_RUNNING)
     job.update(updated_job.data)
     assert update_job_in_system(job)
+
+    assert isinstance(job.layers, list)
 
     # retrieve the job from the database
     job_ = get_job_from_system(job_id=job.job_id)

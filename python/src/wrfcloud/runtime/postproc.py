@@ -121,7 +121,10 @@ class UPP(Process):
             self._run_upp()
 
             # create list of grib files
-            self.grib_files.append(f'{fhrdir}/WRFPRS.GrbF{fhrstr[1:]}')
+            grib_hour: str = '%02d' % this_date.hour
+            grib_min: str = '' if this_date.minute == 0 else ('.%02d' % this_date.minute)
+            grib_file = f'{fhrdir}/WRFPRS.GrbF{grib_hour}{grib_min}'
+            self.grib_files.append(grib_file)
 
             # increment the date and forecast hour
             this_date = this_date + increment

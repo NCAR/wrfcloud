@@ -12,24 +12,11 @@ from wrfcloud.log import LogLevel
 
 # App
 APP_NAME = None
-SYSTEM_EMAIL_SENDER = None
-SYSTEM_EMAIL_RECEIVER = None
 LANGUAGE = None
 
 # AWS Account Profile
 AWS_PROFILE = ''
 AWS_REGION = ''
-
-# API Gateway Options
-API_URL = None
-APP_URL = None
-API_STAGE = None
-ALLOW_CORS = None
-
-# DynamoDB Options
-SESSION_TABLE_NAME = None
-USER_TABLE_NAME = None
-ENDPOINT_URL = None
 
 # The environment that has been set
 ENVIRONMENT = None
@@ -69,19 +56,23 @@ def init_environment(env='test'):
         Logger.APPLICATION_NAME = os.environ['LOG_APPLICATION_NAME']
 
 
-def get_aws_session():
+def get_aws_session(region: str = None, profile: str = None):
     """
     Get an AWS session with the correct keys
+    :param region: Optional AWS region name (e.g. us-west-2)
+    :param profile: Optional AWS profile name available in credentials file
     :return: AWS session
     """
     import boto3
 
-    if AWS_PROFILE is not None and AWS_PROFILE != '' and AWS_REGION is not None and AWS_REGION != '':
-        return boto3.Session(profile_name=AWS_PROFILE, region_name=AWS_REGION)
-    elif AWS_PROFILE is not None and AWS_PROFILE != '':
-        return boto3.Session(profile_name=AWS_PROFILE)
-    elif AWS_REGION is not None and AWS_REGION != '':
-        return boto3.Session(region_name=AWS_REGION)
+    region = region if region is not None else AWS_REGION
+    profile = profile if profile is not None else AWS_PROFILE
+
+    if profile is not None and profile != '' and region is not None and region != '':
+        return boto3.Session(profile_name=profile, region_name=region)
+    elif profile is not None and profile != '':
+        return boto3.Session(profile_name=profile)
+    elif region is not None and region != '':
+        return boto3.Session(region_name=region)
     else:
         return boto3.Session()
-

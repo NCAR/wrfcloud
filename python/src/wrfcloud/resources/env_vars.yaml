@@ -3,8 +3,6 @@ test:
   # App
   APP_NAME: WRF Cloud
   SEND_EMAIL: False
-  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
-  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
   WRFCLOUD_BUCKET_NAME: wrfcloud-output
 
@@ -48,8 +46,6 @@ codebuild:
   # App
   APP_NAME: WRF Cloud
   SEND_EMAIL: False
-  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
-  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
 
   # AWS Account Profile
@@ -91,14 +87,8 @@ production:
   # App
   APP_NAME: WRF Cloud
   SEND_EMAIL: True
-  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
-  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
   LOCALE: us
-
-  # AWS Account Profile
-  AWS_PROFILE: wrfcloud
-  AWS_REGION: us-east-2
 
   # API Gateway Options
   API_URL: api.domainname.com
@@ -108,11 +98,11 @@ production:
   NOTIFY_WEB_CLIENTS: True
 
   # DynamoDB Options
-  USER_TABLE_NAME: wrfcloud_users_prod
-  AUDIT_TABLE_NAME: wrfcloud_audit_prod
-  REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_prod
-  JOB_TABLE_NAME: wrfcloud_jobs_prod
-  SUBSCRIBER_TABLE_NAME: wrfcloud_subscribers_prod
+  USER_TABLE_NAME: production_wrfcloud_users
+  AUDIT_TABLE_NAME: production_wrfcloud_audit
+  REFRESH_TOKEN_TABLE_NAME: production_wrfcloud_refresh_tokens
+  JOB_TABLE_NAME: production_wrfcloud_jobs
+  SUBSCRIBER_TABLE_NAME: production_wrfcloud_subscribers
 
   # EventBridge Options
   EVENTBRIDGE_RULE_PREFIX: wrfcloud-
@@ -123,7 +113,6 @@ production:
   LOG_APPLICATION_NAME: wrfcloud-production
 
   # WRF Output
-  WRF_OUTPUT_BUCKET: wrfcloud-output
   WRF_OUTPUT_PREFIX: 'test'
 
   # Location of input data
@@ -135,8 +124,6 @@ development:
   # App
   APP_NAME: WRF Cloud (development)
   SEND_EMAIL: True
-  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
-  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
 
   # AWS Account Profile
@@ -178,17 +165,15 @@ cli:
   # App
   APP_NAME: WRF Cloud
   SEND_EMAIL: True
-  SYSTEM_EMAIL_SENDER: hahnd@ucar.edu
-  SYSTEM_EMAIL_RECEIVER: hahnd@ucar.edu
   LANGUAGE: en
   LOCALE: us
 
   # DynamoDB Options
-  USER_TABLE_NAME: development_wrfcloud_users
-  AUDIT_TABLE_NAME: development_wrfcloud_audit
-  REFRESH_TOKEN_TABLE_NAME: development_wrfcloud_refresh_tokens
-  JOB_TABLE_NAME: development_wrfcloud_jobs
-  SUBSCRIBER_TABLE_NAME: development_wrfcloud_subscribers
+  USER_TABLE_NAME: production_wrfcloud_users
+  AUDIT_TABLE_NAME: production_wrfcloud_audit
+  REFRESH_TOKEN_TABLE_NAME: production_wrfcloud_refresh_tokens
+  JOB_TABLE_NAME: production_wrfcloud_jobs
+  SUBSCRIBER_TABLE_NAME: production_wrfcloud_subscribers
 
   # EventBridge Options
   EVENTBRIDGE_RULE_PREFIX: wrfcloud-
@@ -203,7 +188,6 @@ cli:
   AWS_REGION: us-east-2
 
   # WRF Output
-  WRF_OUTPUT_BUCKET: wrfcloud-output
   WRF_OUTPUT_PREFIX: 'output'
 
   # Location of input data
