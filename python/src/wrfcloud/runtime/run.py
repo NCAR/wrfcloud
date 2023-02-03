@@ -159,6 +159,6 @@ def _load_model_configuration(job: WrfJob) -> WrfConfig:
         file = f'{job.static_dir}/geo_em.d01.nc'
         s3.download_file(bucket, key, file)
     except Exception as e:
-        Logger().error('Failed to download geo_em file(s).', e)
+        Logger().info('geo_em file not found -- must run geogrid process')
 
     return config
