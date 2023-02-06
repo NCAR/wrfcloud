@@ -38,6 +38,10 @@ class GeoGrid(Process):
         Run geogrid.exe and upload geo_em file to S3
         :returns: True if geogrid output is available locally, False if not
         """
+        # create geogrid data directory if it doesn't exist
+        if not os.path.exists(self.geogrid_dir):
+            os.makedirs(self.geogrid_dir, exist_ok=True)
+
         # update namelist.wps file with correct geog data path
         self._update_and_write_namelist()
 
@@ -132,10 +136,6 @@ class GeoGrid(Process):
         """
         Link files into geogrid dir to be able to run geogrid
         """
-        # create geogrid data directory if it doesn't exist
-        if not os.path.exists(self.geogrid_dir):
-            os.makedirs(self.geogrid_dir)
-
         # unset I_MPI_OFI_PROVIDER environment variable
         self.log.info('Unsetting I_MPI_OFI_PROVIDER so that EFA support is not required')
         if 'I_MPI_OFI_PROVIDER' in os.environ:
