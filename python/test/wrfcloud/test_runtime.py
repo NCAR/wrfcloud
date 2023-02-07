@@ -1,6 +1,6 @@
 from typing import List
 from wrfcloud.system import init_environment
-from wrfcloud.runtime import WrfConfig
+from wrfcloud.config import WrfConfig
 from helper import _get_all_sample_wrf_configurations
 
 

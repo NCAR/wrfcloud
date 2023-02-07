@@ -2,7 +2,7 @@ from typing import List
 from wrfcloud.api.audit import AuditDao
 from wrfcloud.api.auth.refresh import RefreshTokenDao
 from wrfcloud.jobs import JobDao, WrfJob
-from wrfcloud.runtime import WrfConfig
+from wrfcloud.config import WrfConfig
 from wrfcloud.user import UserDao, User
 from wrfcloud.subscribers import SubscriberDao, Subscriber
 import yaml
