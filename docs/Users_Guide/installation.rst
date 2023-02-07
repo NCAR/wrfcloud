@@ -120,8 +120,8 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
   * Use the top-level search bar to find and launch the AWS **CloudFormation** Service.
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
-  * Select **Stack** from the left navigation menu.
-  * Choose an item from **Stack name** column and select the **Events** tab to monitor progress.
+  * Select **Stacks** from the left navigation menu.
+  * Click an item listed in the **Stack name** column and select the **Events** tab to monitor progress.
 
 7. When installation completes, a log message in the **CloudShell** window directs you to the newly created WRF Cloud URL.
 
