@@ -68,8 +68,8 @@ The prerequisites for installing WRF Cloud in an AWS account are described below
 
 .. _install:
 
-Procedures for initial installation
-===================================
+Procedures to Install
+=====================
 
 Once the AWS account prerequisites are satisfied (see :numref:`prerequisites`), follow these instructions to install WRF Cloud.
 
@@ -127,8 +127,8 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
 .. _uninstall:
 
-Procedures to uninstall the application
-=======================================
+Procedures to Uninstall
+=======================
 
 The steps for uninstalling WRF Cloud from an AWS account are described below.
 
