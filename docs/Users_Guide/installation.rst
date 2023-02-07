@@ -66,6 +66,8 @@ The prerequisites for installing WRF Cloud in an AWS account are described below
       * Check your email for followup and confirmation from AWS support.
       * If AWS requires further justification for this change, note that this email service is needed by WRF Cloud to send users emails when WRF jobs finish running and to facilitate password recovery. We also recommend that your AWS account administrators subscribe to an SNS topic that is configured to accept bounce and complaint messages.
 
+.. _install:
+
 Procedures for initial installation
 ===================================
 
@@ -79,50 +81,107 @@ Once the AWS account prerequisites are satisfied (see :numref:`prerequisites`), 
 
 .. figure:: figure/cloudshell_icon.png
 
-4. Copy and paste the following into CloudShell terminal:
+4. Define the GitHub branch name (e.g. develop) or release name (e.g. v1.0) to be installed.
 
 .. code-block:: ini
 
-  git clone https://github.com/NCAR/wrfcloud
-  ./wrfcloud/install_bootstrap.sh
+  export GITHUB_NAME=develop
 
-This command installs WRF Cloud using the current default branch of the repository. To install a specific tagged version or branch, specify its name as an agrument to the script (e.g. **./wrfcloud/install_bootstrap.sh v1.0**).
+5. Copy and paste the following into CloudShell terminal:
+
+.. code-block:: ini
+
+  git clone --branch ${GITHUB_NAME} https://github.com/NCAR/wrfcloud
+  ./wrfcloud/install_bootstrap.sh ${GITHUB_NAME}
 
 This bootstrap script takes about 25 minutes to run. It is followed by a series of interactive questions that must be completed prior to WRF Cloud being installed. For each question, the default option (if applicable) is provided in sqaure braces. Simply hit enter to accept the default or modify the setting as needed. These questions include:
 
-* Would you like to enable autocompletion?
-* Which domain name would you like to use? [e.g. wrfcloud.com]
-* Enter host name for web application: [e.g. app.wrfcloud.com]
-* Enter host name for REST API: [e.g. api.wrfcloud.com]
-* Enter host name for websocket API: [e.g. ws.wrfcloud.com]
-* Enter administrator's full name:
-* Enter email address for application administrator:
-* Enter administrator's new password:
-* Do you want to install example model configurations? *Recommend Yes*
-* Do you want to upload an SSH public key for an admin? *Recommend Yes*
-* Paste your public key, often found at ${HOME}/.ssh/id_rsa.pub:
+  * Would you like to enable autocompletion? [*Recommend Yes*]
+  * Which domain name would you like to use? [`Route 53 <https://aws.amazon.com/route53>`_ domain(s) from :numref:`prerequisites`]
+  * Enter host name for web application: [e.g. app.{DOMAIN NAME}]
+  * Enter host name for REST API: [e.g. api.{DOMAIN NAME}]
+  * Enter host name for websocket API: [e.g. ws.{DOMAIN NAME}]
+  * Enter administrator's full name:
+  * Enter email address for application administrator:
+  * Enter administrator's new password:
+  * Do you want to install example model configurations? [*Recommend Yes*]
+  * Do you want to upload an SSH public key for an admin? [*Recommend Yes*]
+  * Paste your public key, often found at ${HOME}/.ssh/id_rsa.pub:
+
+    * Copy and paste the output of this command into the CloudShell window:
+
+      .. code-block:: ini
+
+        cat ${HOME}/.ssh/id_rsa.pub
 
 5. After completing these steps, check the email address provided above to verify it. It takes approximately 10-20 minutes for the website to become available.
 
 6. Monitor the installation progress:
 
-   * Use the top-level search bar to find and launch the AWS **CloudFormation** Service.
-   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
-   * Select **Stack** from the left navigation menu.
-   * Choose an item from **Stack name** column and select the **Events** tab to monitor progress.
+  * Use the top-level search bar to find and launch the AWS **CloudFormation** Service.
+  * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
+  * Select **Stack** from the left navigation menu.
+  * Choose an item from **Stack name** column and select the **Events** tab to monitor progress.
 
 7. When installation completes, a log message in the **CloudShell** window directs you to the newly created WRF Cloud URL.
+
+.. _uninstall:
 
 Procedures to uninstall the application
 =======================================
 
 The steps for uninstalling WRF Cloud from an AWS account are described below.
 
-* Remove data from S3 bucket named wrfcloud-XXXXXXX (do not remove the bucket as CloudFormation will handle this).
-* Remove the wrfcloud_parallelcluster IAM policy.
-* Remove the AMI from the EC2 service (be sure to deregister the AMI and delete the snapshots!).
-* Remove the SSH key from the EC2 service named wrfcloud-admin.
-* Remove the SES email identity for your admin's email address.
-* Delete CloudFormation stacks: WrfIntelImageBuilder, WrfCloudWebApp.
-* Wait for WrfCloudWebApp stack to finish deleting.  If a delete fails, delete it again, and DO NOT retain the resources.
-* Delete WrfCloudApiData, WrfCloudWebCertificate (us-east-1).
+1. Login to the `AWS Management Console <https://aws.amazon.com/console>`_ for your account as a user with sufficient permissions (see :numref:`permissions`).
+
+2. Remove data from S3.
+
+  * Use the top-level search bar to find and launch the AWS **S3** Service.
+  * Select **Buckets** from the left navigation menu and search for **wrfcloud**.
+  * Select the **wrfcloud-XXXXXXX** S3 bucket and click **Empty** to remove its contents.
+
+    * Do not **Delete** this bucket, as CloudFormation will handle that step.
+
+3. Remove IAM policy.
+
+  * Use the top-level search bar to find and launch the AWS **IAM** Service.
+  * Select **Access Management > Policies** from the left navigation menu and search for **wrfcloud**.
+  * Click the **wrfcloud_parallelcluster** radio button and select **Actions > Delete**.
+
+    * Any other **wrfcloud** policies do not need to be removed.
+
+4. Modify EC2 settings.
+
+  * Use the top-level search bar to find and launch the AWS **EC2** Service.
+  * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
+  * Remove the wrfcloud Amazon Machine Image (AMI).
+
+    * Select **Images > AMI** from the left navigation menu and search for **wrf**.
+    * Select the wrfcloud AMI followed by **Actions > Deregsiter AMI**.
+    * In addition, delete the snapshots.
+
+  * Remove the SSH key.
+
+    * Select **Network & Security > Key Pairs** from the left navigation menu.
+    * Select the **wrfcloud-amdmin** key pair followed by **Actions > Delete**.
+
+5. Modify SES settings.
+
+  * Use the top-level search bar to find and launch the AWS **SES** Service.
+  * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
+  * Select **Configuration > Verified Identites** from the left navigation menu.
+  * Select and **Delete** the email identity for your administrator's email address.
+
+6. Delete CloudFormation stacks.
+
+  * Use the top-level search bar to find and launch the AWS **CloudFormation** Service.
+  * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
+  * Select **Stacks** from the left navigation menu.
+  * Select and **Delete** the **WrfIntelImageBuilder** and **WrfCloudWebApp** stacks.
+  * Wait for **WrfCloudWebApp** stack to finish deleting.
+
+    * If a delete fails, delete it again, and DO NOT retain the resources.
+
+  * Select and **Delete** the **WrfCloudApiData** and **WrfCloudWebCertificate** stacks as well.
+
+You have now finished uninstalling WRF Cloud from your AWS account.

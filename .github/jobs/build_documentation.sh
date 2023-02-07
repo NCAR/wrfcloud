@@ -8,10 +8,7 @@ DOCS_DIR=${GITHUB_WORKSPACE}/docs
 # run Make to build the documentation and return to previous directory
 cd ${DOCS_DIR}
 make clean html
-if [ $? != 0 ]; then
-  echo "ERROR: make clean html failed"
-  exit 1
-fi
+status=$?
 cd -
 
 # copy HTML output into directory to create an artifact
@@ -22,7 +19,10 @@ cp -r ${DOCS_DIR}/_build/html/* artifact/documentation
 # Copy it into the artifact and documeentation directories
 # so it will be available in the artifacts
 warning_file=${DOCS_DIR}/_build/warnings.log
-if [ -s $warning_file ]; then
+if [[ $status != 0 || -s $warning_file ]]; then
+  if [ $status != 0 ]; then
+    echo "ERROR: 'make clean html' failed with status $status."
+  fi
   cp -r ${DOCS_DIR}/_build/warnings.log artifact/doc_warnings.log
   cp artifact/doc_warnings.log artifact/documentation
   exit 1
