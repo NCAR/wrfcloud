@@ -86,6 +86,8 @@ Once the AWS account prerequisites are satisfied (see :numref:`prerequisites`), 
   git clone https://github.com/NCAR/wrfcloud
   ./wrfcloud/install_bootstrap.sh
 
+This command installs WRF Cloud using the current default branch of the repository. To install a specific tagged version or branch, specify its name as an agrument to the script (e.g. **./wrfcloud/install_bootstrap.sh v1.0**).
+
 This bootstrap script takes about 25 minutes to run. It is followed by a series of interactive questions that must be completed prior to WRF Cloud being installed. For each question, the default option (if applicable) is provided in sqaure braces. Simply hit enter to accept the default or modify the setting as needed. These questions include:
 
 * Would you like to enable autocompletion?

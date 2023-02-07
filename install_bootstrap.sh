@@ -5,11 +5,18 @@
 # Post-condition: WRF Cloud will be installed in the environment and build artifacts will be available
 function main()
 {
+  ### Check for optional branch name ###
+  if [ $# -gt 0 ]; then
+    export GIT_CLONE_OPTS="--branch ${1}"
+  else
+    export GIT_CLONE_OPTS=""
+  fi
+
   ### Setup Build Directory
   time=$(date +%Y%m%d_%H%M%S)
   export build_dir="/tmp/wrfcloud-build-${time}"
   mkdir -p "${build_dir}" && cd "${build_dir}"
-  git clone --branch feature/auto-install https://github.com/NCAR/wrfcloud
+  git clone ${GIT_CLONE_OPTS} https://github.com/NCAR/wrfcloud
 
   ### Configure CloudShell Environment
   install_os_packages
@@ -123,4 +130,4 @@ function install_wrfcloud()
   sudo /opt/python/bin/python3 -m pip install .
 }
 
-main
+main $@
