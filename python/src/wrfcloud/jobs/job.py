@@ -162,7 +162,7 @@ class WrfJob:
         """
         Get the directory with WRF code
         """
-        return os.environ['WRF_HOME'] if 'WRF_HOME' in os.environ else '/home/ec2-user/WRF'
+        return os.environ.get('WRF_HOME', '/home/ec2-user/WRF')
 
     @property
     def upp_code_dir(self) -> str:
