@@ -155,7 +155,7 @@ class WrfJob:
         """
         Get the directory with WPS code
         """
-        return os.environ['WPS_HOME'] if 'WPS_HOME' in os.environ else '/home/ec2-user/WPS'
+        return os.environ.get('WPS_HOME', '/home/ec2-user/WPS')
 
     @property
     def wrf_code_dir(self) -> str:
