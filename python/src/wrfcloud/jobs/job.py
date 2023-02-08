@@ -169,7 +169,7 @@ class WrfJob:
         """
         Get the directory with UPP code
         """
-        return os.environ['UPP_HOME'] if 'UPP_HOME' in os.environ else '/home/ec2-user/UPP'
+        return os.environ.get('UPP_HOME', '/home/ec2-user/UPP')
 
     @property
     def exists(self) -> str:
