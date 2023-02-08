@@ -191,7 +191,7 @@ class WrfJob:
         """
         Get the working directory for the job
         """
-        base_dir: str = os.environ['WORK_DIR'] if 'WORK_DIR' in os.environ else '/data'
+        base_dir: str = os.environ.get('WORK_DIR', '/data')
         return f'{base_dir}/{self.job_id}'
 
     @property
