@@ -1,0 +1,88 @@
+@import ../../globals
+
+
+.edit-model-config-container
+  width: 90vw
+  max-width: min(400px, 68vw)
+  max-height: 60vh
+  overflow-y: scroll
+  overflow-x: hidden
+  padding-right: 16px
+  margin: auto auto 15px auto
+
+.edit-model-config-title
+  font-size: 1.75rem
+  margin-bottom: 20px
+
+.edit-model-config-busy-spinner
+  width: 100%
+  height: 31px
+  text-align: center
+  margin-top: 8px
+
+.edit-model-config-field-container
+  width: calc(100% - 24px)
+  max-width: 376px
+  margin: auto
+
+.edit-model-config-field
+  width: 100%
+
+.edit-model-config-button-panel
+  display: inline
+  margin-top: 15px
+
+.edit-model-config-button
+  background-color: $accent-blue
+  font-size: 1.0625rem
+
+.edit-model-config-hidden-file-input
+  display: none
+
+.edit-model-config-shaded
+  background-color: rgba(0, 0, 0, 0.04)
+  padding: 8px
+
+.edit-model-config-slider-label
+  font-size: 20px
+  padding: 8px
+  color: rgba(0, 0, 0, 0.6)
+
+.edit-model-config-checkbox
+  font-size: 1.0rem
+  margin-left: 28px
+
+.edit-model-config-slider
+  width: 80%
+  margin: auto
+  display: block
+
+.mat-slider-thumb-label-text
+  color: $dark-gray !important
+
+.remove-model-config-button
+  background-color: $warn
+  font-size: 1.0rem
+
+.mat-input-element
+  font-size: 1.25rem
+
+.mat-input-element:disabled
+  color: rgba(black, 0.6)
+
+.mat-form-field
+  font-size: 1.25rem
+
+@media screen and (min-width: 840px)
+
+  .edit-model-config-container
+    max-width: min(800px, 68vw)
+
+  .edit-model-config-field-container
+    max-width: 800px
+
+  .remove-model-config-button
+    float: right
+
+  .edit-model-config-slider
+    min-width: 600px

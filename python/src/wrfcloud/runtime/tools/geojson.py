@@ -1,6 +1,7 @@
 """
 Module to convert WRF output to GeoJSON
 """
+import os
 import pkgutil
 from concurrent.futures import ProcessPoolExecutor, wait
 from typing import Union, List
@@ -376,10 +377,11 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
             wrf_layer.time_step = float(file_name_hours) + (float(file_name_minutes) / 60)
             out_layers.append(wrf_layer)
 
-            # convert the file
-            converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette_name, z_level)
-            future = ppe.submit(converter.convert, out_file)
-            futures.append(future)
+            # convert the file if it does not already exist
+            if not os.path.exists(out_file):
+                converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette_name, z_level)
+                future = ppe.submit(converter.convert, out_file)
+                futures.append(future)
 
     wait(futures)
 

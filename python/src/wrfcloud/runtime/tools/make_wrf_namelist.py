@@ -1,50 +1,55 @@
 """
-Functions for setting up and creating namelist.input
+Functions for setting up and creating namelist.input file
 """
 
 import f90nml
 from f90nml.namelist import Namelist
-from wrfcloud.runtime import RunInfo
+from wrfcloud.jobs import WrfJob
 from wrfcloud.log import Logger
 
 
-def make_wrf_namelist(runinfo: RunInfo, nml_file: str = None) -> Namelist:
-    """Main routine that sets up and creates namelist.input"""
+def make_wrf_namelist(job: WrfJob, nml_file: str = None) -> Namelist:
+    """
+    Main routine that sets up and creates namelist.input file
+    :param job: Details of this job
+    :param nml_file: Namelist file
+    :return: Namelist object
+    """
     log = Logger()
-    log.debug(f'Setting up WRF namelist for "{runinfo.name}"')
+    log.debug(f'Setting up WRF namelist for "{job.job_id}"')
 
     if nml_file is None:
-        nml_file = runinfo.staticdir + '/namelist.input'
+        nml_file = job.static_dir + '/namelist.input'
 
-    with open(nml_file, encoding='utf-8') as nml_file_read:
-        nml = f90nml.read(nml_file_read)
+    with open(nml_file, encoding='utf-8') as namelist_file_read:
+        namelist = f90nml.read(namelist_file_read)
 
     # Convert singlet values to lists of values (makes iterating easier)
-    for subnml in nml:
-        for entry in nml[subnml]:
-            if isinstance(nml[subnml][entry], (str, int, float, complex)):
-                tempval = nml[subnml][entry]
-                nml[subnml][entry] = [tempval]
+    for namelist_line in namelist:
+        for entry in namelist[namelist_line]:
+            if isinstance(namelist[namelist_line][entry], (str, int, float, complex)):
+                tempval = namelist[namelist_line][entry]
+                namelist[namelist_line][entry] = [tempval]
 
     # Replace relevant settings
-    for domain in range(nml['domains']['max_dom'][0]):
-        log.debug(f'For domain {domain+1}, writing start date variables for {runinfo.startdate}')
-        nml['time_control']['start_year'][domain] = int(runinfo.startyear)
-        nml['time_control']['start_month'][domain] = int(runinfo.startmonth)
-        nml['time_control']['start_day'][domain] = int(runinfo.startday)
-        nml['time_control']['start_hour'][domain] = int(runinfo.starthour)
-        log.debug(f'For domain {domain+1}, writing end date variables for {runinfo.enddate}')
-        nml['time_control']['end_year'][domain] = int(runinfo.endyear)
-        nml['time_control']['end_month'][domain] = int(runinfo.endmonth)
-        nml['time_control']['end_day'][domain] = int(runinfo.endday)
-        nml['time_control']['end_hour'][domain] = int(runinfo.endhour)
+    for domain in range(namelist['domains']['max_dom'][0]):
+        log.debug(f'For domain {domain+1}, writing start date variables for {job.start_date}')
+        namelist['time_control']['start_year'][domain] = int(job.start_year)
+        namelist['time_control']['start_month'][domain] = int(job.start_month)
+        namelist['time_control']['start_day'][domain] = int(job.start_day)
+        namelist['time_control']['start_hour'][domain] = int(job.start_hour)
+        log.debug(f'For domain {domain+1}, writing end date variables for {job.end_date}')
+        namelist['time_control']['end_year'][domain] = int(job.end_year)
+        namelist['time_control']['end_month'][domain] = int(job.end_month)
+        namelist['time_control']['end_day'][domain] = int(job.end_day)
+        namelist['time_control']['end_hour'][domain] = int(job.end_hour)
 
     log.debug('Writing domain-independent time_control variables')
-    nml['time_control']['run_hours'] = int(runinfo.runhours)
-    nml['time_control']['interval_seconds'] = int(runinfo.input_freq_sec)
-    nml['time_control']['history_interval'] = int(runinfo.output_freq_min)
+    namelist['time_control']['run_hours'] = int(job.run_hours)
+    namelist['time_control']['interval_seconds'] = int(job.input_freq_sec)
+    namelist['time_control']['history_interval'] = int(job.output_freq_min)
 
     log.debug('Writing WRF namelist file')
-    f90nml.write(nml, 'namelist.input')
+    f90nml.write(namelist, 'namelist.input')
 
-    return nml
+    return namelist

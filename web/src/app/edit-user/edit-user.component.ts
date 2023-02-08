@@ -23,6 +23,7 @@ export class EditUserComponent implements OnInit
   public roles: any = [
     {value: 'readonly', displayName: 'Read-only'},
     {value: 'regular', displayName: 'Regular'},
+    {value: 'maintainer', displayName: 'Maintainer'},
     {value: 'admin', displayName: 'Admin'}
   ];
 

@@ -1,0 +1,49 @@
+<div class="model-config-container">
+
+  <!-- action panel -->
+  <div class="model-config-action-panel">
+    <mat-grid-list [cols]="this.app.userHasRole('maintainer') ? 2 : 1" rowHeight="75px">
+      <mat-grid-tile>
+        <button mat-stroked-button class="model-config-action-button" (click)="loadModelConfigList()">
+          <mat-icon class="model-config-action-button-icon">autorenew</mat-icon>
+          Refresh
+        </button>
+      </mat-grid-tile>
+      <mat-grid-tile *ngIf="this.app.userHasRole('maintainer')">
+        <button mat-stroked-button class="model-config-action-button" (click)="addModelConfig()">
+          <mat-icon class="model-config-action-button-icon">satellite</mat-icon>
+          Add Config
+        </button>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </div>
+
+  <!-- filter container -->
+  <div class="model-config-filter-container">
+    <mat-form-field class="model-config-filter-input model-config-overlay" appearance="fill" [class.model-config-hide]="busy">
+      <mat-label>Filter Results</mat-label>
+      <input matInput type="text" [(ngModel)]="filter" (keyup)="filterModified()">
+      <button mat-button matSuffix *ngIf="filter.length > 0" (click)="filter=''; filterModified()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+    <div class="model-config-busy-spinner model-config-overlay" [class.model-config-hide]="!busy">
+      <mat-icon class="spin">autorenew</mat-icon>
+    </div>
+  </div>
+
+  <!-- user table -->
+  <div class="model-config-table-container">
+    <table mat-table [dataSource]="dataSource" matSort class="model-config-user-table mat-elevation-z8">
+      <ng-container matColumnDef="config_name" class="model-config-user-table-cell">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Configuration Name </th>
+        <td mat-cell *matCellDef="let item"> {{item.name}} </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="app.isMobile ? mobileColumns : desktopColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: (app.isMobile ? mobileColumns : desktopColumns);" (click)="rowClicked(row)"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[app.isMobile ? 5 : 8]" showFirstLastButtons #paginator>
+    </mat-paginator>
+  </div>
+</div>

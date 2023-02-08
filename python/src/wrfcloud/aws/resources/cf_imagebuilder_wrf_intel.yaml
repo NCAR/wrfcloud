@@ -60,7 +60,7 @@ Resources:
                     - echo 'export LDFLAGS="-L${MPI}/lib -L${MPI}/lib/release"' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH="${MPI}/lib/release:${MPI}/lib"' | tee -a /etc/bashrc
                     - echo 'export I_MPI_OFI_LIBRARY_INTERNAL=0' | tee -a /etc/bashrc
-                    - echo 'source /opt/intel/oneapi/setvars.sh --force' | tee -a /etc/bashrc
+                    - echo 'source /opt/intel/oneapi/setvars.sh --force > /dev/null' | tee -a /etc/bashrc
                     - echo 'export I_MPI_FABRICS=shm:ofi' | tee -a /etc/bashrc
                     - echo 'export I_MPI_OFI_PROVIDER=efa' | tee -a /etc/bashrc
                     - echo '*    hard    stack    unlimited' | tee -a /etc/security/limits.conf
@@ -314,7 +314,7 @@ Resources:
                     - source /etc/bashrc
                     - mkdir -p /opt/src
                     - cd /opt/src
-                    - git clone -b feature/auto-install https://github.com/NCAR/wrfcloud
+                    - git clone -b feature/112-model-configs https://github.com/NCAR/wrfcloud
                     - pip3 install wrfcloud/python/src
 
               - name: build-wrf

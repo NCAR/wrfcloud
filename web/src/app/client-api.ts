@@ -411,6 +411,82 @@ export class ClientApi
 
 
   /**
+   * Send a request to list all model configurations
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendListModelConfigurations(requestData: ListModelConfigurationsRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'ListModelConfigurations',
+      data: requestData,
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
+   * Send a request to list all model configurations
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendAddModelConfiguration(requestData: AddModelConfigurationRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'AddModelConfiguration',
+      data: requestData,
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
+   * Send a request to delete a model configuration
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendDeleteModelConfiguration(requestData: DeleteModelConfigurationRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'DeleteModelConfiguration',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
+   * Update a model configuration
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendUpdateModelConfiguration(requestData: UpdateModelConfigurationRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'UpdateModelConfiguration',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
    * Send a request for WRF meta data
    *
    * @param requestData
@@ -523,7 +599,6 @@ export class ClientApi
   {
     if (this.websocket === undefined || this.websocket.readyState === WebSocket.CLOSED)
     {
-      console.log('wsconn');
       this.websocket = new WebSocket(ClientApi.WEBSOCKET_URL);
       this.websocket.onopen = listener.websocketOpen.bind(listener);
       this.websocket.onclose = listener.websocketClose.bind(listener);
@@ -791,7 +866,8 @@ export interface WrfJob
   job_id: string;
   job_name: string;
   configuration_name: string;
-  cycle_time: number;
+  start_date: string;
+  end_date: string;
   forecast_length: number;
   output_frequency: number;
   status_code: number;
@@ -932,5 +1008,65 @@ export interface RunWrfResponse extends ApiResponse
 {
   data: {
     ref_id: string;
+  }
+}
+
+export interface ModelConfiguration
+{
+  id: string;
+  name: string;
+  description: string;
+  model_name: string;  /* This should always be WRF until we support other models */
+  wrf_namelist: string;
+  wps_namelist: string;
+  cores: number;
+}
+
+export interface ListModelConfigurationsRequest
+{
+  configuration_name?: string;
+}
+
+export interface ListModelConfigurationsResponse extends ApiResponse
+{
+  data: {
+    model_configs: Array<ModelConfiguration>;
+  }
+}
+
+
+export interface AddModelConfigurationRequest
+{
+  model_config: ModelConfiguration;
+}
+
+export interface AddModelConfigurationResponse extends ApiResponse
+{
+  data: {
+    model_config: ModelConfiguration
+  }
+}
+
+export interface DeleteModelConfigurationRequest
+{
+  configuration_name: string;
+}
+
+export interface DeleteModelConfigurationResponse extends ApiResponse
+{
+  data: {
+    model_config: ModelConfiguration
+  }
+}
+
+export interface UpdateModelConfigurationRequest
+{
+  model_config: ModelConfiguration;
+}
+
+export interface UpdateModelConfigurationResponse extends ApiResponse
+{
+  data: {
+    model_config: ModelConfiguration
   }
 }

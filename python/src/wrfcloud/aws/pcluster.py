@@ -27,7 +27,7 @@ class CustomAction:
         self.log = Logger(self.__class__.__name__)
         self.ref_id = ref_id
         self.script_contents = script_contents
-        self.bucket_name = bucket_name if bucket_name is not None else os.environ['WRFCLOUD_BUCKET_NAME']
+        self.bucket_name = bucket_name if bucket_name is not None else os.environ['WRFCLOUD_BUCKET']
         self.object_prefix = object_prefix if object_prefix is not None else f'CustomAction/{ref_id}'
         self.object_name = object_name if object_name is not None else 'on_configure.sh'
 

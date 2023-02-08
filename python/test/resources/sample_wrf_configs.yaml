@@ -1,0 +1,9 @@
+wrf_configs:
+  - name: boulder_co_1km
+    description: Boulder, CO (1km)
+    s3_key_wrf_namelist: model_configurations/boulder_co_1km/namelist.input
+    s3_key_wps_namelist: model_configurations/boulder_co_1km/namelist.wps
+    s3_key_geo_em: model_configurations/boulder_co_1km/geo_em.d01.nc
+    wrf_namelist: ''
+    wps_namelist: ''
+    cores: 0

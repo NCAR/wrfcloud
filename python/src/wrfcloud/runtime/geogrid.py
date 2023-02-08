@@ -4,9 +4,9 @@ import io
 import tarfile
 import glob
 import f90nml
-
+from wrfcloud.jobs import WrfJob
 from wrfcloud.system import get_aws_session
-from wrfcloud.runtime import RunInfo, Process
+from wrfcloud.runtime import Process
 
 
 class GeoGrid(Process):
@@ -15,42 +15,35 @@ class GeoGrid(Process):
     """
 
     """
-    URL of static terrestrial file used by geogrid
-    """
-    INPUT_DATA_URL = 'https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz'
-
-    """
     GeoGrid executable filename
     """
     EXE = 'geogrid.exe'
 
-    def __init__(self, run_info: RunInfo):
+    def __init__(self, job: WrfJob):
         """
         Construct a geo_em file generator
-        :param run_info: RunInfo information about current run
+        :param job: RunInfo information about current run
         """
         super().__init__()
-        # TODO: change uses of RunInfo to WRF info
-        self.run_info: RunInfo = run_info
-        self.config_dir: str = self.run_info.staticdir
-        self.geogrid_dir: str = self.run_info.geogriddir
-        self.run_name: str = self.run_info.name
-        self.wps_dir: str = self.run_info.wpscodedir
-        # TODO: get bucket name from WRF info
-        self.bucket_name: str = 'wrfcloud-output'
-
-        # read namelist.wps file from workding dir and read it into Namelist
-        nml_file = os.path.join(self.config_dir, 'namelist.wps')
-        with open(nml_file, encoding='utf-8') as nml_file_read:
-            self.namelist = f90nml.read(nml_file_read)
-
-        self.num_domains = self.namelist['share']['max_dom']
+        self.job: WrfJob = job
+        self.config_dir: str = self.job.static_dir
+        self.geogrid_dir: str = self.job.geogrid_dir
+        self.run_name: str = self.job.configuration_name
+        self.wps_dir: str = self.job.wps_code_dir
+        self.bucket_name: str = os.environ['WRFCLOUD_BUCKET']
+        self.num_domains: int = 0
 
     def run(self):
         """
         Run geogrid.exe and upload geo_em file to S3
         :returns: True if geogrid output is available locally, False if not
         """
+        # create geogrid data directory if it doesn't exist
+        os.makedirs(self.geogrid_dir, exist_ok=True)
+
+        # update namelist.wps file with correct geog data path
+        self._update_and_write_namelist()
+
         # if any geo_em files already exist, skip running geogrid
         if self._any_geo_em_files_exist_local():
             self.log.info('geo_em files already exist locally. Skip running geogrid')
@@ -63,9 +56,6 @@ class GeoGrid(Process):
 
         # set up geogrid.exe to run
         self._setup_geogrid()
-
-        # update namelist.wps file with correct geog data path
-        self._update_and_write_namelist()
 
         # download static terrestrial file
         if not self._get_input_file():
@@ -145,10 +135,6 @@ class GeoGrid(Process):
         """
         Link files into geogrid dir to be able to run geogrid
         """
-        # create geogrid data directory if it doesn't exist
-        if not os.path.exists(self.geogrid_dir):
-            os.makedirs(self.geogrid_dir)
-
         # unset I_MPI_OFI_PROVIDER environment variable
         self.log.info('Unsetting I_MPI_OFI_PROVIDER so that EFA support is not required')
         if 'I_MPI_OFI_PROVIDER' in os.environ:
@@ -164,13 +150,22 @@ class GeoGrid(Process):
         """
         Set geog_data_path in namelist and write modified file to geogrid dir
         """
-        # set geog data path to use cluster directory structure
-        self.namelist['geogrid']['geog_data_path'] = os.path.join(self.geogrid_dir, 'WPS_GEOG')
+        # read namelist.wps file from working dir and read it into Namelist
+        nml_file = os.path.join(self.config_dir, 'namelist.wps')
+        with open(nml_file, encoding='utf-8') as nml_file_read:
+            self.namelist = f90nml.read(nml_file_read)
 
-        # remove any geogrid variables that start with opt_
-        opt_keys = [key for key in self.namelist['geogrid'] if key.startswith('opt_')]
-        for key in opt_keys:
-            del self.namelist['geogrid'][key]
+        # save the number of domains
+        self.num_domains = self.namelist['share']['max_dom']
+
+        if 'geogrid' in self.namelist:
+            # set geog data path to use cluster directory structure
+            self.namelist['geogrid']['geog_data_path'] = os.path.join(self.geogrid_dir, 'WPS_GEOG')
+
+            # remove any geogrid variables that start with opt_
+            opt_keys = [key for key in self.namelist['geogrid'] if key.startswith('opt_')]
+            for key in opt_keys:
+                del self.namelist['geogrid'][key]
 
         # write updated namelist.wps file to geogrid dir
         namelist_out = os.path.join(self.geogrid_dir, 'namelist.wps')
@@ -188,10 +183,11 @@ class GeoGrid(Process):
             self.log.debug(f'Terrestrial data already exists in {self.geogrid_dir}')
             return True
 
-        self.log.info(f'Downloading terrestrial file: {self.INPUT_DATA_URL}')
+        geogrid_data_url: str = os.environ['GEOGRID_BASE_URL']
+        self.log.info(f'Downloading terrestrial file: {geogrid_data_url}')
         try:
-            dl_request = requests.get(self.INPUT_DATA_URL, allow_redirects=True)
-            with tarfile.open(fileobj=io.BytesIO(dl_request.content)) as handle:
+            download_request = requests.get(geogrid_data_url, allow_redirects=True)
+            with tarfile.open(fileobj=io.BytesIO(download_request.content)) as handle:
                 handle.extractall(self.geogrid_dir)
         except Exception as e:
             self.log.error(f'Could not obtain terrestrial file: {e}')

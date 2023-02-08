@@ -1,0 +1,14 @@
+---
+# run settings
+run:
+    configuration: test
+    workdir: /data
+    start: 2022-06-01_09:00:00
+    end: 2022-06-01_12:00:00
+    input_freq_sec: 10800
+    output_freq_sec: 3600
+    exists: remove
+# mpi settings
+settings:
+    queue: debug
+    wrfcores: 96

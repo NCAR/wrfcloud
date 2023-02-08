@@ -101,6 +101,7 @@ Resources:
                   - Fn::ImportValue: !Sub 'dynamodb-table-refresh-tokens-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-users-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-jobs-${DeploymentType}-${AppName}'
+                  - Fn::ImportValue: !Sub 'dynamodb-table-config-${DeploymentType}-${AppName}'
                   - Fn::ImportValue: !Sub 'dynamodb-table-subscribers-${DeploymentType}-${AppName}'
               - Effect: Allow
                 Action:
@@ -112,6 +113,7 @@ Resources:
                   - s3:ListBucket
                   - s3:GetObject
                   - s3:PutObject
+                  - s3:DeleteObject
                 Resource:
                   - !Sub 'arn:aws:s3:::${WrfCloudBucket}'
                   - !Sub 'arn:aws:s3:::${WrfCloudBucket}/*'
@@ -286,7 +288,7 @@ Resources:
           HELP_TOPIC_ARN: !Ref HelpTopic
           PATH: '/opt/node/bin:${PATH}'
           PYTHONPATH: /opt/python/lib
-          WRFCLOUD_BUCKET_NAME: !Sub '${WrfCloudBucket}'
+          WRFCLOUD_BUCKET: !Sub '${WrfCloudBucket}'
           JWT_KEY: !Sub '${JwtSigningKey}'
   LambdaInvokePermissionFromWebsocketApi:
     Type: AWS::Lambda::Permission

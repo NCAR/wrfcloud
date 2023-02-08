@@ -16,7 +16,7 @@
   </div>
   <div class="edit-user-field-container">
     <mat-form-field class="edit-user-field" appearance="fill">
-      <mat-label>Name</mat-label>
+      <mat-label>Role</mat-label>
       <mat-select [(value)]="user.role_id">
         <mat-option *ngFor="let option of roles" [value]="option.value">
           {{option.displayName}}
