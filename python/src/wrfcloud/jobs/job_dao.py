@@ -7,6 +7,7 @@ import os
 import pkgutil
 from typing import Union, List
 import yaml
+from concurrent.futures import Future, ThreadPoolExecutor
 from wrfcloud.dynamodb import DynamoDao
 from wrfcloud.jobs.job import WrfJob
 from wrfcloud.jobs.job import WrfLayer
@@ -86,8 +87,12 @@ class JobDao(DynamoDao):
         """
         # Convert a list of items into a list of User objects
         jobs: List[WrfJob] = [WrfJob(item) for item in super().get_all_items()]
-        for job in jobs:
-            self._load_layers(job)
+
+        # load the layers attribute from S3
+        tpe = ThreadPoolExecutor(max_workers=16)
+        futures: List[Future] = [tpe.submit(self._load_layers, job) for job in jobs]
+        for future in futures:
+            future.result()
         return jobs
 
     def update_job(self, job: WrfJob) -> bool:
