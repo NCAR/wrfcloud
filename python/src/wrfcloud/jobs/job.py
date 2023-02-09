@@ -155,21 +155,21 @@ class WrfJob:
         """
         Get the directory with WPS code
         """
-        return os.environ['WPS_HOME'] if 'WPS_HOME' in os.environ else '/home/ec2-user/WPS'
+        return os.environ.get('WPS_HOME', '/home/ec2-user/WPS')
 
     @property
     def wrf_code_dir(self) -> str:
         """
         Get the directory with WRF code
         """
-        return os.environ['WRF_HOME'] if 'WRF_HOME' in os.environ else '/home/ec2-user/WRF'
+        return os.environ.get('WRF_HOME', '/home/ec2-user/WRF')
 
     @property
     def upp_code_dir(self) -> str:
         """
         Get the directory with UPP code
         """
-        return os.environ['UPP_HOME'] if 'UPP_HOME' in os.environ else '/home/ec2-user/UPP'
+        return os.environ.get('UPP_HOME', '/home/ec2-user/UPP')
 
     @property
     def exists(self) -> str:
@@ -191,7 +191,7 @@ class WrfJob:
         """
         Get the working directory for the job
         """
-        base_dir: str = os.environ['WORK_DIR'] if 'WORK_DIR' in os.environ else '/data'
+        base_dir: str = os.environ.get('WORK_DIR', '/data')
         return f'{base_dir}/{self.job_id}'
 
     @property

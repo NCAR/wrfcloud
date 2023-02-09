@@ -39,8 +39,7 @@ class GeoGrid(Process):
         :returns: True if geogrid output is available locally, False if not
         """
         # create geogrid data directory if it doesn't exist
-        if not os.path.exists(self.geogrid_dir):
-            os.makedirs(self.geogrid_dir, exist_ok=True)
+        os.makedirs(self.geogrid_dir, exist_ok=True)
 
         # update namelist.wps file with correct geog data path
         self._update_and_write_namelist()
