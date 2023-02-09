@@ -98,7 +98,7 @@ function create_wrfcloud_lambda_layer()
   cd ../../
   ln -s ~/.nvm/versions/node/v16.19.0 $(pwd)/node
   rm -f ~/.nvm/versions/node/v16.19.0/v16.19.0
-  zip -r "${build_dir}/lambda_layer.zip" python/lib node
+  zip -r "${build_dir}/lambda_layer.zip" python/lib node/bin node/include node/share node/lib/node_modules/corepack node/lib/node_modules/npm
 }
 
 # Create a zip file for the lambda function
