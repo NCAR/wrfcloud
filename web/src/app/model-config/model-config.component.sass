@@ -1,0 +1,85 @@
+@import ../../globals
+
+
+.model-config-container
+  width: 100vw
+  margin: auto
+  font-size: 1.25rem
+
+.model-config-filter-container
+  display: grid
+  width: 90vw
+  max-width: 800px
+  margin: auto
+
+.model-config-hide
+  visibility: hidden
+
+.model-config-overlay
+  grid-column: 1
+  grid-row: 1
+
+.model-config-filter-input
+  width: 100%
+  margin: 15px auto 0 auto
+
+.model-config-busy-spinner
+  width: 100%
+  text-align: center
+  margin-top: 30px
+
+.model-config-table-container
+  width: 100%
+  max-width: 800px
+  margin: auto
+
+.model-config-user-table
+  font-size: 1.25rem
+  width: 100%
+
+.model-config-user-table-cell
+  max-width: 30%
+
+.model-config-inactive-icon
+  color: $warn
+
+.model-config-active-icon
+  color: $accent-green
+
+.model-config-hover-highlight :hover
+  background-color: $accent-gold
+
+.model-config-action-panel
+  width: 100%
+  max-width: 800px
+  margin: auto
+
+.model-config-action-button
+  font-size: 1.1rem
+  width: 85%
+
+.model-config-action-button-icon
+  font-size: 1.0rem
+  position: relative
+  top: 3px
+
+.mat-header-cell
+  font-size: 1.25rem
+  font-weight: bold
+
+.mat-cell
+  font-size: 1.25rem
+
+@media screen and (min-width: 840px)
+
+  .model-config-action-button
+    font-size: 1.0rem
+
+  .model-config-action-button-icon
+    font-size: 1.0rem
+
+  .mat-header-cell
+    font-size: 1.0rem
+
+  .mat-cell
+    font-size: 1.0rem

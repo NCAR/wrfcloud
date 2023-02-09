@@ -20,6 +20,10 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatSliderModule} from "@angular/material/slider";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatBadgeModule} from "@angular/material/badge";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MatMomentDateModule} from "@angular/material-moment-adapter";
+import {MatRadioModule} from "@angular/material/radio";
 
 import {HomeComponent} from './home/home.component';
 import {LoginComponent} from './login/login.component';
@@ -36,10 +40,8 @@ import {ResetPasswordComponent} from './reset-password/reset-password.component'
 import {LayerComponent} from './layer/layer.component';
 import {PreferencesComponent} from './preferences/preferences.component';
 import {LogoutComponent} from './logout/logout.component';
-import {MatBadgeModule} from "@angular/material/badge";
-import {MatDatepickerModule} from "@angular/material/datepicker";
-import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MatMomentDateModule} from "@angular/material-moment-adapter";
-import {MatRadioModule} from "@angular/material/radio";
+import {ModelConfigComponent} from './model-config/model-config.component';
+import {EditModelConfigurationComponent} from './edit-model-configuration/edit-model-configuration.component';
 
 
 @NgModule({
@@ -57,7 +59,9 @@ import {MatRadioModule} from "@angular/material/radio";
     PreferencesComponent,
     ViewJobsComponent,
     WrfViewerComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    ModelConfigComponent,
+    EditModelConfigurationComponent
   ],
     imports: [
         BrowserModule,

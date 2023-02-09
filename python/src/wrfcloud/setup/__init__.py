@@ -465,6 +465,7 @@ def _install_sample_data(s3_bucket: str) -> None:
     :return: None
     """
     # base URL to download files and list of file names
+    # TODO: #112 - Install sample configuration in DynamoDB
     base_url: str = 'https://www.wrfcloud.com/data/test'
     files: List[str] = ['geo_em.d01.nc', 'namelist.input', 'namelist.wps']
 

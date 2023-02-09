@@ -147,9 +147,6 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
     /* handle the response */
     if (response.ok)
     {
-      // TODO: Get rid of this nonsense
-      for (let job of response.data.jobs)
-        job.configuration_name = 'Caribbean 6km';
       this.jobs = response.data.jobs;
       this.dataSource.data = this.jobs;
     }
@@ -234,7 +231,8 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
         job_.output_frequency = job.output_frequency;
         job_.forecast_length = job.forecast_length;
         job_.configuration_name = job.configuration_name;
-        job_.cycle_time = job.cycle_time;
+        job_.start_date = job.start_date;
+        job_.end_date = job.end_date;
         job_.progress = job.progress;
         job_.user_email = job.user_email;
         job_.notify = job.notify;

@@ -1,18 +1,7 @@
 #! /bin/bash
 
 source /etc/bashrc
-
-mkdir -p /data/__REF_ID__
-cd /data/__REF_ID__
-echo -n "__CONFIG_B64_GZ__" | base64 -d | gunzip > run.yml
-
-aws s3 sync s3://__S3_BUCKET__/configurations/__CONFIG_NAME__ .
-mv configurations/__CONFIG_NAME__/* .
-mkdir -p configurations/__CONFIG_NAME__
-mv geo_em.d01.nc configurations/__CONFIG_NAME__
-cp namelist.wps configurations/__CONFIG_NAME__
-cp namelist.input configurations/__CONFIG_NAME__
-chown -R ec2-user.ec2-user /data/__REF_ID__
 unset I_MPI_OFI_PROVIDER
-export WRF_OUTPUT_BUCKET="__S3_BUCKET__"
-su ec2-user -c /opt/python/bin/wrfcloud-run > wrfcloud-run.log 2>&1 &
+export WRFCLOUD_BUCKET="__S3_BUCKET__"
+export APP_HOSTNAME="__APP_HOSTNAME__"
+su ec2-user -c "/opt/python/bin/wrfcloud-run --job-id __JOB_ID__" > /data/wrfcloud-run-__JOB_ID__.log 2>&1 &

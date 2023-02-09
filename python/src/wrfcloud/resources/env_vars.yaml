@@ -4,7 +4,6 @@ test:
   APP_NAME: WRF Cloud
   SEND_EMAIL: False
   LANGUAGE: en
-  WRFCLOUD_BUCKET_NAME: wrfcloud-output
 
   # AWS Account Profile
   AWS_PROFILE: junk
@@ -22,6 +21,7 @@ test:
   AUDIT_TABLE_NAME: wrfcloud_audit_test
   REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_test
   JOB_TABLE_NAME: wrfcloud_jobs_test
+  CONFIG_TABLE_NAME: wrfcloud_config_test
   SUBSCRIBER_TABLE_NAME: wrfcloud_subscribers_test
   ENDPOINT_URL: 'http://localhost:8000'
 
@@ -34,12 +34,13 @@ test:
   LOG_APPLICATION_NAME: wrfcloud-test
 
   # WRF Output
-  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRFCLOUD_BUCKET: wrfcloud-output
   WRF_OUTPUT_PREFIX: ''
 
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
   AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
+  GEOGRID_BASE_URL: 'https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz'
 
 codebuild:
 
@@ -65,6 +66,7 @@ codebuild:
   REFRESH_TOKEN_TABLE_NAME: wrfcloud_refresh_tokens_build
   SUBSCRIBER_TABLE_NAME: wrfcloud_subscribers_build
   JOB_TABLE_NAME: wrfcloud_jobs_build
+  CONFIG_TABLE_NAME: wrfcloud_config_build
 
   # EventBridge Options
   EVENTBRIDGE_RULE_PREFIX: wrfcloud-codebuild
@@ -75,12 +77,13 @@ codebuild:
   LOG_APPLICATION_NAME: wrfcloud-codebuild
 
   # WRF Output
-  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRFCLOUD_BUCKET: wrfcloud-output
   WRF_OUTPUT_PREFIX: ''
 
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
   AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
+  GEOGRID_BASE_URL: 'https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz'
 
 production:
 
@@ -102,6 +105,7 @@ production:
   AUDIT_TABLE_NAME: production_wrfcloud_audit
   REFRESH_TOKEN_TABLE_NAME: production_wrfcloud_refresh_tokens
   JOB_TABLE_NAME: production_wrfcloud_jobs
+  CONFIG_TABLE_NAME: production_wrfcloud_config
   SUBSCRIBER_TABLE_NAME: production_wrfcloud_subscribers
 
   # EventBridge Options
@@ -114,10 +118,12 @@ production:
 
   # WRF Output
   WRF_OUTPUT_PREFIX: 'test'
+  WORK_DIR: /data
 
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
   AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
+  GEOGRID_BASE_URL: 'https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz'
 
 development:
 
@@ -142,6 +148,7 @@ development:
   AUDIT_TABLE_NAME: development_wrfcloud_audit
   REFRESH_TOKEN_TABLE_NAME: development_wrfcloud_refresh_tokens
   JOB_TABLE_NAME: development_wrfcloud_jobs
+  CONFIG_TABLE_NAME: development_wrfcloud_config
   SUBSCRIBER_TABLE_NAME: development_wrfcloud_subscribers
 
   # EventBridge Options
@@ -153,12 +160,13 @@ development:
   LOG_APPLICATION_NAME: wrfcloud-development
 
   # WRF Output
-  WRF_OUTPUT_BUCKET: wrfcloud-output
+  WRFCLOUD_BUCKET: wrfcloud-output
   WRF_OUTPUT_PREFIX: 'output'
 
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
   AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
+  GEOGRID_BASE_URL: 'https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz'
 
 cli:
 
@@ -173,6 +181,7 @@ cli:
   AUDIT_TABLE_NAME: production_wrfcloud_audit
   REFRESH_TOKEN_TABLE_NAME: production_wrfcloud_refresh_tokens
   JOB_TABLE_NAME: production_wrfcloud_jobs
+  CONFIG_TABLE_NAME: production_wrfcloud_config
   SUBSCRIBER_TABLE_NAME: production_wrfcloud_subscribers
 
   # EventBridge Options
@@ -193,4 +202,4 @@ cli:
   # Location of input data
   NOMADS_BASE_URL: 'https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
   AWS_BASE_URL: 'https://noaa-gfs-bdp-pds.s3.amazonaws.com'
-
+  GEOGRID_BASE_URL: 'https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz'

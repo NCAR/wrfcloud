@@ -2,6 +2,7 @@ from typing import List
 from wrfcloud.api.audit import AuditDao
 from wrfcloud.api.auth.refresh import RefreshTokenDao
 from wrfcloud.jobs import JobDao, WrfJob
+from wrfcloud.config import WrfConfig
 from wrfcloud.user import UserDao, User
 from wrfcloud.subscribers import SubscriberDao, Subscriber
 import yaml
@@ -131,6 +132,17 @@ def _get_all_sample_jobs() -> List[WrfJob]:
 
     # build job objects and return them
     return [WrfJob(job_data) for job_data in jobs_data]
+
+
+def _get_all_sample_wrf_configurations() -> List[WrfConfig]:
+    """
+    Get a list of all sample WRF configs
+    :return: List of sample WRF configs
+    """
+    # load sample configs
+    sample_configs = [yaml.safe_load(open('resources/sample_wrf_configs.yaml'))]
+
+    return [WrfConfig(config_data) for config_data in sample_configs]
 
 
 def _get_sample_subscriber() -> Subscriber:

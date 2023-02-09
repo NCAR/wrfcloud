@@ -91,6 +91,33 @@ export class AppComponent
 
 
   /**
+   * Check user role and permissions - for constructing UI only, not for security
+   *
+   * @param role Minimum role
+   * @return True if user has these permissions or better
+   */
+  public userHasRole(role: string): boolean
+  {
+    if (this.user === undefined)
+      return false;
+
+    if (role === 'readonly')
+      return true;
+
+    if (role === 'regular' && this.user.role_id !== 'readonly')
+      return true;
+
+    if (role === 'maintainer' && (this.user.role_id === 'maintainer' || this.user.role_id === 'admin'))
+      return true;
+
+    if (role === 'admin' && this.user.role_id === 'admin')
+      return true;
+
+    return false;
+  }
+
+
+  /**
    * The window was resized -- update for mobile/tablet/desktop
    */
   public windowResized(event: any): void
@@ -144,6 +171,7 @@ export class AppComponent
     {
       this.menuOptions = [
         {title: 'WRF Jobs', route: 'jobs', icon: 'view_list'},
+        {title: 'WRF Configs', route: 'configs', icon: 'satellite'},
         {title: 'Preferences', route: 'prefs', icon: 'settings'},
         {title: '', route: '', icon: ''},
         {title: '', route: '', icon: ''}
@@ -155,9 +183,21 @@ export class AppComponent
     {
       this.menuOptions = [
         {title: 'Run WRF', route: 'launch', icon: 'queue'},
+        {title: 'WRF Configs', route: 'configs', icon: 'satellite'},
         {title: 'WRF Jobs', route: 'jobs', icon: 'view_list'},
         {title: 'Preferences', route: 'prefs', icon: 'settings'},
         {title: '', route: '', icon: ''}
+      ];
+    }
+
+    /* add actions for regular user */
+    else if (this.user!.role_id === 'maintainer')
+    {
+      this.menuOptions = [
+        {title: 'Run WRF', route: 'launch', icon: 'queue'},
+        {title: 'WRF Configs', route: 'configs', icon: 'satellite'},
+        {title: 'WRF Jobs', route: 'jobs', icon: 'view_list'},
+        {title: 'Preferences', route: 'prefs', icon: 'settings'}
       ];
     }
 
@@ -166,6 +206,7 @@ export class AppComponent
     {
       this.menuOptions = [
         {title: 'Run WRF', route: 'launch', icon: 'queue'},
+        {title: 'WRF Configs', route: 'configs', icon: 'satellite'},
         {title: 'WRF Jobs', route: 'jobs', icon: 'view_list'},
         {title: 'Manage Users', route: 'users', icon: 'account_circle'},
         {title: 'Preferences', route: 'prefs', icon: 'settings'}
@@ -173,7 +214,7 @@ export class AppComponent
     }
 
     /* route to an appropriate screen */
-    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset')
+    if (this.router.url === '/' || this.router.url === '/activate' || this.router.url === '/reset' || this.router.url === '/configs')
       return;  /* do not interfere with these routes for anonymous users */
     else if (this.user !== undefined && (this.router.url.startsWith('/view') || this.router.url.startsWith('/jobs')))
       return;  /* do not interfere with these routes for authenticated users */

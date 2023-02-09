@@ -1,0 +1,11 @@
+---
+# Table definition for storing the job data
+table_name_var: CONFIG_TABLE_NAME
+key_fields:
+  - name
+attribute_definitions:
+  - AttributeName: name
+    AttributeType: S
+key_schema:
+  - AttributeName: name
+    KeyType: HASH

@@ -148,7 +148,7 @@ class JobDao(DynamoDao):
                                             indent=2).encode()
 
         # generate the S3 url -- key comes from hashing the data
-        bucket_name: str = os.environ['WRFCLOUD_BUCKET_NAME']
+        bucket_name: str = os.environ['WRFCLOUD_BUCKET']
         key: str = 'layers.yaml'
         prefix: str = f'jobs/{job.job_id}'
 

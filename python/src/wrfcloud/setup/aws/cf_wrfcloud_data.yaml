@@ -80,6 +80,20 @@ Resources:
         - AttributeName: job_id
           KeyType: HASH
 
+  ModelConfigTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${DeploymentType}_${AppName}_config'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: name
+          KeyType: HASH
+
   SubscriberTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -122,6 +136,11 @@ Outputs:
     Value: !GetAtt JobTable.Arn
     Export:
       Name: !Sub 'dynamodb-table-jobs-${DeploymentType}-${AppName}'
+  ModelConfigTable:
+    Description: DynamoDB Table - Model Configs
+    Value: !GetAtt ModelConfigTable.Arn
+    Export:
+      Name: !Sub 'dynamodb-table-config-${DeploymentType}-${AppName}'
   SubscriberTable:
     Description: DynamoDB Table - Subscribers
     Value: !GetAtt SubscriberTable.Arn
