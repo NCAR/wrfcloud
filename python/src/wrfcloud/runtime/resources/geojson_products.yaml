@@ -13,6 +13,15 @@
 ---
 products:
   # 2D variables
+  - netcdf:
+      variable: temp_2m
+    range:
+      min: -15
+      max: 45
+    contour_interval: 2
+    palette: viridis
+    display_name: 'Temperature 2m'
+    units: 'ºC'
   - grib2:
       variable: 2t
     range:
@@ -20,8 +29,17 @@ products:
       max: 318
     contour_interval: 2
     palette: viridis
-    display_name: '2-m Temperature'
+    display_name: '2-m Temperature - UPP'
     units: 'ºK'
+  - netcdf:
+      variable: dewpt_2m
+    range:
+      min: -25
+      max: 35
+    contour_interval: 2
+    palette: BrBG_r
+    display_name: 'Dew Point Temperature'
+    units: 'ºC'
   - grib2:
       variable: 2d
     range:
@@ -29,27 +47,27 @@ products:
       max: 308
     contour_interval: 2
     palette: BrBG_r
-    display_name: 'Dew Point Temperature'
+    display_name: 'Dew Point Temperature - UPP'
     units: 'ºK'
-  - grib2:
-      variable: 10u
+  - netcdf:
+      variable: wind_speed_10
     range:
       min: -60
       max: 60
     contour_interval: 2
     palette: PuOr
-    display_name: '10-m East/West Wind Component'
-    units: 'm/s'
-  - grib2:
-      variable: 10v
+    display_name: 'Wind Speed 10m'
+    units: 'kt'
+  - netcdf:
+      variable: wind_dir_10
     range:
       min: -60
       max: 60
     contour_interval: 2
     palette: PuOr
-    display_name: '10-m North/South Wind Component'
-    units: 'm/s'
-  - grib2:
+    display_name: 'Wind Direction 10m'
+    units: 'deg'
+  - netcdf:
       variable: prmsl
     range:
       min: 92000
@@ -57,7 +75,25 @@ products:
     contour_interval: 200
     palette: winter
     display_name: 'Mean Sea-Level Pressure'
+    units: 'mb'
+  - grib2:
+      variable: prmsl
+    range:
+      min: 92000
+      max: 104000
+    contour_interval: 200
+    palette: winter
+    display_name: 'Mean Sea-Level Pressure - UPP'
     units: 'Pascals'
+  - netcdf:
+      variable: rh_2m
+    range:
+      min: 0
+      max: 101
+    contour_interval: 5
+    palette: BrBG
+    display_name: 'Relative Humidity 2m'
+    units: '%'
   - grib2:
       variable: 2r
     range:
@@ -65,7 +101,7 @@ products:
       max: 101
     contour_interval: 5
     palette: BrBG
-    display_name: 'Relative Humidity'
+    display_name: 'Relative Humidity - UPP'
     units: '%'
   - grib2:
       variable: cape
@@ -85,8 +121,8 @@ products:
     palette: viridis
     display_name: 'CIN'
     units: 'J/kg'
-  - grib2:
-      variable: refc
+  - netcdf:
+      variable: max_refl
     range:
       min: 10
       max: 70
@@ -95,13 +131,31 @@ products:
     display_name: 'Composite Reflectivity'
     units: 'dBz'
   - grib2:
-      variable: tp
+      variable: refc
+    range:
+      min: 10
+      max: 70
+    contour_interval: 5
+    palette: viridis
+    display_name: 'Composite Reflectivity - UPP'
+    units: 'dBz'
+  - netcdf:
+      variable: total_precip
     range:
       min: 1
       max: 101
     contour_interval: 5
     palette: BrBG
     display_name: 'Precipitation Accumulation'
+    units: 'mm'
+  - grib2:
+      variable: tp
+    range:
+      min: 1
+      max: 101
+    contour_interval: 5
+    palette: BrBG
+    display_name: 'Precipitation Accumulation - UPP'
     units: 'mm'
   - grib2:
       variable: lcc
@@ -132,6 +186,24 @@ products:
     units: '%'
 
   # 3D variables - 1000mb 925mb 850mb 700mb 500mb 300mb 250mb 100mb
+  - netcdf:
+      variable: temp_pres
+    range:
+      min: -28
+      max: 40
+    contour_interval: 1
+    palette: viridis
+    display_name: 'Temperature (3D)'
+    units: 'ºC'
+    z_levels:
+      - 1000
+      - 925
+      - 850
+      - 700
+      - 500
+      - 300
+      - 250
+      - 100
   - grib2:
       variable: t
     range:
@@ -139,7 +211,7 @@ products:
       max: 313
     contour_interval: 1
     palette: viridis
-    display_name: 'Temperature (3D)'
+    display_name: 'Temperature (3D) - UPP'
     units: 'ºK'
     z_levels:
       - 1000
@@ -151,8 +223,8 @@ products:
       - 250
       - 100
 
-  - grib2:
-      variable: r
+  - netcdf:
+      variable: rh_pres
     range:
       min: 0
       max: 100
@@ -169,7 +241,43 @@ products:
       - 300
       - 250
       - 100
+  - grib2:
+      variable: r
+    range:
+      min: 0
+      max: 100
+    contour_interval: 5
+    palette: viridis
+    display_name: 'Relative Humidity (3D) - UPP'
+    units: '%'
+    z_levels:
+      - 1000
+      - 925
+      - 850
+      - 700
+      - 500
+      - 300
+      - 250
+      - 100
 
+  - netcdf:
+      variable: vvel_pres
+    range:
+      min: -60
+      max: 20
+    contour_interval: 2
+    palette: viridis
+    display_name: 'Vertical Velocity (3D)'
+    units: 'Pa/s'
+    z_levels:
+      - 1000
+      - 925
+      - 850
+      - 700
+      - 500
+      - 300
+      - 250
+      - 100
   - grib2:
       variable: w
     range:
@@ -177,7 +285,7 @@ products:
       max: 20
     contour_interval: 2
     palette: viridis
-    display_name: 'Vertical Velocity (3D)'
+    display_name: 'Vertical Velocity (3D) - UPP'
     units: 'Pa/s'
     z_levels:
       - 1000
