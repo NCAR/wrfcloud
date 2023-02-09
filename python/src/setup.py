@@ -24,7 +24,8 @@ setup(
         'numpy>=1.23.0',
         'requests>=2.20',
         'pytz>=2020.4',
-        'pygrib>=2.1.4'
+        'pygrib>=2.1.4',
+        'wrf-python>=1.3.4',
     ],
     package_dir={'wrfcloud': 'wrfcloud'},
     package_data={
