@@ -15,6 +15,7 @@ from wrfcloud.runtime import Process
 from wrfcloud.log import Logger
 from wrfcloud.runtime.tools import check_wd_exist
 from wrfcloud.runtime.tools.geojson import automate_geojson_products
+from wrfcloud.runtime.tools.derivations import derive_fields
 from wrfcloud.system import get_aws_session
 
 
@@ -137,6 +138,41 @@ class UPP(Process):
         return True
 
 
+class Derive(Process):
+    """
+    Class for deriving products and converting units from WRF output
+    """
+    def __init__(self, job: WrfJob):
+        """
+        Initialize the ProcProc object
+        """
+        super().__init__()
+        self.log = Logger(self.__class__.__name__)
+        self.job = job
+        self.nc_files = []
+
+    def run(self) -> bool:
+        """
+        Main routine that sets up and runs field derivations and conversions
+        """
+        # create derive directory
+        os.makedirs(self.job.derive_dir, exist_ok=True)
+
+        # get wrf files
+        wrf_files = glob(os.path.join(self.job.wrf_dir, 'wrfout*'))
+
+        # derive fields
+        for wrf_file in wrf_files:
+            out = derive_fields(in_file=wrf_file, out_dir=self.job.derive_dir)
+            if out is None:
+                self.log.error(f'Could not derive fields from {wrf_file}')
+                return False
+
+            self.nc_files.append(out)
+
+        return True
+
+
 class GeoJson(Process):
     """
     Class for setting up, executing, and monitoring a run of WRF post-processing tasks
@@ -150,6 +186,7 @@ class GeoJson(Process):
         self.job: WrfJob = job
         self.namelist: Union[None, Namelist] = None
         self.grib_files: List[str] = []
+        self.nc_files: List[str] = []
         self.wrf_layers: List[WrfLayer] = []
 
     def set_grib_files(self, grib_files: List[str]) -> None:
@@ -158,6 +195,13 @@ class GeoJson(Process):
         :param grib_files: List of files (full path)
         """
         self.grib_files = grib_files
+
+    def set_nc_files(self, nc_files: List[str]) -> None:
+        """
+        Set the list of NetCDF files to convert
+        :param nc_files: List of files (full path)
+        """
+        self.nc_files = nc_files
 
     def run(self) -> bool:
         """
@@ -185,6 +229,9 @@ class GeoJson(Process):
         :return: List of WRF layer details
         """
         self.wrf_layers = []
+        for nc_file in self.nc_files:
+            for wrf_layer in automate_geojson_products(nc_file, 'netcdf'):
+                self.wrf_layers.append(wrf_layer)
         for grib_file in self.grib_files:
             for wrf_layer in automate_geojson_products(grib_file, 'grib2'):
                 self.wrf_layers.append(wrf_layer)

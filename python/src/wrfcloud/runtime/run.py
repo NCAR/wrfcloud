@@ -14,7 +14,7 @@ from wrfcloud.runtime.ungrib import Ungrib
 from wrfcloud.runtime.metgrid import MetGrid
 from wrfcloud.runtime.real import Real
 from wrfcloud.runtime.wrf import Wrf
-from wrfcloud.runtime.postproc import UPP, GeoJson
+from wrfcloud.runtime.postproc import UPP, GeoJson, Derive
 from wrfcloud.config import WrfConfig, get_config_from_system
 from wrfcloud.jobs import WrfJob, get_job_from_system, update_job_in_system
 from wrfcloud.aws.pcluster import WrfCloudCluster
@@ -89,9 +89,16 @@ def main() -> None:
         upp.start()
         log.debug(upp.get_run_summary())
 
+        log.debug('Starting Derive task')
+        _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running Derive', 0.7)
+        derive = Derive(job)
+        derive.start()
+        log.debug(derive.get_run_summary())
+
         log.debug('Starting GeoJSON task')
         _update_job_status(job, WrfJob.STATUS_CODE_RUNNING, 'Running GeoJSON converter', 0.8)
         geojson = GeoJson(job)
+        geojson.set_nc_files(derive.nc_files)
         geojson.set_grib_files(upp.grib_files)
         geojson.start()
         log.debug(geojson.get_run_summary())
