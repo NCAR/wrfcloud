@@ -125,6 +125,11 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
 7. When installation completes, a log message in the **CloudShell** window directs you to the newly created WRF Cloud URL.
 
+.. code-block:: ini
+
+  WRF Cloud installation is complete.
+  Open your browser to https://app.{DOMAIN NAME}.org
+
 .. _uninstall:
 
 Procedures to Uninstall
@@ -156,8 +161,8 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
   * Remove the wrfcloud Amazon Machine Image (AMI).
 
-    * Select **Images > AMI** from the left navigation menu and search for **wrf**.
-    * Select the wrfcloud AMI followed by **Actions > Deregsiter AMI**.
+    * Select **Images > AMIs** from the left navigation menu and search for **wrf**.
+    * Select the **wrf** AMI followed by **Actions > Deregsiter AMI**.
     * In addition, delete the snapshots.
 
   * Remove the SSH key.
@@ -177,11 +182,9 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
   * Use the top-level search bar to find and launch the AWS **CloudFormation** Service.
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
   * Select **Stacks** from the left navigation menu.
-  * Select and **Delete** the **WrfIntelImageBuilder** and **WrfCloudWebApp** stacks.
-  * Wait for **WrfCloudWebApp** stack to finish deleting.
+  * Select and **Delete** each of the following stacks: **WrfIntelImageBuilder**, **WrfCloudWebApp**, **WrfCloudApiData**, and **WrfCloudWebCertificate**
 
+    * Wait for deletions to complete.
     * If a delete fails, delete it again, and DO NOT retain the resources.
-
-  * Select and **Delete** the **WrfCloudApiData** and **WrfCloudWebCertificate** stacks as well.
 
 You have now finished uninstalling WRF Cloud from your AWS account.
