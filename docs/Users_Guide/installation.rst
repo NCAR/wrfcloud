@@ -128,9 +128,11 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 .. code-block:: ini
 
   WRF Cloud installation is complete.
-  Open your browser to https://app.{DOMAIN NAME}.org
+  Open your browser to https://app.{DOMAIN NAME}/login
 
 .. _uninstall:
+
+8. Confirm that you can login and proceed to System Administration (:numref:`administration`).
 
 Procedures to Uninstall
 =======================
