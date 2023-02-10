@@ -4,6 +4,8 @@ import numpy as np
 from wrf import getvar, vinterp
 from netCDF4 import Dataset
 
+from wrfcloud.log import Logger
+
 
 def derive_fields(in_file: str, out_dir: str):
     log = Logger()
