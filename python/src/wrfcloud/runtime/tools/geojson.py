@@ -345,6 +345,9 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
     # create each product
     out_layers: List[WrfLayer] = []
     for product in products:
+        # only process products that match the file type
+        if file_type not in product:
+            continue
         variable = product[file_type]['variable']
         value_range = [product['range']['min'], product['range']['max']]
         contour_interval = product['contour_interval']
