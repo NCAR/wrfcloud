@@ -378,7 +378,7 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
                 file_name_minutes: str = '0' if '.' not in file_name_time else file_name_time.split('.')[1]
                 wrf_layer.time_step = float(file_name_hours) + (float(file_name_minutes) / 60)
             else:
-                file_time = netCDF4.Dataset(self.wrf_file)['Times'][:].tobytes().decode()
+                file_time = netCDF4.Dataset(wrf_file)['Times'][:].tobytes().decode()
                 dt = datetime.strptime(file_time, '%Y-%m-%d_%H:%M:%S')
                 wrf_layer.time_step = float(dt.strftime('%H')) + float(dt.strftime('%M')) / 60.0
 
