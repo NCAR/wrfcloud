@@ -150,9 +150,15 @@ class GeoJson:
         wrf = netCDF4.Dataset(self.wrf_file)
         data = wrf[self.variable]
         time_index = 0
-        if data.dimensions[0] == 'Time':
-            data = data[time_index]
-        grid = data[self.z_level] if self.zlevel else data
+        grid = data[:] if data.dimensions[0] != 'Time' else data[time_index]
+        if self.z_level:
+            z_index = None
+            for idx, z_val in enumerate(wrf[data.dimensions[0]]):
+                if int(z_val) == self.z_level:
+                    z_index = idx
+            if z_index is None:
+                self.log.error(f'Could not find z level: {self.z_level}')
+            grid = grid[z_index]
 
         # get the latitude and longitude grids
         grid_lat = wrf['XLAT'][0]
