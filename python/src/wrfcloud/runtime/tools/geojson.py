@@ -16,6 +16,7 @@ from matplotlib import pyplot
 import numpy
 from numpy.ma.core import MaskedArray
 import pygrib
+from datetime import datetime
 
 from wrfcloud.jobs.job import WrfLayer, Palette
 from wrfcloud.log import Logger
@@ -371,10 +372,16 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
             #       As a work-around for now, we are getting the time step from the file name,
             #       and this can be used in conjunction with the start time and output frequency
             #       to compute the data time.  Yuch!
-            file_name_time: str = wrf_file.split('/')[-1].split('GrbF')[1]
-            file_name_hours: str = file_name_time if '.' not in file_name_time else file_name_time.split('.')[0]
-            file_name_minutes: str = '0' if '.' not in file_name_time else file_name_time.split('.')[1]
-            wrf_layer.time_step = float(file_name_hours) + (float(file_name_minutes) / 60)
+            if file_type == 'grib2':
+                file_name_time: str = wrf_file.split('/')[-1].split('GrbF')[1]
+                file_name_hours: str = file_name_time if '.' not in file_name_time else file_name_time.split('.')[0]
+                file_name_minutes: str = '0' if '.' not in file_name_time else file_name_time.split('.')[1]
+                wrf_layer.time_step = float(file_name_hours) + (float(file_name_minutes) / 60)
+            else:
+                file_time = netCDF4.Dataset(self.wrf_file)['Times'][:].tobytes().decode()
+                dt = datetime.strptime(file_time, '%Y-%m-%d_%H:%M:%S')
+                wrf_layer.time_step = float(dt.strftime('%H')) + float(dt.strftime('%M')) / 60.0
+
             out_layers.append(wrf_layer)
 
             # convert the file if it does not already exist
