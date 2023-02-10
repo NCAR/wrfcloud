@@ -55,8 +55,8 @@ def derive_fields(in_file: str, out_dir: str):
             interp_lev.long_name = 'interpolated pressure levels'
             interp_lev[:] = interp_levels
 
-            # add latitude and longitude variables
-            for name in ('XLAT', 'XLONG'):
+            # add latitude, longitude, and time variables
+            for name in ('XLAT', 'XLONG', 'Times'):
                 var = in_data.variables[name]
                 out_data.createVariable(name, var.datatype, var.dimensions)
                 out_data[name][:] = in_data[name][:]
