@@ -163,11 +163,13 @@ class Derive(Process):
 
         # derive fields
         for wrf_file in wrf_files:
+            self.log.info(f'Deriving fields from {wrf_file}')
             out = derive_fields(in_file=wrf_file, out_dir=self.job.derive_dir)
             if out is None:
                 self.log.error(f'Could not derive fields from {wrf_file}')
                 return False
 
+            self.log.info(f'Wrote derived file {out}')
             self.nc_files.append(out)
 
         return True
