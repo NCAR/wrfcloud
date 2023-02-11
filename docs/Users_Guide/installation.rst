@@ -77,30 +77,33 @@ Once the AWS account prerequisites are satisfied (see :numref:`prerequisites`), 
 
 2. Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
 
-3. Click the CloudShell icon at the top of the screen to start CloudShell.
+3. Click the **CloudShell** button (|cloudshell_16x16|) at the top of the screen to launch a terminal window.
 
-.. figure:: figure/cloudshell_icon.png
+.. |cloudshell_16x16| image:: figure/cloudshell_icon.png
+               :alt: CloudSell_Icon
+               :height: 16px
+               :width: 16px
 
 4. Define the GitHub branch name (e.g. develop) or release name (e.g. v1.0) to be installed.
 
-.. code-block:: ini
+  .. code-block:: ini
 
-  export GITHUB_NAME=develop
+    export GITHUB_NAME=develop
 
-5. Copy and paste the following into CloudShell terminal:
+5. Copy and paste the following into the CloudShell terminal:
 
-.. code-block:: ini
+  .. code-block:: ini
 
-  git clone --branch ${GITHUB_NAME} https://github.com/NCAR/wrfcloud
-  ./wrfcloud/install_bootstrap.sh ${GITHUB_NAME}
+    git clone --branch ${GITHUB_NAME} https://github.com/NCAR/wrfcloud
+    ./wrfcloud/install_bootstrap.sh ${GITHUB_NAME}
 
 This bootstrap script takes about 25 minutes to run. It is followed by a series of interactive questions that must be completed prior to WRF Cloud being installed. For each question, the default option (if applicable) is provided in sqaure braces. Simply hit enter to accept the default or modify the setting as needed. These questions include:
 
   * Would you like to enable autocompletion? [*Recommend Yes*]
   * Which domain name would you like to use? [`Route 53 <https://aws.amazon.com/route53>`_ domain(s) from :numref:`prerequisites`]
-  * Enter host name for web application: [e.g. app.{DOMAIN NAME}]
-  * Enter host name for REST API: [e.g. api.{DOMAIN NAME}]
-  * Enter host name for websocket API: [e.g. ws.{DOMAIN NAME}]
+  * Enter host name for web application: [e.g. app.{DOMAIN}]
+  * Enter host name for REST API: [e.g. api.{DOMAIN}]
+  * Enter host name for websocket API: [e.g. ws.{DOMAIN}]
   * Enter administrator's full name:
   * Enter email address for application administrator:
   * Enter administrator's new password:
@@ -108,7 +111,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
   * Do you want to upload an SSH public key for an admin? [*Recommend Yes*]
   * Paste your public key, often found at ${HOME}/.ssh/id_rsa.pub:
 
-    * Copy and paste the output of this command into the CloudShell window:
+    * Copy and paste the output of this command into the CloudShell terminal:
 
       .. code-block:: ini
 
@@ -123,16 +126,52 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
   * Select **Stacks** from the left navigation menu.
   * Click an item listed in the **Stack name** column and select the **Events** tab to monitor progress.
 
-7. When installation completes, a log message in the **CloudShell** window directs you to the newly created WRF Cloud URL.
+7. When installation completes, a log message in the CloudShell terminal directs you to the newly created WRF Cloud URL.
 
-.. code-block:: ini
+  .. code-block:: ini
 
-  WRF Cloud installation is complete.
-  Open your browser to https://app.{DOMAIN NAME}/login
+    WRF Cloud installation is complete.
+    Open your browser to https://app.{DOMAIN}
+
+8. Confirm that you can login.
+
+  * In a browser window, navigate to https://app.{DOMAIN}.
+  * If directed to the **WRF Cloud Login** page, use the administrator email address and password defined above to login and proceed to the next step.
+  * If, however, your browser downloads a file named **download** rather than allowing you to login, follow the steps outlined below to fix this behavior.
+
+    a. In the CloudShell terminal, check that temporary build directory still exists. It should remain for a while after install but will eventually be scrubbed from **/tmp**.
+
+    .. code-block:: ini
+
+       ls /tmp/wrfcloud-build-*
+
+    b. If it exists, run the following commands to update the WRF Cloud web files:
+
+    .. code-block:: ini
+
+      id=`ls /tmp/wrfcloud-build-* | cut -d'-' -f3`
+      find web -type f -exec aws s3 cp {} s3://wrfcloud-${id}/\{\} \;
+
+    c. Create an AWS **CloudFront** invalidation.
+
+      * Use the top-level search bar to find and launch the AWS **CloudFront** Service.
+      * In **Distributions**, click on the **ID** for the line whose **Description** is **wrfcloud production**.
+      * Select the **Invalidations** tab and click **Create Invalidation**.
+      * In the **Add object paths** text box, type **/\***, and click **Create Invalidation**.
+
+    d. In your browser window, clear your cache and navigate to https://app.{DOMAIN} again. If the **download** problem persists, repeats steps (a)-(c) until it stops. Remember to *clear your browser cache* before checking the URL.
+
+9. Confirm that the WRF Amazon Machine Image (AMI) has finished building.
+
+  * Use the top-level search bar to find and launch the AWS **EC2** Service.
+  * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
+  * Select **Images > AMIs** from the left navigation menu and search for **wrf**.
+  * Confirm that an AMI that includes **wrf** in the **AMI name** column.
+  * Note that it may take a while for this AMI to finish building. While you can add new users and configurations via the WRF Cloud user interface, you will not be able to actually launch a run until the WRF AMI is available.
+
+10. Afer completing these installation steps, proceed to System Administration (:numref:`administration`).
 
 .. _uninstall:
-
-8. Confirm that you can login and proceed to System Administration (:numref:`administration`).
 
 Procedures to Uninstall
 =======================

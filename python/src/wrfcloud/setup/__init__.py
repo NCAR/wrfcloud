@@ -118,7 +118,7 @@ def setup():
     # Complete confirmation
     print('----------------------------------------------------------')
     print('WRF Cloud installation is complete.')
-    print('Open your browser to https://' + user_data['app_domain'] + '/login')
+    print('Open your browser to https://' + user_data['app_domain'])
     print('----------------------------------------------------------')
 
 
