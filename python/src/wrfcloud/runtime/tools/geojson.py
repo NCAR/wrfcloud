@@ -406,6 +406,16 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
 
     wait(futures)
 
+    # check if any process threw an exception and print
+    for future in futures:
+        exception = future.exception()
+        if not exception:
+            continue
+        print(exception)
+
+    # remove any layers if their file does not exist
+    out_layers = [layer for layer in out_layers if os.path.exists(layer.layer_data)]
+
     return out_layers
 
 
