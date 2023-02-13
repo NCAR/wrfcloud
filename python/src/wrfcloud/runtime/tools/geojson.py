@@ -430,7 +430,7 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
     existing_layers = [layer for layer in out_layers if os.path.exists(layer.layer_data)]
     missing_layers = [layer for layer in out_layers if layer not in existing_layers]
     for layer in missing_layers:
-        log.error(f'Layer does not exist: {layer}')
+        log.error(f'Layer does not exist: {layer.layer_data}')
 
     return existing_layers
 
