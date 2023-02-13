@@ -79,8 +79,8 @@ products:
   - grib2:
       variable: prmsl
     range:
-      min: 92000
-      max: 104000
+      min: 920
+      max: 1040
     contour_interval: 200
     palette: winter
     display_name: 'Mean Sea-Level Pressure - UPP'
