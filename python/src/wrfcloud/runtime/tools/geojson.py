@@ -95,7 +95,7 @@ class GeoJson:
                 file.flush()
                 file.close()
         except Exception as e:
-            self.log.error(f'Exception occurred: {e}')
+            self.log.error(f'Exception occurred trying to create {out_file}: {e}')
 
         return None
 
