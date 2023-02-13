@@ -155,6 +155,12 @@ class Derive(Process):
         """
         Main routine that sets up and runs field derivations and conversions
         """
+        # Check if experiment working directory already exists,
+        # take action based on value of runinfo.exists
+        action = check_wd_exist(self.job.exists, self.job.derive_dir)
+        if action == "skip":
+            return True
+
         # create derive directory
         os.makedirs(self.job.derive_dir, exist_ok=True)
 
