@@ -19,9 +19,9 @@ def derive_fields(in_file: str, out_dir: str):
     # levels (optional) = If set and True, interpolate at pressure levels
     fields = [
         {'name': 'T2', 'out_name': 'temp_2m'},
-        {'name': 'wspd', 'out_name': 'wind_speed_10', 'args': {'units': 'kt'}},
-        {'name': 'wdir', 'out_name': 'wind_dir_10', 'args': {'units': 'kt'}},
-        {'name': 'slp', 'out_name': 'prmsl'},
+        {'name': 'wspd10', 'out_name': 'wind_speed_10', 'args': {'units': 'kt'}},
+        {'name': 'wdir10', 'out_name': 'wind_dir_10', 'args': {'units': 'kt'}},
+        {'name': 'slp', 'out_name': 'prmsl', 'args': {'units': 'mb'}},
         {'name': 'td2', 'out_name': 'dewpt_2m', 'args': {'units': 'C'}},
         {'name': 'rh2', 'out_name': 'rh_2m'},
         {'name': 'mdbz', 'out_name': 'max_refl'},
