@@ -62,85 +62,41 @@ class GeoJson:
         # log status info
         self.log.info(f'Converting {self.variable} to {out_file}')
 
-        # get the data, lat, and lon grids
-        if self.file_type == 'grib2':
-            grid, self.grid_lat, self.grid_lon = self._read_from_grib()
-        elif self.file_type == 'netcdf':
-            grid, self.grid_lat, self.grid_lon = self._read_from_netcdf()
-        else:
-            self.log.error(f'Invalid file type: {self.file_type}.'
-                           f'Valid types are "netcdf" and "grib2".')
-            return None
+        try:
+            # get the data, lat, and lon grids
+            if self.file_type == 'grib2':
+                grid, self.grid_lat, self.grid_lon = self._read_from_grib()
+            elif self.file_type == 'netcdf':
+                grid, self.grid_lat, self.grid_lon = self._read_from_netcdf()
+            else:
+                self.log.error(f'Invalid file type: {self.file_type}.'
+                               f'Valid types are "netcdf" and "grib2".')
+                return None
 
-        # create a set of contours from the data grid
-        range_min = int(self.min * 10)
-        range_max = int(self.max * 10)
-        contour_interval = int(self.contour_interval*10)
-        levels = [i/10 for i in range(range_min, range_max, contour_interval)]
-        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette)
-        if not contours.collections:
-            self.log.error('Could not create contours from grid')
-            return None
+            # create a set of features for the GeoJSON file
+            features = self._create_features(grid, contours)
+            if not features:
+                self.log.error('Could not create features for GeoJSON file')
+                return None
 
-        # create a set of features for the GeoJSON file
-        features = []
+            # create the GeoJSON document
+            doc = {
+                "type": "FeatureCollection",
+                "features": features
+            }
 
-        # loop over each contour level
-        for i, contour_line in enumerate(contours.collections):
-            # get the hex color for this level
-            level_color = colors.rgb2hex(contours.tcolors[i][0])
+            # return the document if no output file was provided
+            if out_file is None:
+                return doc
 
-            # loop over each outer polygon and set of interior holes
-            for path in contour_line.get_paths():
+            # write the data to a file or return as a string if no data were
+            with open(out_file, 'wb') as file:
+                file.write(compress(json.dumps(doc).encode()))
+                file.flush()
+                file.close()
+        except Exception as e:
+            self.log.error(f'Exception occurred: {e}')
 
-                # get the list of polygons for this set
-                path_polygons = path.to_polygons()
-
-                # skip if there are no polygons
-                if len(path_polygons) == 0:
-                    continue
-
-                # the first polygon in the list is the outer polygon
-                outer_polygon = self._polygon_to_coord_array(path_polygons[0])
-
-                # the remaining polygons are holes in the outer polygon
-                holes = [self._polygon_to_coord_array(hole) for hole in path_polygons[1:]]
-
-                # get the string of the MultiPolygon coordinates for outer polygon and holes
-                polygon_string = self._polygon_and_holes_to_multi_polygon(outer_polygon, holes)
-
-                # create a GeoJSON feature as a dictionary
-                feature = {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "MultiPolygon",
-                        "coordinates": [json.loads(polygon_string)]
-                    },
-                    "properties": {
-                        # "stroke-width": 0,  no effect in OpenLayers--only makes data set larger
-                        "fill": level_color
-                        # "fill-opacity": 1   no effect in OpenLayers--only makes data set larger
-                    }
-                }
-
-                # add this MultiPolygon feature to the set of features
-                features.append(feature)
-
-        # create the GeoJSON document
-        doc = {
-            "type": "FeatureCollection",
-            "features": features
-        }
-
-        # return the document if no output file was provided
-        if out_file is None:
-            return doc
-
-        # write the data to a file or return as a string if no data were
-        with open(out_file, 'wb') as file:
-            file.write(compress(json.dumps(doc).encode()))
-            file.flush()
-            file.close()
         return None
 
     def _read_from_netcdf(self) -> (MaskedArray, MaskedArray, MaskedArray):
@@ -279,6 +235,62 @@ class GeoJson:
             mp_str += ',' + str([[point[0], point[1]] for point in hole])
         return '[' + mp_str + ']'
 
+    def _create_features(self, grid: MaskedArray):
+        features = []
+
+        # create a set of contours from the data grid
+        range_min = int(self.min * 10)
+        range_max = int(self.max * 10)
+        contour_interval = int(self.contour_interval*10)
+        levels = [i/10 for i in range(range_min, range_max, contour_interval)]
+        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette)
+        if not contours.collections:
+            self.log.error('Could not create contours from grid')
+            return None
+
+        # loop over each contour level
+        for i, contour_line in enumerate(contours.collections):
+            # get the hex color for this level
+            level_color = colors.rgb2hex(contours.tcolors[i][0])
+
+            # loop over each outer polygon and set of interior holes
+            for path in contour_line.get_paths():
+
+                # get the list of polygons for this set
+                path_polygons = path.to_polygons()
+
+                # skip if there are no polygons
+                if not path_polygons:
+                    continue
+
+                # the first polygon in the list is the outer polygon
+                outer_polygon = self._polygon_to_coord_array(path_polygons[0])
+
+                # the remaining polygons are holes in the outer polygon
+                holes = [self._polygon_to_coord_array(hole) for hole in path_polygons[1:]]
+
+                # get the string of the MultiPolygon coordinates for outer polygon and holes
+                polygon_string = self._polygon_and_holes_to_multi_polygon(outer_polygon, holes)
+
+                # create a GeoJSON feature as a dictionary
+                feature = {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "MultiPolygon",
+                        "coordinates": [json.loads(polygon_string)]
+                    },
+                    "properties": {
+                        # "stroke-width": 0,  no effect in OpenLayers--only makes data set larger
+                        "fill": level_color
+                        # "fill-opacity": 1   no effect in OpenLayers--only makes data set larger
+                    }
+                }
+
+                # add this MultiPolygon feature to the set of features
+                features.append(feature)
+
+        return features
+
 
 def main():
     """
@@ -345,6 +357,7 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
     :param file_type: Type of input file, currently support either 'grib2' or 'netcdf'
     :return: List of GeoJSON output files
     """
+    log = Logger()
     # load the product list from the yaml file
     products_data = pkgutil.get_data('wrfcloud', 'runtime/resources/geojson_products.yaml')
     products = yaml.safe_load(products_data)['products']
@@ -407,16 +420,19 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
     wait(futures)
 
     # check if any process threw an exception and print
-    for future in futures:
-        exception = future.exception()
-        if not exception:
-            continue
-        print(exception)
+    # for future in futures:
+    #     exception = future.exception()
+    #     if not exception:
+    #         continue
+    #     print(f'EXCEPTION OCCURRED: {exception}')
 
-    # remove any layers if their file does not exist
-    out_layers = [layer for layer in out_layers if os.path.exists(layer.layer_data)]
+    # remove any layers if the file does not exist
+    existing_layers = [layer for layer in out_layers if os.path.exists(layer.layer_data)]
+    missing_layers = [layer for layer in out_layers if layer not in existing_layers]
+    for layer in missing_layers:
+        log.error(f'Layer does not exist: {layer}')
 
-    return out_layers
+    return existing_layers
 
 
 if __name__ == '__main__':
