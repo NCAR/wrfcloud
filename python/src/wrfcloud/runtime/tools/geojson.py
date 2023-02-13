@@ -74,7 +74,7 @@ class GeoJson:
                 return None
 
             # create a set of features for the GeoJSON file
-            features = self._create_features(grid, contours)
+            features = self._create_features(grid)
             if not features:
                 self.log.error('Could not create features for GeoJSON file')
                 return None
