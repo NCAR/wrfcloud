@@ -52,17 +52,17 @@ products:
   - netcdf:
       variable: prmsl
     range:
-      min: 92000
-      max: 104000
-    contour_interval: 200
+      min: 920
+      max: 1040
+    contour_interval: 2
     palette: winter
     display_name: 'Mean Sea-Level Pressure'
     units: 'mb'
   - grib2:
       variable: prmsl
     range:
-      min: 920
-      max: 1040
+      min: 92000
+      max: 104000
     contour_interval: 200
     palette: winter
     display_name: 'Mean Sea-Level Pressure - UPP'
