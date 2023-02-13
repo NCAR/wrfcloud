@@ -78,6 +78,9 @@ class GeoJson:
         contour_interval = int(self.contour_interval*10)
         levels = [i/10 for i in range(range_min, range_max, contour_interval)]
         contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette)
+        if not contours.collections:
+            self.log.error('Could not create contours from grid')
+            return None
 
         # create a set of features for the GeoJSON file
         features = []
