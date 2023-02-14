@@ -255,6 +255,7 @@ class GeoJson:
 
                 # skip if there are no polygons
                 if len(path_polygons) == 0:
+                    self.log.warn('No polygons found')
                     continue
 
                 # the first polygon in the list is the outer polygon
