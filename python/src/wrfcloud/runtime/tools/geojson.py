@@ -254,7 +254,7 @@ class GeoJson:
                 path_polygons = path.to_polygons()
 
                 # skip if there are no polygons
-                if not path_polygons:
+                if len(path_polygons) == 0:
                     continue
 
                 # the first polygon in the list is the outer polygon
