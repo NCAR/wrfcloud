@@ -75,9 +75,6 @@ class GeoJson:
 
             # create a set of features for the GeoJSON file
             features = self._create_features(grid)
-            if not features:
-                self.log.error('Could not create features for GeoJSON file')
-                return None
 
             # create the GeoJSON document
             doc = {
@@ -244,9 +241,6 @@ class GeoJson:
         contour_interval = int(self.contour_interval*10)
         levels = [i/10 for i in range(range_min, range_max, contour_interval)]
         contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette)
-        if not contours.collections:
-            self.log.error('Could not create contours from grid')
-            return None
 
         # loop over each contour level
         for i, contour_line in enumerate(contours.collections):
@@ -418,13 +412,6 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
                 futures.append(future)
 
     wait(futures)
-
-    # check if any process threw an exception and print
-    # for future in futures:
-    #     exception = future.exception()
-    #     if not exception:
-    #         continue
-    #     print(f'EXCEPTION OCCURRED: {exception}')
 
     # remove any layers if the file does not exist
     existing_layers = []
