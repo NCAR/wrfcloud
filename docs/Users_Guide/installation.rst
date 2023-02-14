@@ -117,7 +117,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
       .. code-block:: ini
 
         cat ${HOME}/.ssh/id_rsa.pub
-
+     If this file does not exist, refer to `this documentation <https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key>`_ to help generate one.
 5. After completing these steps, check the email address provided above to verify it. It takes approximately 10-20 minutes for the website to become available.
 
 6. Monitor the installation progress:
