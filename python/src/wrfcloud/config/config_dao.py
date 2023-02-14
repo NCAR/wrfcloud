@@ -8,6 +8,7 @@ import os
 import pkgutil
 from typing import Union, List
 import yaml
+from concurrent.futures import Future, ThreadPoolExecutor
 from wrfcloud.dynamodb import DynamoDao
 from wrfcloud.config import WrfConfig
 from wrfcloud.system import get_aws_session
@@ -82,8 +83,8 @@ class ConfigDao(DynamoDao):
         config = WrfConfig(data)
 
         # load the namelists from S3
-        config.wrf_namelist = self._load_namelist(config.s3_key_wrf_namelist)
-        config.wps_namelist = self._load_namelist(config.s3_key_wps_namelist)
+        self._load_namelist(config, config.s3_key_wrf_namelist)
+        self._load_namelist(config, config.s3_key_wps_namelist)
 
         return config
 
@@ -94,9 +95,13 @@ class ConfigDao(DynamoDao):
         """
         # Convert a list of items into a list of User objects
         configs: List[WrfConfig] = [WrfConfig(item) for item in super().get_all_items()]
-        for config in configs:
-            config.wrf_namelist = self._load_namelist(config.s3_key_wrf_namelist)
-            config.wps_namelist = self._load_namelist(config.s3_key_wps_namelist)
+
+        # Load namelists from S3
+        tpe = ThreadPoolExecutor(max_workers=16)
+        futures: List[Future] = [tpe.submit(self._load_namelist, config, config.s3_key_wrf_namelist) for config in configs]
+        futures += [tpe.submit(self._load_namelist, config, config.s3_key_wps_namelist) for config in configs]
+        for future in futures:
+            future.result()
 
         return configs
 
@@ -165,20 +170,27 @@ class ConfigDao(DynamoDao):
 
         return True
 
-    def _load_namelist(self, namelist_key: str) -> Union[str, None]:
+    def _load_namelist(self, config: WrfConfig, namelist_key: str) -> bool:
         """
         Load the namelist from S3
-        :param namelist_key: S3 key for the namelist
-        :return: The data if successfully loaded, otherwise None
+        :param config: WRF configuration object
+        :param namelist_key: S3 key of the namelist to load
+        :return: True if successfully loaded, otherwise False
         """
+        # get the bucket name from the environment
         bucket = os.environ['WRFCLOUD_BUCKET']
 
+        # load the namelist into the config data
         try:
             s3 = get_aws_session().client('s3')
-            return s3.get_object(Bucket=bucket, Key=namelist_key)['Body'].read().decode()
+            data: str = s3.get_object(Bucket=bucket, Key=namelist_key)['Body'].read().decode()
+            if namelist_key.endswith('namelist.input'):
+                config.wrf_namelist = data
+            elif namelist_key.endswith('namelist.wps'):
+                config.wps_namelist = data
         except Exception as e:
             self.log.error(f'Failed to read namelist from S3. s3://{bucket}/{namelist_key}', e)
-            return None
+            return False
 
     def _delete_namelist(self, namelist_key: str) -> bool:
         """
