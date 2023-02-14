@@ -175,6 +175,35 @@ Resources:
                     - echo 'export SZIP=/opt/szip' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH=${SZIP}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
 
+  ComponentHDF5:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: hdf5-1-10-5
+      Platform: Linux
+      Version: 1.10.5
+      Data: |
+        name: HDF5 v1.10.5
+        description: 'HDF5 v1.10.5'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: build-hdf5
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - source /etc/bashrc
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - tar -xzf hdf5-1.10.5.tar.gz
+                    - cd hdf5-hdf5-1_10_5
+                    - ./configure --prefix=/opt/hdf5 --enable-parallel --enable-fortran --with-zlib=${ZLIB} --with-szlib=${SZIP} 2>&1 | tee configure.log
+                    - make -j 4 install 2>&1 | tee build.log
+                    - echo 'export HDF5=/opt/hdf5' | tee -a /etc/bashrc
+                    - echo 'export PATH=${HDF5}/bin:${PATH}' | tee -a /etc/bashrc
+                    - echo 'export LD_LIBRARY_PATH=${HDF5}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
+
   ComponentNetCDF:
     Type: AWS::ImageBuilder::Component
     Properties:
@@ -644,6 +673,7 @@ Resources:
         - ComponentArn: !Ref ComponentJasper
         - ComponentArn: !Ref ComponentG2CLib
         - ComponentArn: !Ref ComponentUdUnits
+        - ComponentArn: !Ref ComponentHDF5
         - ComponentArn: !Ref ComponentNCView
         - ComponentArn: !Ref ComponentPython
         - ComponentArn: !Ref ComponentCMake
