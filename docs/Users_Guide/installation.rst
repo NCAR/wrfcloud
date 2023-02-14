@@ -101,6 +101,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
   * Would you like to enable autocompletion? [*Recommend Yes*]
   * Which domain name would you like to use? [`Route 53 <https://aws.amazon.com/route53>`_ domain(s) from :numref:`prerequisites`]
+     * Note: This is used for {DOMAIN} in the following questions.
   * Enter host name for web application: [e.g. app.{DOMAIN}]
   * Enter host name for REST API: [e.g. api.{DOMAIN}]
   * Enter host name for websocket API: [e.g. ws.{DOMAIN}]
@@ -116,6 +117,8 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
       .. code-block:: ini
 
         cat ${HOME}/.ssh/id_rsa.pub
+
+     If this file does not exist, refer to `this documentation <https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key>`_ to generate a public key.
 
 6. After completing these steps, check the email address provided above to verify it. It takes approximately 10-20 minutes for the website to become available.
 
