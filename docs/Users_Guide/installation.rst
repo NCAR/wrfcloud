@@ -117,23 +117,23 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
         cat ${HOME}/.ssh/id_rsa.pub
 
-5. After completing these steps, check the email address provided above to verify it. It takes approximately 10-20 minutes for the website to become available.
+6. After completing these steps, check the email address provided above to verify it. It takes approximately 10-20 minutes for the website to become available.
 
-6. Monitor the installation progress:
+7. Monitor the installation progress:
 
   * Use the top-level search bar to find and launch the AWS **CloudFormation** Service.
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
   * Select **Stacks** from the left navigation menu.
   * Click an item listed in the **Stack name** column and select the **Events** tab to monitor progress.
 
-7. When installation completes, a log message in the CloudShell terminal directs you to the newly created WRF Cloud URL.
+8. When installation completes, a log message in the CloudShell terminal directs you to the newly created WRF Cloud URL.
 
   .. code-block:: ini
 
     WRF Cloud installation is complete.
     Open your browser to https://app.{DOMAIN}
 
-8. Confirm that you can login.
+9. Confirm that you can login.
 
   * In a browser window, navigate to https://app.{DOMAIN}.
   * If directed to the **WRF Cloud Login** page, use the administrator email address and password defined above to login and proceed to the next step.
@@ -161,7 +161,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
     d. In your browser window, clear your cache and navigate to https://app.{DOMAIN} again. If the **download** problem persists, repeats steps (a)-(c) until it stops. Remember to *clear your browser cache* before checking the URL.
 
-9. Confirm that the WRF Amazon Machine Image (AMI) has finished building.
+10. Confirm that the WRF Amazon Machine Image (AMI) has finished building.
 
   * Use the top-level search bar to find and launch the AWS **EC2** Service.
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
@@ -169,7 +169,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
   * Confirm that an AMI that includes **wrf** in the **AMI name** column.
   * Note that it may take a while for this AMI to finish building. While you can add new users and configurations via the WRF Cloud user interface, you will not be able to actually launch a run until the WRF AMI is available.
 
-10. Afer completing these installation steps, proceed to System Administration (:numref:`administration`).
+11. Afer completing these installation steps, proceed to System Administration (:numref:`administration`).
 
 .. _uninstall:
 
