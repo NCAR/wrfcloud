@@ -26,6 +26,8 @@ fields:
   - name: 'mdbz'
     out_name: 'max_refl'
   - name: 'total_precip'
+  - name: 'pw'
+    out_name: 'pwat'
   - name: 'rh'
     out_name: 'rh_pres'
     levels: True

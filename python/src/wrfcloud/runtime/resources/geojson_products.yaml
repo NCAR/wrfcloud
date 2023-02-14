@@ -148,6 +148,15 @@ products:
     palette: Blues_r
     display_name: 'High-Level Cloud Cover'
     units: '%'
+  - netcdf:
+      variable: pwat
+    range:
+      min: 0
+      max: 100
+    contour_interval: 5
+    palette: viridis
+    display_name: 'Precipitable Water'
+    units: 'mm'
 
   # 3D variables - 1000mb 925mb 850mb 700mb 500mb 300mb 250mb 100mb
   - netcdf:
