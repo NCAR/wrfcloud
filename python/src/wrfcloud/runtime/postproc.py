@@ -144,7 +144,7 @@ class Derive(Process):
     """
     def __init__(self, job: WrfJob):
         """
-        Initialize the ProcProc object
+        Initialize the Derive object
         """
         super().__init__()
         self.log = Logger(self.__class__.__name__)

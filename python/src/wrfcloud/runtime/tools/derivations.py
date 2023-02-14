@@ -1,40 +1,32 @@
 import os
+import pkgutil
 
 import numpy as np
 from wrf import getvar, vinterp
 from netCDF4 import Dataset
+import yaml
 
 from wrfcloud.log import Logger
 
 
 def derive_fields(in_file: str, out_dir: str):
+    """
+    Convert units (K to C, gpm to dam, etc.) and derive WRF fields (wind speed
+    and direction).
+    :param in_file: WRF NetCDF file to process
+    :param out_dir: Directory to write derived output file
+    """
     log = Logger()
     os.makedirs(out_dir, exist_ok=True)
     out_file = f"{os.path.basename(in_file).replace('wrfout', 'wrfderive')}.nc"
     out_file = os.path.join(out_dir, out_file)
 
-    # list of dictionaries defining fields to process
-    # name = input field name, out_name (optional) = field name to write
-    # args (optional) = dictionary of options to add to getvar command
-    # levels (optional) = If set and True, interpolate at pressure levels
-    fields = [
-        {'name': 'T2', 'out_name': 'temp_2m'},
-        {'name': 'wspd10', 'out_name': 'wind_speed_10', 'args': {'units': 'kt'}},
-        {'name': 'wdir10', 'out_name': 'wind_dir_10', 'args': {'units': 'kt'}},
-        {'name': 'slp', 'out_name': 'prmsl', 'args': {'units': 'mb'}},
-        {'name': 'td2', 'out_name': 'dewpt_2m', 'args': {'units': 'C'}},
-        {'name': 'rh2', 'out_name': 'rh_2m'},
-        {'name': 'mdbz', 'out_name': 'max_refl'},
-        {'name': 'total_precip'},
-        {'name': 'rh', 'out_name': 'rh_pres', 'levels': True},
-        {'name': 'wspd', 'out_name': 'wind_speed_pres', 'args': {'units': 'kt'}, 'levels': True},
-        {'name': 'wdir', 'out_name': 'wind_dir_pres', 'args': {'units': 'kt'}, 'levels': True},
-        {'name': 'temp', 'out_name': 'temp_pres', 'args': {'units': 'C'}, 'levels': True},
-        {'name': 'wa', 'out_name': 'vvel_pres', 'levels': True},
-    ]
-    # pressure levels to interpolate fields if levels is in fields dictionary
-    interp_levels = [1000, 925, 850, 700, 500, 300, 250, 100]
-    field_attrs_to_copy = ['FieldType', 'MemoryOrder', 'description', 'units', 'stagger', 'coordinates']
+    # read derivation info from YAML file
+    derivation_data = pkgutil.get_data('wrfcloud', 'runtime/resources/derive_products.yaml')
+    derive_yaml = yaml.safe_load(derivation_data)
+    fields = derive_yaml['fields']
+    interp_levels = derive_yaml['interp_levels']
+    field_attrs_to_copy = derive_yaml['field_attrs_to_copy']
 
     try:
         with Dataset(in_file) as in_data, Dataset(out_file, mode='w') as out_data:
@@ -44,9 +36,8 @@ def derive_fields(in_file: str, out_dir: str):
             out_data.TITLE = f'DERIVED{out_data.TITLE}'
             # copy dimensions
             for name, dimension in in_data.dimensions.items():
-                out_data.createDimension(
-                    name,
-                    (len(dimension) if not dimension.isunlimited() else None))
+                dim = len(dimension) if not dimension.isunlimited() else None
+                out_data.createDimension(name, dim)
 
             # add interp_levels dimension and dimension variable
             out_data.createDimension('interp_level', len(interp_levels))
@@ -64,7 +55,9 @@ def derive_fields(in_file: str, out_dir: str):
 
             for field in fields:
                 field_name = field['name']
+                # use name as output name if out_name is not set
                 out_name = field_name if 'out_name' not in field else field['out_name']
+                # add optional arguments to wrf-python getvar function
                 field_args = {} if 'args' not in field else field['args']
 
                 # compute total accum precip by adding rain c and rain nc
@@ -75,16 +68,17 @@ def derive_fields(in_file: str, out_dir: str):
                 else:
                     var = getvar(in_data, field_name, **field_args)
 
-                # interpolate pressure levels
+                # interpolate fields to pressure levels if requested
                 if 'levels' in field and field['levels'] is True:
                     var = vinterp(in_data, field=var, vert_coord='pressure',
                                   interp_levels=interp_levels, extrapolate=True)
 
-                # convert 2m temp to Celsius because units is not an option
+                # convert 2m temp to C because units is not an option for T2
                 if field_name == 'T2':
                     var.values = var.values - 273.15
                     var.attrs['units'] = 'C'
 
+                # create output variable, copy values and select attributes
                 out_data.createVariable(out_name, var.dtype, var.dims)
                 out_data[out_name][:] = var.values
                 for attr in field_attrs_to_copy:
