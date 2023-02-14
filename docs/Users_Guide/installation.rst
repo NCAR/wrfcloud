@@ -101,6 +101,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
   * Would you like to enable autocompletion? [*Recommend Yes*]
   * Which domain name would you like to use? [`Route 53 <https://aws.amazon.com/route53>`_ domain(s) from :numref:`prerequisites`]
+     * Note: This is used for {DOMAIN} in the following questions.
   * Enter host name for web application: [e.g. app.{DOMAIN}]
   * Enter host name for REST API: [e.g. api.{DOMAIN}]
   * Enter host name for websocket API: [e.g. ws.{DOMAIN}]
