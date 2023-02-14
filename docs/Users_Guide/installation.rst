@@ -32,7 +32,12 @@ If any of the following installation steps fail due to insufficient permissions,
 Prerequisites
 =============
 
-The prerequisites for installing WRF Cloud in an AWS account are described below.
+The are 3 prerequisites for installing WRF Cloud in an AWS account:
+     * Web Domain: This is the web domain (hosted zone) where the WRF Cloud system is accessed. AWS's Route 53 Domain Naming Service (DNS) is used to create and host the domain for the system. This service has an annual cost associated with it.
+     * Adequate Instance Limits: On-demand HPC instance limits must be 96 vCPUs. By default, the AWS account may be less than this. A request should be made to increase this limit for full functionality of the system. 
+     * Enable Simple Email Service (SES): This AWS facilitates emailing within the system. By default the SES is limited to testing with verified identities. A request must be made to lift these limits and make it a production service. 
+
+The procedures for ensuring the prerequisites are fulfilled are described below.
 
 1. Login to the `AWS Management Console <https://aws.amazon.com/console>`_ for your account as a user with sufficient permissions (see :numref:`permissions`).
 
