@@ -97,7 +97,7 @@ Once the AWS account prerequisites are satisfied (see :numref:`prerequisites`), 
     git clone --branch ${GITHUB_NAME} https://github.com/NCAR/wrfcloud
     ./wrfcloud/install_bootstrap.sh ${GITHUB_NAME}
 
-This bootstrap script takes about 25 minutes to run. It is followed by a series of interactive questions that must be completed prior to WRF Cloud being installed. For each question, the default option (if applicable) is provided in sqaure braces. Simply hit enter to accept the default or modify the setting as needed. These questions include:
+This bootstrap script takes about 25 minutes to run. It is followed by a series of interactive questions that must be completed prior to WRF Cloud being installed. For each question, the default option (if applicable) is provided in square braces. Simply hit enter to accept the default or modify the setting as needed. These questions include:
 
   * Would you like to enable autocompletion? [*Recommend Yes*]
   * Which domain name would you like to use? [`Route 53 <https://aws.amazon.com/route53>`_ domain(s) from :numref:`prerequisites`]
