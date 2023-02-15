@@ -13,7 +13,7 @@ The WRF Cloud framework is the realization of a idea years in the making to leve
 Acronyms
 --------
 
-* **MMM***  - Mesoscale and Microscale Meteorology Lab
+* **MMM**  - Mesoscale and Microscale Meteorology Lab
 * **NCAR**  - National Center for Atmospheric Research
 * **RAL**   - Research Applications Laboratory
 * **UCAR**  - University Corporation for Atmospheric Research

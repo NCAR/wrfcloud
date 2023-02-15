@@ -9,11 +9,13 @@ import hashlib
 import random
 import base64
 import glob
-import requests
 import secrets
 from time import sleep
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Union
+
+from wrfcloud.config import WrfConfig
+from wrfcloud.config import add_config_to_system
 from wrfcloud.system import init_environment, get_aws_session
 from wrfcloud.aws.imagebuilder import WrfCloudImageBuilder
 from wrfcloud.aws.imagebuilder import CloudFormation
@@ -464,18 +466,25 @@ def _install_sample_data(s3_bucket: str) -> None:
     :param s3_bucket: Upload sample data to this S3 bucket
     :return: None
     """
-    # base URL to download files and list of file names
-    # TODO: #112 - Install sample configuration in DynamoDB
-    base_url: str = 'https://www.wrfcloud.com/data/test'
-    files: List[str] = ['geo_em.d01.nc', 'namelist.input', 'namelist.wps']
+    # make sure the bucket name is set in the environment
+    if 'WRFCLOUD_BUCKET' not in os.environ:
+        os.environ['WRFCLOUD_BUCKET'] = s3_bucket
 
-    # download each file from wrfcloud.com and upload to S3 bucket
-    for file in files:
-        res = requests.get(f'{base_url}/{file}')
-        with open(file, 'wb') as out:
-            out.write(res.content)
-            out.close()
-        _upload_to_s3(s3_bucket, f'configurations/test/{file}', file, None)
+    # load the sample configuration data from this package's resource
+    config_data = yaml.safe_load(pkgutil.get_data('wrfcloud', 'setup/resources/caribbean_6km_config.yaml'))
+
+    # create a WrfConfig object
+    config: WrfConfig = WrfConfig(config_data)
+
+    # save the configuration to the system
+    try:
+        ok = add_config_to_system(config)
+    except Exception:
+        ok = False
+
+    # maybe write an error message
+    if not ok:
+        print('Failed to install sample model configuration.')
 
 
 def _upload_public_ssh_key(pub_key: str) -> None:

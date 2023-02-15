@@ -5,17 +5,22 @@
 Description: EC2 Image Builder Pipeline for WRF v4.4.0 and dependencies with Intel
 AWSTemplateFormatVersion: '2010-09-09'
 
-Resources:
+Parameters:
+  GitCloneOpts:
+    Description: Options passed to the git clone command for WRF Cloud repo (used if you want to build a specific branch of WRF Cloud in the AMI)
+    Type: String
+    Default: '-b main'
 
-  WrfComponent:
+Resources:
+  ComponentUpdateOs:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: wrf-4-4-0
+      Name: update-os
       Platform: Linux
-      Version: 4.4.0
+      Version: 1.0.0
       Data: |
-        name: WRF v4.4.0 and Dependencies
-        description: 'Build and install all WRF dependencies'
+        name: Update OS Packages
+        description: 'Update OS Packages'
         schemaVersion: 1.0
 
         phases:
@@ -33,6 +38,21 @@ Resources:
                     - yum -y install intel-hpckit
                     - yum -y install gcc gcc-c++ gcc-gfortran m4 curl-devel git cmake pkgconfig expat-devel libX11-devel libXmu-devel Xaw3d-devel libXaw-devel make openssl-devel bzip2-devel libffi-devel sqlite-devel
 
+
+  ComponentConfigureBash:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: configure-bash
+      Platform: Linux
+      Version: 1.0.0
+      Data: |
+        name: Configure Bash Environment
+        description: 'Configure Bash Environment'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: configure_bash
                 action: ExecuteBash
                 inputs:
@@ -66,6 +86,20 @@ Resources:
                     - echo '*    hard    stack    unlimited' | tee -a /etc/security/limits.conf
                     - echo '*    soft    stack    unlimited' | tee -a /etc/security/limits.conf
 
+  ComponentDownloadSource:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: download-source
+      Platform: Linux
+      Version: 1.0.0
+      Data: |
+        name: Download Source Dependencies
+        description: 'Download Source Dependencies'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: download_source
                 action: ExecuteBash
                 inputs:
@@ -85,6 +119,20 @@ Resources:
                     - wget https://www.wrfcloud.com/libs/netcdf-fortran-4.5.2.tar.gz
                     - wget https://www.wrfcloud.com/libs/szip-2.1.1.tar.gz
 
+  ComponentZLib:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: zlib-1-2-11
+      Platform: Linux
+      Version: 1.2.11
+      Data: |
+        name: zlib v1.2.11
+        description: 'zlib v1.2.11'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-zlib
                 action: ExecuteBash
                 inputs:
@@ -99,6 +147,20 @@ Resources:
                     - echo 'export ZLIB=/opt/zlib' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH=${ZLIB}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
 
+  ComponentSZip:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: szip-2-1-1
+      Platform: Linux
+      Version: 2.1.1
+      Data: |
+        name: szip v2.1.1
+        description: 'szip v2.1.1'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-szip
                 action: ExecuteBash
                 inputs:
@@ -113,6 +175,20 @@ Resources:
                     - echo 'export SZIP=/opt/szip' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH=${SZIP}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
 
+  ComponentHDF5:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: hdf5-1-10-5
+      Platform: Linux
+      Version: 1.10.5
+      Data: |
+        name: HDF5 v1.10.5
+        description: 'HDF5 v1.10.5'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-hdf5
                 action: ExecuteBash
                 inputs:
@@ -128,6 +204,20 @@ Resources:
                     - echo 'export PATH=${HDF5}/bin:${PATH}' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH=${HDF5}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
 
+  ComponentNetCDF:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: netcdf-4-7-3
+      Platform: Linux
+      Version: 4.7.3
+      Data: |
+        name: NetCDF v4.7.3
+        description: 'NetCDF v4.7.3'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-netcdf
                 action: ExecuteBash
                 inputs:
@@ -173,6 +263,20 @@ Resources:
                     - ./configure --prefix=/opt/netcdf 2>&1 | tee configure.log
                     - make install 2>&1 | tee build.log
 
+  ComponentLibPng:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: libpng-1-2-50
+      Platform: Linux
+      Version: 1.2.50
+      Data: |
+        name: libPNG v1.2.50
+        description: 'libPNG v1.2.50'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-libpng
                 action: ExecuteBash
                 inputs:
@@ -188,6 +292,20 @@ Resources:
                     - echo 'export PATH=${LIBPNG}/bin:${PATH}' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH=${LIBPNG}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
 
+  ComponentJasper:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: jasper-1-900-1
+      Platform: Linux
+      Version: 1.900.1
+      Data: |
+        name: Jasper v1.900.1
+        description: 'Jasper v1.900.1'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-jasper
                 action: ExecuteBash
                 inputs:
@@ -203,6 +321,20 @@ Resources:
                     - echo 'export PATH=${JASPER}/bin:${PATH}' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH=${JASPER}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
 
+  ComponentG2CLib:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: g2clib-1-6-0
+      Platform: Linux
+      Version: 1.6.0
+      Data: |
+        name: G2C Lib v1.6.0
+        description: 'G2C Lib v1.6.0'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-g2clib
                 action: ExecuteBash
                 inputs:
@@ -219,6 +351,20 @@ Resources:
                     - echo 'export G2C=/opt/g2clib' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH=${G2C}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
 
+  ComponentUdUnits:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: udunits-2-2-28
+      Platform: Linux
+      Version: 2.2.28
+      Data: |
+        name: udunits v2.2.28
+        description: 'udunits v2.2.28'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-udunits
                 action: ExecuteBash
                 inputs:
@@ -234,6 +380,20 @@ Resources:
                     - echo 'export PATH=${UDUNITS}/bin:${PATH}' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH=${UDUNITS}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
 
+  ComponentNCView:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: ncview-2-1-7
+      Platform: Linux
+      Version: 2.1.7
+      Data: |
+        name: ncview v2.1.7
+        description: 'ncview v2.1.7'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-ncview
                 action: ExecuteBash
                 inputs:
@@ -247,6 +407,20 @@ Resources:
                     - make -j 4 install 2>&1 | tee build.log
                     - echo 'X11Forwarding yes' | tee -a /etc/ssh/sshd_config
 
+  ComponentPython:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: python-3-9-13
+      Platform: Linux
+      Version: 3.9.13
+      Data: |
+        name: Python v3.9.13
+        description: 'Python v3.9.13'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: python39
                 action: ExecuteBash
                 inputs:
@@ -264,6 +438,20 @@ Resources:
                     - echo 'export PYTHON39=/opt/python' | tee -a /etc/bashrc
                     - echo 'export PATH=${PYTHON39}/bin:${PATH}' | tee -a /etc/bashrc
 
+  ComponentCMake:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: cmake-3-25-0
+      Platform: Linux
+      Version: 3.25.0
+      Data: |
+        name: Cmake v3.25.0
+        description: 'Cmake v3.25.0'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-cmake
                 action: ExecuteBash
                 inputs:
@@ -277,6 +465,20 @@ Resources:
                     - echo 'export CMAKE=/opt/cmake' | tee -a /etc/bashrc
                     - echo 'export PATH=${CMAKE}/bin:${PATH}' | tee -a /etc/bashrc
 
+  ComponentLibAec:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: libaec-1-0-6
+      Platform: Linux
+      Version: 1.0.6
+      Data: |
+        name: libaec v1.0.6
+        description: 'libaec v1.0.6'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-libaec
                 action: ExecuteBash
                 inputs:
@@ -293,6 +495,20 @@ Resources:
                     - echo 'export PATH=${LIBAEC}/bin:${PATH}' | tee -a /etc/bashrc
                     - echo 'export LD_LIBRARY_PATH=${LIBAEC}/lib:${LD_LIBRARY_PATH}' | tee -a /etc/bashrc
 
+  ComponentECCodes:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: eccodes-2-27-0
+      Platform: Linux
+      Version: 2.27.0
+      Data: |
+        name: ECCodes v2.27.0
+        description: 'ECCodes v2.27.0'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-eccodes
                 action: ExecuteBash
                 inputs:
@@ -307,6 +523,20 @@ Resources:
                     - make -j 8 install 2>&1 | tee build.log
                     - echo 'export ECCODES_DIR=/opt/eccodes' | tee -a /etc/bashrc
 
+  ComponentWrfCloud:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: wrfcloud-1-0-0
+      Platform: Linux
+      Version: 1.0.0
+      Data: |
+        name: WRF Cloud v1.0.0
+        description: 'WRF Cloud v1.0.0'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: wrfcloud
                 action: ExecuteBash
                 inputs:
@@ -314,9 +544,24 @@ Resources:
                     - source /etc/bashrc
                     - mkdir -p /opt/src
                     - cd /opt/src
-                    - git clone -b feature/112-model-configs https://github.com/NCAR/wrfcloud
+                    - GIT_CLONE_OPTS=$(aws --region us-east-2 ssm get-parameter --name GIT_CLONE_OPTS | jq -r .Parameter.Value)
+                    - git clone ${GIT_CLONE_OPTS} https://github.com/NCAR/wrfcloud
                     - pip3 install wrfcloud/python/src
 
+  ComponentWrf:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: wrf-4-4-0
+      Platform: Linux
+      Version: 4.4.0
+      Data: |
+        name: WRF v4.4.0
+        description: 'WRF v4.4.0'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-wrf
                 action: ExecuteBash
                 inputs:
@@ -335,6 +580,20 @@ Resources:
                     - cd /home/ec2-user
                     - chown -R ec2-user.ec2-user WRF
 
+  ComponentWps:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: wps-4-4-0
+      Platform: Linux
+      Version: 4.4.0
+      Data: |
+        name: WPS v4.4.0
+        description: 'WPS v4.4.0'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-wps
                 action: ExecuteBash
                 inputs:
@@ -355,6 +614,20 @@ Resources:
                     - cd /home/ec2-user
                     - chown -R ec2-user.ec2-user WPS
 
+  ComponentUpp:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: upp-4-0-1
+      Platform: Linux
+      Version: 4.0.1
+      Data: |
+        name: UPP v4.0.1
+        description: 'UPP v4.0.1'
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
               - name: build-upp
                 action: ExecuteBash
                 inputs:
@@ -375,7 +648,6 @@ Resources:
                     - cd /home/ec2-user
                     - chown -R ec2-user.ec2-user UPP        
 
-
   WrfImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
     Properties:
@@ -391,7 +663,26 @@ Resources:
         SystemsManagerAgent:
           UninstallAfterBuild: true
       Components:
-        - ComponentArn: !Ref WrfComponent
+        - ComponentArn: !Ref ComponentUpdateOs
+        - ComponentArn: !Ref ComponentConfigureBash
+        - ComponentArn: !Ref ComponentDownloadSource
+        - ComponentArn: !Ref ComponentZLib
+        - ComponentArn: !Ref ComponentSZip
+        - ComponentArn: !Ref ComponentNetCDF
+        - ComponentArn: !Ref ComponentLibPng
+        - ComponentArn: !Ref ComponentJasper
+        - ComponentArn: !Ref ComponentG2CLib
+        - ComponentArn: !Ref ComponentUdUnits
+        - ComponentArn: !Ref ComponentHDF5
+        - ComponentArn: !Ref ComponentNCView
+        - ComponentArn: !Ref ComponentPython
+        - ComponentArn: !Ref ComponentCMake
+        - ComponentArn: !Ref ComponentLibAec
+        - ComponentArn: !Ref ComponentECCodes
+        - ComponentArn: !Ref ComponentWrfCloud
+        - ComponentArn: !Ref ComponentWrf
+        - ComponentArn: !Ref ComponentWps
+        - ComponentArn: !Ref ComponentUpp
       ParentImage: ami-03c70fb2cbb1eb205  # ParallelCluster v3.2.1 - USE2 - Amazon Linux 2 - x86_64
 
   WrfImageBuilderInfrastructure:
@@ -658,6 +949,11 @@ Resources:
                 Resource:
                   - arn:aws:ec2:*::image/*
                   - arn:aws:ec2:*:*:launch-template/*
+              - Action:
+                  - ssm:GetParameter
+                Effect: Allow
+                Resource:
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/GIT_CLONE_OPTS'
 
   WrfImageBuilderInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -665,3 +961,11 @@ Resources:
       InstanceProfileName: WrfCloudImageBuilderInstanceProfile
       Roles:
         - !Ref WrfImageBuilderInstanceRole
+
+  WrfCloudRepoGitCloneOptions:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: GIT_CLONE_OPTS
+      Description: Clone options used to clone the WRF Cloud repo when building the AMI
+      Type: String
+      Value: !Sub '${GitCloneOpts}'
