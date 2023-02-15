@@ -260,8 +260,9 @@ class GeoJson(Process):
         # upload each file
         upload_count = 0
         for layer in self.wrf_layers:
-            # TODO: The date/time should be set on the layer once the information is available in the GRIB2 files
-            layer.dt = self.job.start_dt.timestamp() + (layer.time_step * self.job.output_freq_sec)
+            if not layer.dt:
+                # TODO: The date/time should be set on the layer once the information is available in the GRIB2 files
+                layer.dt = self.job.start_dt.timestamp() + (layer.time_step * self.job.output_freq_sec)
 
             # construct the S3 key
             job_id = self.job.job_id
