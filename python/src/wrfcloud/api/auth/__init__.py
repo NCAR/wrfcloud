@@ -83,10 +83,17 @@ def get_user_from_jwt(token: str) -> Union[User, None]:
     :param token: The unvalidated JWT
     :return: User authenticated by the JWT, or None
     """
-    payload = validate_jwt(token)
-    user = None if payload is None else get_user_from_system(payload[KEY_EMAIL])
+    # get the JWT payload if the JWT is valid
+    payload: dict = validate_jwt(token)
+    if payload is None:
+        return None
 
-    return user
+    # if the role is a cluster, this is not a real user, so get a surrogate
+    if payload[KEY_ROLE] == 'cluster':
+        return User({'email': payload[KEY_EMAIL], 'role_id': payload[KEY_ROLE], 'active': True})
+
+    # get the normal user from the email in the payload
+    return get_user_from_system(payload[KEY_EMAIL])
 
 
 def get_jwt_payload(token: str, ack_no_security_here: bool = False) -> dict:
