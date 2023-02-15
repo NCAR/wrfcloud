@@ -403,7 +403,7 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
                 wrf_nc = netCDF4.Dataset(wrf_file)
                 file_time = wrf_nc['Times'][:].tobytes().decode()
                 dt = datetime.strptime(file_time, '%Y-%m-%d_%H:%M:%S')
-                wrf_layer.dt = dt.total_seconds()
+                wrf_layer.dt = dt.timestamp()
                 #dt_start = datetime.strptime(wrf_nc.getncattr('START_DATE'), '%Y-%m-%d_%H:%M:%S')
                 #wrf_layer.time_step = (dt - dt_start).total_seconds() / 3600.0
 
