@@ -160,8 +160,9 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
     .. code-block:: ini
 
-      id=`ls /tmp/wrfcloud-build-* | cut -d'-' -f3`
-      find web -type f -exec aws s3 cp {} s3://wrfcloud-${id}/\{\} \;
+      cd /tmp/wrfcloud-build-*
+      bucket=`aws s3 ls | sed -r 's/ /\n/g' | grep wrfcloud`
+      find web -type f -exec aws s3 cp {} s3://${bucket}/\{\} \;
 
     c. Create an AWS **CloudFront** invalidation.
 
