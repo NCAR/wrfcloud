@@ -145,7 +145,8 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
 9. Confirm that you can login.
 
-  * In a browser window, navigate to https://app.{DOMAIN}.
+  * Open a web browser and clear the cache to ensure a clean test environment.
+  * Navigate to https://app.{DOMAIN}.
   * If directed to the **WRF Cloud Login** page, use the administrator email address and password defined above to login and proceed to the next step.
   * If, however, your browser downloads a file named **download** rather than allowing you to login, follow the steps outlined below to fix this behavior.
 
