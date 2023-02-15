@@ -74,64 +74,7 @@ class GeoJson:
                 return None
 
             # create a set of features for the GeoJSON file
-            features = []
-
-            # create a set of contours from the data grid
-            range_min = int(self.min * 10)
-            range_max = int(self.max * 10)
-            contour_interval = int(self.contour_interval * 10)
-            levels = [i / 10 for i in
-                      range(range_min, range_max, contour_interval)]
-            contours: contour.QuadContourSet = pyplot.contourf(grid,
-                                                               levels=levels,
-                                                               cmap=self.palette)
-
-            # loop over each contour level
-            for i, contour_line in enumerate(contours.collections):
-                # get the hex color for this level
-                level_color = colors.rgb2hex(contours.tcolors[i][0])
-
-                # loop over each outer polygon and set of interior holes
-                for path in contour_line.get_paths():
-
-                    # get the list of polygons for this set
-                    path_polygons = path.to_polygons()
-
-                    # skip if there are no polygons
-                    if len(path_polygons) == 0:
-                        self.log.warn('No polygons found')
-                        continue
-
-                    # the first polygon in the list is the outer polygon
-                    outer_polygon = self._polygon_to_coord_array(
-                        path_polygons[0])
-
-                    # the remaining polygons are holes in the outer polygon
-                    holes = [self._polygon_to_coord_array(hole) for hole in
-                             path_polygons[1:]]
-
-                    # get the string of the MultiPolygon coordinates for outer polygon and holes
-                    polygon_string = self._polygon_and_holes_to_multi_polygon(
-                        outer_polygon, holes)
-
-                    # create a GeoJSON feature as a dictionary
-                    feature = {
-                        "type": "Feature",
-                        "geometry": {
-                            "type": "MultiPolygon",
-                            "coordinates": [json.loads(polygon_string)]
-                        },
-                        "properties": {
-                            # "stroke-width": 0,  no effect in OpenLayers--only makes data set larger
-                            "fill": level_color
-                            # "fill-opacity": 1   no effect in OpenLayers--only makes data set larger
-                        }
-                    }
-
-                    # add this MultiPolygon feature to the set of features
-                    features.append(feature)
-
-            #features = self._create_features(grid)
+            features = self._create_features(grid)
 
             # create the GeoJSON document
             doc = {
