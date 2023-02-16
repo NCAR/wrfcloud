@@ -54,6 +54,24 @@ fields:
     args:
       units: 'dm'
     levels: True
+  - name: 'low_cloudfrac'
+    out_name: 'low_cloud'
+    args:
+      vert_type: 'pres'
+      mid_thresh: '64200'
+      high_thresh: '35000'
+  - name: 'mid_cloudfrac'
+    out_name: 'mid_cloud'
+    args:
+      vert_type: 'pres'
+      mid_thresh: '64200'
+      high_thresh: '35000'
+  - name: 'high_cloudfrac'
+    out_name: 'high_cloud'
+    args:
+      vert_type: 'pres'
+      mid_thresh: '64200'
+      high_thresh: '35000'
 
 # pressure levels to interpolate fields if levels is in fields dictionary
 interp_levels:
