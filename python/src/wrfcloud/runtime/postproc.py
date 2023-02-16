@@ -262,7 +262,7 @@ class GeoJson(Process):
         for layer in self.wrf_layers:
             if not layer.dt:
                 # TODO: The date/time should be set on the layer once the information is available in the GRIB2 files
-                layer.dt = self.job.start_dt.timestamp() + (layer.time_step * self.job.output_freq_sec)
+                layer.dt = self.job.start_dt.timestamp() + (layer.time_step * 3600)
 
             # construct the S3 key
             job_id = self.job.job_id
@@ -270,7 +270,7 @@ class GeoJson(Process):
             var_name = layer.variable_name
             z_level = layer.z_level if layer.z_level is not None else 0
             key = f'{prefix}/{job_id}/wrf_{domain}_{layer.dt_str}_{var_name}_{z_level}.geojson.gz'
-
+            self.log.debug(f'Uploading s3://{bucket}/{key}')
             # upload the file to an S3 object
             try:
                 s3.upload_file(Filename=layer.layer_data, Bucket=bucket, Key=key)
