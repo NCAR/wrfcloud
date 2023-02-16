@@ -4,8 +4,13 @@
 <div class="edit-model-config-container">
   <div class="edit-model-config-field-container">
     <mat-form-field class="edit-model-config-field" appearance="fill">
-      <mat-label>Name</mat-label>
-      <input matInput type="text" [(ngModel)]="modelConfig.name" [disabled]="edit">
+      <mat-label>
+        Name
+        <span class="edit-model-config-hint">
+          {{showNameHint ? '(must be alphanumeric, dash, or underscore only!)' : ''}}
+        </span>
+      </mat-label>
+      <input matInput type="text" [(ngModel)]="modelConfig.name" [disabled]="edit" (keyup)="validateConfigName()">
     </mat-form-field>
   </div>
   <div class="edit-model-config-field-container">
@@ -70,7 +75,12 @@
   <button mat-stroked-button [disabled]="busy" [mat-dialog-close]="">
     Cancel
   </button>
-  <button mat-raised-button class="edit-model-config-button" *ngIf="this.app.userHasRole('maintainer')" [disabled]="busy" (click)="createModelConfiguration()">
+  <button
+    mat-raised-button
+    class="edit-model-config-button"
+    *ngIf="this.app.userHasRole('maintainer')"
+    [disabled]="busy || showNameHint"
+    (click)="createModelConfiguration()">
     Create
   </button>
   <div class="edit-model-config-busy-spinner">
