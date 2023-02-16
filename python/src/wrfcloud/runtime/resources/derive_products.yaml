@@ -2,6 +2,7 @@
 # name = input field name, out_name (optional) = field name to write
 # args (optional) = dictionary of options to add to getvar command
 # levels (optional) = If set and True, interpolate at pressure levels
+# scale (optional) = If set, multiply values by scale
 fields:
   - name: 'T2'
     out_name: 'temp_2m'
