@@ -1,4 +1,4 @@
-# A list of products to create from the UPP GRIB2 files
+# A list of products to create from the Derived WRF NetCDF and UPP GRIB2 files
 #
 # grib2:
 #   variable: Short name in the grib file
@@ -103,33 +103,6 @@ products:
     palette: BrBG
     display_name: 'Precipitation Accumulation'
     units: 'mm'
-  - netcdf:
-      variable: low_cloud
-    range:
-      min: 0
-      max: 101
-    contour_interval: 5
-    palette: Blues_r
-    display_name: 'Low-Level Cloud Cover'
-    units: '%'
-  - netcdf:
-      variable: mid_cloud
-    range:
-      min: 0
-      max: 101
-    contour_interval: 5
-    palette: Blues_r
-    display_name: 'Medium-Level Cloud Cover'
-    units: '%'
-  - netcdf:
-      variable: high_cloud
-    range:
-      min: 0
-      max: 101
-    contour_interval: 5
-    palette: Blues_r
-    display_name: 'High-Level Cloud Cover'
-    units: '%'
   - grib2:
       variable: lcc
     range:
@@ -137,7 +110,7 @@ products:
       max: 101
     contour_interval: 5
     palette: Blues_r
-    display_name: 'Low-Level Cloud Cover - UPP'
+    display_name: 'Low-Level Cloud Cover'
     units: '%'
   - grib2:
       variable: mcc
@@ -146,7 +119,7 @@ products:
       max: 101
     contour_interval: 5
     palette: Blues_r
-    display_name: 'Medium-Level Cloud Cover - UPP'
+    display_name: 'Medium-Level Cloud Cover'
     units: '%'
   - grib2:
       variable: hcc
@@ -155,7 +128,7 @@ products:
       max: 101
     contour_interval: 5
     palette: Blues_r
-    display_name: 'High-Level Cloud Cover - UPP'
+    display_name: 'High-Level Cloud Cover'
     units: '%'
   - netcdf:
       variable: pwat
