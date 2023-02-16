@@ -262,6 +262,7 @@ class GeoJson(Process):
         for layer in self.wrf_layers:
             if not layer.dt:
                 # TODO: The date/time should be set on the layer once the information is available in the GRIB2 files
+                self.log.error("layer.dt is not set!")
                 layer.dt = self.job.start_dt.timestamp() + (layer.time_step * 3600)
 
             # construct the S3 key
