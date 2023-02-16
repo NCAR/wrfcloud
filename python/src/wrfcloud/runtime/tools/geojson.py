@@ -389,29 +389,15 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
             wrf_layer.units = product['units']
             wrf_layer.layer_data = out_file
             wrf_layer.z_level = z_level
-            # TODO: The date/time of the data should come from within the file, not the file name,
-            #       however this information does not seem to be available within the GRIB file.
-            #       As a work-around for now, we are getting the time step from the file name,
-            #       and this can be used in conjunction with the start time and output frequency
-            #       to compute the data time.  Yuch!
+
             if file_type == 'grib2':
-                try:
-                    with pygrib.open(wrf_file) as grib:
-                        wrf_layer.dt = grib.select(shortName=variable)[0].validDate.timestamp()
-                except Exception as e:
-                    log.warn(f'Could not extract valid time from GRIB file contents. Parsing from filename: {e}')
-                    # get time step from filename if cannot parse valid time from file
-                    file_name_time: str = wrf_file.split('/')[-1].split('GrbF')[1]
-                    file_name_hours: str = file_name_time if '.' not in file_name_time else file_name_time.split('.')[0]
-                    file_name_minutes: str = '0' if '.' not in file_name_time else file_name_time.split('.')[1]
-                    wrf_layer.time_step = float(file_name_hours) + (float(file_name_minutes) / 60)
+                with pygrib.open(wrf_file) as grib:
+                    wrf_layer.dt = grib.select(shortName=variable)[0].validDate.timestamp()
             else:
                 wrf_nc = netCDF4.Dataset(wrf_file)
                 file_time = wrf_nc['Times'][:].tobytes().decode()
                 dt = datetime.strptime(file_time, '%Y-%m-%d_%H:%M:%S')
                 wrf_layer.dt = dt.timestamp()
-                #dt_start = datetime.strptime(wrf_nc.getncattr('START_DATE'), '%Y-%m-%d_%H:%M:%S')
-                #wrf_layer.time_step = (dt - dt_start).total_seconds() / 3600.0
 
             out_layers.append(wrf_layer)
 
