@@ -21,9 +21,12 @@ The user installing WRF Cloud must have sufficient administrative permissions wi
 Check existing permissions:
 
 * In the **AWS Management Console**, use the top-level search bar to find and launch the AWS **IAM** (Identity and Access Management) Service.
-* If you are unable to launch the AWS **IAM** Service, you do not have sufficient permissions.
+
+  * If you are unable to launch the AWS **IAM** Service, you do not have sufficient permissions.
+
 * In **Access management > Users**, find and select your user name, and inspect the **Permissions policies**.
-* Ensure that you have **AdministratorAccess**, **SystemAdministrator**, or higher permissions.
+
+  * Ensure that you have **AdministratorAccess**, **SystemAdministrator**, or higher permissions.
 
 If any of the following installation steps fail due to insufficient permissions, please contact your AWS account administrator for assistance.
 
@@ -53,7 +56,9 @@ The procedures for ensuring the prerequisites are fulfilled are described below.
    * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
    * Select **Limits** from the left navigation menu and search for **HPC** to find **Running On-Demand HPC instances**.
    * If the **Current limit** is less than **96 vCPUs**, select the radio button and click **Request limit increase**.
-   * Check your email for followup and confirmation from AWS support.
+   * **AWS Support Center** will followup via email with the AWS account owner.
+
+     * See details about contacting `AWS Support Center <https://docs.aws.amazon.com/awssupport/latest/user/accessing-support.html>`_, as needed.
 
 4. Check Simple Email Service (SES).
 
@@ -63,13 +68,13 @@ The procedures for ensuring the prerequisites are fulfilled are described below.
 
       * Select **Configuration > Verified identities** from the left navigation menu.
       * If the newly added domain is not listed, select the **Create identity** button, select the **Domain** radio button, and enter the newly added domain.
-      * Check your email for followup and confirmation from AWS support.
+      * `AWS Support Center <https://docs.aws.amazon.com/awssupport/latest/user/accessing-support.html>`_ will followup via email with the AWS account owner.
       * Confirm that the newly added domain appears in the **Verified indentities** list.
 
    * If you see a banner message warning that **Your Amazon SES account is in the sandbox in US East (Ohio)**, contact AWS to **Request production access**.
 
       * Prior to requesting production access, be sure that you have at least one verified identity (see above).
-      * Check your email for followup and confirmation from AWS support.
+      * `AWS Support Center <https://docs.aws.amazon.com/awssupport/latest/user/accessing-support.html>`_ will followup via email with the AWS account owner.
       * If AWS requires further justification for this change, note that this email service is needed by WRF Cloud to send users emails when WRF jobs finish running and to facilitate password recovery. We also recommend that your AWS account administrators subscribe to an SNS topic that is configured to accept bounce and complaint messages.
 
 .. _install:
