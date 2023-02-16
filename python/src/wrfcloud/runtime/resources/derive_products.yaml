@@ -14,7 +14,6 @@ fields:
     args:
       units: 'kt'
   - name: 'slp'
-    out_name: 'prmsl'
     args:
       units: 'mb'
   - name: 'td2'

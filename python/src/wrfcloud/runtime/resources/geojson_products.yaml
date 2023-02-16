@@ -50,7 +50,7 @@ products:
     display_name: 'Wind Direction 10m'
     units: 'deg'
   - netcdf:
-      variable: prmsl
+      variable: slp
     range:
       min: 920
       max: 1040
