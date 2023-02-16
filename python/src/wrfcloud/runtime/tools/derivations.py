@@ -78,6 +78,10 @@ def derive_fields(in_file: str, out_dir: str):
                     var.values = var.values - 273.15
                     var.attrs['units'] = 'C'
 
+                # scale values if requested
+                if 'scale' in field:
+                    var.values = var.values * field['scale']
+
                 # create output variable, copy values and select attributes
                 out_data.createVariable(out_name, var.dtype, var.dims)
                 out_data[out_name][:] = var.values

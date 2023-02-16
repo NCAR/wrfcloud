@@ -55,18 +55,21 @@ fields:
     levels: True
   - name: 'low_cloudfrac'
     out_name: 'low_cloud'
+    scale: 100
     args:
       vert_type: 'pres'
       mid_thresh: '64200'
       high_thresh: '35000'
   - name: 'mid_cloudfrac'
     out_name: 'mid_cloud'
+    scale: 100
     args:
       vert_type: 'pres'
       mid_thresh: '64200'
       high_thresh: '35000'
   - name: 'high_cloudfrac'
     out_name: 'high_cloud'
+    scale: 100
     args:
       vert_type: 'pres'
       mid_thresh: '64200'
