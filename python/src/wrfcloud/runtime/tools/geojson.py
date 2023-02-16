@@ -395,11 +395,11 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
             #       and this can be used in conjunction with the start time and output frequency
             #       to compute the data time.  Yuch!
             if file_type == 'grib2':
-                grib = pygrib.open(wrf_file)  # pylint: disable=E1101
                 try:
-                    wrf_layer.dt = grib.select(shortName=variable)[0].validDate.timestamp()
-                except Exception:
-                    log.warn('Could not extract valid time from GRIB file contents. Parsing from filename')
+                    with pygrib.open(wrf_file) as grib:
+                        wrf_layer.dt = grib.select(shortName=variable)[0].validDate.timestamp()
+                except Exception as e:
+                    log.warn(f'Could not extract valid time from GRIB file contents. Parsing from filename: {e}')
                     # get time step from filename if cannot parse valid time from file
                     file_name_time: str = wrf_file.split('/')[-1].split('GrbF')[1]
                     file_name_hours: str = file_name_time if '.' not in file_name_time else file_name_time.split('.')[0]
