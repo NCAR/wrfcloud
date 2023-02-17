@@ -35,16 +35,17 @@ If any of the following installation steps fail due to insufficient permissions,
 Prerequisites
 =============
 
-The are 3 prerequisites for installing WRF Cloud in an AWS account:
+The are 4 prerequisites for installing WRF Cloud in an AWS account:
 
 * **Web Domain**: This is the web domain (hosted zone) where the WRF Cloud system is accessed. AWS's `Route 53 <https://aws.amazon.com/route53>`_ Domain Naming Service (DNS) is used to create and host the domain for the system. This service has an annual cost associated with it.
 * **Adequate Instance Limits**: On-demand HPC instance limits must be set to a minimum of 96 vCPUs. By default, the AWS account may be less than this. A request should be made to increase this limit for full functionality of the system.
 * **Enable Simple Email Service (SES)**: This facilitates AWS emailing within the system. By default the SES is limited to testing with verified identities. A request must be made to lift these limits and make it a production service.
+* **Access to us-east-2 region**: The hpc6a instances that the system uses are only availble in the us-east-2 region. This is typically available by default for regual AWS accounts. 
 
 The procedures for ensuring the prerequisites are fulfilled are described below.
 
 1. Login to the `AWS Management Console <https://aws.amazon.com/console>`_ for your account as a user with sufficient permissions (see :numref:`permissions`).
-
+   
 2. Check `Route 53 <https://aws.amazon.com/route53>`_ domain name.
 
    * Use the top-level search bar to find and launch the AWS **Route 53** Service.
@@ -54,6 +55,7 @@ The procedures for ensuring the prerequisites are fulfilled are described below.
 
    * Use the top-level search bar to find and launch the AWS **EC2** Service.
    * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
+      * Access to us-east-2 region is required. This is likely enabled by default, per AWS documentation for standard AWS accounts. In the event that you do not see us-east-2 region as an option when going through the procedures, contact you AWS account administrator, or AWS directly, to inquire about enabling it. 
    * Select **Limits** from the left navigation menu and search for **HPC** to find **Running On-Demand HPC instances**.
    * If the **Current limit** is less than **96 vCPUs**, select the radio button and click **Request limit increase**.
    * **AWS Support Center** will followup via email with the AWS account owner.
