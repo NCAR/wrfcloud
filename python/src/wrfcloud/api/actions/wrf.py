@@ -5,10 +5,10 @@ import os
 import base64
 import gzip
 import pkgutil
-import yaml
 from typing import Union
 from datetime import datetime, timedelta
 from pytz import utc
+from wrfcloud.api.auth import create_jwt
 from wrfcloud.api.actions.action import Action
 from wrfcloud.system import get_aws_session
 from wrfcloud.aws.pcluster import WrfCloudCluster, CustomAction
@@ -180,12 +180,17 @@ class RunWrf(Action):
             increment = timedelta(seconds=forecast_len_sec)
             end_time = start_date + increment
 
+            # create a JWT to allow the cluster to delete itself when finished
+            jwt = self._create_cluster_jwt()
+
             # create the custom action to start the model
             script_template = pkgutil.get_data('wrfcloud', 'api/actions/resources/run_wrf_template.sh').decode()
             script = script_template\
                 .replace('__JOB_ID__', self.ref_id)\
                 .replace('__S3_BUCKET__', os.environ['WRFCLOUD_BUCKET'])\
-                .replace('__APP_HOSTNAME__', os.environ['APP_HOSTNAME'])
+                .replace('__APP_HOSTNAME__', os.environ['APP_HOSTNAME'])\
+                .replace('__API_HOSTNAME__', os.environ['API_HOSTNAME'])\
+                .replace('__JWT__', jwt)
             ca = CustomAction(self.ref_id, script)
 
             # create information for a new job
@@ -220,6 +225,53 @@ class RunWrf(Action):
         except Exception as e:
             self.log.error('Failed to launch WRF job', e)
             self.errors.append('Failed to launch WRF job')
+            return False
+
+        return True
+
+    def _create_cluster_jwt(self) -> str:
+        """
+        Create a JWT to allow the cluster to delete itself when finished
+        :return: JWT value
+        """
+        # construct a payload with a cluster role and email is the reference ID
+        payload = {'email': self.ref_id, 'role': 'cluster'}
+
+        # set the expiration date to be 96 hours from now
+        expiration = 3600 * 96  # 96 hours
+
+        # create and return the JWT
+        return create_jwt(payload, expiration)
+
+
+class DeleteCluster(Action):
+    """
+    Delete a cluster
+    """
+
+    def validate_request(self) -> bool:
+        """
+        Validate the request object
+        :return: True if the request is valid, otherwise False
+        """
+        required_fields = []
+        optional_fields = []
+        return self.check_request_fields(required_fields, optional_fields)
+
+    def perform_action(self) -> bool:
+        """
+        Delete a cluster
+        :return: True if the action ran successfully
+        """
+        try:
+            # only a 'cluster' role will have permission to run this action, and it will
+            # not be a real user the job_id will be set as the user's email address
+            cluster_name: str = self.run_as_user.email
+            cluster = WrfCloudCluster(cluster_name)
+            cluster.delete_cluster()
+        except Exception as e:
+            self.log.error('Failed to delete cluster', e)
+            self.errors.append('Failed to delete cluster')
             return False
 
         return True

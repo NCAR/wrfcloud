@@ -8,6 +8,7 @@ run.
 
 import argparse
 import os
+import json
 from typing import Union
 from wrfcloud.runtime.geogrid import GeoGrid
 from wrfcloud.runtime.ungrib import Ungrib
@@ -17,7 +18,6 @@ from wrfcloud.runtime.wrf import Wrf
 from wrfcloud.runtime.postproc import UPP, GeoJson
 from wrfcloud.config import WrfConfig, get_config_from_system
 from wrfcloud.jobs import WrfJob, get_job_from_system, update_job_in_system
-from wrfcloud.aws.pcluster import WrfCloudCluster
 from wrfcloud.system import init_environment, get_aws_session
 from wrfcloud.log import Logger
 
@@ -109,8 +109,7 @@ def main() -> None:
 
     # Shutdown the cluster after completion or failure
     try:
-        cluster = WrfCloudCluster(job.job_id)
-        cluster.delete_cluster()
+        _delete_cluster()
     except Exception as e:
         log.error('Failed to delete cluster.', e)
         _update_job_status(job, WrfJob.STATUS_CODE_FAILED,
@@ -162,3 +161,28 @@ def _load_model_configuration(job: WrfJob) -> WrfConfig:
         Logger().info('geo_em file not found -- must run geogrid process')
 
     return config
+
+
+def _delete_cluster() -> None:
+    """
+    Delete this cluster using the JWT passed from the API
+    :return: None
+    """
+    import requests
+
+    # assemble the request information
+    jwt: str = os.environ['JWT']
+    api_hostname: str = os.environ['API_HOSTNAME']
+    api_url: str = f'https://{api_hostname}/v1/action'
+    api_request: dict = {
+        'action': 'DeleteCluster',
+        'data': {},
+        'jwt': jwt
+    }
+
+    # post the request and get the response
+    response: requests.models.Response = requests.post(api_url, json=api_request)
+    message: dict = json.loads(response.text)
+
+    if not message['ok']:
+        raise RuntimeError('\n'.join(message['errors']))
