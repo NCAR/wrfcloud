@@ -47,15 +47,16 @@ def get_job_from_system(job_id: str) -> Union[WrfJob, None]:
     return dao.get_job_by_id(job_id)
 
 
-def get_all_jobs_in_system() -> List[WrfJob]:
+def get_all_jobs_in_system(full_load: bool = True) -> List[WrfJob]:
     """
     Get a list of all jobs in the system
+    :param full_load: Fully load the job data, or just the metadata (i.e. not including the layer information)
     :return: A list of all jobs in the system
     """
     # create the data access object
     dao = JobDao()
 
-    return dao.get_all_jobs()
+    return dao.get_all_jobs(full_load)
 
 
 def update_job_in_system(update_job: WrfJob, notify_web: Union[bool, None] = None) -> bool:

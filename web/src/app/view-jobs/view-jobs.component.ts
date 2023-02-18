@@ -5,11 +5,14 @@ import {
   WrfJob,
   ListJobResponse,
   WebsocketListener,
-  WebsocketMessage,
+  WebsocketMessage, ModelConfiguration,
 } from "../client-api";
 import {MatSort} from "@angular/material/sort";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatTableDataSource} from "@angular/material/table";
+import {EditModelConfigurationComponent} from "../edit-model-configuration/edit-model-configuration.component";
+import {MatDialog} from "@angular/material/dialog";
+import {JobDetailsComponent} from "../job-details/job-details.component";
 
 @Component({
   selector: 'app-view-jobs',
@@ -81,7 +84,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   /**
    * Default constructor
    */
-  constructor()
+  constructor(private dialog: MatDialog)
   {
     /* get a reference to the application singleton */
     this.app = AppComponent.singleton;
@@ -147,6 +150,8 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
     /* handle the response */
     if (response.ok)
     {
+      if (this.jobs.length === 0) this.jobClicked(response.data.jobs[3]);  //  TODO: Remove this line -- for testing ease only
+
       this.jobs = response.data.jobs;
       this.dataSource.data = this.jobs;
     }
@@ -164,7 +169,14 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
    */
   public jobClicked(job: WrfJob): void
   {
-    // TODO: Open dialog to view all job details or delete/cancel job;
+    const editData: {job: WrfJob, edit: boolean} = {
+      job: job,
+      edit: false
+    };
+
+    this.dialog.open(JobDetailsComponent, {data: editData}).afterClosed().subscribe(
+      () => { this.refreshJobData(); }
+    );
   }
 
 

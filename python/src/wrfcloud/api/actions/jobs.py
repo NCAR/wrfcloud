@@ -32,7 +32,7 @@ class ListJobs(Action):
         """
         try:
             # get the job(s) from the system
-            jobs = get_all_jobs_in_system() if 'job_id' not in self.request \
+            jobs = get_all_jobs_in_system(full_load=False) if 'job_id' not in self.request \
                 else [get_job_from_system(self.request['job_id'])]
 
             # check for the job ID not found case

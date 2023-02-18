@@ -1,0 +1,26 @@
+<div class="job-details-title">
+  {{data.job.job_id}}
+  <span class="job-details-title-status">({{statusCodeToText[data.job.status_code]}})</span>
+</div>
+
+<div class="job-details-progress-bar">
+  <mat-progress-bar mode="determinate" [value]="data.job.progress * 100"></mat-progress-bar>
+  <span>{{data.job.status_message}}</span>
+  <span class="job-details-right">{{data.job.progress * 100}}%</span>
+</div>
+
+<div class="job-details-buttons">
+  <button *ngIf="allowCancel" mat-raised-button class="job-details-action-button" (click)="cancelJob()">Cancel Job</button>
+  <button *ngIf="allowDelete" mat-raised-button class="job-details-action-button" (click)="deleteJob()">Delete Job</button>
+  <button mat-stroked-button class="job-details-cancel-button" (click)="closeDialog()">Close</button>
+</div>
+
+<mat-divider style="margin: 12px 0">
+</mat-divider>
+
+<div class="job-details-container">
+  <mat-form-field class="job-details-input" *ngFor="let item of info">
+    <mat-label>{{item.name}}</mat-label>
+    <input matInput type="text" disabled="true" [(ngModel)]="item.value">
+  </mat-form-field>
+</div>

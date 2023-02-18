@@ -560,6 +560,44 @@ export class ClientApi
 
 
   /**
+   * Cancel a WRF job
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendCancelJobRequest(requestData: CancelDeleteJobRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'CancelJob',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
+   * Delete a WRF job
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendDeleteJobRequest(requestData: CancelDeleteJobRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'DeleteJob',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
    * Send a refresh token request
    *
    * @param requestData
@@ -1009,6 +1047,11 @@ export interface RunWrfResponse extends ApiResponse
   data: {
     ref_id: string;
   }
+}
+
+export interface CancelDeleteJobRequest
+{
+  job_id: string;
 }
 
 export interface ModelConfiguration

@@ -15,7 +15,7 @@
     <div [class]="'login-input-container' + (iForgot ? ' login-hidden' : '')" >
       <mat-form-field appearance="fill">
         <mat-label>Password</mat-label>
-        <input matInput type="password" [(ngModel)]="req.password" (keyup)="app.onEnter($event, doLogin.bind(this))">
+        <input id="password" matInput type="password" [(ngModel)]="req.password" (keyup)="app.onEnter($event, doLogin.bind(this))">
         <button *ngIf="req.password" matSuffix mat-icon-button (click)="req.password=''">
           <mat-icon>clear</mat-icon>
         </button>
