@@ -43,6 +43,24 @@ export class JobDetailsComponent implements OnInit
 
 
   /**
+   * Allow the job viewer to be opened
+   */
+  public allowOpen: boolean = false;
+
+
+  /**
+   * Flag the dialog as busy or not (i.e., waiting for API response)
+   */
+  public busy: boolean = false;
+
+
+  /**
+   * Note which action we are performing
+   */
+  public action: string = '';
+
+
+  /**
    * Default constructor
    *
    * @param dialogRef
@@ -53,9 +71,7 @@ export class JobDetailsComponent implements OnInit
     /* get a reference to the application singleton */
     this.app = AppComponent.singleton;
 
-    const sc: number = data.job.status_code;
-    this.allowCancel = sc >= 0 && sc <= 2;  // pending, starting, running
-    this.allowDelete = sc >= 3 && sc <= 5;  // finished, canceled, failed
+    this.updateButtons();
 
     this.info[this.info.length] = {name: 'Created By', value: data.job.user_email};
     this.info[this.info.length] = {name: 'Configuration Name', value: data.job.configuration_name};
@@ -76,28 +92,61 @@ export class JobDetailsComponent implements OnInit
   }
 
 
+  /**
+   * Decide which buttons should be visible or hidden
+   * @private
+   */
+  private updateButtons(): void
+  {
+    const sc: number = this.data.job.status_code;
+    this.allowCancel = sc >= 0 && sc <= 2;  // pending, starting, running
+    this.allowDelete = sc >= 3 && sc <= 5;  // finished, canceled, failed
+    this.allowOpen = sc === 3;              // finished
+  }
+
+
   public cancelJob(): void
   {
+    this.busy = true;
+    this.action = 'cancel';
     const req: CancelDeleteJobRequest = {job_id: this.data.job.job_id};
     this.app.api.sendCancelJobRequest(req, this.responseHandler.bind(this));
   }
 
+
   public deleteJob(): void
   {
+    this.busy = true;
+    this.action = 'delete';
     const req: CancelDeleteJobRequest = {job_id: this.data.job.job_id};
     this.app.api.sendDeleteJobRequest(req, this.responseHandler.bind(this));
   }
 
-  public closeDialog(): void
+
+  public openJob(): void
   {
-    this.dialogRef.close();
+    this.app.routeTo('/view/' + this.data.job.job_id);
+    this.closeDialog();
   }
+
 
   public responseHandler(response: ApiResponse): void
   {
+    this.busy = false;
     if (!response.ok)
       this.app.showErrorDialog(response.errors);
-    else
+    else if (this.action === 'delete')
       this.closeDialog();
+    else if (this.action === 'cancel')
+    {
+      this.data.job.status_code = 4;
+      this.updateButtons();
+    }
+  }
+
+
+  public closeDialog(): void
+  {
+    this.dialogRef.close();
   }
 }

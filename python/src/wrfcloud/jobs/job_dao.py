@@ -123,10 +123,11 @@ class JobDao(DynamoDao):
         job: WrfJob = self.get_job_by_id(job.job_id, load_layers_from_s3=False)
         job_id = job.job_id
 
+        # delete the job from dynamodb
         ok = super().delete_item({'job_id': job_id})
 
         # delete the layers object from S3
-        self._delete_layers(job)
+        ok = ok and self._delete_layers(job)
         return ok
 
     def create_job_table(self) -> bool:
@@ -154,7 +155,7 @@ class JobDao(DynamoDao):
         layers_yaml: bytes = yaml.safe_dump([layer.data for layer in layers],
                                             indent=2).encode()
 
-        # generate the S3 url -- key comes from hashing the data
+        # generate the S3 url
         bucket_name: str = os.environ['WRFCLOUD_BUCKET']
         key: str = 'layers.yaml'
         prefix: str = f'jobs/{job.job_id}'
@@ -217,9 +218,18 @@ class JobDao(DynamoDao):
         """
         layers: Union[str, List[WrfLayer]] = job.layers
 
+        # get an s3 client
+        s3 = get_aws_session().client('s3')
+
         # if layers is dictionary, we can't delete S3, so return False
         if isinstance(layers, list):
-            return False
+            for layer in layers:
+                if isinstance(layer, WrfLayer) and layer.layer_data.startswith('s3://'):
+                    try:
+                        bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layer.layer_data)
+                        s3.delete_object(Bucket=bucket_name, Key=prefix_key)
+                    except Exception as e:
+                        self.log.error(f'Failed to delete layer data: {layer.layer_data}', e)
 
         # extract bucket name and prefix/key from S3 URL
         bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layers)
@@ -228,11 +238,7 @@ class JobDao(DynamoDao):
 
         # delete layer data from S3
         try:
-            s3 = get_aws_session().client('s3')
-            s3.delete_object(
-                Bucket=bucket_name,
-                Key=prefix_key,
-            )
+            s3.delete_object(Bucket=bucket_name, Key=prefix_key)
         except Exception as e:
             self.log.error('Failed to delete WrfJob.layer data from S3', e)
             return False

@@ -50,6 +50,10 @@ regular:
       package: wrfcloud.api.actions
     - action: ListModelConfigurations
       package: wrfcloud.api.actions
+    - action: CancelJob
+      package: wrfcloud.api.actions
+    - action: DeleteJob
+      package: wrfcloud.api.actions
 
 maintainer:
   permitted_actions:
@@ -76,6 +80,10 @@ maintainer:
     - action: DeleteModelConfiguration
       package: wrfcloud.api.actions
     - action: UpdateModelConfiguration
+      package: wrfcloud.api.actions
+    - action: CancelJob
+      package: wrfcloud.api.actions
+    - action: DeleteJob
       package: wrfcloud.api.actions
 
 admin:
@@ -111,6 +119,10 @@ admin:
     - action: DeleteModelConfiguration
       package: wrfcloud.api.actions
     - action: UpdateModelConfiguration
+      package: wrfcloud.api.actions
+    - action: CancelJob
+      package: wrfcloud.api.actions
+    - action: DeleteJob
       package: wrfcloud.api.actions
 
 cluster:

@@ -9,9 +9,14 @@
   <span class="job-details-right">{{data.job.progress * 100}}%</span>
 </div>
 
-<div class="job-details-buttons">
+<div class="job-details-busy" *ngIf="busy">
+  <mat-icon class="spin">autorenew</mat-icon>
+</div>
+
+<div class="job-details-buttons" *ngIf="!busy">
   <button *ngIf="allowCancel" mat-raised-button class="job-details-action-button" (click)="cancelJob()">Cancel Job</button>
   <button *ngIf="allowDelete" mat-raised-button class="job-details-action-button" (click)="deleteJob()">Delete Job</button>
+  <button *ngIf="allowOpen" mat-stroked-button class="job-details-action-button job-details-open-button" (click)="openJob()">Open Viewer</button>
   <button mat-stroked-button class="job-details-cancel-button" (click)="closeDialog()">Close</button>
 </div>
 

@@ -2,9 +2,16 @@
 Actions related to WRF jobs
 """
 
+from typing import List
 from wrfcloud.api.actions.action import Action
-from wrfcloud.jobs import get_all_jobs_in_system, get_job_from_system
+from wrfcloud.jobs import WrfJob
+from wrfcloud.jobs import get_all_jobs_in_system
+from wrfcloud.jobs import get_job_from_system
+from wrfcloud.jobs import update_job_in_system
+from wrfcloud.jobs import delete_job_from_system
+from wrfcloud.jobs import WrfLayer
 from wrfcloud.subscribers import Subscriber, add_subscriber_to_system
+from wrfcloud.aws.pcluster import WrfCloudCluster
 
 
 class ListJobs(Action):
@@ -90,3 +97,93 @@ class SubscribeJobs(Action):
             self.log.info(f'Added subscriber: {subscriber.client_url}')
 
         return added
+
+
+class CancelJob(Action):
+    """
+    Cancel an active job
+    """
+    def validate_request(self) -> bool:
+        """
+        Validate the request object
+        :return: True if the request is valid, otherwise False
+        """
+        # no required parameters
+        required = ['job_id']
+
+        # optional parameters
+        optional = []
+
+        # validate the request
+        return self.check_request_fields(required, optional)
+
+    def perform_action(self) -> bool:
+        """
+        Cancel the job and create a response
+        :return: True if the action ran successfully
+        """
+        # get the job and check its status
+        job_id: str = self.request['job_id']
+        job: WrfJob = get_job_from_system(job_id)
+        if job.status_code not in [job.STATUS_CODE_PENDING, job.STATUS_CODE_STARTING, job.STATUS_CODE_RUNNING]:
+            self.log.error(f'The job is not active and cannot be canceled: {job_id}')
+            self.errors.append('This job is no longer active.')
+            return False
+
+        # cancel the job (i.e., shutdown the cluster)
+        cluster: WrfCloudCluster = WrfCloudCluster(job.job_id)
+        canceled: bool = cluster.delete_cluster(wait=False)
+
+        # maybe add an error message for the user
+        if not canceled:
+            self.errors.append('Failed to cancel this job.')
+            self.errors.append('Try again after refreshing job list.')
+
+        # update the job status code
+        job.status_code = job.STATUS_CODE_CANCELED
+        job.status_message = f'Canceled by {self.run_as_user.full_name} ({self.run_as_user.email})'
+        job.progress = 0
+        update_job_in_system(job, True)
+
+        return canceled
+
+
+class DeleteJob(Action):
+    """
+    Delete a job (and all data) that is no longer running
+    """
+    def validate_request(self) -> bool:
+        """
+        Validate the request object
+        :return: True if the request is valid, otherwise False
+        """
+        # no required parameters
+        required = ['job_id']
+
+        # optional parameters
+        optional = []
+
+        # validate the request
+        return self.check_request_fields(required, optional)
+
+    def perform_action(self) -> bool:
+        """
+        Delete the job and create a response
+        :return: True if the action ran successfully
+        """
+        # get the job and check its status
+        job_id: str = self.request['job_id']
+        job: WrfJob = get_job_from_system(job_id)
+        if job.status_code not in [job.STATUS_CODE_CANCELED, job.STATUS_CODE_FAILED, job.STATUS_CODE_FINISHED]:
+            self.log.error(f'The job is still active and cannot be deleted: {job_id}')
+            self.errors.append('Cancel this job before deleting.')
+            return False
+
+        # delete the data
+        deleted: bool = delete_job_from_system(job)
+
+        # maybe add an error message for the user
+        if not deleted:
+            self.errors.append('Failed to delete this job.')
+
+        return deleted

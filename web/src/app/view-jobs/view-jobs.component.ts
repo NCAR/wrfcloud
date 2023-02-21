@@ -150,8 +150,6 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
     /* handle the response */
     if (response.ok)
     {
-      if (this.jobs.length === 0) this.jobClicked(response.data.jobs[3]);  //  TODO: Remove this line -- for testing ease only
-
       this.jobs = response.data.jobs;
       this.dataSource.data = this.jobs;
     }

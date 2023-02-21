@@ -202,9 +202,11 @@ class WrfCloudCluster:
         # delete the temporary file
         os.unlink(config_file)
 
-    def delete_cluster(self):
+    def delete_cluster(self, wait: bool = True) -> bool:
         """
         Use pcluster to stop the current user's cluster
+        :param wait: Do not return until cluster is fully deleted
+        :return: True if successful, otherwise False
         """
         # slow import deferred
         from pcluster.cli.entrypoint import run as pcluster
@@ -214,14 +216,19 @@ class WrfCloudCluster:
             print(f'Cluster {self.cluster_name} is not running.')
             return
 
+        ok: bool = False
         params = f'delete-cluster --region {self.region} --cluster-name {self.cluster_name}'.split()
         ret = pcluster(params)
         if ret:
+            ok = True
             output_str = json.dumps(ret, indent=2)
             print(output_str)
 
         # wait for the stack status
-        self._wait_for_stack_status(None)
+        if wait:
+            self._wait_for_stack_status(None)
+
+        return ok
 
     def cluster_status(self):
         """
