@@ -43,8 +43,8 @@ products:
   - netcdf:
       variable: wind_dir_10
     range:
-      min: -60
-      max: 60
+      min: 0
+      max: 360
     contour_interval: 2
     palette: PuOr
     display_name: 'Wind Direction 10m'
@@ -144,9 +144,9 @@ products:
   - netcdf:
       variable: temp_pres
     range:
-      min: -28
-      max: 40
-    contour_interval: 1
+      min: -15
+      max: 45
+    contour_interval: 2
     palette: viridis
     display_name: 'Temperature (3D)'
     units: 'ºC'
@@ -219,8 +219,8 @@ products:
   - netcdf:
       variable: wind_dir_pres
     range:
-      min: -60
-      max: 60
+      min: 0
+      max: 360
     contour_interval: 2
     palette: PuOr
     display_name: 'Wind Direction'
