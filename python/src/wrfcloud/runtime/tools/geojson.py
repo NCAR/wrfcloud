@@ -394,10 +394,10 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
                 with pygrib.open(wrf_file) as grib:
                     wrf_layer.dt = grib.select(shortName=variable)[0].validDate.timestamp()
             else:
-                wrf_nc = netCDF4.Dataset(wrf_file)
-                file_time = wrf_nc['Times'][:].tobytes().decode()
-                dt = datetime.strptime(file_time, '%Y-%m-%d_%H:%M:%S')
-                wrf_layer.dt = dt.timestamp()
+                with netCDF4.Dataset(wrf_file) as wrf_nc:
+                    file_time = wrf_nc['Times'][:].tobytes().decode()
+                    dt = datetime.strptime(file_time, '%Y-%m-%d_%H:%M:%S')
+                    wrf_layer.dt = dt.timestamp()
 
             out_layers.append(wrf_layer)
 
