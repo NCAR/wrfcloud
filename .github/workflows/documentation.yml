@@ -6,8 +6,9 @@ on:
   push:
     branches:
       - develop
-      - feature*
-      - bugfix*
+      - 'main**'
+      - 'feature**'
+      - 'bugfix**'
     paths: 
       - docs/**
   pull_request:
@@ -25,8 +26,8 @@ jobs:
           python-version: '3.8'
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade python-dateutil requests sphinx \
-          sphinx-panels sphinx_rtd_theme
+          python -m pip install --upgrade sphinx sphinx-gallery sphinx_rtd_theme
+          python -m pip install python-dateutil requests Pillow
       - name: Build docs
         run: ./.github/jobs/build_documentation.sh   
       - uses: actions/upload-artifact@v3
@@ -40,3 +41,4 @@ jobs:
           name: documentation_warnings.log
           path: artifact/doc_warnings.log
           if-no-files-found: ignore
+

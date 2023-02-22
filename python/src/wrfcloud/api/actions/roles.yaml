@@ -112,3 +112,8 @@ admin:
       package: wrfcloud.api.actions
     - action: UpdateModelConfiguration
       package: wrfcloud.api.actions
+
+cluster:
+  permitted_actions:
+    - action: DeleteCluster
+      package: wrfcloud.api.actions

@@ -56,6 +56,7 @@ setup(
             'setup/aws/cf_wrfcloud_data.yaml',
             'setup/aws/cf_wrfcloud_certificate.yaml',
             'setup/aws/cf_wrfcloud_webapp.yaml',
+            'setup/resources/caribbean_6km_config.yaml',
             'setup/aws/wrfcloud_cluster_policy.json',
             'runtime/configurations/test/namelist.*',
             'runtime/resources/*.yaml',

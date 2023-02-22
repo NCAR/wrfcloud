@@ -26,6 +26,10 @@ class WrfCloudImageBuilder(CloudFormation):
         self.ib_client = None
         self.ec2_client = None
 
+        # maybe add the GIT_CLONE_OPTS parameter
+        if 'GIT_CLONE_OPTS' in os.environ:
+            self.parameters.append({'ParameterKey': 'GitCloneOpts', 'ParameterValue': os.environ['GIT_CLONE_OPTS']})
+
     def replace_stack(self) -> None:
         """
         Replace the stack (i.e., delete and create)
