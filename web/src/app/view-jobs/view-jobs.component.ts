@@ -5,12 +5,11 @@ import {
   WrfJob,
   ListJobResponse,
   WebsocketListener,
-  WebsocketMessage, ModelConfiguration,
+  WebsocketMessage,
 } from "../client-api";
 import {MatSort} from "@angular/material/sort";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatTableDataSource} from "@angular/material/table";
-import {EditModelConfigurationComponent} from "../edit-model-configuration/edit-model-configuration.component";
 import {MatDialog} from "@angular/material/dialog";
 import {JobDetailsComponent} from "../job-details/job-details.component";
 
@@ -78,7 +77,7 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   /**
    * Column names to display on a mobile device
    */
-  public mobileColumns: Array<string> = ['job_id', 'cycle_time', 'status'];
+  public mobileColumns: Array<string> = ['job_id', 'status'];
 
 
   /**
@@ -187,24 +186,34 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   }
 
 
+  /**
+   * Send a message to subscribe to job changes when a websocket is opened.
+   * @param event
+   */
   public websocketOpen(event: Event): void
   {
     /* subscribe to job status changes */
-    console.log('websocket subscribe');
     this.subscribed = this.app.api.subscribeToJobChanges();
   }
 
 
+  /**
+   * Create a new connection if our websocket is closed.
+   * @param event
+   */
   public websocketClose(event: CloseEvent): void
   {
     /* connect again if we get disconnected */
-    console.log('websocket closed');
     this.subscribed = false;
     if (!this.destructing)
       this.app.api.connectWebsocket(this);
   }
 
 
+  /**
+   * Handle an incoming websocket message.
+   * @param event
+   */
   public websocketMessage(event: MessageEvent): void
   {
     /* parse the websocket message -- must be valid JSON */
