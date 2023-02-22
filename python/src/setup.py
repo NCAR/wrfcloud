@@ -1,17 +1,5 @@
 from setuptools import setup
 
-from setuptools.command.install import install
-from subprocess import check_call
-import sys
-
-
-class PostInstallCommand(install):
-    """Post-installation step for installing wrf-python"""
-    def run(self):
-        check_call(f"{sys.executable} -m pip install wrf-python".split())
-        install.run(self)
-
-
 setup(
     name='wrfcloud',
     version='0.1.0',
@@ -33,7 +21,7 @@ setup(
         'f90nml>=1.4',
         'netCDF4>=1.5.0',
         'matplotlib>=3.3.0',
-        'numpy==1.23.5',  # specific version to prevent wrf-python failure
+        'numpy>=1.23.0',
         'requests>=2.20',
         'pytz>=2020.4',
         'pygrib>=2.1.4',
@@ -73,8 +61,5 @@ setup(
             'wrfcloud-geojson=wrfcloud.runtime.tools.geojson:main',
             'wrfcloud-setup=wrfcloud.setup:setup'
         ]
-    },
-    cmdclass={
-      'install': PostInstallCommand,
     },
 )

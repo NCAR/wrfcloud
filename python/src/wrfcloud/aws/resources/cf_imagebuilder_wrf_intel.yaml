@@ -547,6 +547,17 @@ Resources:
                     - GIT_CLONE_OPTS=$(aws --region us-east-2 ssm get-parameter --name GIT_CLONE_OPTS | jq -r .Parameter.Value)
                     - git clone ${GIT_CLONE_OPTS} https://github.com/NCAR/wrfcloud
                     - pip3 install wrfcloud/python/src
+                    - export CC=$(which gcc)
+                    - export CXX=$(which g++)
+                    - export F90=$(which gfortran)
+                    - export FC=$(which gfortran)
+                    - unset LD_LIBRARY_PATH
+                    - unset LDFLAGS
+                    - unset CFLAGS
+                    - unset FCFLAGS
+                    - unset I_MPI_FC
+                    - unset I_MPI_F90
+                    - pip3 install wrf-python
 
   ComponentWrf:
     Type: AWS::ImageBuilder::Component
