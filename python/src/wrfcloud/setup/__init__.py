@@ -60,8 +60,9 @@ def setup():
     data_stack.create_stack()
 
     # Upload public key
-    print('Uploading public SSH key to AWS...')
-    _upload_public_ssh_key(user_data['ssh_key'])
+    if 'ssh_key' in user_data:
+        print('Uploading public SSH key to AWS...')
+        _upload_public_ssh_key(user_data['ssh_key'])
 
     # Deploy build artifacts (lambda layer, function, web app)
     print(f'Uploading build artifacts to S3 bucket ({s3_bucket}) ...')
