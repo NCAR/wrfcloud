@@ -62,6 +62,12 @@ export class EditModelConfigurationComponent implements OnInit
 
 
   /**
+   * Show a hint for the configuration name
+   */
+  public showNameHint: boolean = false;
+
+
+  /**
    * Copy data into the user object
    *
    * @param dialogRef
@@ -216,6 +222,23 @@ export class EditModelConfigurationComponent implements OnInit
 
     /* read the file -- call handler when ready */
     fileReader.readAsText(file);
+  }
+
+
+  /**
+   * Validate the configuration name as the user types
+   */
+  public validateConfigName(): void
+  {
+    /* alphanumeric, dashes, and underscores only */
+    const matches: Array<String>|null = this.modelConfig.name.match(/^[a-zA-Z0-9_-]+/)
+    if (matches && matches.length > 0)
+      if (matches[0].length === this.modelConfig.name.length)
+      {
+        this.showNameHint = false;
+        return;
+      }
+    this.showNameHint = true;
   }
 
 
