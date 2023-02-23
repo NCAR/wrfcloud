@@ -213,26 +213,28 @@ class JobDao(DynamoDao):
     def _delete_layers(self, job: WrfJob) -> bool:
         """
         Delete the layers from the S3 bucket
-        :param job: Delete layers in S3 for this job
+        :param job: Delete layers in S3 for this job, layers must not be loaded yet
         :return: True if successful, otherwise False
         """
-        layers: Union[str, List[WrfLayer]] = job.layers
+        # preserve the S3 layers URL, then load the layers
+        layers_url: str = job.layers
+        self._load_layers(job)
+        layers: List[WrfLayer] = job.layers
 
         # get an s3 client
         s3 = get_aws_session().client('s3')
 
         # if layers is dictionary, we can't delete S3, so return False
-        if isinstance(layers, list):
-            for layer in layers:
-                if isinstance(layer, WrfLayer) and layer.layer_data.startswith('s3://'):
-                    try:
-                        bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layer.layer_data)
-                        s3.delete_object(Bucket=bucket_name, Key=prefix_key)
-                    except Exception as e:
-                        self.log.error(f'Failed to delete layer data: {layer.layer_data}', e)
+        for layer in layers:
+            if isinstance(layer, WrfLayer) and layer.layer_data.startswith('s3://'):
+                try:
+                    bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layer.layer_data)
+                    s3.delete_object(Bucket=bucket_name, Key=prefix_key)
+                except Exception as e:
+                    self.log.error(f'Failed to delete layer data: {layer.layer_data}', e)
 
         # extract bucket name and prefix/key from S3 URL
-        bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layers)
+        bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layers_url)
         if bucket_name is None:
             return False
 
