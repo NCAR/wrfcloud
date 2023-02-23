@@ -542,11 +542,7 @@ Resources:
                 inputs:
                   commands:
                     - source /etc/bashrc
-                    - mkdir -p /opt/src
-                    - cd /opt/src
-                    - GIT_CLONE_OPTS=$(aws --region us-east-2 ssm get-parameter --name GIT_CLONE_OPTS | jq -r .Parameter.Value)
-                    - git clone ${GIT_CLONE_OPTS} https://github.com/NCAR/wrfcloud
-                    - pip3 install wrfcloud/python/src
+                    - unset CPP CC_FOR_BUILD CPP_FOR_BUILD
                     - export CC=$(which gcc)
                     - export CXX=$(which g++)
                     - export F90=$(which gfortran)
@@ -557,6 +553,11 @@ Resources:
                     - unset FCFLAGS
                     - unset I_MPI_FC
                     - unset I_MPI_F90
+                    - mkdir -p /opt/src
+                    - cd /opt/src
+                    - GIT_CLONE_OPTS=$(aws --region us-east-2 ssm get-parameter --name GIT_CLONE_OPTS | jq -r .Parameter.Value)
+                    - git clone ${GIT_CLONE_OPTS} https://github.com/NCAR/wrfcloud
+                    - pip3 install wrfcloud/python/src
                     - pip3 install wrf-python
 
   ComponentWrf:
