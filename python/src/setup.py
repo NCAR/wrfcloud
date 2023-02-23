@@ -21,7 +21,7 @@ setup(
         'f90nml>=1.4',
         'netCDF4>=1.5.0',
         'matplotlib>=3.3.0',
-        'numpy>=1.23.0',
+        'numpy==1.23.5',
         'requests>=2.20',
         'pytz>=2020.4',
         'pygrib>=2.1.4',
