@@ -2,6 +2,7 @@ __all__ = ['aws', 'setup']
 
 import os
 import pkgutil
+import mimetypes
 
 import yaml
 import getpass
@@ -388,8 +389,14 @@ def _finalize_and_upload_webapp_to_s3(bucket: str, prefix: str, default_dir: str
             file_with_path = f'{default_dir}/{file}'
             _search_and_replace(file_with_path, '__API_HOSTNAME__', api)
             _search_and_replace(file_with_path, '__WS_HOSTNAME__', ws)
-            print(f'Uploading {file} to s3://{bucket}/{prefix}/{file} ...')
-            s3.upload_file(Filename=f'{default_dir}/{file}', Bucket=bucket, Key=f'{prefix}/{file}')
+            mime_type: str = mimetypes.guess_type(file)[0]
+            print(f'Uploading {file} to s3://{bucket}/{prefix}/{file} as {mime_type} ...')
+            s3.upload_file(
+                Filename=f'{default_dir}/{file}',
+                Bucket=bucket,
+                Key=f'{prefix}/{file}',
+                ExtraArgs={'ContentType': mime_type}
+            )
         except Exception as e:
             print(f'Failed to upload file: {file}')
             print(e)
@@ -596,15 +603,3 @@ class WrfCloudCertificates(CloudFormation):
 
             return res['ResponseMetadata']['HTTPStatusCode'] == 200
         return True
-
-
-if __name__ == '__main__':
-    _finalize_and_upload_webapp_to_s3(
-        'wrfcloud-6a8fdcdf',
-        'web',
-        'web/dist/web',
-        'where is it? ',
-        'wcapi.superlazy.org',
-        'wcws.superlazy.org'
-    )
-    # setup()
