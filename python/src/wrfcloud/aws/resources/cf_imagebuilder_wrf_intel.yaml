@@ -597,8 +597,8 @@ Resources:
                 action: ExecuteBash
                 inputs:
                   commands:
-                    - [ -f /home/ec2-user/WRF/main/real.exe ]
-                    - [ -f /home/ec2-user/WRF/main/wrf.exe ]
+                    - test -f /home/ec2-user/WRF/main/real.exe
+                    - test -f /home/ec2-user/WRF/main/wrf.exe
 
   ComponentWps:
     Type: AWS::ImageBuilder::Component
@@ -639,9 +639,9 @@ Resources:
                 action: ExecuteBash
                 inputs:
                   commands:
-                    - [ -f /home/ec2-user/WPS/geogrid.exe ]
-                    - [ -f /home/ec2-user/WPS/ungrib/ungrib.exe ]
-                    - [ -f /home/ec2-user/WPS/metgrid/metgrid.exe ]
+                    - test -f /home/ec2-user/WPS/geogrid.exe
+                    - test -f /home/ec2-user/WPS/ungrib/ungrib.exe
+                    - test -f /home/ec2-user/WPS/metgrid/metgrid.exe
 
   ComponentUpp:
     Type: AWS::ImageBuilder::Component
@@ -682,7 +682,7 @@ Resources:
                 action: ExecuteBash
                 inputs:
                   commands:
-                    - [ -f /home/ec2-user/UPP/bin/unipost.exe ]
+                    - test -f /home/ec2-user/UPP/bin/unipost.exe
 
   WrfImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
