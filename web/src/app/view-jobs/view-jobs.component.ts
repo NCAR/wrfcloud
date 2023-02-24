@@ -10,6 +10,8 @@ import {
 import {MatSort} from "@angular/material/sort";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatTableDataSource} from "@angular/material/table";
+import {MatDialog} from "@angular/material/dialog";
+import {JobDetailsComponent} from "../job-details/job-details.component";
 
 @Component({
   selector: 'app-view-jobs',
@@ -75,13 +77,13 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   /**
    * Column names to display on a mobile device
    */
-  public mobileColumns: Array<string> = ['job_id', 'cycle_time', 'status'];
+  public mobileColumns: Array<string> = ['job_id', 'status'];
 
 
   /**
    * Default constructor
    */
-  constructor()
+  constructor(private dialog: MatDialog)
   {
     /* get a reference to the application singleton */
     this.app = AppComponent.singleton;
@@ -164,7 +166,14 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
    */
   public jobClicked(job: WrfJob): void
   {
-    // TODO: Open dialog to view all job details or delete/cancel job;
+    const editData: {job: WrfJob, edit: boolean} = {
+      job: job,
+      edit: false
+    };
+
+    this.dialog.open(JobDetailsComponent, {data: editData}).afterClosed().subscribe(
+      () => { this.refreshJobData(); }
+    );
   }
 
 
@@ -177,24 +186,34 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
   }
 
 
+  /**
+   * Send a message to subscribe to job changes when a websocket is opened.
+   * @param event
+   */
   public websocketOpen(event: Event): void
   {
     /* subscribe to job status changes */
-    console.log('websocket subscribe');
     this.subscribed = this.app.api.subscribeToJobChanges();
   }
 
 
+  /**
+   * Create a new connection if our websocket is closed.
+   * @param event
+   */
   public websocketClose(event: CloseEvent): void
   {
     /* connect again if we get disconnected */
-    console.log('websocket closed');
     this.subscribed = false;
     if (!this.destructing)
       this.app.api.connectWebsocket(this);
   }
 
 
+  /**
+   * Handle an incoming websocket message.
+   * @param event
+   */
   public websocketMessage(event: MessageEvent): void
   {
     /* parse the websocket message -- must be valid JSON */

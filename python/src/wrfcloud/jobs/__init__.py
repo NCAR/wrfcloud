@@ -3,7 +3,7 @@ Other code calling the wrfcloud.jobs module should mainly use functions from
 this file.  Calling other functions and classes may have unexpected results.
 """
 __all__ = ['WrfJob', 'JobDao', 'add_job_to_system', 'get_job_from_system', 'get_all_jobs_in_system',
-           'update_job_in_system', 'delete_job_from_system', 'LatLonPoint']
+           'update_job_in_system', 'delete_job_from_system', 'LatLonPoint', 'WrfLayer']
 
 import os
 from typing import Union, List
@@ -12,6 +12,7 @@ from wrfcloud.jobs.job import WrfJob
 from wrfcloud.jobs.job_dao import JobDao
 from wrfcloud.subscribers import message_all_subscribers
 from wrfcloud.jobs.job import LatLonPoint
+from wrfcloud.jobs.job import WrfLayer
 
 
 log = Logger()
@@ -47,15 +48,16 @@ def get_job_from_system(job_id: str) -> Union[WrfJob, None]:
     return dao.get_job_by_id(job_id)
 
 
-def get_all_jobs_in_system() -> List[WrfJob]:
+def get_all_jobs_in_system(full_load: bool = True) -> List[WrfJob]:
     """
     Get a list of all jobs in the system
+    :param full_load: Fully load the job data, or just the metadata (i.e. not including the layer information)
     :return: A list of all jobs in the system
     """
     # create the data access object
     dao = JobDao()
 
-    return dao.get_all_jobs()
+    return dao.get_all_jobs(full_load)
 
 
 def update_job_in_system(update_job: WrfJob, notify_web: Union[bool, None] = None) -> bool:

@@ -42,6 +42,7 @@ import {PreferencesComponent} from './preferences/preferences.component';
 import {LogoutComponent} from './logout/logout.component';
 import {ModelConfigComponent} from './model-config/model-config.component';
 import {EditModelConfigurationComponent} from './edit-model-configuration/edit-model-configuration.component';
+import { JobDetailsComponent } from './job-details/job-details.component';
 
 
 @NgModule({
@@ -61,7 +62,8 @@ import {EditModelConfigurationComponent} from './edit-model-configuration/edit-m
     WrfViewerComponent,
     ResetPasswordComponent,
     ModelConfigComponent,
-    EditModelConfigurationComponent
+    EditModelConfigurationComponent,
+    JobDetailsComponent
   ],
     imports: [
         BrowserModule,

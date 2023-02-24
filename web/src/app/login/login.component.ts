@@ -93,6 +93,13 @@ export class LoginComponent implements OnInit
   public doLogin(): void
   {
     this.busy = true;
+
+    /* angular will sometimes not pick up changes from mobile password */
+    /* managers, so the two-way data binding fails and we do it here manually */
+    const element: HTMLElement|null = document.getElementById('password');
+    if (element !== null && element !== undefined && element instanceof HTMLInputElement)
+      this.req.password = element.value;
+
     AppComponent.singleton.api.sendLoginRequest(this.req, this.handleLoginResponse.bind(this));
   }
 
