@@ -229,7 +229,7 @@ Resources:
                     - cd netcdf-c-4.7.3
                     - export CPPFLAGS="-I${HDF5}/include -I${SZIP}/include -I${ZLIB}/include"
                     - export LDFLAGS="-L${HDF5}/lib -L${SZIP}/lib -L${ZLIB}/lib"
-                    - ./configure --prefix=/opt/netcdf --disable-dap-remote-tests --enable-mmap --enable-diskless --enable-netcdf4 2>&1 | tee configure.log
+                    - ./configure --prefix=/opt/netcdf --disable-dap-remote-tests --enable-mmap --enable-diskless --enable-netcdf4 > configure.log 2>&1
                     - make -j 4 install 2>&1 | tee build.log
                     - echo 'export NETCDF=/opt/netcdf' | tee -a /etc/bashrc
                     - echo 'export PATH=${NETCDF}/bin:${PATH}' | tee -a /etc/bashrc
