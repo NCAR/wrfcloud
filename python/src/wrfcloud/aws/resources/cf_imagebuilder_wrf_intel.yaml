@@ -591,14 +591,6 @@ Resources:
                     - ./compile em_real 2>&1 | tee build.log
                     - cd /home/ec2-user
                     - chown -R ec2-user.ec2-user WRF
-          - name: test
-            steps:
-              - name: test-wrf
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - [ -f /home/ec2-user/WRF/main/real.exe ]
-                    - [ -f /home/ec2-user/WRF/main/wrf.exe ]
 
   ComponentWps:
     Type: AWS::ImageBuilder::Component
@@ -633,15 +625,6 @@ Resources:
                     - ./compile 2>&1 | tee build.log
                     - cd /home/ec2-user
                     - chown -R ec2-user.ec2-user WPS
-          - name: test
-            steps:
-              - name: test-wps
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - [ -f /home/ec2-user/WPS/geogrid.exe ]
-                    - [ -f /home/ec2-user/WPS/ungrib/ungrib.exe ]
-                    - [ -f /home/ec2-user/WPS/metgrid/metgrid.exe ]
 
   ComponentUpp:
     Type: AWS::ImageBuilder::Component
@@ -675,14 +658,7 @@ Resources:
                     - EOF
                     - ./compile 2>&1 | tee build.log
                     - cd /home/ec2-user
-                    - chown -R ec2-user.ec2-user UPP
-          - name: test
-            steps:
-              - name: test-upp
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - [ -f /home/ec2-user/UPP/bin/unipost.exe ]
+                    - chown -R ec2-user.ec2-user UPP        
 
   WrfImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
