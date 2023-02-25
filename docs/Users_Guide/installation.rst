@@ -114,7 +114,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
   * Would you like to enable autocompletion?
 
-    * If this question appears during the installation of Angular, answer *Yes*.  
+    * If this question appears during the installation of Angular, answer *Yes*. However, this setting has no impact on the installation of WRF Cloud.
  
   * Which domain name would you like to use? [`Route 53 <https://aws.amazon.com/route53>`_ domain(s) from :numref:`prerequisites`]
 
