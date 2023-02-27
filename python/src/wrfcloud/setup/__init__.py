@@ -2,6 +2,7 @@ __all__ = ['aws', 'setup']
 
 import os
 import pkgutil
+import mimetypes
 
 import yaml
 import getpass
@@ -59,8 +60,9 @@ def setup():
     data_stack.create_stack()
 
     # Upload public key
-    print('Uploading public SSH key to AWS...')
-    _upload_public_ssh_key(user_data['ssh_key'])
+    if 'ssh_key' in user_data:
+        print('Uploading public SSH key to AWS...')
+        _upload_public_ssh_key(user_data['ssh_key'])
 
     # Deploy build artifacts (lambda layer, function, web app)
     print(f'Uploading build artifacts to S3 bucket ({s3_bucket}) ...')
@@ -373,8 +375,6 @@ def _finalize_and_upload_webapp_to_s3(bucket: str, prefix: str, default_dir: str
     while default_dir.endswith('/'):
         default_dir = default_dir[:-1]
 
-    # TODO: This function does not quite work yet.
-
     # get the files that need to be uploaded
     files = []
     for f in glob.iglob(f'{default_dir}/**/*', recursive=True):
@@ -388,11 +388,46 @@ def _finalize_and_upload_webapp_to_s3(bucket: str, prefix: str, default_dir: str
             file_with_path = f'{default_dir}/{file}'
             _search_and_replace(file_with_path, '__API_HOSTNAME__', api)
             _search_and_replace(file_with_path, '__WS_HOSTNAME__', ws)
-            print(f'Uploading {file} to s3://{bucket}/{prefix}/{file} ...')
-            s3.upload_file(Filename=f'{default_dir}/{file}', Bucket=bucket, Key=f'{prefix}/{file}')
+            mime_type: str = _get_mime_type(file)
+            print(f'Uploading {file} to s3://{bucket}/{prefix}/{file} as {mime_type} ...')
+            s3.upload_file(
+                Filename=f'{default_dir}/{file}',
+                Bucket=bucket,
+                Key=f'{prefix}/{file}',
+                ExtraArgs={'ContentType': mime_type}
+            )
         except Exception as e:
             print(f'Failed to upload file: {file}')
             print(e)
+
+
+def _get_mime_type(file: str) -> str:
+    """
+    Get the MIME type of the file
+    :param file: Get the MIME type of this file
+    :return: The file's MIME type
+    """
+    # use the mimetypes library to guess the MIME type
+    mime_type: str = mimetypes.guess_type(file)[0]
+
+    # if the library fails, use the file extension or default
+    if mime_type is None:
+        extension: str = file[file.rfind('.') + 1:]
+        extension_to_mime = {
+            'js': 'application/javascript',
+            'ttf': 'font/ttf',
+            'jpg': 'image/jpg',
+            'png': 'image/png',
+            'css': 'text/css',
+            'html': 'text/html',
+            'txt': 'text/plain'
+        }
+        if extension in extension_to_mime:
+            mime_type = extension_to_mime[extension]
+        else:
+            mime_type = 'text/html'
+
+    return mime_type
 
 
 def _search_and_replace(file: str, stub: str, value: str) -> None:
@@ -596,15 +631,3 @@ class WrfCloudCertificates(CloudFormation):
 
             return res['ResponseMetadata']['HTTPStatusCode'] == 200
         return True
-
-
-if __name__ == '__main__':
-    _finalize_and_upload_webapp_to_s3(
-        'wrfcloud-6a8fdcdf',
-        'web',
-        'web/dist/web',
-        'where is it? ',
-        'wcapi.superlazy.org',
-        'wcws.superlazy.org'
-    )
-    # setup()
