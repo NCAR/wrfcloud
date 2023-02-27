@@ -1,0 +1,97 @@
+# list of derivations of fields to process
+# name = input field name, out_name (optional) = field name to write
+# args (optional) = dictionary of options to add to getvar command
+# levels (optional) = If set and True, interpolate at pressure levels
+# scale (optional) = If set, multiply values by scale
+fields:
+  - name: 'T2'
+    out_name: 'temp_2m'
+  - name: 'wspd10'
+    out_name: 'wind_speed_10'
+    args:
+      units: 'kt'
+  - name: 'wdir10'
+    out_name: 'wind_dir_10'
+    args:
+      units: 'kt'
+  - name: 'slp'
+    args:
+      units: 'mb'
+  - name: 'td2'
+    out_name: 'dewpt_2m'
+    args:
+      units: 'C'
+  - name: 'rh2'
+    out_name: 'rh_2m'
+  - name: 'mdbz'
+    out_name: 'max_refl'
+  - name: 'total_precip'
+  - name: 'pw'
+    out_name: 'pwat'
+  - name: 'rh'
+    out_name: 'rh_pres'
+    levels: True
+  - name: 'wspd'
+    out_name: 'wind_speed_pres'
+    args:
+      units: 'kt'
+    levels: True
+  - name: 'wdir'
+    out_name: 'wind_dir_pres'
+    args:
+      units: 'kt'
+    levels: True
+  - name: 'temp'
+    out_name: 'temp_pres'
+    args:
+      units: 'C'
+    levels: True
+  - name: 'wa'
+    out_name: 'vvel_pres'
+    levels: True
+  - name: 'height'
+    out_name: 'hgt_pres'
+    args:
+      units: 'dm'
+    levels: True
+  - name: 'low_cloudfrac'
+    out_name: 'low_cloud'
+    scale: 100
+    args:
+      vert_type: 'pres'
+      mid_thresh: '64200'
+      high_thresh: '35000'
+  - name: 'mid_cloudfrac'
+    out_name: 'mid_cloud'
+    scale: 100
+    args:
+      vert_type: 'pres'
+      mid_thresh: '64200'
+      high_thresh: '35000'
+  - name: 'high_cloudfrac'
+    out_name: 'high_cloud'
+    scale: 100
+    args:
+      vert_type: 'pres'
+      mid_thresh: '64200'
+      high_thresh: '35000'
+
+# pressure levels to interpolate fields if levels is in fields dictionary
+interp_levels:
+  - 1000
+  - 925
+  - 850
+  - 700
+  - 500
+  - 300
+  - 250
+  - 100
+
+# field attributes to copy to derived field
+field_attrs_to_copy:
+  - 'FieldType'
+  - 'MemoryOrder'
+  - 'description'
+  - 'units'
+  - 'stagger'
+  - 'coordinates'

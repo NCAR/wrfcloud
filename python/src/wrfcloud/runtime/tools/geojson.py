@@ -16,6 +16,7 @@ from matplotlib import pyplot
 import numpy
 from numpy.ma.core import MaskedArray
 import pygrib
+from datetime import datetime
 
 from wrfcloud.jobs.job import WrfLayer, Palette
 from wrfcloud.log import Logger
@@ -61,82 +62,38 @@ class GeoJson:
         # log status info
         self.log.info(f'Converting {self.variable} to {out_file}')
 
-        # get the data, lat, and lon grids
-        if self.file_type == 'grib2':
-            grid, self.grid_lat, self.grid_lon = self._read_from_grib()
-        elif self.file_type == 'netcdf':
-            grid, self.grid_lat, self.grid_lon = self._read_from_netcdf()
-        else:
-            self.log.error(f'Invalid file type: {self.file_type}.'
-                           f'Valid types are "netcdf" and "grib2".')
-            return None
+        try:
+            # get the data, lat, and lon grids
+            if self.file_type == 'grib2':
+                grid, self.grid_lat, self.grid_lon = self._read_from_grib()
+            elif self.file_type == 'netcdf':
+                grid, self.grid_lat, self.grid_lon = self._read_from_netcdf()
+            else:
+                self.log.error(f'Invalid file type: {self.file_type}.'
+                               f'Valid types are "netcdf" and "grib2".')
+                return None
 
-        # create a set of contours from the data grid
-        range_min = int(self.min * 10)
-        range_max = int(self.max * 10)
-        contour_interval = int(self.contour_interval*10)
-        levels = [i/10 for i in range(range_min, range_max, contour_interval)]
-        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette)
+            # create a set of features for the GeoJSON file
+            features = self._create_features(grid)
 
-        # create a set of features for the GeoJSON file
-        features = []
+            # create the GeoJSON document
+            doc = {
+                "type": "FeatureCollection",
+                "features": features
+            }
 
-        # loop over each contour level
-        for i, contour_line in enumerate(contours.collections):
-            # get the hex color for this level
-            level_color = colors.rgb2hex(contours.tcolors[i][0])
+            # return the document if no output file was provided
+            if out_file is None:
+                return doc
 
-            # loop over each outer polygon and set of interior holes
-            for path in contour_line.get_paths():
+            # write the data to a file or return as a string if no data were
+            with open(out_file, 'wb') as file:
+                file.write(compress(json.dumps(doc).encode()))
+                file.flush()
+                file.close()
+        except Exception as e:
+            self.log.error(f'Exception occurred trying to create {out_file}: {e}')
 
-                # get the list of polygons for this set
-                path_polygons = path.to_polygons()
-
-                # skip if there are no polygons
-                if len(path_polygons) == 0:
-                    continue
-
-                # the first polygon in the list is the outer polygon
-                outer_polygon = self._polygon_to_coord_array(path_polygons[0])
-
-                # the remaining polygons are holes in the outer polygon
-                holes = [self._polygon_to_coord_array(hole) for hole in path_polygons[1:]]
-
-                # get the string of the MultiPolygon coordinates for outer polygon and holes
-                polygon_string = self._polygon_and_holes_to_multi_polygon(outer_polygon, holes)
-
-                # create a GeoJSON feature as a dictionary
-                feature = {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "MultiPolygon",
-                        "coordinates": [json.loads(polygon_string)]
-                    },
-                    "properties": {
-                        # "stroke-width": 0,  no effect in OpenLayers--only makes data set larger
-                        "fill": level_color
-                        # "fill-opacity": 1   no effect in OpenLayers--only makes data set larger
-                    }
-                }
-
-                # add this MultiPolygon feature to the set of features
-                features.append(feature)
-
-        # create the GeoJSON document
-        doc = {
-            "type": "FeatureCollection",
-            "features": features
-        }
-
-        # return the document if no output file was provided
-        if out_file is None:
-            return doc
-
-        # write the data to a file or return as a string if no data were
-        with open(out_file, 'wb') as file:
-            file.write(compress(json.dumps(doc).encode()))
-            file.flush()
-            file.close()
         return None
 
     def _read_from_netcdf(self) -> (MaskedArray, MaskedArray, MaskedArray):
@@ -149,7 +106,15 @@ class GeoJson:
         wrf = netCDF4.Dataset(self.wrf_file)
         data = wrf[self.variable]
         time_index = 0
-        grid = data[time_index][self.z_level] if self.z_level else data[time_index]
+        grid = data[:] if data.dimensions[0] != 'Time' else data[time_index]
+        if self.z_level:
+            z_index = None
+            for idx, z_val in enumerate(wrf[data.dimensions[0]]):
+                if int(z_val) == self.z_level:
+                    z_index = idx
+            if z_index is None:
+                self.log.error(f'Could not find z level: {self.z_level}')
+            grid = grid[z_index]
 
         # get the latitude and longitude grids
         grid_lat = wrf['XLAT'][0]
@@ -267,6 +232,60 @@ class GeoJson:
             mp_str += ',' + str([[point[0], point[1]] for point in hole])
         return '[' + mp_str + ']'
 
+    def _create_features(self, grid: MaskedArray):
+        features = []
+
+        # create a set of contours from the data grid
+        range_min = int(self.min * 10)
+        range_max = int(self.max * 10)
+        contour_interval = int(self.contour_interval*10)
+        levels = [i/10 for i in range(range_min, range_max, contour_interval)]
+        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette)
+
+        # loop over each contour level
+        for i, contour_line in enumerate(contours.collections):
+            # get the hex color for this level
+            level_color = colors.rgb2hex(contours.tcolors[i][0])
+
+            # loop over each outer polygon and set of interior holes
+            for path in contour_line.get_paths():
+
+                # get the list of polygons for this set
+                path_polygons = path.to_polygons()
+
+                # skip if there are no polygons
+                if len(path_polygons) == 0:
+                    self.log.warn('No polygons found')
+                    continue
+
+                # the first polygon in the list is the outer polygon
+                outer_polygon = self._polygon_to_coord_array(path_polygons[0])
+
+                # the remaining polygons are holes in the outer polygon
+                holes = [self._polygon_to_coord_array(hole) for hole in path_polygons[1:]]
+
+                # get the string of the MultiPolygon coordinates for outer polygon and holes
+                polygon_string = self._polygon_and_holes_to_multi_polygon(outer_polygon, holes)
+
+                # create a GeoJSON feature as a dictionary
+                feature = {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "MultiPolygon",
+                        "coordinates": [json.loads(polygon_string)]
+                    },
+                    "properties": {
+                        # "stroke-width": 0,  no effect in OpenLayers--only makes data set larger
+                        "fill": level_color
+                        # "fill-opacity": 1   no effect in OpenLayers--only makes data set larger
+                    }
+                }
+
+                # add this MultiPolygon feature to the set of features
+                features.append(feature)
+
+        return features
+
 
 def main():
     """
@@ -333,6 +352,7 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
     :param file_type: Type of input file, currently support either 'grib2' or 'netcdf'
     :return: List of GeoJSON output files
     """
+    log = Logger()
     # load the product list from the yaml file
     products_data = pkgutil.get_data('wrfcloud', 'runtime/resources/geojson_products.yaml')
     products = yaml.safe_load(products_data)['products']
@@ -344,6 +364,9 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
     # create each product
     out_layers: List[WrfLayer] = []
     for product in products:
+        # only process products that match the file type
+        if file_type not in product:
+            continue
         variable = product[file_type]['variable']
         value_range = [product['range']['min'], product['range']['max']]
         contour_interval = product['contour_interval']
@@ -366,15 +389,16 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
             wrf_layer.units = product['units']
             wrf_layer.layer_data = out_file
             wrf_layer.z_level = z_level
-            # TODO: The date/time of the data should come from within the file, not the file name,
-            #       however this information does not seem to be available within the GRIB file.
-            #       As a work-around for now, we are getting the time step from the file name,
-            #       and this can be used in conjunction with the start time and output frequency
-            #       to compute the data time.  Yuch!
-            file_name_time: str = wrf_file.split('/')[-1].split('GrbF')[1]
-            file_name_hours: str = file_name_time if '.' not in file_name_time else file_name_time.split('.')[0]
-            file_name_minutes: str = '0' if '.' not in file_name_time else file_name_time.split('.')[1]
-            wrf_layer.time_step = float(file_name_hours) + (float(file_name_minutes) / 60)
+
+            if file_type == 'grib2':
+                with pygrib.open(wrf_file) as grib:
+                    wrf_layer.dt = grib.select(shortName=variable)[0].validDate.timestamp()
+            else:
+                with netCDF4.Dataset(wrf_file) as wrf_nc:
+                    file_time = wrf_nc['Times'][:].tobytes().decode()
+                    dt = datetime.strptime(file_time, '%Y-%m-%d_%H:%M:%S')
+                    wrf_layer.dt = dt.timestamp()
+
             out_layers.append(wrf_layer)
 
             # convert the file if it does not already exist
@@ -385,7 +409,15 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
 
     wait(futures)
 
-    return out_layers
+    # remove any layers if the file does not exist
+    existing_layers = []
+    for layer in out_layers:
+        if os.path.exists(layer.layer_data):
+            existing_layers.append(layer)
+        else:
+            log.error(f'Layer does not exist: {layer.layer_data}')
+
+    return existing_layers
 
 
 if __name__ == '__main__':

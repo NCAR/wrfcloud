@@ -542,11 +542,23 @@ Resources:
                 inputs:
                   commands:
                     - source /etc/bashrc
+                    - unset CPP CC_FOR_BUILD CPP_FOR_BUILD
+                    - export CC=$(which gcc)
+                    - export CXX=$(which g++)
+                    - export F90=$(which gfortran)
+                    - export FC=$(which gfortran)
+                    - unset LD_LIBRARY_PATH
+                    - unset LDFLAGS
+                    - unset CFLAGS
+                    - unset FCFLAGS
+                    - unset I_MPI_FC
+                    - unset I_MPI_F90
                     - mkdir -p /opt/src
                     - cd /opt/src
                     - GIT_CLONE_OPTS=$(aws --region us-east-2 ssm get-parameter --name GIT_CLONE_OPTS | jq -r .Parameter.Value)
                     - git clone ${GIT_CLONE_OPTS} https://github.com/NCAR/wrfcloud
                     - pip3 install wrfcloud/python/src
+                    - pip3 install wrf-python
 
   ComponentWrf:
     Type: AWS::ImageBuilder::Component
@@ -579,6 +591,14 @@ Resources:
                     - ./compile em_real 2>&1 | tee build.log
                     - cd /home/ec2-user
                     - chown -R ec2-user.ec2-user WRF
+          - name: test
+            steps:
+              - name: test-wrf
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - test -f /home/ec2-user/WRF/main/real.exe
+                    - test -f /home/ec2-user/WRF/main/wrf.exe
 
   ComponentWps:
     Type: AWS::ImageBuilder::Component
@@ -613,6 +633,15 @@ Resources:
                     - ./compile 2>&1 | tee build.log
                     - cd /home/ec2-user
                     - chown -R ec2-user.ec2-user WPS
+          - name: test
+            steps:
+              - name: test-wps
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - test -f /home/ec2-user/WPS/geogrid.exe
+                    - test -f /home/ec2-user/WPS/ungrib/ungrib.exe
+                    - test -f /home/ec2-user/WPS/metgrid/metgrid.exe
 
   ComponentUpp:
     Type: AWS::ImageBuilder::Component
@@ -646,7 +675,14 @@ Resources:
                     - EOF
                     - ./compile 2>&1 | tee build.log
                     - cd /home/ec2-user
-                    - chown -R ec2-user.ec2-user UPP        
+                    - chown -R ec2-user.ec2-user UPP
+          - name: test
+            steps:
+              - name: test-upp
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - test -f /home/ec2-user/UPP/bin/unipost.exe
 
   WrfImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
@@ -668,12 +704,12 @@ Resources:
         - ComponentArn: !Ref ComponentDownloadSource
         - ComponentArn: !Ref ComponentZLib
         - ComponentArn: !Ref ComponentSZip
+        - ComponentArn: !Ref ComponentHDF5
         - ComponentArn: !Ref ComponentNetCDF
         - ComponentArn: !Ref ComponentLibPng
         - ComponentArn: !Ref ComponentJasper
         - ComponentArn: !Ref ComponentG2CLib
         - ComponentArn: !Ref ComponentUdUnits
-        - ComponentArn: !Ref ComponentHDF5
         - ComponentArn: !Ref ComponentNCView
         - ComponentArn: !Ref ComponentPython
         - ComponentArn: !Ref ComponentCMake

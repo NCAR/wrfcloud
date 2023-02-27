@@ -237,6 +237,13 @@ class WrfJob:
         return f'{self.work_dir}/wrf'
 
     @property
+    def derive_dir(self):
+        """
+        Get the derive directory
+        """
+        return f'{self.work_dir}/derive'
+
+    @property
     def upp_dir(self):
         """
         Get the upp directory
