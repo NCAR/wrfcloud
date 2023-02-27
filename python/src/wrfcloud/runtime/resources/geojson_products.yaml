@@ -45,7 +45,7 @@ products:
     range:
       min: 0
       max: 360
-    contour_interval: 12
+    contour_interval: 45
     palette: PuOr
     display_name: 'Wind Direction 10m'
     units: 'deg'
@@ -221,7 +221,7 @@ products:
     range:
       min: 0
       max: 360
-    contour_interval: 12
+    contour_interval: 45
     palette: PuOr
     display_name: 'Wind Direction'
     units: 'deg'
