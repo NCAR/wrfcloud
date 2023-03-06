@@ -48,6 +48,7 @@ def main() -> None:
         # set up the configuration
         config: WrfConfig = _load_model_configuration(job)
         job.cores = config.cores
+        job.domain_center = config.domain_center
 
         # maybe update the logger's application name to the reference ID
         log.APPLICATION_NAME = job.job_id or 'wrfcloud-run'
