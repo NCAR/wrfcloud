@@ -51,20 +51,20 @@
 
       <ng-container matColumnDef="forecast_length" class="job-table-cell">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Forecast Length </th>
-        <td mat-cell *matCellDef="let item"> {{item.forecast_length / 3600}}h </td>
+        <td mat-cell *matCellDef="let item" class="job-table-cell-center"> {{item.forecast_length / 3600}}h </td>
       </ng-container>
 
       <ng-container matColumnDef="status" class="job-table-cell">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
         <td mat-cell *matCellDef="let item">
-          <div *ngIf="item.progress < 1">
+          <div *ngIf="item.status_code !== 3">
             <mat-progress-bar
               [mode]="item.status_code <= 1 ? 'indeterminate' : 'determinate'"
               [value]="item.progress * 100">
             </mat-progress-bar>
             <span class="job-status-message">{{item.status_message || 'Pending'}}</span>
           </div>
-          <div *ngIf="item.progress >= 1">
+          <div *ngIf="item.status_code === 3">
             <button mat-stroked-button
                     class="job-open-button"
                     (click)="app.routeTo('/view/' + item.job_id)">

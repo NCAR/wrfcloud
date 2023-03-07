@@ -7,7 +7,7 @@ import os
 import pkgutil
 from typing import Union, List
 import yaml
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor, wait
 from wrfcloud.dynamodb import DynamoDao
 from wrfcloud.jobs.job import WrfJob
 from wrfcloud.jobs.job import WrfLayer
@@ -80,19 +80,21 @@ class JobDao(DynamoDao):
             self._load_layers(job)
         return job
 
-    def get_all_jobs(self) -> List[WrfJob]:
+    def get_all_jobs(self, full_load: bool = True) -> List[WrfJob]:
         """
         Get a list of all jobs in the system
+        :param full_load: Fully load the job data, or just the metadata (i.e. not including the layer information)
         :return: List of all jobs
         """
         # Convert a list of items into a list of User objects
         jobs: List[WrfJob] = [WrfJob(item) for item in super().get_all_items()]
 
         # load the layers attribute from S3
-        tpe = ThreadPoolExecutor(max_workers=16)
-        futures: List[Future] = [tpe.submit(self._load_layers, job) for job in jobs]
-        for future in futures:
-            future.result()
+        if full_load:
+            tpe = ThreadPoolExecutor(max_workers=16)
+            futures: List[Future] = [tpe.submit(self._load_layers, job) for job in jobs]
+            wait(futures)
+
         return jobs
 
     def update_job(self, job: WrfJob) -> bool:
@@ -121,10 +123,11 @@ class JobDao(DynamoDao):
         job: WrfJob = self.get_job_by_id(job.job_id, load_layers_from_s3=False)
         job_id = job.job_id
 
+        # delete the job from dynamodb
         ok = super().delete_item({'job_id': job_id})
 
         # delete the layers object from S3
-        self._delete_layers(job)
+        ok = ok and self._delete_layers(job)
         return ok
 
     def create_job_table(self) -> bool:
@@ -152,7 +155,7 @@ class JobDao(DynamoDao):
         layers_yaml: bytes = yaml.safe_dump([layer.data for layer in layers],
                                             indent=2).encode()
 
-        # generate the S3 url -- key comes from hashing the data
+        # generate the S3 url
         bucket_name: str = os.environ['WRFCLOUD_BUCKET']
         key: str = 'layers.yaml'
         prefix: str = f'jobs/{job.job_id}'
@@ -210,27 +213,34 @@ class JobDao(DynamoDao):
     def _delete_layers(self, job: WrfJob) -> bool:
         """
         Delete the layers from the S3 bucket
-        :param job: Delete layers in S3 for this job
+        :param job: Delete layers in S3 for this job, layers must not be loaded yet
         :return: True if successful, otherwise False
         """
-        layers: Union[str, List[WrfLayer]] = job.layers
+        # preserve the S3 layers URL, then load the layers
+        layers_url: str = job.layers
+        self._load_layers(job)
+        layers: List[WrfLayer] = job.layers
+
+        # get an s3 client
+        s3 = get_aws_session().client('s3')
 
         # if layers is dictionary, we can't delete S3, so return False
-        if isinstance(layers, list):
-            return False
+        for layer in layers:
+            if isinstance(layer, WrfLayer) and layer.layer_data.startswith('s3://'):
+                try:
+                    bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layer.layer_data)
+                    s3.delete_object(Bucket=bucket_name, Key=prefix_key)
+                except Exception as e:
+                    self.log.error(f'Failed to delete layer data: {layer.layer_data}', e)
 
         # extract bucket name and prefix/key from S3 URL
-        bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layers)
+        bucket_name, prefix_key = self._get_layers_s3bucket_and_key(layers_url)
         if bucket_name is None:
             return False
 
         # delete layer data from S3
         try:
-            s3 = get_aws_session().client('s3')
-            s3.delete_object(
-                Bucket=bucket_name,
-                Key=prefix_key,
-            )
+            s3.delete_object(Bucket=bucket_name, Key=prefix_key)
         except Exception as e:
             self.log.error('Failed to delete WrfJob.layer data from S3', e)
             return False

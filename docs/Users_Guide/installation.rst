@@ -40,7 +40,7 @@ The are 4 prerequisites for installing WRF Cloud in an AWS account:
 * **Web Domain**: This is the web domain (hosted zone) where the WRF Cloud system is accessed. AWS's `Route 53 <https://aws.amazon.com/route53>`_ Domain Naming Service (DNS) is used to create and host the domain for the system. This service has an annual cost associated with it.
 * **Adequate Instance Limits**: On-demand HPC instance limits must be set to a minimum of 96 vCPUs. By default, the AWS account may be less than this. A request should be made to increase this limit for full functionality of the system.
 * **Enable Simple Email Service (SES)**: This facilitates AWS emailing within the system. By default the SES is limited to testing with verified identities. A request must be made to lift these limits and make it a production service.
-* **Access to us-east-2 region**: The hpc6a instances that the system uses are only availble in the us-east-2 region. This is typically available by default for regual AWS accounts. 
+* **Access to us-east-2 region**: The hpc6a instances that the system uses are only available in the us-east-2 region. This is typically available by default for regular AWS accounts.
 
 The procedures for ensuring the prerequisites are fulfilled are described below.
 
@@ -71,7 +71,7 @@ The procedures for ensuring the prerequisites are fulfilled are described below.
       * Select **Configuration > Verified identities** from the left navigation menu.
       * If the newly added domain is not listed, select the **Create identity** button, select the **Domain** radio button, and enter the newly added domain.
       * `AWS Support Center <https://docs.aws.amazon.com/awssupport/latest/user/accessing-support.html>`_ will followup via email with the AWS account owner.
-      * Confirm that the newly added domain appears in the **Verified indentities** list.
+      * Confirm that the newly added domain appears in the **Verified identities** list.
 
    * If you see a banner message warning that **Your Amazon SES account is in the sandbox in US East (Ohio)**, contact AWS to **Request production access**.
 
@@ -97,13 +97,21 @@ Once the AWS account prerequisites are satisfied (see :numref:`prerequisites`), 
                :height: 16px
                :width: 16px
 
-4. Define the GitHub branch name (e.g. develop) or release name (e.g. v1.0) to be installed.
+4. The WRF Cloud installation requires at least 512MB of space. Run the following command to check the disk usage of your home directory and confirm that at least 512MB of space are available, as listed in the **Avail** column.
+
+  .. code-block:: ini
+
+    df -kh ~/
+
+If you do not have sufficient space, you can either manually remove unneeded files (especially from the hidden **.cache** directory) or run **Actions > Delete AWS CloudShell home directory** to remove everything. Prior to deleting everything, please confirm that nothing in your home directory should be retained.
+
+5. Define the GitHub branch name (e.g. develop) or release name (e.g. v1.0) to be installed.
 
   .. code-block:: ini
 
     export GITHUB_NAME=develop
 
-5. Copy and paste the following into the CloudShell terminal:
+6. Copy and paste the following into the CloudShell terminal:
 
   .. code-block:: ini
 
@@ -112,6 +120,10 @@ Once the AWS account prerequisites are satisfied (see :numref:`prerequisites`), 
 
 This bootstrap script takes about 25 minutes to run. It is followed by a series of interactive questions that must be completed prior to WRF Cloud being installed. For each question, the default option (if applicable) is provided in square braces. Simply hit enter to accept the default or modify the setting as needed. These questions include:
 
+  * Would you like to enable autocompletion?
+
+    * If this question appears during the installation of Angular, answer *Yes*. However, this setting has no impact on the installation of WRF Cloud.
+ 
   * Which domain name would you like to use? [`Route 53 <https://aws.amazon.com/route53>`_ domain(s) from :numref:`prerequisites`]
 
      * Note: This is used for {DOMAIN} in the following questions.
@@ -134,23 +146,23 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
       If this file does not exist, refer to `this documentation <https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key>`_ to generate a public key.
 
-6. After completing these steps, check the email address provided above to verify it. It takes approximately 10-20 minutes for the website to become available.
+7. After completing these steps, check the email address provided above to verify it. It takes approximately 10-20 minutes for the website to become available.
 
-7. Monitor the installation progress:
+8. Monitor the installation progress:
 
   * Launch a new `AWS Management Console <https://aws.amazon.com/console>`_ window, and use the top-level search bar to find and launch the AWS **CloudFormation** Service.
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
   * Select **Stacks** from the left navigation menu.
   * Click an item (**WrfIntelImageBuilder**, **WrfCloudApiData**, or **WrfCloudWebApp**) listed in the **Stack name** column and select the **Events** tab to monitor progress.
 
-8. When installation completes, a log message in the CloudShell terminal directs you to the newly created WRF Cloud URL.
+9. When installation completes, a log message in the CloudShell terminal directs you to the newly created WRF Cloud URL.
 
   .. code-block:: ini
 
     WRF Cloud installation is complete.
     Open your browser to https://app.{DOMAIN}
 
-9. Confirm that you can login.
+10. Confirm that you can login.
 
   * Open a web browser and clear the cache to ensure a clean test environment.
   * Navigate to https://app.{DOMAIN}.
@@ -180,7 +192,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
     d. In your browser window, clear your cache and navigate to https://app.{DOMAIN} again. If the **download** problem persists, repeats steps (a)-(c) until it stops. Remember to *clear your browser cache* before checking the URL.
 
-10. Confirm that the WRF Amazon Machine Image (AMI) has finished building.
+11. Confirm that the WRF Amazon Machine Image (AMI) has finished building.
 
   * Use the top-level search bar to find and launch the AWS **EC2** Service.
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
@@ -188,7 +200,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
   * Confirm that an AMI that includes **wrf** in the **AMI name** column.
   * Note that it may take several hours for this AMI to finish building. While you can add new users and configurations via the WRF Cloud user interface, you will not be able to actually launch a run until the WRF AMI is available.
 
-11. Afer completing these installation steps, proceed to System Administration (:numref:`administration`).
+12. After completing these installation steps, proceed to System Administration (:numref:`administration`).
 
 .. _uninstall:
 
@@ -223,7 +235,7 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
 
     * Select **Images > AMIs** from the left navigation menu and search for **wrf**.
     * Make note of the **AMI ID** for the **wrf** AMI.
-    * Select that AMI followed by **Actions > Deregsiter AMI**.
+    * Select that AMI followed by **Actions > Deregister AMI**.
 
   * Remove any AMI Snapshots.
 
@@ -234,13 +246,13 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
   * Remove the SSH key.
 
     * Select **Network & Security > Key Pairs** from the left navigation menu.
-    * Select the **wrfcloud-amdmin** key pair followed by **Actions > Delete**.
+    * Select the **wrfcloud-admin** key pair followed by **Actions > Delete**.
 
 5. Modify SES settings.
 
   * Use the top-level search bar to find and launch the AWS **SES** Service.
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
-  * Select **Configuration > Verified Identites** from the left navigation menu.
+  * Select **Configuration > Verified Identities** from the left navigation menu.
   * Select and **Delete** the email identity for your administrator's email address.
 
 6. Delete CloudFormation stacks.
@@ -248,9 +260,9 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
   * Use the top-level search bar to find and launch the AWS **CloudFormation** Service.
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
   * Select **Stacks** from the left navigation menu.
-  * Select and **Delete** each of the following stacks: **WrfIntelImageBuilder**, **WrfCloudWebApp**, and **WrfCloudApiData**
-
-    * Wait for the deletions to complete.
-    * If a delete fails, delete it again, and **DO NOT retain** any of optional resources.
+  * Select and **Delete** each of the following stacks: **WrfIntelImageBuilder**, **WrfCloudWebApp**
+  * Wait for **WrfCloudWebApp** to be completely deleted.  If a delete fails, delete it again, and DO NOT retain the resources.
+  * Select and **Delete** the following stack: **WrfCloudApiData**
+  * Switch to the **US East (N. Virginia) / us-east-1** region and **Delete** the following stack: **WrfCloudWebCertificate**
 
 You have now finished uninstalling WRF Cloud from your AWS account.

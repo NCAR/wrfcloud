@@ -11,3 +11,6 @@ python/src/build/
 python/src/wrfcloud.egg-info/
 python/test/.coverage
 python/test/coverage.xml
+web/.angular
+web/dist
+web/node_modules
