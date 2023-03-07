@@ -233,7 +233,7 @@ class GeoJson(Process):
 
     def _convert_to_geojson(self) -> None:
         """
-        Convert the GRIB2 files into GeoJSON files
+        Convert the GRIB2/NetCDF files into GeoJSON files
         :return: List of WRF layer details
         """
         self.wrf_layers = []

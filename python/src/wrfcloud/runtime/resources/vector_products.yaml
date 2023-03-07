@@ -1,0 +1,25 @@
+# A list of vector products to create from the Derived WRF NetCDF files
+#
+# wind:
+#   speed: Short name for wind speed in NetCDF file
+#   direction: Short name for wind direction in NetCDF file
+# z_levels: Optional, vertical level to plot for 3D variables
+---
+products:
+  - wind:
+      speed: wind_speed_10
+      direction: wind_direction_10
+    display_name: 'Wind 10m'
+  - wind:
+      speed: wind_speed_pres
+      direction: wind_direction_pres
+    display_name: 'Wind'
+    z_levels:
+      - 1000
+      - 925
+      - 850
+      - 700
+      - 500
+      - 300
+      - 250
+      - 100

@@ -379,6 +379,7 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
 
             # create the WRF Layer details for this output product
             wrf_layer = WrfLayer()
+            wrf_layer.plot_type = 'contour'
             wrf_layer.variable_name = variable
             wrf_layer.display_name = product['display_name']
             wrf_layer.palette = Palette({
