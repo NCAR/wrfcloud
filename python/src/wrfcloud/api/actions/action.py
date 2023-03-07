@@ -105,6 +105,5 @@ class Action:
         Abstract method that performs the action and sets the response field
         :return: True if the action ran successfully
         """
-        self.log.fatal('Class did not implement \'perform_action\' method: %s' %
-                       self.__class__.__name__)
+        self.log.fatal(f'Class did not implement \'perform_action\' method: {self.__class__.__name__}')
         return False

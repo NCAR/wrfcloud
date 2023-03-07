@@ -6,9 +6,9 @@ import os
 import copy
 import base64
 import pkgutil
-import pytz
 from typing import Union, List
 from datetime import datetime
+import pytz
 from wrfcloud.log import Logger
 import wrfcloud.system
 

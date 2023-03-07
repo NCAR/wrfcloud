@@ -1,8 +1,8 @@
 import math
 import copy
 import re
-import f90nml
 from typing import List, Union
+import f90nml
 from wrfcloud.jobs import LatLonPoint
 from wrfcloud.log import Logger
 
