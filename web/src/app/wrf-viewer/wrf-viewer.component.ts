@@ -195,6 +195,7 @@ export class WrfViewerComponent implements OnInit
    */
   private computeZoomLevel(): number
   {
+    /* get the map's view port size in pixels */
     const screenSize: Size|undefined = this.map!.getSize();
     const x: number = screenSize![0];
     const y: number = screenSize![1];
@@ -208,11 +209,11 @@ export class WrfViewerComponent implements OnInit
       /* get the map resolution in meters/pixel */
       res = this.map!.getView().getResolutionForZoom(zoom);
 
-      /* compute the distance of the map view port east-to-west at this zoom level */
+      /* compute the distances of the map view port at this zoom level */
       const mapDistEW: number = Math.round(res * x);
       const mapDistNS: number = Math.round(res * y);
 
-      /* check if the domain overflows the view port */
+      /* check if the domain overflows the view port at this zoom level */
       if (mapDistEW <= domainDistEW || mapDistNS <= domainDistNS)
         return zoom - 0.4;  /* back off half of a skosh */
     }
