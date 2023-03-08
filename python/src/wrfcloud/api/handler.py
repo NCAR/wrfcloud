@@ -44,7 +44,7 @@ def lambda_handler(event: dict, context: any) -> dict:
     ref_id = create_reference_id()
     audit.ref_id = ref_id
     log.set_application_name(f'{ref_id} {request.client_ip}')
-    log.info('Starting action: %s' % request.action)
+    log.info(f'Starting action: {request.action}')
 
     # verify the session
     user = get_user_from_jwt(request.jwt)
@@ -81,7 +81,7 @@ def lambda_handler(event: dict, context: any) -> dict:
         if action_object.success:
             body['data'] = action_object.response
         else:
-            action_object.errors.append('Ref ID: %s' % ref_id)
+            action_object.errors.append(f'Ref ID: {ref_id}')
             body['errors'] = action_object.errors
 
     except Exception as e:
@@ -89,7 +89,7 @@ def lambda_handler(event: dict, context: any) -> dict:
         log.error('Failed to run the action', e)
         body['ok'] = False
         body['data'] = {}
-        body['errors'] = ['General system error: %s' % ref_id]
+        body['errors'] = [f'General system error: {ref_id}']
 
     # update the audit log entry
     audit.end_time = datetime.timestamp(datetime.utcnow())
@@ -259,7 +259,7 @@ def create_action(request: Request, user: User, lambda_context: any, ref_id: str
         action_object.client_ip = request.client_ip
         return action_object
     except Exception as e:
-        Logger().error('Error creating action: %s' % request.action, e)
+        Logger().error(f'Error creating action: {request.action}', e)
 
     return None
 
@@ -276,7 +276,7 @@ def create_unauthorized_action_response(ref_id: str) -> dict:
         'body': json.dumps(
             {
                 'ok': False,
-                'errors': ['This action is unauthorized', 'Ref ID: %s' % ref_id]
+                'errors': ['This action is unauthorized', f'Ref ID: {ref_id}']
             }
         )
     }
@@ -298,7 +298,7 @@ def create_invalid_session_response(ref_id: str) -> dict:
         'body': json.dumps(
             {
                 'ok': False,
-                'errors': ['Please log in first', 'Ref ID: %s' % ref_id]
+                'errors': ['Please log in first', f'Ref ID: {ref_id}']
             }
         )
     }
