@@ -9,8 +9,8 @@ import json
 import pkgutil
 import tempfile
 import time
-import yaml
 from datetime import datetime
+import yaml
 from wrfcloud.log import Logger
 from wrfcloud.system import init_environment, get_aws_session
 

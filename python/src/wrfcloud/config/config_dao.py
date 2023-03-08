@@ -7,8 +7,8 @@ import io
 import os
 import pkgutil
 from typing import Union, List
-import yaml
 from concurrent.futures import Future, ThreadPoolExecutor
+import yaml
 from wrfcloud.dynamodb import DynamoDao
 from wrfcloud.config import WrfConfig
 from wrfcloud.system import get_aws_session
