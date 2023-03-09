@@ -9,15 +9,14 @@ import {
 } from "../client-api";
 import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
-import {OSM} from 'ol/source';
+import {OSM, TileWMS} from 'ol/source';
 import {MatSliderChange} from "@angular/material/slider";
 import {useGeographic} from "ol/proj";
 import VectorSource from "ol/source/Vector";
 import {GeoJSON} from "ol/format";
 import VectorLayer from "ol/layer/Vector";
-import {Fill, Stroke, Style} from "ol/style";
+import {Fill, Style} from "ol/style";
 import {Layer} from "ol/layer";
-import LayerGroup from "ol/layer/Group";
 
 @Component({
   selector: 'app-wrf-viewer',
@@ -176,6 +175,17 @@ export class WrfViewerComponent implements OnInit
       })
     });
 
+    /* add a political boundaries layer that will sit on top of all other layers */
+    const politicalBoundariesLayer = new TileLayer({
+      source: new TileWMS({
+        url: 'https://gis-maps.rap.ucar.edu/arcgis/services/POLITICAL_BASEMAP/MapServer/WMSServer',
+        params: {'LAYERS': '1,2,3,4,5,6,7', 'TRANSPARENT': true}
+      }),
+    });
+    politicalBoundariesLayer.setZIndex(100);
+    this.map.addLayer(politicalBoundariesLayer);
+
+    /* add a map click listener */
     this.map.on('click', this.mapClicked.bind(this));
   }
 
@@ -286,6 +296,7 @@ export class WrfViewerComponent implements OnInit
     });
     this.frames[key].setVisible(true);
   }
+
 
   /**
    * Send a request to get selected job details
