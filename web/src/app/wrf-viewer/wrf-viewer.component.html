@@ -32,6 +32,11 @@
       </span>
       <div id="map" class="map"></div>
       <span class="viewer-layers">
+        <div class="viewer-political-layer">
+          <mat-checkbox class="layer-checkbox" color="primary" [(ngModel)]="politicalBoundariesVisible" (change)="togglePoliticalBoundaries()">
+            Political Boundaries
+          </mat-checkbox>
+        </div>
         <app-layer *ngFor="let layerGroup of layerGroups" [layerGroup]="layerGroup">
         </app-layer>
       </span>

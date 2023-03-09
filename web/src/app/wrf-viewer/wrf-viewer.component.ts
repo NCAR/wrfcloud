@@ -98,6 +98,20 @@ export class WrfViewerComponent implements OnInit
 
 
   /**
+   * Layer containing political boundaries
+   * @private
+   */
+  private politicalBoundariesLayer: Layer|undefined;
+
+
+  /**
+   * Flag to indicate if political boundaries are visible or not
+   * @private
+   */
+  public politicalBoundariesVisible: boolean = false;
+
+
+  /**
    * List of valid height value selections
    */
   public validHeights: number[] = [1000, 925, 850, 700, 500, 300, 250, 100];
@@ -176,17 +190,27 @@ export class WrfViewerComponent implements OnInit
     });
 
     /* add a political boundaries layer that will sit on top of all other layers */
-    const politicalBoundariesLayer = new TileLayer({
+    this.politicalBoundariesLayer = new TileLayer({
       source: new TileWMS({
         url: 'https://gis-maps.rap.ucar.edu/arcgis/services/POLITICAL_BASEMAP/MapServer/WMSServer',
         params: {'LAYERS': '1,2,3,4,5,6,7', 'TRANSPARENT': true}
       }),
     });
-    politicalBoundariesLayer.setZIndex(100);
-    this.map.addLayer(politicalBoundariesLayer);
+    this.politicalBoundariesLayer.setZIndex(100);
+    this.map.addLayer(this.politicalBoundariesLayer);
+    this.politicalBoundariesVisible = this.politicalBoundariesLayer.getVisible();
 
     /* add a map click listener */
     this.map.on('click', this.mapClicked.bind(this));
+  }
+
+
+  /**
+   * Toggle the political boundaries layer on/off
+   */
+  public togglePoliticalBoundaries(): void
+  {
+    this.politicalBoundariesLayer?.setVisible(this.politicalBoundariesVisible);
   }
 
 
