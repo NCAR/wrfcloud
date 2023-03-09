@@ -915,6 +915,7 @@ export interface WrfJob
   notify: boolean;
   layers: Array<WrfLayer>;
   domain_center: LatLonPoint;
+  domain_size: Array<number>;
 }
 
 export interface LayerRequest

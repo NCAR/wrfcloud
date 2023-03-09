@@ -207,7 +207,7 @@ class RunWrf(Action):
             job.status_message = 'Launching cluster'
             job.user_email = self.run_as_user.email
             job.notify = self.request['notify']
-            job.domain_center = LatLonPoint({'latitude': 18.8206, 'longitude': -75})  # TODO: hard-coded for Caribbean
+            job.domain_center = LatLonPoint({'latitude': 0, 'longitude': 0})
 
             # add the job information to the database
             job_dao = JobDao()

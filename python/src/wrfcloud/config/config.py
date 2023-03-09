@@ -1,6 +1,9 @@
+import math
 import copy
 import re
 from typing import List, Union
+import f90nml
+from wrfcloud.jobs import LatLonPoint
 from wrfcloud.log import Logger
 
 
@@ -24,6 +27,9 @@ class WrfConfig:
         self.description: Union[str, None] = None
         self.wrf_namelist: Union[str, None] = None
         self.wps_namelist: Union[str, None] = None
+        self._domain_center: Union[LatLonPoint, None] = None
+        self._domain_size_ew_meters: Union[int, None] = None
+        self._domain_size_ns_meters: Union[int, None] = None
         self._cores: int = 0
 
         if data:
@@ -43,6 +49,8 @@ class WrfConfig:
             's3_key_wps_namelist': self.s3_key_wps_namelist,
             'wrf_namelist': self.wrf_namelist,
             'wps_namelist': self.wps_namelist,
+            'domain_center': self.domain_center.data,
+            'domain_size': self.domain_size,
             'cores': self._cores
         }
 
@@ -56,6 +64,8 @@ class WrfConfig:
         self.description = data['description'] if 'description' in data else None
         self.wrf_namelist = data['wrf_namelist'] if 'wrf_namelist' in data else None
         self.wps_namelist = data['wps_namelist'] if 'wps_namelist' in data else None
+        self.domain_center = data['domain_center'] if 'domain_center' in data else None
+        self.domain_size = data['domain_size'] if 'domain_size' in data else None
         self.cores = data['cores'] if 'cores' in data else 0
 
     @property
@@ -116,6 +126,81 @@ class WrfConfig:
         :param core_count: Number of cores to use, or <= 0 to calculate number automatically
         """
         self._cores = self._calculate_optimal_core_count() if core_count <= 0 else core_count
+
+    @property
+    def domain_center(self) -> LatLonPoint:
+        """
+        Get the domain center of this configuration
+        :return: Domain center as a LatLonPoint
+        """
+        if not self._domain_center:
+            self._compute_domain_center_and_size()
+        return self._domain_center
+
+    @domain_center.setter
+    def domain_center(self, domain_center: Union[LatLonPoint, None]) -> None:
+        """
+        Set the domain center
+        :param domain_center: The domain center
+        :return: None
+        """
+        self._domain_center = domain_center
+
+    @property
+    def domain_size(self) -> List[int]:
+        """
+        Get the domain size of this configuration
+        :return: Domain size in meters as an array of integers 0=east-west 1=north-south
+        """
+        if not self._domain_size_ew_meters or not self._domain_size_ns_meters:
+            self._compute_domain_center_and_size()
+        return [self._domain_size_ew_meters, self._domain_size_ns_meters]
+
+    @domain_size.setter
+    def domain_size(self, domain_size: Union[List[int], None]) -> None:
+        """
+        Set the domain size
+        :param domain_size: Array of two integers 0=east-west 1=north-south
+        :return: None
+        """
+        if domain_size is not None:
+            self._domain_size_ew_meters = domain_size[0]
+            self._domain_size_ns_meters = domain_size[1]
+        else:
+            self._domain_size_ew_meters = None
+            self._domain_size_ns_meters = None
+
+    def _compute_domain_center_and_size(self):
+        """
+        Compute the domain center and size
+        """
+        try:
+            # parse the WPS namelist content
+            wps_namelist = f90nml.reads(self.wps_namelist)
+            geogrid = wps_namelist.get('geogrid')
+            center_lat: float = geogrid.get('ref_lat', 0)
+            center_lon: float = geogrid.get('ref_lon', 0)
+            projection: str = geogrid.get('map_proj', 'mercator')
+            dx: int = geogrid.get('dx', 0)
+            dy: int = geogrid.get('dy', 0)
+            nx: int = geogrid.get('e_we', 0)
+            ny: int = geogrid.get('e_sn', 0)
+
+            # convert degrees to meters for lat/lon projections -- does not need to be exact
+            if projection == 'lat-lon':
+                dx *= math.cos(center_lat*math.pi/180) * 111120
+                dy *= 111120
+
+            # calculate the horizontal domain dimensions
+            meridional_distance = ny * dy
+            latitudinal_distance = nx * dx
+
+            # save the computed values
+            self._domain_center = LatLonPoint({'latitude': center_lat, 'longitude': center_lon})
+            self._domain_size_ew_meters = latitudinal_distance
+            self._domain_size_ns_meters = meridional_distance
+        except Exception as e:
+            self.log.error('Failed to compute the domain center and size from namelist.wps', e)
 
     def validate(self) -> bool:
         """

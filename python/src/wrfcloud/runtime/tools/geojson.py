@@ -8,6 +8,7 @@ from typing import Union, List
 from gzip import compress
 import json
 from argparse import ArgumentParser
+from datetime import datetime
 import yaml
 import netCDF4
 from matplotlib import colors
@@ -16,7 +17,6 @@ from matplotlib import pyplot
 import numpy
 from numpy.ma.core import MaskedArray
 import pygrib
-from datetime import datetime
 
 from wrfcloud.jobs.job import WrfLayer, Palette
 from wrfcloud.log import Logger

@@ -3,8 +3,6 @@ __all__ = ['aws', 'setup']
 import os
 import pkgutil
 import mimetypes
-
-import yaml
 import getpass
 import hashlib
 import random
@@ -14,7 +12,7 @@ import secrets
 from time import sleep
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Union
-
+import yaml
 from wrfcloud.config import WrfConfig
 from wrfcloud.config import add_config_to_system
 from wrfcloud.system import init_environment, get_aws_session

@@ -6,9 +6,9 @@ import os
 import copy
 import base64
 import pkgutil
-import pytz
 from typing import Union, List
 from datetime import datetime
+import pytz
 from wrfcloud.log import Logger
 import wrfcloud.system
 
@@ -21,7 +21,7 @@ class WrfJob:
     # list of all fields supported
     ALL_KEYS = ['job_id', 'job_name', 'configuration_name', 'forecast_length', 'output_frequency',
                 'input_frequency', 'status_code', 'status_message', 'progress', 'user_email',
-                'layers', 'domain_center', 'start_date', 'end_date', 'cores']
+                'layers', 'domain_center', 'domain_size', 'start_date', 'end_date', 'cores']
 
     # do not return these fields to the user
     SANITIZE_KEYS = ['input_frequency']
@@ -55,6 +55,7 @@ class WrfJob:
         self.notify: bool = False
         self.layers: Union[str, List[WrfLayer]] = []
         self.domain_center: Union[LatLonPoint, None] = None
+        self.domain_size: Union[List[int], None] = None
         self.start_date: Union[str, None] = None
         self.end_date: Union[str, None] = None
         self.cores: Union[int, None] = None
@@ -83,6 +84,7 @@ class WrfJob:
             'notify': self.notify,
             'layers': [layer.data for layer in self.layers] if isinstance(self.layers, list) else self.layers,
             'domain_center': self.domain_center.data,
+            'domain_size': self.domain_size,
             'start_date': self.start_date,
             'end_date': self.end_date,
             'cores': self.cores
@@ -112,6 +114,7 @@ class WrfJob:
         else:
             self.layers = data['layers']
         self.domain_center = LatLonPoint() if 'domain_center' not in data else LatLonPoint(data['domain_center'])
+        self.domain_size = [0, 0] if 'domain_size' not in data else data['domain_size']
         self.start_date = None if 'start_date' not in data else data['start_date']
         self.end_date = None if 'end_date' not in data else data['end_date']
         self.cores = 0 if 'cores' not in data else data['cores']
@@ -446,6 +449,8 @@ class WrfJob:
             self.layers = [WrfLayer(layer) for layer in data['layers']]
         if 'domain_center' in data:
             self.domain_center = LatLonPoint(data['domain_center'])
+        if 'domain_size' in data:
+            self.domain_size = data['domain_size']
         if 'start_date' in data:
             self.start_date = data['start_date']
         if 'end_date' in data:

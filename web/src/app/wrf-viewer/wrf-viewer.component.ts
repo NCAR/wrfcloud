@@ -17,6 +17,8 @@ import {GeoJSON} from "ol/format";
 import VectorLayer from "ol/layer/Vector";
 import {Fill, Style} from "ol/style";
 import {Layer} from "ol/layer";
+import LayerGroup from "ol/layer/Group";
+import {Size} from "ol/size";
 
 @Component({
   selector: 'app-wrf-viewer',
@@ -185,7 +187,7 @@ export class WrfViewerComponent implements OnInit
           this.job.domain_center.longitude,
           this.job.domain_center.latitude
         ],
-        zoom: 5.5
+        zoom: 1
       })
     });
 
@@ -200,6 +202,13 @@ export class WrfViewerComponent implements OnInit
     this.map.addLayer(this.politicalBoundariesLayer);
     this.politicalBoundariesVisible = this.politicalBoundariesLayer.getVisible();
 
+    /* adjust the zoom extent */
+    const zoom: number = this.computeZoomLevel();
+    this.map.getView().setZoom(zoom);
+
+    /* sometimes we strangely lose the map center, so set it again */
+    this.map.getView().setCenter([this.job.domain_center.longitude, this.job.domain_center.latitude]);
+
     /* add a map click listener */
     this.map.on('click', this.mapClicked.bind(this));
   }
@@ -211,6 +220,40 @@ export class WrfViewerComponent implements OnInit
   public togglePoliticalBoundaries(): void
   {
     this.politicalBoundariesLayer?.setVisible(this.politicalBoundariesVisible);
+  }
+  
+  
+  /**
+   * Compute the default zoom level based on the job's domain size
+   * @private
+   */
+  private computeZoomLevel(): number
+  {
+    /* get the map's view port size in pixels */
+    const screenSize: Size|undefined = this.map!.getSize();
+    const x: number = screenSize![0];
+    const y: number = screenSize![1];
+
+    /* fit zoom */
+    let res: number = 0;
+    const domainDistEW: number = this.job!.domain_size[0];
+    const domainDistNS: number = this.job!.domain_size[1];
+    for (let zoom = 1; zoom <= 20; zoom += 0.1)
+    {
+      /* get the map resolution in meters/pixel */
+      res = this.map!.getView().getResolutionForZoom(zoom);
+
+      /* compute the distances of the map view port at this zoom level */
+      const mapDistEW: number = Math.round(res * x);
+      const mapDistNS: number = Math.round(res * y);
+
+      /* check if the domain overflows the view port at this zoom level */
+      if (mapDistEW <= domainDistEW || mapDistNS <= domainDistNS)
+        return zoom - 0.4;  /* back off half of a skosh */
+    }
+
+    /* something bad happened, return a reasonable default */
+    return 5.5;
   }
 
 
