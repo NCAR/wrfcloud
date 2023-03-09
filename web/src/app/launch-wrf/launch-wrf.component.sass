@@ -25,6 +25,7 @@
   margin-top: 20px
   margin-bottom: 50px
   font-size: 1.25rem
+  background: $background-edit
 
 .launch-progress
   width: 88vw
@@ -53,14 +54,14 @@
 
 .launch-success-text
   text-align: center
-  color: $text-accent-dark
+  color: $text-emphasize
 
 ::ng-deep .mat-slider-thumb-label-text
-  color: $text-accent-dark !important
+  color: $text-emphasize !important
   margin-left: 0 !important
 
 ::ng-deep .mat-warn .mat-checkbox-background
-  background-color: $text-accent-highlight !important
+  background-color: $background-highlight !important
 
 @media screen and ( min-width : 840px )
 
@@ -69,7 +70,7 @@
     border: 2px solid $dark-gray
     border-radius: 20px
     padding: 40px
-    background-image: linear-gradient($bg1, $bg2)
+    background-image: linear-gradient($background-default, $background-default)
     margin-top: 30px
 
   .launch-shaded-container

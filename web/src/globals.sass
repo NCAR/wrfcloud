@@ -2,28 +2,32 @@
 
 
 // color palette
-$light-gray: #eeeeee
+$white: #ffffff
+$light-gray: #e5e5e5
 $medium-gray: #888888
 $dark-gray: #4d4d4d
 $green: #86cb62
-$blue: #1dafec
+$blue: #1a9edb
 $gold: #fabf58
 $orangered: #ff9e00
 $deepred: #992222
 
-// assign colors from the palette
 $text-color: $light-gray
+$text-contrast: $white
 $text-warn: $deepred
-$text-accent-success: $green
-$text-accent-edit: $blue
-$text-accent-highlight: $gold
-$text-accent-dark: color.adjust($text-accent-edit, $blackness: 40%)
+$text-success: color.adjust($green, $blackness: 30%)
+$text-edit: color.adjust($blue, $blackness: 30%)
+$text-highlight: color.adjust($gold, $blackness: 10%)
+$text-emphasize: color.adjust($text-edit, $blackness: 30%)
 
-$bg-warn: $orangered
-$bg1: color.adjust($light-gray, $alpha: -0.2)
-$bg2: color.adjust($dark-gray, $alpha: -0.2)
-$bg1-contrast: color.adjust($dark-gray, $alpha: -0.2, $blackness: 40%)
-$bg2-contrast: color.adjust($dark-gray, $alpha: -0.2)
+$background-default: $light-gray
+$background-contrast: $dark-gray
+$background-plain: $white
+$background-warn: $orangered
+$background-success: $green
+$background-edit: $blue
+$background-highlight: $gold
+$background-emphasize: $blue
 
 // Serve our material icons from this project rather than rely on external google server
 @font-face
