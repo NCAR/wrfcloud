@@ -58,14 +58,24 @@ class VectorJson:
                 grid, grid_lat, grid_lon = self._read_var_from_netcdf(var_name)
                 grids[var_id] = grid
                 # save grid lat/lon arrays and ensure they match
-                if not self.grid_lat or not self.grid_lon:
+                if self.grid_lat is None or self.grid_lon is None:
                     self.grid_lat, self.grid_lon = grid_lat, grid_lon
                 else:
-                    assert self.grid_lat == grid_lat
-                    assert self.grid_lon == grid_lon
+                    assert len(self.grid_lat) == len(grid_lat)
+                    assert len(self.grid_lon) == len(grid_lon)
 
             # loop through grid points and create vector JSON file
-            doc = {}
+            items = []
+            first_field = list(grids.keys())[0]
+            for y, row in enumerate(grids[first_field]):
+                for x in range(0, len(row)):
+                    lon, lat = self._grid_to_lonlat(x, y)
+                    item = {'coord': {'lon': str(lon), 'lat': str(lat)},
+                            self.variable: {}}
+                    for field, grid in grids.items():
+                        item[self.variable][field] = str(grid[y][x])
+                    items.append(item)
+            doc = {'vectors': items}
 
             # return the document if no output file was provided
             if out_file is None:
@@ -114,6 +124,7 @@ class VectorJson:
         :param y: The Y position on the grid
         :return: Longitude and latitude
         """
+        # TODO: move this to common area since it is here and geojson.py
         # get the integer grid indices
         x1 = int(x)
         y1 = int(y)
@@ -165,7 +176,7 @@ def main():
     input_vars = {}
     if variable == 'wind':
         input_vars['speed'] = args.wind_speed or None
-        input_vars['direction'] = args.wind_direction or None
+        input_vars['direction'] = args.wind_dir or None
         if None in input_vars:
             print('ERROR: Must set --wind_speed and --wind_dir if setting --variable wind')
             return
@@ -236,7 +247,7 @@ def automate_vector_products(wrf_file: str) -> List[WrfLayer]:
         for z_level in z_levels:
             # create the output file name
             out_file = (f'{wrf_file}_{variable}' if z_level is None else f'{wrf_file}_{variable}_{z_level}')
-            out_file += '.json'
+            out_file += '.json.gz'
 
             # create the WRF Layer details for this output product
             wrf_layer = WrfLayer()
