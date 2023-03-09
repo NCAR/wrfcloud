@@ -73,7 +73,7 @@ class GetWrfGeoJson(Action):
             valid_time: int = self.request['valid_time']
             variable: str = self.request['variable']
             z_level: int = self.request['z_level'] if 'z_level' in self.request else 0
-            data = self._read_geojson_data(job_id, valid_time, variable, z_level)
+            data, plot_type = self._read_geojson_data(job_id, valid_time, variable, z_level)
             if data is None:
                 return False
             self.response['geojson'] = base64.b64encode(data).decode()
@@ -83,6 +83,7 @@ class GetWrfGeoJson(Action):
             self.response['valid_time'] = valid_time
             self.response['variable'] = variable
             self.response['z_level'] = z_level
+            self.response['plot_type'] = plot_type
         except Exception as e:
             self.log.error('Failed to read model configurations.', e)
             self.errors.append('Failed to read model configurations.')
@@ -111,12 +112,14 @@ class GetWrfGeoJson(Action):
 
         # find the requested valid time
         s3_url: Union[str, None] = None
+        plot_type: Union[str, None] = None
         for layer in job.layers:
             match_valid_time: bool = valid_time == layer.dt
             match_variable: bool = variable == layer.variable_name
             match_z_level: bool = (z_level == 0 and layer.z_level is None) or z_level == layer.z_level
             if match_valid_time and match_variable and match_z_level:
                 s3_url = layer.layer_data
+                plot_type = layer.plot_type
                 break
 
         # make sure we found the requested valid time
@@ -133,7 +136,7 @@ class GetWrfGeoJson(Action):
         data = self._s3_read(bucket, key)
 
         # unzip the data -- the whole response gets compressed again later
-        return gzip.decompress(data)
+        return gzip.decompress(data), plot_type
 
     def _s3_read(self, bucket: str, key: str) -> bytes:
         """
