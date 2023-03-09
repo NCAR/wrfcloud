@@ -8,11 +8,11 @@
 products:
   - wind:
       speed: wind_speed_10
-      direction: wind_direction_10
+      direction: wind_dir_10
     display_name: 'Wind 10m'
   - wind:
       speed: wind_speed_pres
-      direction: wind_direction_pres
+      direction: wind_dir_pres
     display_name: 'Wind'
     z_levels:
       - 1000
