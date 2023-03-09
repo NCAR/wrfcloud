@@ -252,7 +252,7 @@ def automate_vector_products(wrf_file: str) -> List[WrfLayer]:
             # create the WRF Layer details for this output product
             wrf_layer = WrfLayer()
             wrf_layer.plot_type = 'vector'
-            wrf_layer.variable_name = variable
+            wrf_layer.variable_name = variable if z_level is None else f'{variable}_3d'
             wrf_layer.display_name = product['display_name']
             wrf_layer.layer_data = out_file
             wrf_layer.z_level = z_level
