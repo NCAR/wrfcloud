@@ -309,6 +309,10 @@ export class WrfViewerComponent implements OnInit
       });
 
       style = WrfViewerComponent.selfVectorStyle;
+
+      /* TODO: add a zoom listener to adjust wind vectors
+       *   this.map.on('zoom', layer.handleZoomChange.bind(layer))
+       */
     }
     else {
       return;
