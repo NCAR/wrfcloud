@@ -25,9 +25,10 @@ table
   font-size: 1.2rem
 
 .viewer-container
-  margin-top: 20px
+  margin-top: 0
   width: 100vw
   overflow: hidden
+  background-color: $background-plain
 
 .viewer-title
   font-size: 2.0rem
@@ -52,10 +53,15 @@ table
 .viewer-height-selector
   max-width: 70px
   display: inline-block
-  background-image: linear-gradient(90deg, $background-default, $background-default)
+  background: $background-plain
   border-top-left-radius: 12px
 
+::ng-deep .mat-slider-thumb-label-text
+  color: $text-contrast !important
+  background: $background-edit !important
+
 .viewer-height-selector-widget
+  color: $text-contrast
   margin-top: 25px
   min-height: calc(100vh - 400px)
 
@@ -66,7 +72,7 @@ table
 
 .viewer-layers
   min-width: 350px
-  background-image: linear-gradient(180deg, $background-default, $background-default)
+  background-color: $background-plain
   border-top-right-radius: 12px
   height: calc(100vh - 250px)
   overflow-y: scroll
@@ -77,7 +83,7 @@ table
   display: inline-flex
   border-bottom-left-radius: 12px
   border-bottom-right-radius: 12px
-  background-image: linear-gradient(90deg, $background-default, $background-default)
+  background-color: $background-plain
 
 .viewer-animate-tool
   margin-left: 70px

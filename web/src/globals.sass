@@ -1,19 +1,24 @@
 @use 'sass:color'
-
+@import url('https://use.typekit.net/qzp0wjw.css')
 
 // color palette
 $white: #ffffff
-$light-gray: #e5e5e5
+$light-gray: #eeeeee
 $medium-gray: #888888
 $dark-gray: #4d4d4d
+$black: #000000
 $green: #86cb62
 $blue: #1a9edb
+$dark-blue: #2c3c94
 $gold: #fabf58
 $orangered: #ff9e00
 $deepred: #992222
 
-$text-color: $light-gray
+$text-color: $medium-gray
 $text-contrast: $white
+$text-dark: $dark-gray
+$text-selected: $black
+$text-menu-select: $dark-blue
 $text-warn: $deepred
 $text-success: color.adjust($green, $blackness: 30%)
 $text-edit: color.adjust($blue, $blackness: 30%)
@@ -54,7 +59,7 @@ $background-emphasize: $blue
   font-family: 'Roboto'
   font-style: normal
   font-size: 48px
-  src: url('assets/JosefinSans.ttf') format('truetype')
+  src: url('assets/ropa-mix-pro.woff') format('woff2')
 
 .placeholder-style
   font-size: 4.0rem

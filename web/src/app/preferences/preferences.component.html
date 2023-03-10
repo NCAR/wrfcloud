@@ -47,7 +47,7 @@
           <input matInput type="password" [(ngModel)]="chpassReq.password2">
         </mat-form-field>
         <div class="prefs-button-container">
-          <button mat-raised-button class="prefs-button" (click)="doChangePassword()" [disabled]="busy || chpassReq.password1 !== chpassReq.password2 || chpassReq.password1.length < 10">
+          <button mat-flat-button class="prefs-button" (click)="doChangePassword()" [disabled]="busy || chpassReq.password1 !== chpassReq.password2 || chpassReq.password1.length < 10">
             Change Password
           </button>
         </div>
