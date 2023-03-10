@@ -897,6 +897,7 @@ export interface WrfLayer
   z_level: number;
   time_step: number;
   dt: number;
+  plot_type: string;
   /* TODO: Add function to adjust vectors on zoom event */
 }
 
@@ -986,7 +987,6 @@ export interface GetWrfGeoJsonResponse extends ApiResponse
     variable: string;
     z_level: number;
     geojson: string;
-    plot_type: string;
   }
 }
 

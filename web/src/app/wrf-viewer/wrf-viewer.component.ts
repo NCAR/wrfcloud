@@ -289,11 +289,11 @@ export class WrfViewerComponent implements OnInit
     /* create a new layer for the map */
     let features: Feature[] = [];
     let style;
-    if (response.data.plot_type === 'contour') {
+    if (layer.plot_type === 'contour') {
       features = new GeoJSON().readFeatures(geojsonObject);
       style = WrfViewerComponent.selfContourStyle;
     }
-    else if (response.data.plot_type === 'vector') {
+    else if (layer.plot_type === 'vector') {
       let count = 0;
       geojsonObject['vectors'].forEach(function(vector: VectorData){
         if (count <= 19) {
