@@ -57,7 +57,7 @@
 </div>
 
 <div class="edit-model-config-button-panel" mat-dialog-actions *ngIf="edit">
-  <button mat-stroked-button [mat-dialog-close]="">
+  <button mat-stroked-button class="edit-model-config-cancel-button" [mat-dialog-close]="">
     Cancel
   </button>
   <button mat-flat-button class="edit-model-config-button" *ngIf="this.app.userHasRole('maintainer')" [disabled]="busy" (click)="updateModelConfiguration()">

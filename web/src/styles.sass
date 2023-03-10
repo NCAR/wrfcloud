@@ -28,7 +28,7 @@ body
   background-color: $background-edit
 
 .mat-form-field-appearance-fill .mat-form-field-flex
-  background-color: $background-plain
+  background-color: $background-default
 
 .mat-primary .mat-option.mat-selected:not(.mat-option-disabled)
   color: $text-menu-select
@@ -36,3 +36,9 @@ body
 // OpenLayers overrides
 .ol-attribution.ol-uncollapsible
   display: none
+
+@media screen and ( min-width : 840px )
+
+  .mat-form-field-appearance-fill .mat-form-field-flex
+    background-color: $background-plain
+
