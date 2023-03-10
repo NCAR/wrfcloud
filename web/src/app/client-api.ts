@@ -984,7 +984,20 @@ export interface GetWrfGeoJsonResponse extends ApiResponse
     valid_time: number;
     variable: string;
     z_level: number;
-    geojson: string
+    geojson: string;
+    plot_type: string;
+  }
+}
+
+export interface VectorData
+{
+  coord: {
+    lon: string;
+    lat: string;
+  }
+  wind: {
+    speed: string;
+    direction: string;
   }
 }
 

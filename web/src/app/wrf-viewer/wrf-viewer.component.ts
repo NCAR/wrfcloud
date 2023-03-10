@@ -5,20 +5,22 @@ import {
   LayerRequest,
   GetWrfGeoJsonRequest,
   GetWrfGeoJsonResponse,
-  ListJobRequest, ListJobResponse, WrfLayerGroup, WrfLayer
+  ListJobRequest, ListJobResponse, WrfLayerGroup, WrfLayer, VectorData
 } from "../client-api";
 import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import {OSM} from 'ol/source';
 import {MatSliderChange} from "@angular/material/slider";
-import {useGeographic} from "ol/proj";
+import {useGeographic, fromLonLat} from "ol/proj";
 import VectorSource from "ol/source/Vector";
 import {GeoJSON} from "ol/format";
 import VectorLayer from "ol/layer/Vector";
-import {Fill, Stroke, Style} from "ol/style";
+import {Fill, Stroke, Style, RegularShape} from "ol/style";
 import {Layer} from "ol/layer";
-import LayerGroup from "ol/layer/Group";
+//import LayerGroup from "ol/layer/Group";
 import {Size} from "ol/size";
+import Feature from 'ol/Feature.js';
+import Point from 'ol/geom/Point.js';
 
 @Component({
   selector: 'app-wrf-viewer',
@@ -285,8 +287,35 @@ export class WrfViewerComponent implements OnInit
     layer.layer_data = geojsonObject;
 
     /* create a new layer for the map */
-    const vectorSource = new VectorSource({features: new GeoJSON().readFeatures(geojsonObject)});
-    const vectorLayer = new VectorLayer({source: vectorSource, style: WrfViewerComponent.selfStyle});
+    let features: Feature[] = [];
+    let style;
+    if (response.data.plot_type === 'contour') {
+      features = new GeoJSON().readFeatures(geojsonObject);
+      style = WrfViewerComponent.selfContourStyle;
+    }
+    else if (response.data.plot_type === 'vector') {
+      let count = 0;
+      geojsonObject['vectors'].forEach(function(vector: VectorData){
+        if (count <= 19) {
+          count++;
+          return;
+        }
+        count = 0;
+        const feature = new Feature(
+            new Point(fromLonLat([parseFloat(vector['coord']['lon']), parseFloat(vector['coord']['lat'])]))
+        );
+        feature.setProperties(vector);
+        features.push(feature);
+      });
+
+      style = WrfViewerComponent.selfVectorStyle;
+    }
+    else {
+      return;
+    }
+
+    const vectorSource = new VectorSource({features: features});
+    const vectorLayer = new VectorLayer({source: vectorSource, style: style});
     vectorLayer.setOpacity(layer.opacity);
 
     /* cache the layer in the frames map */
@@ -443,11 +472,51 @@ export class WrfViewerComponent implements OnInit
    * @param feature
    * @private
    */
-  private static selfStyle(feature: any): Style
+  private static selfContourStyle(feature: any): Style
   {
     return new Style({
       fill: new Fill({color: feature.getProperties().fill})
     });
+  }
+
+    /**
+   * Set the style for vectors, e.g. wind
+   * @param feature
+   * @private
+   */
+  private static selfVectorStyle(feature: any): Style[]
+  {
+    const shaft = new RegularShape({
+      points: 2,
+      radius: 5,
+      stroke: new Stroke({
+        width: 2,
+        color: 'black',
+      }),
+      rotateWithView: true,
+    });
+
+    const head = new RegularShape({
+      points: 3,
+      radius: 5,
+      fill: new Fill({
+        color: 'black',
+      }),
+      rotateWithView: true,
+    });
+    const styles = [new Style({image: shaft}), new Style({image: head})];
+    const wind = feature.get('wind');
+    // rotate arrow away from wind origin
+    const angle = ((parseFloat(wind.direction) - 180) * Math.PI) / 180;
+    const scale = parseFloat(wind.speed) / 1.944 / 10;
+    shaft.setScale([1, scale]);
+    shaft.setRotation(angle);
+    head.setDisplacement([
+      0,
+      head.getRadius() / 2 + shaft.getRadius() * scale,
+    ]);
+    head.setRotation(angle);
+    return styles;
   }
 
 
