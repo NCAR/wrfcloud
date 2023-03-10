@@ -70,10 +70,10 @@ class VectorJson:
             for y, row in enumerate(grids[first_field]):
                 for x in range(0, len(row)):
                     lon, lat = self._grid_to_lonlat(x, y)
-                    item = {'coord': {'lon': str(lon), 'lat': str(lat)},
+                    item = {'coord': {'lon': f'{lon:.2f}', 'lat': f'{lat:.2f}'},
                             self.variable: {}}
                     for field, grid in grids.items():
-                        item[self.variable][field] = str(grid[y][x])
+                        item[self.variable][field] = f'{grid[y][x]:.1f}'
                     items.append(item)
             doc = {'vectors': items}
 
