@@ -1,27 +1,30 @@
 <div class="app-desktop-menu" (window:resize)="windowResized($event)">
   <div class="app-header">
-    <mat-grid-list [cols]="menuOptions.length + 2" rowHeight="100px">
-      <mat-grid-tile class="app-menubar-item" (click)="routeTo('')" mat-ripple>
-        <img class="app-cloud-icon" src="../assets/logo.png">
-      </mat-grid-tile>
-      <mat-grid-tile
-        *ngFor="let menuOption of menuOptions"
-        mat-ripple
-        class="app-menubar-item"
-        colspan="1"
-        rowspan="1"
-        [style]="'display:' + (menuOption.title.length == 0 ? 'none' : 'block')"
-        (click)="menuOption.title.length > 0 ? routeTo(menuOption.route) : menuOption.title = ''">
+    <div class="app-logo-container"><img class="app-cloud-icon" src="assets/logo.png"></div>
+    <div class="app-menu-container">
+      <mat-grid-list [cols]="menuOptions.length + 1" rowHeight="100px">
+        <!--      <mat-grid-tile class="app-menubar-item" (click)="routeTo('')" mat-ripple>-->
+        <!--        <img class="app-cloud-icon" src="../assets/logo.png">-->
+        <!--      </mat-grid-tile>-->
+        <mat-grid-tile
+                *ngFor="let menuOption of menuOptions"
+                mat-ripple
+                class="app-menubar-item"
+                colspan="1"
+                rowspan="1"
+                [style]="'display:' + (menuOption.title.length == 0 ? 'none' : 'block')"
+                (click)="menuOption.title.length > 0 ? routeTo(menuOption.route) : menuOption.title = ''">
         <span [class]="currentPage === menuOption.route ? 'app-menubar-item-selected' : ''">
           {{menuOption.title}}
         </span>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <button class="app-login-button" mat-flat-button (click)="routeTo(api.loggedIn ? 'logout' : 'login')">
-          {{api.loggedIn ? 'Logout' : 'Login'}}
-        </button>
-      </mat-grid-tile>
-    </mat-grid-list>
+        </mat-grid-tile>
+        <mat-grid-tile>
+          <button class="app-login-button" mat-flat-button (click)="routeTo(api.loggedIn ? 'logout' : 'login')">
+            {{api.loggedIn ? 'Logout' : 'Login'}}
+          </button>
+        </mat-grid-tile>
+      </mat-grid-list>
+    </div>
   </div>
 </div>
 

@@ -16,7 +16,7 @@ export class LaunchWrfComponent implements OnInit
   /**
    * Flag to indicate we are waiting for the API
    */
-  public busy: boolean = true;
+  public busy: boolean = false;
 
 
   /**
@@ -28,7 +28,7 @@ export class LaunchWrfComponent implements OnInit
   /**
    * Progress bar value for submitting the WRF job
    */
-  public submitProgress: number = 40;
+  public submitProgress: number = 0;
 
 
   /* request to send the API */
