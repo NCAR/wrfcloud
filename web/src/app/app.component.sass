@@ -50,8 +50,21 @@
 
 .app-router-outlet
   padding: 0
-  height: calc(100vh - 50px)
+  height: calc(100vh - 141px)
   overflow-y: scroll
+
+.app-footer
+  background-color: $background-footer
+  color: $text-contrast
+  padding: 15px
+  margin: 0
+
+.app-footer a
+  color: $text-contrast
+  text-decoration: none
+
+.app-footer a:hover
+  text-decoration: underline
 
 @media screen and ( min-width : 840px )
   .app-cloud-icon
@@ -66,4 +79,4 @@
     display: block
 
   .app-router-outlet
-    height: calc(100vh - 100px)
+    height: calc(100vh - 150px)
