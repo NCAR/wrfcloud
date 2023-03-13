@@ -67,10 +67,11 @@ class VectorJson:
             # loop through grid points and create vector JSON file
             items = []
             first_field = list(grids.keys())[0]
+            # TODO: Determine how to skip points -- ~1 degree per point?
             for y, row in enumerate(grids[first_field]):
-                if row % 2 == 1: continue
+                if y % 5 == 1: continue
                 for x in range(0, len(row)):
-                    if x % 2 == 1: continue
+                    if x % 5 == 1: continue
                     lon, lat = self._grid_to_lonlat(x, y)
                     item = {'coord': {'lon': f'{lon:.2f}', 'lat': f'{lat:.2f}'},
                             self.variable: {}}
