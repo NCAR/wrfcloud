@@ -68,7 +68,9 @@ class VectorJson:
             items = []
             first_field = list(grids.keys())[0]
             for y, row in enumerate(grids[first_field]):
+                if row % 2 == 1: continue
                 for x in range(0, len(row)):
+                    if x % 2 == 1: continue
                     lon, lat = self._grid_to_lonlat(x, y)
                     item = {'coord': {'lon': f'{lon:.2f}', 'lat': f'{lat:.2f}'},
                             self.variable: {}}
