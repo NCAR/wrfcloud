@@ -299,7 +299,7 @@ export class WrfViewerComponent implements OnInit
     }
     else if (layer.plot_type === 'vector') {
       features = this.readFeaturesVector(geojsonObject);
-      style = WrfViewerComponent.selfVectorStyle;
+      style = this.selfVectorStyle.bind(this);
 
       layer.zoom = this.map!.getView().getZoom();
       layer.handleZoomChange = this.doZoomChange;
@@ -333,16 +333,35 @@ export class WrfViewerComponent implements OnInit
 
   private getVectorSpacing(zoom: number|undefined): number
   {
-    if(!zoom || zoom >= 4.3) {
+    // if(!zoom || zoom >= 4.3) {
+    //   return 1;
+    // }
+    // if (zoom >= 3.6) {
+    //   return 2;
+    // }
+    // if (zoom >= 3.0) {
+    //   return 3;
+    // }
+    if(!zoom || zoom >= 4.0) {
       return 1;
     }
-    if (zoom >= 3.6) {
+    if (zoom >= 2.0) {
       return 2;
     }
-    if (zoom >= 3.0) {
-      return 3;
+    return 3;
+  }
+  private getVectorScale(zoom: number|undefined): number
+  {
+    if(!zoom || zoom >= 4.8) {
+      return 1.0;
     }
-    return 4;
+    if (zoom >= 4.3) {
+      return 0.9;
+    }
+    if (zoom >= 4.0) {
+      return 0.8;
+    }
+    return 0.7;
   }
 
   private readFeaturesVector(geojsonObject: any): Feature[]
@@ -515,8 +534,10 @@ export class WrfViewerComponent implements OnInit
    * @param feature
    * @private
    */
-  private static selfVectorStyle(feature: any): Style[]
+  private selfVectorStyle(feature: any): Style[]
   {
+    const vectorScale = this.getVectorScale(this.map?.getView().getZoom());
+    console.log('scale: ' + vectorScale);
     const shaft = new RegularShape({
       points: 2,
       radius: 5,
@@ -529,7 +550,7 @@ export class WrfViewerComponent implements OnInit
 
     const head = new RegularShape({
       points: 3,
-      radius: 5,
+      radius: 5*vectorScale,
       fill: new Fill({
         color: 'black',
       }),
@@ -539,7 +560,7 @@ export class WrfViewerComponent implements OnInit
     const wind = feature.get('wind');
     // rotate arrow away from wind origin
     const angle = ((parseFloat(wind.direction) - 180) * Math.PI) / 180;
-    const scale = parseFloat(wind.speed) / 10;
+    const scale = vectorScale * parseFloat(wind.speed) / 10;
     shaft.setScale([1, scale]);
     shaft.setRotation(angle);
     head.setDisplacement([
@@ -573,9 +594,9 @@ export class WrfViewerComponent implements OnInit
     const new_spacing = this.getVectorSpacing(new_zoom);
     const old_spacing = this.getVectorSpacing(layer.zoom);
     console.log('zoom: ' + layer.zoom + ' -> ' + new_zoom);
-    console.log('spacing: ' + old_spacing + ' -> ' + new_spacing);
 
     if (new_spacing != old_spacing) {
+      console.log('spacing: ' + old_spacing + ' -> ' + new_spacing);
       const features = this.readFeaturesVector(layer.layer_data);
       let source = vectorLayer.getSource();
       source.clear();
