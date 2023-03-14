@@ -1,29 +1,40 @@
 @use 'sass:color'
-
+@import url('https://use.typekit.net/qzp0wjw.css')
 
 // color palette
-$light-gray: #e0ecec
-$medium-gray: #d0dbdb
-$dark-gray: #9ca3a5
+$white: #ffffff
+$light-gray: #eeeeee
+$medium-gray: #888888
+$dark-gray: #4d4d4d
+$darker-gray: #323840
+$black: #000000
 $green: #86cb62
-$blue: #1dafec
+$blue: #1a9edb
+$dark-blue: #2c3c94
 $gold: #fabf58
 $orangered: #ff9e00
 $deepred: #992222
 
-// assign colors from the palette
-$text-color: $light-gray
+$text-color: $medium-gray
+$text-contrast: $white
+$text-dark: $dark-gray
+$text-selected: $black
+$text-menu-select: $dark-blue
 $text-warn: $deepred
-$accent-green: $green
-$accent-blue: $blue
-$accent-gold: $gold
-$warn: $orangered
+$text-success: color.adjust($green, $blackness: 30%)
+$text-edit: color.adjust($blue, $blackness: 30%)
+$text-highlight: color.adjust($gold, $blackness: 10%)
+$text-emphasize: color.adjust($text-edit, $blackness: 30%)
 
-$bg1: color.adjust($light-gray, $alpha: -0.2)
-$bg2: color.adjust($dark-gray, $alpha: -0.2)
-$bg-dark-1: color.adjust($dark-gray, $alpha: -0.2, $blackness: 40%)
-$bg-dark-2: color.adjust($dark-gray, $alpha: -0.2)
-$accent-blue-dark: color.adjust($accent-blue, $blackness: 40%)
+$background-default: $light-gray
+$background-contrast: $dark-gray
+$background-plain: $white
+$background-warn: $orangered
+$background-success: $green
+$background-edit: $blue
+$background-highlight: $gold
+$background-emphasize: $blue
+$background-footer: $darker-gray
 
 // Serve our material icons from this project rather than rely on external google server
 @font-face
@@ -50,7 +61,7 @@ $accent-blue-dark: color.adjust($accent-blue, $blackness: 40%)
   font-family: 'Roboto'
   font-style: normal
   font-size: 48px
-  src: url('assets/JosefinSans.ttf') format('truetype')
+  src: url('assets/ropa-mix-pro.woff') format('woff2')
 
 .placeholder-style
   font-size: 4.0rem

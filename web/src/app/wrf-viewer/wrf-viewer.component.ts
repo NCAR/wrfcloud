@@ -9,7 +9,7 @@ import {
 } from "../client-api";
 import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
-import {OSM} from 'ol/source';
+import {OSM, TileWMS} from 'ol/source';
 import {MatSliderChange} from "@angular/material/slider";
 import {useGeographic, fromLonLat} from "ol/proj";
 import VectorSource from "ol/source/Vector";
@@ -102,6 +102,20 @@ export class WrfViewerComponent implements OnInit
 
 
   /**
+   * Layer containing political boundaries
+   * @private
+   */
+  private politicalBoundariesLayer: Layer|undefined;
+
+
+  /**
+   * Flag to indicate if political boundaries are visible or not
+   * @private
+   */
+  public politicalBoundariesVisible: boolean = false;
+
+
+  /**
    * List of valid height value selections
    */
   public validHeights: number[] = [1000, 925, 850, 700, 500, 300, 250, 100];
@@ -179,6 +193,17 @@ export class WrfViewerComponent implements OnInit
       })
     });
 
+    /* add a political boundaries layer that will sit on top of all other layers */
+    this.politicalBoundariesLayer = new TileLayer({
+      source: new TileWMS({
+        url: 'https://gis-maps.rap.ucar.edu/arcgis/services/POLITICAL_BASEMAP/MapServer/WMSServer',
+        params: {'LAYERS': '1,2,3,4,5,6,7', 'TRANSPARENT': true}
+      }),
+    });
+    this.politicalBoundariesLayer.setZIndex(100);
+    this.map.addLayer(this.politicalBoundariesLayer);
+    this.politicalBoundariesVisible = this.politicalBoundariesLayer.getVisible();
+
     /* adjust the zoom extent */
     const zoom: number = this.computeZoomLevel();
     this.map.getView().setZoom(zoom);
@@ -191,6 +216,15 @@ export class WrfViewerComponent implements OnInit
   }
 
 
+  /**
+   * Toggle the political boundaries layer on/off
+   */
+  public togglePoliticalBoundaries(): void
+  {
+    this.politicalBoundariesLayer?.setVisible(this.politicalBoundariesVisible);
+  }
+  
+  
   /**
    * Compute the default zoom level based on the job's domain size
    * @private
@@ -407,6 +441,7 @@ export class WrfViewerComponent implements OnInit
     });
     this.frames[key].setVisible(true);
   }
+
 
   /**
    * Send a request to get selected job details
