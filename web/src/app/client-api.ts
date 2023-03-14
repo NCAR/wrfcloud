@@ -1064,6 +1064,8 @@ export interface ModelConfiguration
   wrf_namelist: string;
   wps_namelist: string;
   cores: number;
+  domain_center?: LatLonPoint;
+  domain_size?: number[];
 }
 
 export interface ListModelConfigurationsRequest
