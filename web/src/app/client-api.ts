@@ -898,7 +898,8 @@ export interface WrfLayer
   time_step: number;
   dt: number;
   plot_type: string;
-  /* TODO: Add function to adjust vectors on zoom event */
+  zoom: number|undefined;
+  handleZoomChange: Function;
 }
 
 export interface WrfJob
