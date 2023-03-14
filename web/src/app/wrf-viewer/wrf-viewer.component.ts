@@ -286,41 +286,31 @@ export class WrfViewerComponent implements OnInit
     const geojsonObject = JSON.parse(atob(response.data.geojson));
     layer.layer_data = geojsonObject;
 
+    const vectorSource = new VectorSource();
+    const vectorLayer = new VectorLayer({source: vectorSource});
+
     /* create a new layer for the map */
-    let features: Feature[] = [];
+    let features: Feature[];
     let style;
     if (layer.plot_type === 'contour') {
       features = new GeoJSON().readFeatures(geojsonObject);
       style = WrfViewerComponent.selfContourStyle;
+      vectorLayer.setOpacity(layer.opacity);
     }
     else if (layer.plot_type === 'vector') {
-      let count = 0;
-      geojsonObject['vectors'].forEach(function(vector: VectorData){
-        if (count <= 19) {
-          count++;
-          return;
-        }
-        count = 0;
-        const feature = new Feature(
-            new Point(fromLonLat([parseFloat(vector['coord']['lon']), parseFloat(vector['coord']['lat'])]))
-        );
-        feature.setProperties(vector);
-        features.push(feature);
-      });
-
+      features = this.readFeaturesVector(geojsonObject);
       style = WrfViewerComponent.selfVectorStyle;
 
-      /* TODO: add a zoom listener to adjust wind vectors
-       *   this.map.on('zoom', layer.handleZoomChange.bind(layer))
-       */
+      layer.zoom = this.map!.getView().getZoom();
+      layer.handleZoomChange = this.doZoomChange;
+      this.map!.getView().on('change:resolution', layer.handleZoomChange.bind(this, layer, vectorLayer));
     }
     else {
       return;
     }
 
-    const vectorSource = new VectorSource({features: features});
-    const vectorLayer = new VectorLayer({source: vectorSource, style: style});
-    vectorLayer.setOpacity(layer.opacity);
+    vectorSource.addFeatures(features);
+    vectorLayer.setStyle(style);
 
     /* cache the layer in the frames map */
     const frameKey = WrfViewerComponent.generateFrameKey(response.data);
@@ -341,6 +331,42 @@ export class WrfViewerComponent implements OnInit
       this.showSelectedTimeFromLayerGroup(layerGroup);
   }
 
+  private getVectorSpacing(zoom: number|undefined): number
+  {
+    if(!zoom || zoom >= 4.3) {
+      return 1;
+    }
+    if (zoom >= 3.6) {
+      return 2;
+    }
+    if (zoom >= 3.0) {
+      return 3;
+    }
+    return 4;
+  }
+
+  private readFeaturesVector(geojsonObject: any): Feature[]
+  {
+    // read map zoom and determine how many points to skip
+    const spacing = this.getVectorSpacing(this.map?.getView().getZoom());
+    let features: Feature[] = [];
+    // TODO: read the number of vector points in a row instead of hard-coding
+    const row_length: number = 30;
+    geojsonObject['vectors'].forEach(function(vector: VectorData, i: number){
+      // skip rows and columns of points based on spacing
+      if(i % spacing != 0 || Math.floor(i/row_length) % spacing != 0) {
+        return;
+      }
+
+      const feature = new Feature(
+          new Point(fromLonLat([parseFloat(vector['coord']['lon']), parseFloat(vector['coord']['lat'])], 'EPSG:4326'))
+      );
+      feature.setProperties(vector);
+      features.push(feature);
+    });
+    return features;
+
+  }
 
   /**
    *
@@ -423,6 +449,7 @@ export class WrfViewerComponent implements OnInit
           opacityChange: this.doChangeOpacity.bind(this),
           visibilityChange: this.doToggleLayer.bind(this)
         };
+
         this.layerGroups[this.layerGroups.length] = layerGroup;
       }
 
@@ -512,7 +539,7 @@ export class WrfViewerComponent implements OnInit
     const wind = feature.get('wind');
     // rotate arrow away from wind origin
     const angle = ((parseFloat(wind.direction) - 180) * Math.PI) / 180;
-    const scale = parseFloat(wind.speed) / 1.944 / 10;
+    const scale = parseFloat(wind.speed) / 10;
     shaft.setScale([1, scale]);
     shaft.setRotation(angle);
     head.setDisplacement([
@@ -534,6 +561,30 @@ export class WrfViewerComponent implements OnInit
   {
   }
 
+  /**
+   * Handle zoom on the map event
+   *
+   * @param event
+   * @private
+   */
+  private doZoomChange(layer: WrfLayer, vectorLayer: VectorLayer<any>, event: any): void
+  {
+    const new_zoom = event.target.values_.zoom;
+    const new_spacing = this.getVectorSpacing(new_zoom);
+    const old_spacing = this.getVectorSpacing(layer.zoom);
+    console.log('zoom: ' + layer.zoom + ' -> ' + new_zoom);
+    console.log('spacing: ' + old_spacing + ' -> ' + new_spacing);
+
+    if (new_spacing != old_spacing) {
+      const features = this.readFeaturesVector(layer.layer_data);
+      let source = vectorLayer.getSource();
+      source.clear();
+      source.addFeatures(features);
+      source.changed();
+    }
+    layer.zoom = new_zoom;
+
+  }
 
   /**
    *
