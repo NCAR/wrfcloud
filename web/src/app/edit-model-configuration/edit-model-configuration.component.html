@@ -63,6 +63,9 @@
   <button mat-flat-button class="edit-model-config-button" *ngIf="this.app.userHasRole('maintainer')" [disabled]="busy" (click)="updateModelConfiguration()">
     Update
   </button>
+  <button mat-flat-button class="edit-model-config-button" *ngIf="this.app.userHasRole('maintainer')" [disabled]="busy" (click)="duplicateModelConfiguration()">
+    Duplicate
+  </button>
   <button mat-flat-button class="remove-model-config-button" *ngIf="this.app.userHasRole('maintainer')" [disabled]="busy" (click)="deleteModelConfiguration()">
     Remove
   </button>
@@ -81,7 +84,7 @@
     *ngIf="this.app.userHasRole('maintainer')"
     [disabled]="busy || showNameHint"
     (click)="createModelConfiguration()">
-    Create
+    Save
   </button>
   <div class="edit-model-config-busy-spinner">
     <mat-icon class="spin" *ngIf="busy">autorenew</mat-icon>

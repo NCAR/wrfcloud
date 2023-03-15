@@ -49,8 +49,8 @@ class WrfConfig:
             's3_key_wps_namelist': self.s3_key_wps_namelist,
             'wrf_namelist': self.wrf_namelist,
             'wps_namelist': self.wps_namelist,
-            'domain_center': self.domain_center.data,
-            'domain_size': self.domain_size,
+            'domain_center': self.domain_center.data if self.domain_center is not None else None,
+            'domain_size': self.domain_size if self.domain_size is not None else None,
             'cores': self._cores
         }
 
@@ -64,7 +64,7 @@ class WrfConfig:
         self.description = data['description'] if 'description' in data else None
         self.wrf_namelist = data['wrf_namelist'] if 'wrf_namelist' in data else None
         self.wps_namelist = data['wps_namelist'] if 'wps_namelist' in data else None
-        self.domain_center = data['domain_center'] if 'domain_center' in data else None
+        self.domain_center = LatLonPoint(data['domain_center']) if 'domain_center' in data else None
         self.domain_size = data['domain_size'] if 'domain_size' in data else None
         self.cores = data['cores'] if 'cores' in data else 0
 
