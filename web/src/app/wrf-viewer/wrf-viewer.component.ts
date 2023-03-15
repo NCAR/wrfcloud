@@ -334,9 +334,9 @@ export class WrfViewerComponent implements OnInit
       features = this.readFeaturesVector(geojsonObject);
       style = this.selfVectorStyle.bind(this);
 
-      //layer.zoom = this.map!.getView().getZoom();
-      //layer.handleZoomChange = this.doZoomChange;
-      //this.map!.getView().on('change:resolution', layer.handleZoomChange.bind(this, layer, vectorLayer));
+      layer.zoom = this.map!.getView().getZoom();
+      layer.handleZoomChange = this.doZoomChange;
+      this.map!.getView().on('change:resolution', layer.handleZoomChange.bind(this, layer, vectorLayer));
     }
     else {
       return;
@@ -366,15 +366,17 @@ export class WrfViewerComponent implements OnInit
 
   private getVectorSpacing(zoom: number|undefined): number
   {
-    // currently always use 1 spacing which does not subset wind vectors
-    return 1;
-    // if(!zoom || zoom >= 4.0) {
-    //   return 1;
-    // }
-    // if (zoom >= 2.0) {
-    //   return 2;
-    // }
-    // return 3;
+    // determine how many vectors to skip based on zoom value
+    // 1 displays all vectors, 2 skips 1 row and column, 3 skips 2 rows and columns, etc.
+
+    // if zoom is undefined, return default of 2
+    if(!zoom) {
+      return 2;
+    }
+    if(zoom >= 7.0) {
+      return 1;
+    }
+    return 2;
   }
   private getVectorScale(zoom: number|undefined): number
   {
@@ -396,7 +398,7 @@ export class WrfViewerComponent implements OnInit
     const spacing = this.getVectorSpacing(this.map?.getView().getZoom());
     let features: Feature[] = [];
     // TODO: read the number of vector points in a row instead of hard-coding
-    const row_length: number = 30;
+    const row_length: number = Number(geojsonObject['row_length'] || 30);
     geojsonObject['vectors'].forEach(function(vector: VectorData, i: number){
       // skip rows and columns of points based on spacing
       if(i % spacing != 0 || Math.floor(i/row_length) % spacing != 0) {
@@ -617,7 +619,7 @@ export class WrfViewerComponent implements OnInit
    * @param event
    * @private
    */
-  /*
+
   private doZoomChange(layer: WrfLayer, vectorLayer: VectorLayer<any>, event: any): void
   {
     const new_zoom = event.target.values_.zoom;
@@ -636,7 +638,6 @@ export class WrfViewerComponent implements OnInit
     layer.zoom = new_zoom;
 
   }
-  */
 
   /**
    *

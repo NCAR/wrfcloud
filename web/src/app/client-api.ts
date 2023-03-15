@@ -898,8 +898,8 @@ export interface WrfLayer
   time_step: number;
   dt: number;
   plot_type: string;
-  //zoom: number|undefined;
-  //handleZoomChange: Function;
+  zoom: number|undefined;
+  handleZoomChange: Function;
 }
 
 export interface WrfJob
