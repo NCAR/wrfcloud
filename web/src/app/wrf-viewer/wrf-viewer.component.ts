@@ -17,7 +17,6 @@ import {GeoJSON} from "ol/format";
 import VectorLayer from "ol/layer/Vector";
 import {Fill, Stroke, Style, RegularShape} from "ol/style";
 import {Layer} from "ol/layer";
-//import LayerGroup from "ol/layer/Group";
 import {Size} from "ol/size";
 import Feature from 'ol/Feature.js';
 import Point from 'ol/geom/Point.js';
@@ -335,9 +334,9 @@ export class WrfViewerComponent implements OnInit
       features = this.readFeaturesVector(geojsonObject);
       style = this.selfVectorStyle.bind(this);
 
-      layer.zoom = this.map!.getView().getZoom();
-      layer.handleZoomChange = this.doZoomChange;
-      this.map!.getView().on('change:resolution', layer.handleZoomChange.bind(this, layer, vectorLayer));
+      //layer.zoom = this.map!.getView().getZoom();
+      //layer.handleZoomChange = this.doZoomChange;
+      //this.map!.getView().on('change:resolution', layer.handleZoomChange.bind(this, layer, vectorLayer));
     }
     else {
       return;
@@ -367,6 +366,7 @@ export class WrfViewerComponent implements OnInit
 
   private getVectorSpacing(zoom: number|undefined): number
   {
+    // currently always use 1 spacing which does not subset wind vectors
     return 1;
     // if(!zoom || zoom >= 4.0) {
     //   return 1;
@@ -564,7 +564,7 @@ export class WrfViewerComponent implements OnInit
   private selfVectorStyle(feature: any): Style[]
   {
     const vectorScale = this.getVectorScale(this.map?.getView().getZoom());
-    console.log('scale: ' + vectorScale);
+    //console.log('scale: ' + vectorScale);
     const shaft = new RegularShape({
       points: 2,
       radius: 5,
@@ -610,20 +610,23 @@ export class WrfViewerComponent implements OnInit
   }
 
   /**
-   * Handle zoom on the map event
+   * Handle zoom on the map event -- regenerates features if needed
+   * Currently not used, but could be used if we increase the number of wind vectors
+   * and want to reduce the number of vectors that are displayed
    *
    * @param event
    * @private
    */
+  /*
   private doZoomChange(layer: WrfLayer, vectorLayer: VectorLayer<any>, event: any): void
   {
     const new_zoom = event.target.values_.zoom;
     const new_spacing = this.getVectorSpacing(new_zoom);
     const old_spacing = this.getVectorSpacing(layer.zoom);
-    console.log('zoom: ' + layer.zoom + ' -> ' + new_zoom);
+    //console.log('zoom: ' + layer.zoom + ' -> ' + new_zoom);
 
     if (new_spacing != old_spacing) {
-      console.log('spacing: ' + old_spacing + ' -> ' + new_spacing);
+      //console.log('spacing: ' + old_spacing + ' -> ' + new_spacing);
       const features = this.readFeaturesVector(layer.layer_data);
       let source = vectorLayer.getSource();
       source.clear();
@@ -633,6 +636,7 @@ export class WrfViewerComponent implements OnInit
     layer.zoom = new_zoom;
 
   }
+  */
 
   /**
    *
