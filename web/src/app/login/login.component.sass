@@ -16,7 +16,8 @@
   display: grid
 
 .login-button
-  background-color: $accent-blue
+  background-color: $background-edit
+  color: $text-contrast
   font-size: 1.5rem
   padding: 5px 0 5px 0
 
@@ -25,7 +26,7 @@
   text-align: center
 
 .login-forgot:hover
-  color: $accent-blue-dark
+  color: $text-emphasize
   text-decoration: underline
   cursor: pointer
 
@@ -49,11 +50,10 @@
 
   .login-container
     max-width: 800px
-    border: 2px solid $dark-gray
-    border-radius: 20px
+    border: 1px solid $background-contrast
+    border-radius: 8px
     padding: 40px
-    background-image: linear-gradient($bg1, $bg2)
-    margin-top: 15vh
+    background-color: $background-plain
 
   .login-input-container
     width: 80%
