@@ -367,22 +367,14 @@ export class WrfViewerComponent implements OnInit
 
   private getVectorSpacing(zoom: number|undefined): number
   {
-    // if(!zoom || zoom >= 4.3) {
+    return 1;
+    // if(!zoom || zoom >= 4.0) {
     //   return 1;
     // }
-    // if (zoom >= 3.6) {
+    // if (zoom >= 2.0) {
     //   return 2;
     // }
-    // if (zoom >= 3.0) {
-    //   return 3;
-    // }
-    if(!zoom || zoom >= 4.0) {
-      return 1;
-    }
-    if (zoom >= 2.0) {
-      return 2;
-    }
-    return 3;
+    // return 3;
   }
   private getVectorScale(zoom: number|undefined): number
   {
