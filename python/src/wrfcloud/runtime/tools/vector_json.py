@@ -55,56 +55,50 @@ class VectorJson:
             # get the data, lat, and lon grids of each field
             grids = {}
             for var_id, var_name in self.input_variables.items():
-                grid, grid_lat, grid_lon = self._read_var_from_netcdf(var_name)
+                grid, dx, dy = self._read_var_from_netcdf(var_name)
                 grids[var_id] = grid
-                # save grid lat/lon arrays and ensure they match
-                if self.grid_lat is None or self.grid_lon is None:
-                    self.grid_lat, self.grid_lon = grid_lat, grid_lon
-                else:
-                    assert len(self.grid_lat) == len(grid_lat)
-                    assert len(self.grid_lon) == len(grid_lon)
 
             # loop through grid points and create vector JSON file
             items = []
+            skip_x, skip_y = self._get_skip_values(dx, dy)
             first_field = list(grids.keys())[0]
-            # TODO: Determine how to skip points -- ~1 degree per point?
             for y, row in enumerate(grids[first_field]):
-                if y % 20 != 0: continue
+                if y % skip_y != 0: continue
                 for x in range(0, len(row)):
-                    if x % 20 != 0: continue
+                    if x % skip_x != 0: continue
                     lon, lat = self._grid_to_lonlat(x, y)
                     item = {'coord': {'lon': f'{lon:.2f}', 'lat': f'{lat:.2f}'},
                             self.variable: {}}
                     for field, grid in grids.items():
                         item[self.variable][field] = f'{grid[y][x]:.1f}'
                     items.append(item)
-            doc = {'vectors': items}
+            # save number of points in a row to allow subsetting in display
+            row_length = str(len(row) // skip_x)
+            doc = {'vectors': items, 'row_length': row_length}
 
             # return the document if no output file was provided
             if out_file is None:
                 return doc
 
             # write the data to a file or return as a string if no data were
-            with open(out_file, 'wb') as file:
-                file.write(compress(json.dumps(doc).encode()))
-                file.flush()
-                file.close()
+            with open(out_file, 'wb') as file_handle:
+                file_handle.write(compress(json.dumps(doc).encode()))
         except Exception as e:
             self.log.error(f'Exception occurred trying to create {out_file}: {e}')
 
         return None
 
-    def _read_var_from_netcdf(self, variable: str) -> (MaskedArray, MaskedArray, MaskedArray):
+    def _read_var_from_netcdf(self, variable: str) -> (MaskedArray, int, int):
         """
-        Read the variable data, latitude, and longitude grids from a NetCDF file
-        :return: data, latitude, longitude
+        Read the variable data, lat, and lon grids, dx/dy values from a NetCDF file
+        Save grid_lat and grid_lon in class variables
+        :return: data, delta x, delta y
         """
         # open the NetCDF file and get the requested horizontal slice
         # pylint thinks that the Dataset class does not exist in netCDF4 pylint: disable=E1101
         wrf = netCDF4.Dataset(self.wrf_file)
         data = wrf[variable]
-        time_index = 0
-        grid = data[:] if data.dimensions[0] != 'Time' else data[time_index]
+        grid = data[:] if data.dimensions[0] != 'Time' else data[0]
         if self.z_level:
             z_index = None
             for idx, z_val in enumerate(wrf[data.dimensions[0]]):
@@ -115,10 +109,19 @@ class VectorJson:
             grid = grid[z_index]
 
         # get the latitude and longitude grids
-        grid_lat = wrf['XLAT'][0]
-        grid_lon = wrf['XLONG'][0]
+        self.grid_lat = wrf['XLAT'][0]
+        self.grid_lon = wrf['XLONG'][0]
 
-        return grid, grid_lat, grid_lon
+        # get dx/dy from global attributes
+        dx = int(wrf.getncattr('DX'))
+        dy = int(wrf.getncattr('DY'))
+
+        return grid, dx, dy
+
+    @staticmethod
+    def _get_skip_values(dx: int, dy: int):
+        meters_between_points = 40000  # 40 km
+        return meters_between_points // dx, meters_between_points // dy
 
     def _grid_to_lonlat(self, x: float, y: float) -> (float, float):
         """
@@ -127,7 +130,6 @@ class VectorJson:
         :param y: The Y position on the grid
         :return: Longitude and latitude
         """
-        # TODO: move this to common area since it is here and geojson.py
         # get the integer grid indices
         x1 = int(x)
         y1 = int(y)
@@ -163,8 +165,8 @@ def main():
     parser.add_argument('--in-file', type=str, help='Full path to the WRF file', required=True)
     parser.add_argument('--out-file', type=str, help='Full path to the output file', required=False)
     parser.add_argument('--variable', type=str, help='Variable from the WRF file, required if auto not set', required=False)
-    parser.add_argument('--wind_speed', type=str, help='Variable name of wind speed, required if creating wind variable', required=False)
-    parser.add_argument('--wind_dir', type=str, help='Variable name of wind direction, required if creating wind variable', required=False)
+    parser.add_argument('--wind-speed', type=str, help='Variable name of wind speed, required if creating wind variable', required=False)
+    parser.add_argument('--wind-dir', type=str, help='Variable name of wind direction, required if creating wind variable', required=False)
     parser.add_argument('--z-level', type=int, help='Z-level if a 3D field', required=False)
     parser.add_argument('--auto', help='Automatically creates full output set', required=False, action='store_true')
     args = parser.parse_args()
@@ -181,7 +183,7 @@ def main():
         input_vars['speed'] = args.wind_speed or None
         input_vars['direction'] = args.wind_dir or None
         if None in input_vars:
-            print('ERROR: Must set --wind_speed and --wind_dir if setting --variable wind')
+            print('ERROR: Must set --wind-speed and --wind-dir if setting --variable wind')
             return
     else:
         print('ERROR: Invalid value set for --variable')
@@ -260,7 +262,6 @@ def automate_vector_products(wrf_file: str) -> List[WrfLayer]:
             wrf_layer.layer_data = out_file
             wrf_layer.z_level = z_level
 
-            # TODO: pull out into function to call hera and geojson.py
             with netCDF4.Dataset(wrf_file) as wrf_nc:
                 file_time = wrf_nc['Times'][:].tobytes().decode()
                 dt = datetime.strptime(file_time, '%Y-%m-%d_%H:%M:%S')
