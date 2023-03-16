@@ -74,7 +74,7 @@ class VectorJson:
                     items.append(item)
             # save number of points in a row to allow subsetting in display
             row_length = str(len(row) // skip_x)
-            doc = {'vectors': items, 'row_length': row_length}
+            doc = {'vectors': items, 'row_length': row_length, 'dx': dx, 'dy': dy}
 
             # return the document if no output file was provided
             if out_file is None:
