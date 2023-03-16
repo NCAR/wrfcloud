@@ -41,6 +41,7 @@ class VectorJson:
         self.grid_lat = None
         self.grid_lon = None
         self.time_step = 0
+        self.meters_between_points = 20000  # 20 km
 
     def convert(self, out_file: Union[str, None]) -> Union[None, dict]:
         """
@@ -74,7 +75,8 @@ class VectorJson:
                     items.append(item)
             # save number of points in a row to allow subsetting in display
             row_length = str(len(row) // skip_x)
-            doc = {'vectors': items, 'row_length': row_length, 'dx': dx, 'dy': dy}
+            doc = {'vectors': items, 'row_length': row_length,
+                   'dx': self.meters_between_points, 'dy': self.meters_between_points}
 
             # return the document if no output file was provided
             if out_file is None:
@@ -118,11 +120,8 @@ class VectorJson:
 
         return grid, dx, dy
 
-    @staticmethod
-    def _get_skip_values(dx: int, dy: int):
-        return 1, 1
-        meters_between_points = 40000  # 40 km
-        return meters_between_points // dx, meters_between_points // dy
+    def _get_skip_values(self, dx: int, dy: int):
+        return self.meters_between_points // dx, self.meters_between_points // dy
 
     def _grid_to_lonlat(self, x: float, y: float) -> (float, float):
         """
