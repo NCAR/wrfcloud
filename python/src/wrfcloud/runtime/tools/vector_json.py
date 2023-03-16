@@ -120,6 +120,7 @@ class VectorJson:
 
     @staticmethod
     def _get_skip_values(dx: int, dy: int):
+        return 1, 1
         meters_between_points = 40000  # 40 km
         return meters_between_points // dx, meters_between_points // dy
 
