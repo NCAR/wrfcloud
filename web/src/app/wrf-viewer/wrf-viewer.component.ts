@@ -369,14 +369,26 @@ export class WrfViewerComponent implements OnInit
     // determine how many vectors to skip based on zoom value
     // 1 displays all vectors, 2 skips 1 row and column, 3 skips 2 rows and columns, etc.
 
-    // if zoom is undefined, return default of 2
+    // if zoom is undefined
     if(!zoom) {
-      return 2;
+      return 5;
     }
-    if(zoom >= 7.0) {
+    if(zoom >= 6.0) {
       return 1;
     }
-    return 2;
+    if(zoom >= 5.2) {
+      return 2;
+    }
+    if(zoom >= 4.7) {
+      return 3;
+    }
+    if(zoom >= 3.7) {
+      return 4;
+    }
+    if(zoom >= 3.3) {
+      return 5;
+    }
+    return 6;
   }
   private getVectorScale(zoom: number|undefined): number
   {
@@ -625,10 +637,10 @@ export class WrfViewerComponent implements OnInit
     const new_zoom = event.target.values_.zoom;
     const new_spacing = this.getVectorSpacing(new_zoom);
     const old_spacing = this.getVectorSpacing(layer.zoom);
-    //console.log('zoom: ' + layer.zoom + ' -> ' + new_zoom);
+    console.log('zoom: ' + layer.zoom + ' -> ' + new_zoom);
 
     if (new_spacing != old_spacing) {
-      //console.log('spacing: ' + old_spacing + ' -> ' + new_spacing);
+      console.log('spacing: ' + old_spacing + ' -> ' + new_spacing);
       const features = this.readFeaturesVector(layer.layer_data);
       let source = vectorLayer.getSource();
       source.clear();
