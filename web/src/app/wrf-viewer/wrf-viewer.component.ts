@@ -368,6 +368,7 @@ export class WrfViewerComponent implements OnInit
   {
     // determine how many vectors to skip based on zoom value
     // 1 displays all vectors, 2 skips 1 row and column, 3 skips 2 rows and columns, etc.
+    // TODO: improve logic to adjust spacing based on the projection, grid spacing, etc.
 
     // if zoom is undefined
     if(!zoom) {
@@ -392,6 +393,7 @@ export class WrfViewerComponent implements OnInit
   }
   private getVectorScale(zoom: number|undefined): number
   {
+    // determine the multiplier to scale the wind arrows based on the current zoom
     if(!zoom || zoom >= 4.8) {
       return 1.0;
     }
@@ -409,14 +411,13 @@ export class WrfViewerComponent implements OnInit
     // read map zoom and determine how many points to skip
     const spacing = this.getVectorSpacing(this.map?.getView().getZoom());
     let features: Feature[] = [];
-    // TODO: read the number of vector points in a row instead of hard-coding
-    const row_length: number = Number(geojsonObject['row_length'] || 30);
+    const row_length: number = Number(geojsonObject['row_length']);
     geojsonObject['vectors'].forEach(function(vector: VectorData, i: number){
       // skip rows and columns of points based on spacing
       if(i % spacing != 0 || Math.floor(i/row_length) % spacing != 0) {
         return;
       }
-
+      // uses EPSG:4326 projection to match projection set by useGeographic()
       const feature = new Feature(
           new Point(fromLonLat([parseFloat(vector['lon']), parseFloat(vector['lat'])], 'EPSG:4326'))
       );
@@ -509,7 +510,6 @@ export class WrfViewerComponent implements OnInit
           opacityChange: this.doChangeOpacity.bind(this),
           visibilityChange: this.doToggleLayer.bind(this)
         };
-
         this.layerGroups[this.layerGroups.length] = layerGroup;
       }
 
