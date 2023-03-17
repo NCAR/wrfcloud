@@ -638,10 +638,10 @@ export class WrfViewerComponent implements OnInit
     const new_zoom = event.target.values_.zoom;
     const new_spacing = this.getVectorSpacing(new_zoom);
     const old_spacing = this.getVectorSpacing(layer.zoom);
-    console.log('zoom: ' + layer.zoom + ' -> ' + new_zoom);
+    //console.log('zoom: ' + layer.zoom + ' -> ' + new_zoom);
 
     if (new_spacing != old_spacing) {
-      console.log('spacing: ' + old_spacing + ' -> ' + new_spacing);
+      //console.log('spacing: ' + old_spacing + ' -> ' + new_spacing);
       const features = this.readFeaturesVector(layer.layer_data);
       let source = vectorLayer.getSource();
       source.clear();
