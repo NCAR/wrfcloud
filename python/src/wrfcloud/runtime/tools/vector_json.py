@@ -68,10 +68,9 @@ class VectorJson:
                 for x in range(0, len(row)):
                     if x % skip_x != 0: continue
                     lon, lat = self._grid_to_lonlat(x, y)
-                    item = {'coord': {'lon': f'{lon:.2f}', 'lat': f'{lat:.2f}'},
-                            self.variable: {}}
+                    item = {'lon': f'{lon:.2f}', 'lat': f'{lat:.2f}'}
                     for field, grid in grids.items():
-                        item[self.variable][field] = f'{grid[y][x]:.1f}'
+                        item[f'{self.variable}_{field}'] = f'{grid[y][x]:.1f}'
                     items.append(item)
             # save number of points in a row to allow subsetting in display
             row_length = str(len(row) // skip_x)
