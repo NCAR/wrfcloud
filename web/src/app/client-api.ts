@@ -993,14 +993,10 @@ export interface GetWrfGeoJsonResponse extends ApiResponse
 
 export interface VectorData
 {
-  coord: {
-    lon: string;
-    lat: string;
-  }
-  wind: {
-    speed: string;
-    direction: string;
-  }
+  lon: string;
+  lat: string;
+  wind_speed: string;
+  wind_direction: string;
 }
 
 export interface ListJobRequest

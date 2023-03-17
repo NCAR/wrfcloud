@@ -418,7 +418,7 @@ export class WrfViewerComponent implements OnInit
       }
 
       const feature = new Feature(
-          new Point(fromLonLat([parseFloat(vector['coord']['lon']), parseFloat(vector['coord']['lat'])], 'EPSG:4326'))
+          new Point(fromLonLat([parseFloat(vector['lon']), parseFloat(vector['lat'])], 'EPSG:4326'))
       );
       feature.setProperties(vector);
       features.push(feature);
@@ -598,10 +598,11 @@ export class WrfViewerComponent implements OnInit
       rotateWithView: true,
     });
     const styles = [new Style({image: shaft}), new Style({image: head})];
-    const wind = feature.get('wind');
+    const wind_direction = feature.get('wind_direction');
+    const wind_speed = feature.get('wind_speed');
     // rotate arrow away from wind origin
-    const angle = ((parseFloat(wind.direction) - 180) * Math.PI) / 180;
-    const scale = vectorScale * parseFloat(wind.speed) / 10;
+    const angle = ((parseFloat(wind_direction) - 180) * Math.PI) / 180;
+    const scale = vectorScale * parseFloat(wind_speed) / 10;
     shaft.setScale([1, scale]);
     shaft.setRotation(angle);
     head.setDisplacement([
