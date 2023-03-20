@@ -897,6 +897,9 @@ export interface WrfLayer
   z_level: number;
   time_step: number;
   dt: number;
+  plot_type: string;
+  zoom: number|undefined;
+  handleZoomChange: Function;
 }
 
 export interface WrfJob
@@ -986,6 +989,14 @@ export interface GetWrfGeoJsonResponse extends ApiResponse
     z_level: number;
     geojson: string
   }
+}
+
+export interface VectorData
+{
+  lon: string;
+  lat: string;
+  wind_speed: string;
+  wind_direction: string;
 }
 
 export interface ListJobRequest

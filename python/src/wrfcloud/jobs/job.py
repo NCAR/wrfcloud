@@ -549,6 +549,7 @@ class WrfLayer:
         self.z_level: Union[int, None] = None
         self.time_step: float = 0
         self.dt: int = 0
+        self.plot_type: str = 'contour'  # or "vector"
 
         # initialize from data if provided
         if data is not None:
@@ -579,6 +580,7 @@ class WrfLayer:
             'z_level': self.z_level,
             'time_step': self.time_step,
             'dt': self.dt,
+            'plot_type': self.plot_type,
         }
 
     @data.setter
@@ -597,6 +599,7 @@ class WrfLayer:
         self.z_level = data['z_level'] if 'z_level' in data else None
         self.time_step = data['time_step'] if 'time_step' in data else 0
         self.dt = data['dt'] if 'dt' in data else 0
+        self.plot_type = data['plot_type'] if 'plot_type' in data else 'contour'
 
 
 class Palette:

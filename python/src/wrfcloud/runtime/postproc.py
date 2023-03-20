@@ -15,6 +15,7 @@ from wrfcloud.runtime import Process
 from wrfcloud.log import Logger
 from wrfcloud.runtime.tools import check_wd_exist
 from wrfcloud.runtime.tools.geojson import automate_geojson_products
+from wrfcloud.runtime.tools.vector_json import automate_vector_products
 from wrfcloud.runtime.tools.derivations import derive_fields
 from wrfcloud.system import get_aws_session
 
@@ -217,10 +218,10 @@ class GeoJson(Process):
         """
         try:
             # create the geojson files
-            self._convert_to_geojson()
+            self._convert_to_layer()
 
-            # upload the geojson files to S3
-            ok = self._upload_geojson_files()
+            # upload the geojson/json files to S3
+            ok = self._upload_layer_data_files()
 
             # set the WRF layers in the job
             self.job.layers = self.wrf_layers
@@ -228,23 +229,27 @@ class GeoJson(Process):
             return ok
 
         except Exception as e:
-            self.log.error('Failed to convert and/or upload GeoJSON files.', e)
+            self.log.error('Failed to convert and/or upload JSON files.', e)
             return False
 
-    def _convert_to_geojson(self) -> None:
+    def _convert_to_layer(self) -> None:
         """
-        Convert the GRIB2 files into GeoJSON files
+        Convert the GRIB2/NetCDF files into GeoJSON files
         :return: List of WRF layer details
         """
         self.wrf_layers = []
         for nc_file in self.nc_files:
+            # create layers for contour GeoJSON products
             for wrf_layer in automate_geojson_products(nc_file, 'netcdf'):
+                self.wrf_layers.append(wrf_layer)
+            # create layers for vector products
+            for wrf_layer in automate_vector_products(nc_file):
                 self.wrf_layers.append(wrf_layer)
         for grib_file in self.grib_files:
             for wrf_layer in automate_geojson_products(grib_file, 'grib2'):
                 self.wrf_layers.append(wrf_layer)
 
-    def _upload_geojson_files(self) -> bool:
+    def _upload_layer_data_files(self) -> bool:
         """
         Upload all geojson files to S3
         :return: True if successful, otherwise False
@@ -265,7 +270,8 @@ class GeoJson(Process):
             domain = 'DXX'
             var_name = layer.variable_name
             z_level = layer.z_level if layer.z_level is not None else 0
-            key = f'{prefix}/{job_id}/wrf_{domain}_{layer.dt_str}_{var_name}_{z_level}.geojson.gz'
+            file_type = 'json' if layer.plot_type == 'vector' else 'geojson'
+            key = f'{prefix}/{job_id}/wrf_{domain}_{layer.dt_str}_{var_name}_{z_level}.{file_type}.gz'
             self.log.debug(f'Uploading s3://{bucket}/{key}')
             # upload the file to an S3 object
             try:
@@ -273,10 +279,10 @@ class GeoJson(Process):
                 upload_count += 1
                 layer.layer_data = f's3://{bucket}/{key}'
             except Exception as e:
-                self.log.warn(f'Failed to upload GeoJSON file: {layer.layer_data}', e)
+                self.log.warn(f'Failed to upload JSON file: {layer.layer_data}', e)
 
         # log a message if some files failed to upload
         if upload_count != len(self.wrf_layers):
-            self.log.warn(f'Failed to upload all GeoJSON files: {upload_count} of {len(self.wrf_layers)}')
+            self.log.warn(f'Failed to upload all JSON files: {upload_count} of {len(self.wrf_layers)}')
 
         return upload_count > 0
