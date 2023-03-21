@@ -59,6 +59,7 @@ setup(
             'wrfcloud-cluster=wrfcloud.aws.pcluster:main',
             'wrfcloud-run=wrfcloud.runtime.run:main',
             'wrfcloud-geojson=wrfcloud.runtime.tools.geojson:main',
+            'wrfcloud-vectorjson=wrfcloud.runtime.tools.vector_json:main',
             'wrfcloud-setup=wrfcloud.setup:setup'
         ]
     },
