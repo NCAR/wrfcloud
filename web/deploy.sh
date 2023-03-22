@@ -2,8 +2,8 @@
 
 profile="wrfcloud"
 region="us-east-2"
-distribution_id="E1TD694S70U8ZW"
-bucket="wrfcloud-afdd9908"
+distribution_id="E2TH7UTBITEE6X"
+bucket="wrfcloud-d9e029f3"
 
 rm -Rf dist/
 ng build
