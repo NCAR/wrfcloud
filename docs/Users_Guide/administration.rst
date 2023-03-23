@@ -10,9 +10,9 @@ WRF Cloud is designed to be run and managed in a self-contained way, largely neg
 
 There may be times when the primary administrator may need to access AWS resources related to WRF Cloud to debug issues. The second section below includes some cursory information about AWS recourse that may be helpful. 
 
-************************
-WRF Cloud Administration
-************************
+
+1. WRF Cloud Administration
+===========================
 
 User Roles & Permissions
 ========================
@@ -98,9 +98,9 @@ Select the "Manage Users" menu option to view a current list of users. Click on 
 
 
 
-******************
-AWS Administration
-******************
+
+2. AWS Administration
+=====================
 
 Audit Logs
 ==========
