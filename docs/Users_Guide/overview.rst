@@ -96,4 +96,4 @@ New features being considered for future releases:
 Code support
 ============
 
-At this time, support beyond the contents of this User's Guide is available through established collaborations only. Please use the contact form on wrfcloud.com for further inquires.
+Questions may be posted on the `GitHub Discussions page <https://github.com/NCAR/wrfcloud/discussions>`_.
