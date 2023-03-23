@@ -11,11 +11,11 @@ WRF Cloud is designed to be run and managed in a self-contained way, largely neg
 There may be times when the primary administrator may need to access AWS resources related to WRF Cloud to debug issues. The second section below includes some cursory information about AWS recourse that may be helpful. 
 
 
-1. WRF Cloud Administration
-===========================
+WRF Cloud Administration
+========================
 
 User Roles & Permissions
-========================
+------------------------
 
 The following definitions and table describe the user roles and corresponding permissions for each role that exist in this framework.
 
@@ -79,31 +79,31 @@ The following definitions and table describe the user roles and corresponding pe
      -  
 
 Managing Users
-==============
+--------------
 
 Users with the **Admin** role have permission to manage the users on their system. Admin users will see the menu option "Manage Users" on their User Interfact, which allows the admin to add new users, update active user roles, or delete users. Select the "Manage Users" menu option to view a current list of users. 
 
-Add a New User
---------------
+**Add a New User**
+
 Select the "Manage Users" menu option and click on the "Add User" option at the top of the page. A popup box will appear to fill in the new user's email address and name. Select the Role for that user and click "Create" An email will be sent to the new user asking them to activate their account and setup a new password.
 
-Update Roles
-------------
+**Update Roles**
+
 Select the "Manage Users" menu option to view a current list of users. Click on the user you wish to update. A popbox box with the user's information will appear. Select the new role you wish to assign and click "Update". The user will automatically be given permissions associated with this new role. 
 
-Delete a User
--------------
+**Delete a User**
+
 Select the "Manage Users" menu option to view a current list of users. Click on the user you wish to remove. A popbox box with the user's information will appear. Click "Remove" to delete the user from the system.
 
 
 
 
 
-2. AWS Administration
+AWS Administration
 =====================
 
 Audit Logs
-==========
+----------
 The API component will keep an audit log of every request received and store it in the
 DynamoDB database table.  There is currently no plan to make these logs accessible via
 the web application, but the log entries can be viewed via the AWS DynamoDB console at:
