@@ -12,7 +12,7 @@ The WRF Cloud framework is the realization of a idea years in the making to leve
 
 Contact
 -------
-Please visit www.wrfcloud.com for more information about how to become a WRF Cloud user.
+Please visit `www.wrfcloud.com <https://www.wrfcloud.com>`_ for more information about how to become a WRF Cloud user.
 
 Acronyms
 --------
