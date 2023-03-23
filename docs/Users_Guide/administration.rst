@@ -1,60 +1,106 @@
 .. _administration:
 
-*********************
-System Administration
-*********************
+******************************
+System Administration Overview
+******************************
+
+System Adminstration can broken down into two pieces: administration within AWS and administration of the WRF Cloud system. The primary administrator is the person who installed WRF Cloud on their AWS account.
+
+WRF Cloud is designed to be run and managed in a self-contained way, largely negating the need for access AWS itself. Following a successful installation of WRF Cloud, the primary administrator adds a user(s) to their WRF Cloud system with admin permissions. These admin users can then manage the access to WRF Cloud, without needing to access AWS. The system administration of WRF Cloud is described in the first section below. 
+
+There may be times when the primary administrator may need to access AWS resources related to WRF Cloud to debug issues. The second section below includes some cursory information about AWS recourse that may be helpful. 
+
+************************
+WRF Cloud Administration
+************************
 
 User Roles & Permissions
 ========================
 
 The following definitions and table describe the user roles and corresponding permissions for each role that exist in this framework.
 
-* **anonymous:** unknown user, will be prompted to sign up
+* **anonymous:** Unknown user, will be prompted to sign up
 * **readonly:** Active user in the system who will view forecasts only
 * **regular:** Active user in the system who will schedule, launch, and view forecasts
-* **admin:** Active user with admin permissions to manage users and configure systems
+* **maintainer:** Active user in the system with permissions of a regular user and can also create or update new model configurations 
+* **admin:** Active user with permissions of a maintainer and also admin permissions to manage users and the system
 
 .. list-table:: Roles and Permissions
-   :widths: 10 10 10 10 10
+   :widths: 10 10 10 10 10 10
    :header-rows: 1
    
    * -   
      - admin
+     - maintainer
      - regular
      - readonly
      - anonymous
    * - Change Password
      -   X
      -   X
+     -   X
      -   X 
-     -  
-   * - Run and Schedule Forecasts
-     -  X
-     -  X
-     -  
      -  
    * - View Forecasts 
      - X
      - X
      - X
-     - 
+     - X
+     -  
    * - List jobs  
      - X
      - X
      - X
-     - 
+     - X
+     -  
+   * - Run and Schedule Forecasts
+     -  X
+     -  X
+     -  X
+     -    
+     -   
+   * - Cancel and Delete Jobs
+     - X
+     - X
+     - X 
+     -  
+     -  
+   * - Create and Update Model Configurations
+     - X
+     - X
+     -  
+     -  
+     -  
    * - Manage Users  
      - X
-     - 
-     - 
-     - 
+     -   
+     -  
+     -  
+     -  
+
+Managing Users
+==============
+
+Users with the **Admin** role have permission to manage the users on their system. Admin users will see the menu option "Manage Users" on their User Interfact, which allows the admin to add new users, update active user roles, or delete users. Select the "Manage Users" menu option to view a current list of users. 
+
+Add a New User
+--------------
+Select the "Manage Users" menu option and click on the "Add User" option at the top of the page. A popup box will appear to fill in the new user's email address and name. Select the Role for that user and click "Create" An email will be sent to the new user asking them to activate their account and setup a new password.
+
+Update Roles
+------------
+Select the "Manage Users" menu option to view a current list of users. Click on the user you wish to update. A popbox box with the user's information will appear. Select the new role you wish to assign and click "Update". The user will automatically be given permissions associated with this new role. 
+
+Delete a User
+-------------
+Select the "Manage Users" menu option to view a current list of users. Click on the user you wish to remove. A popbox box with the user's information will appear. Click "Remove" to delete the user from the system.
 
 
-Adding Users
-============
 
-Users with the **Admin** role have permission to add new users to the system. This option will be available to users with these permissions on the system's website under the "Manage Users" tab. Click the Add User to begin the process.
 
+******************
+AWS Administration
+******************
 
 Audit Logs
 ==========
