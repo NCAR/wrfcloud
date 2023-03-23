@@ -73,6 +73,8 @@ function install_nodejs16()
   wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
   source ~/.bashrc
   nvm install 16
+  source ~/.bashrc
+  export node_version=$(${NVM_BIN}/node --version)
 }
 
 # Install Angular 14 command line interface
@@ -81,8 +83,10 @@ function install_nodejs16()
 function install_angular14()
 {
   npm install -g @angular/cli@14
-  chmod +x ${HOME}/.nvm/versions/node/v16.19.0/lib/node_modules/@angular/cli/bin/ng.js
+  chmod +x ${HOME}/.nvm/versions/node/${node_version}/lib/node_modules/@angular/cli/bin/ng.js
   echo -n 'ewogICIkc2NoZW1hIjogIi4vbm9kZV9tb2R1bGVzL0Bhbmd1bGFyL2NsaS9saWIvY29uZmlnL3NjaGVtYS5qc29uIiwKICAidmVyc2lvbiI6IDEsCiAgImNsaSI6IHsKICAgICJjb21wbGV0aW9uIjogewogICAgICAicHJvbXB0ZWQiOiB0cnVlCiAgICB9CiAgfSwKICAicHJvamVjdHMiOiB7fQp9' | base64 -d > .angular-config.json
+  echo -n 'CiMgTG9hZCBBbmd1bGFyIENMSSBhdXRvY29tcGxldGlvbi4Kc291cmNlIDwobmcgY29tcGxldGlvbiBzY3JpcHQpCg==' | base64 -d >> ~/.bashrc
+  source ~/.bashrc
 }
 
 # Create a zip file for the lambda layer
@@ -96,8 +100,8 @@ function create_wrfcloud_lambda_layer()
   cd install/python/lib
   rm -Rf pygrib pygrib.libs matplotlib numpy numpy.libs pyproj netCDF4 netCDF4.libs Pillow.libs fontTools kiwisolver setuptools cftime PIL contourpy botocore pyproj.libs mpl_toolkits wrfcloud
   cd ../../
-  ln -s ~/.nvm/versions/node/v16.19.0 $(pwd)/node
-  rm -f ~/.nvm/versions/node/v16.19.0/v16.19.0
+  ln -s ~/.nvm/versions/node/${node_version} $(pwd)/node
+  rm -f ~/.nvm/versions/node/${node_version}/${node_version}
   zip -r "${build_dir}/lambda_layer.zip" python/lib node/bin node/include node/share node/lib/node_modules/corepack node/lib/node_modules/npm
 }
 
