@@ -157,7 +157,7 @@ A table of jobs that have been launched can be found under the WRF Jobs menu opt
 * **Status:** The current status and progress of the forecast. 
 
 Managing a WRF Job
------------------
+------------------
 Clicking on the row of a particular job with popup a window with complete job information along with status information and links to the forecast viewer.
 
 **Cancel or Delete a Job**
