@@ -4,7 +4,7 @@
 User Interface
 **************
 
-Users access the WRF cloud system through a web browser and domain name unique to each organization. In this documentation, app.wrfcloud.com may be used as an example. This website serves as the primary user interface (UI) through which users are able to view, launch, and monitor forecasts as well as manage user accounts, depending on each user's role and corresponding permissions (see (see System Administration Roles and Permissions :numref:`roles`). Users can navigate the site using the Menu options. The Menu options are described below. 
+Users access the WRF cloud system through a web browser and domain name unique to each organization. In this documentation, app.wrfcloud.com may be used as an example. This website serves as the primary user interface (UI) through which users are able to view, launch, and monitor forecasts as well as manage user accounts, depending on each user's role and corresponding permissions (see System Administration Roles and Permissions :numref:`roles`). Users can navigate the site using the Menu options. The Menu options are described below. 
 
 Homepage
 ========
@@ -14,7 +14,7 @@ The main home pages contains brief information about the system and is an access
 Login / Logout
 --------------
 
-To Login to the system, click on the green Login button on the Homepage. This will take you to a prompt to enter your Email Address and Password, and then you can click the blue Login button. If your credentials are propoerly validated, you'll be taken to the main system page. Once logged into the system, you can logout by clicking the "Logout" button.
+To Login to the system, click on the blue Login button on the Homepage. This will take you to a prompt to enter your Email Address and Password, and then you can click the blue Login button. If your credentials are propoerly validated, you'll be taken to the main system page. Once logged into the system, you can logout by clicking the "Logout" button.
 
 Forgot / Reset password
 ----------------------- 
@@ -30,8 +30,8 @@ The Run WRF tab is where you can launch a new WRF run. There are several paramet
 
 * **Model Confiuration:** Name of the model configuration. The list of available model configurations will appear in the dropdown menu. These are created using the WRF Config Menu option (see below). 
 * **Job Name:** This is an optional name to give your run to help describe its purpose or meaning.
-* **Cycle Date:** The inital date of the forecast. Select from the calendar or enter manually in MM/DD/YYYY format. 
-* **Cyle Hour:** The inital cycle hour. Options are 00, 06, 12, 18 UTC.
+* **Cycle Date:** The inital date of the forecast. Select from the calendar or enter manually in MM/DD/YYYY format. (Please see note below)
+* **Cyle Hour:** The initial cycle hour. Options are 00, 06, 12, 18 UTC.
 * **Forecast Length:** The forecast legnth in hours.
 * **Output Frequency:** The frequency of forecast output.
 
@@ -52,13 +52,13 @@ Configuration Parameters
 ------------------------
 The following information is needed to create a new model configuration:
 
-**Name:** Name of the model configuration. This should ideally be a shorter character string, but it is helpful to provide a meaningful name to describe the model configuration details. For example, "6km_caribbean_trop" may be a name given to describe a configuration on the Caribbean Sea with 6km grid spacing that uses the tropical physics suite.  
+**Name:** Name of the model configuration. This should ideally be a shorter character string, but it is helpful to provide a meaningful name to describe the model configuration details. For example, "6km_caribbean_trop" may be a name given to describe a configuration of the Caribbean Sea with 6km grid spacing that uses the tropical physics suite.  
 
 **Description:** Additional description to provide more information about the model configuration. In the example above, "6km_caribbean_trop", the description might be "6km Caribbean Domain with standard tropical physics suite". 
 
-**WPS Namelist:** The information contained in namelist.wps. Users will primarily be interested in modifying the &geogrid sections of the namelist.wps to customize their region of interest. Note that currently the system only support single domains. Information can be found on the WRF model website.
+**WPS Namelist:** The information contained in namelist.wps. Users will primarily be interested in modifying the &geogrid section of the namelist.wps to customize their region of interest. Note that currently the system only support single domains, so max_dom must be set to 1. Additional information about these settings can be found in the `WRF Users Guide <https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.4/contents.html>`_.
 
-**WRF Namelist:** The information contained in namelist.input. Users will primarily be interested in modifying the &physics section of the namelist.input to change physics options. Note that currently the system only support single domains. Information can be found on the WRF model website. As quick start, WRF provides two sample physics suites, which include settings for two typical applications: convection-permitting weather over the contiguous U.S. and tropical storms/convection. Information can be found `here <https://www2.mmm.ucar.edu/wrf/users/physics/wrf_physics_suites.php>`_, but the settings are shown below for quick reference and use in defining a new model configuration.
+**WRF Namelist:** The information contained in namelist.input. Users will primarily be interested in modifying the &domains section to match their namelist.wps, and &physics section to change physics options. Note that currently the system only support single domains, so max_dom must be set to 1. Additional information about these settings can be found in the `WRF Users Guide <https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.4/contents.html>`_. As quick start, WRF provides two sample physics suites, which include settings for two typical applications: convection-permitting weather over the contiguous U.S. and tropical storms/convection. Information can be found `here <https://www2.mmm.ucar.edu/wrf/users/physics/wrf_physics_suites.php>`_, but the settings are shown below for quick reference and use in defining a new model configuration.
 
 .. list-table:: CONUS convection-permitting suite
    :widths: 10 10 10
@@ -118,10 +118,10 @@ The following information is needed to create a new model configuration:
 
 Limitations of Model Configuration Options
 ------------------------------------------
-* Currently the system only supports single domains
-* Initialization data is limited to GFS at a 3-hourly interval, date range of availability is generally within about 2 years
-* Regional WRF resolutions may range from about 1km to 12km
-* There are many options in WRF, choosing new configurations requires some knowledge of WRF to be successful
+* Currently the system only supports single domains.
+* Initialization data is limited to GFS at a 3-hourly interval and the date range of availability is generally within about the last 2 years.
+* Regional WRF resolutions may range from about 1km to 12km.
+* There are many options in WRF, choosing new configurations requires some knowledge of WRF to be successful.
 
 
 Managing Model Configurations
@@ -131,15 +131,17 @@ Managing Model Configurations
 To create a new model configuration, users can either do so from scratch or duplicate an existing config and save as new.
 
 Option 1. From scratch:
-   Click on the "Add Config" button and Create WRF Configuration window will popup. Enter a new name and description. The user can populate the WPS NAmelist and WRF Namelist sections by either copy and paste from local file, enter the text manually, or uploading a file from their local computer using the "Load File" button. Set the appropriate number of cores. Then click "Save".
+   Click on the "Add Config" button and the Create WRF Configuration window will pop up. Enter a new name and description. The user can populate the WPS Namelist and WRF Namelist sections by either copy and paste from local file, enter the text manually, or uploading a file from their local computer using the "Load File" button. Set the appropriate number of cores. Then click "Save".
    
 Option 2. From existing config (duplicate and save as new):
    As an alternative to avoid needing a local file, users can start with an existing configuration and duplicate it to use it as a guide or template, then modify the settings, and save it as a new model configuration name. To duplicate an existing model configuration, click on the Configuration name and a new Edit window will pop up. Click on the "Duplicate" button and a fresh editing window will appear with a copy of the configuration. You can then enter a new Name, make changes to the namelist, and click save. The new configuration will then appear in your list. 
 
 **Update existing config**
+
 To update an existing model configuration, click on the Configuration name and a new Edit window will pop up. Make the desired changes and click the "Update" button.
 
 **Remove config**
+
 To remove an existing model configuration completely, click on the Configuration name and a new Edit window will pop up. Click the "Remove" button to remove.
 
 
@@ -158,19 +160,20 @@ A table of jobs that have been launched can be found under the WRF Jobs menu opt
 
 Managing a WRF Job
 ------------------
-Clicking on the row of a particular job with popup a window with complete job information along with status information and links to the forecast viewer.
+Clicking on the row of a particular job will pop up a window with complete job information along with status information and links to the forecast viewer.
 
 **Cancel or Delete a Job**
-There is also a "Delete" button if the user wants to remove a completed job, or there will be a "Cancel" button if the user wants to cancel and in-progress job. 
 
-The status column will display information about the progress and processing step of that particular forecast. When a run is finished, this column will say "Open Viewer" which can be clicked to go to the forecast viewer to look at forecast plots.
+There is also a "Delete" button if the user wants to remove a completed job, or there a "Cancel" button if the user wants to cancel and in-progress job. 
+
+The status column will display information about the progress and processing step of that particular forecast. When a run is finished, this column will display a button called "Open Viewer" which can be clicked to go to the forecast viewer to look at forecast plots.
 
 .. _manage_users:
 
 Manage Users (Admins only)
 ==========================
 
-For users with Admin privileges, the users of the system can me managed in this tab. Click on any user name to change their role and permissions or remove from system access. To add new users, click on the "Add user" button and enter their email, Name, and select a role for permissions. (see System Administration Roles and Permissions :numref:`roles`)
+For users with Admin privileges, the users of the system can be managed in this menu option. Click on any user name to change their role and permissions or remove from system access. To add new users, click on the "Add user" button and enter their email, Name, and select a role for permissions. (see System Administration Roles and Permissions :numref:`roles`)
 
 .. _preferences:
 
