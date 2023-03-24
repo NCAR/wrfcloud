@@ -13,7 +13,7 @@ products:
   - wind:
       speed: wind_speed_pres
       direction: wind_dir_pres
-    display_name: 'Wind'
+    display_name: 'Wind (3D)'
     z_levels:
       - 1000
       - 925
