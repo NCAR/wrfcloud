@@ -117,7 +117,7 @@ export class WrfViewerComponent implements OnInit
   /**
    * List of valid height value selections
    */
-  public validHeights: number[] = [1000, 925, 850, 700, 500, 300, 250, 100];
+  public validHeights: number[] = [100, 250, 300, 500, 700, 850, 925, 1000];
 
 
   /**
@@ -689,7 +689,7 @@ export class WrfViewerComponent implements OnInit
   }
 
   /**
-   *
+   * Handle an event from the height selector changing
    * @param event
    */
   public heightChanged(event: MatSliderChange): void
