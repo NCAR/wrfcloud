@@ -13,8 +13,7 @@ Current products available for viewing include:
 
 * 2-meter Temperature
 * 2-meter Dew Point
-* 10-meter Wind Speed
-* 10-meter Wind Direction
+* 10-meter Wind (Speed/Direction vectors)
 * Mean Sea Level Pressure
 * 2-m Relative Humidity
 * CAPE
@@ -28,7 +27,6 @@ Current products available for viewing include:
 * Temperature on Pressure Levels (1000 hPa, 925 hPa, 850 hPa, 700 hPa, 500 hPa, 300 hPa, 250 hPa, 100 hPa)
 * Relative Humidity on Pressure Levels (1000 hPa, 925 hPa, 850 hPa, 700 hPa, 500 hPa, 300 hPa, 250 hPa, 100 hPa)
 * Vertical Velocity on Pressure Levels (1000 hPa, 925 hPa, 850 hPa, 700 hPa, 500 hPa, 300 hPa, 250 hPa, 100 hPa)
-* Wind Speed on Pressure Levels (1000 hPa, 925 hPa, 850 hPa, 700 hPa, 500 hPa, 300 hPa, 250 hPa, 100 hPa)
-* Wind Direction on Pressure Levels (1000 hPa, 925 hPa, 850 hPa, 700 hPa, 500 hPa, 300 hPa, 250 hPa, 100 hPa)
+* Wind (Speed/Direction vectors) on Pressure Levels (1000 hPa, 925 hPa, 850 hPa, 700 hPa, 500 hPa, 300 hPa, 250 hPa, 100 hPa)
 
 More to come!

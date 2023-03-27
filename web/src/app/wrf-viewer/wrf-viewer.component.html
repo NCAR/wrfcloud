@@ -19,19 +19,29 @@
           class="viewer-height-selector-widget"
           color="primary"
           [(ngModel)]="req.height"
-          [max]="validHeights[0]"
-          [min]="validHeights[validHeights.length - 1]"
+          [min]="validHeights[0]"
+          [max]="validHeights[validHeights.length - 1]"
           [step]="1"
           [invert]="true"
           [thumbLabel]="true"
-          [tickInterval]="200"
           [vertical]="true"
           [displayWith]="pressureLabel.bind(this)"
           (change)="heightChanged($event)">
         </mat-slider>
+        <span class="viewer-height-selector-label">Pressure Level (mb)</span>
+      </span>
+      <span class="viewer-height-selector-value-label-container">
+        <div class="viewer-height-selector-value-label" *ngFor="let value of validHeights; let i = index;" [style]="'top: calc(' + ((value-100)*0.11111) + '% - ' + i + '*1.25rem - 0.65rem'">
+          {{value}}
+        </div>
       </span>
       <div id="map" class="map"></div>
       <span class="viewer-layers">
+        <div class="viewer-political-layer">
+          <mat-checkbox class="layer-checkbox" color="primary" [(ngModel)]="politicalBoundariesVisible" (change)="togglePoliticalBoundaries()">
+            Political Boundaries
+          </mat-checkbox>
+        </div>
         <app-layer *ngFor="let layerGroup of layerGroups" [layerGroup]="layerGroup">
         </app-layer>
       </span>

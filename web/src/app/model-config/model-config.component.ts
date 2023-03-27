@@ -120,7 +120,7 @@ export class ModelConfigComponent implements OnInit
     else
     {
       /* show errors */
-      // TODO: Add this back once API works: this.app.showErrorDialog(response.errors);
+      this.app.showErrorDialog(response.errors);
     }
   }
 

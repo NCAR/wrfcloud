@@ -101,11 +101,28 @@ export class EditModelConfigurationComponent implements OnInit
     /* start the spinner */
     this.busy = true;
 
+    /* domain center and size should be computed on the server-side */
+    if (this.modelConfig.hasOwnProperty('domain_center'))
+      delete this.modelConfig['domain_center'];
+    if (this.modelConfig.hasOwnProperty('domain_size'))
+      delete this.modelConfig['domain_size'];
+
     /* send the update request to the API */
     const requestData: UpdateModelConfigurationRequest = {
       model_config: this.modelConfig
     };
     this.app.api.sendUpdateModelConfiguration(requestData, this.handleUpdateModelConfigurationResponse.bind(this));
+  }
+
+
+  /**
+   * Duplicate the configuration
+   */
+  public duplicateModelConfiguration(): void
+  {
+    this.create = true;
+    this.edit = false;
+    this.modelConfig.name = this.modelConfig.name + '_copy';
   }
 
 
@@ -164,6 +181,12 @@ export class EditModelConfigurationComponent implements OnInit
   {
     /* start the spinner */
     this.busy = true;
+
+    /* domain center and size should be computed on the server-side */
+    if (this.modelConfig.hasOwnProperty('domain_center'))
+      delete this.modelConfig['domain_center'];
+    if (this.modelConfig.hasOwnProperty('domain_center'))
+      delete this.modelConfig['domain_center'];
 
     /* send an API request to add the configuration */
     const requestData: AddModelConfigurationRequest = {model_config: this.modelConfig};

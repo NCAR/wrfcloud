@@ -3,6 +3,8 @@ web/.editorconfig
 web/.gitignore
 web/package-lock.json
 web/.vscode
+web/.angular
+web/node_modules
 __pycache__/
 .idea/
 python/src/build/

@@ -5,19 +5,21 @@ import {
   LayerRequest,
   GetWrfGeoJsonRequest,
   GetWrfGeoJsonResponse,
-  ListJobRequest, ListJobResponse, WrfLayerGroup, WrfLayer
+  ListJobRequest, ListJobResponse, WrfLayerGroup, WrfLayer, VectorData
 } from "../client-api";
 import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
-import {OSM} from 'ol/source';
+import {OSM, TileWMS} from 'ol/source';
 import {MatSliderChange} from "@angular/material/slider";
-import {useGeographic} from "ol/proj";
+import {useGeographic, fromLonLat} from "ol/proj";
 import VectorSource from "ol/source/Vector";
 import {GeoJSON} from "ol/format";
 import VectorLayer from "ol/layer/Vector";
-import {Fill, Stroke, Style} from "ol/style";
+import {Fill, Stroke, Style, RegularShape} from "ol/style";
 import {Layer} from "ol/layer";
-import LayerGroup from "ol/layer/Group";
+import {Size} from "ol/size";
+import Feature from 'ol/Feature.js';
+import Point from 'ol/geom/Point.js';
 
 @Component({
   selector: 'app-wrf-viewer',
@@ -99,16 +101,30 @@ export class WrfViewerComponent implements OnInit
 
 
   /**
+   * Layer containing political boundaries
+   * @private
+   */
+  private politicalBoundariesLayer: Layer|undefined;
+
+
+  /**
+   * Flag to indicate if political boundaries are visible or not
+   * @private
+   */
+  public politicalBoundariesVisible: boolean = false;
+
+
+  /**
    * List of valid height value selections
    */
-  public validHeights: number[] = [1000, 925, 850, 700, 500, 300, 250, 100];
+  public validHeights: number[] = [100, 250, 300, 500, 700, 850, 925, 1000];
 
 
   /**
    * Initialize the layer request
    */
   public req: LayerRequest = {
-    height: this.validHeights[0]
+    height: this.validHeights[this.validHeights.length - 1]
   };
 
 
@@ -117,6 +133,11 @@ export class WrfViewerComponent implements OnInit
    */
   public frames: {[key: string]: Layer} = {};
 
+  /**
+   * Store the latest unhandled zoom event here
+   * @private
+   */
+  private unhandledZoomEvent: any;
 
   /**
    * Get the singleton app object
@@ -172,11 +193,73 @@ export class WrfViewerComponent implements OnInit
           this.job.domain_center.longitude,
           this.job.domain_center.latitude
         ],
-        zoom: 5.5
+        zoom: 1
       })
     });
 
+    /* add a political boundaries layer that will sit on top of all other layers */
+    this.politicalBoundariesLayer = new TileLayer({
+      source: new TileWMS({
+        url: 'https://gis-maps.rap.ucar.edu/arcgis/services/POLITICAL_BASEMAP/MapServer/WMSServer',
+        params: {'LAYERS': '1,2,3,4,5,6,7', 'TRANSPARENT': true}
+      }),
+    });
+    this.politicalBoundariesLayer.setZIndex(100);
+    this.map.addLayer(this.politicalBoundariesLayer);
+    this.politicalBoundariesVisible = this.politicalBoundariesLayer.getVisible();
+
+    /* adjust the zoom extent */
+    const zoom: number = this.computeZoomLevel();
+    this.map.getView().setZoom(zoom);
+
+    /* sometimes we strangely lose the map center, so set it again */
+    this.map.getView().setCenter([this.job.domain_center.longitude, this.job.domain_center.latitude]);
+
+    /* add a map click listener */
     this.map.on('click', this.mapClicked.bind(this));
+  }
+
+
+  /**
+   * Toggle the political boundaries layer on/off
+   */
+  public togglePoliticalBoundaries(): void
+  {
+    this.politicalBoundariesLayer?.setVisible(this.politicalBoundariesVisible);
+  }
+  
+  
+  /**
+   * Compute the default zoom level based on the job's domain size
+   * @private
+   */
+  private computeZoomLevel(): number
+  {
+    /* get the map's view port size in pixels */
+    const screenSize: Size|undefined = this.map!.getSize();
+    const x: number = screenSize![0];
+    const y: number = screenSize![1];
+
+    /* fit zoom */
+    let res: number = 0;
+    const domainDistEW: number = this.job!.domain_size[0];
+    const domainDistNS: number = this.job!.domain_size[1];
+    for (let zoom = 1; zoom <= 20; zoom += 0.1)
+    {
+      /* get the map resolution in meters/pixel */
+      res = this.map!.getView().getResolutionForZoom(zoom);
+
+      /* compute the distances of the map view port at this zoom level */
+      const mapDistEW: number = Math.round(res * x);
+      const mapDistNS: number = Math.round(res * y);
+
+      /* check if the domain overflows the view port at this zoom level */
+      if (mapDistEW <= domainDistEW || mapDistNS <= domainDistNS)
+        return zoom - 0.4;  /* back off half of a skosh */
+    }
+
+    /* something bad happened, return a reasonable default */
+    return 5.5;
   }
 
 
@@ -241,10 +324,31 @@ export class WrfViewerComponent implements OnInit
     const geojsonObject = JSON.parse(atob(response.data.geojson));
     layer.layer_data = geojsonObject;
 
+    const vectorSource = new VectorSource();
+    const vectorLayer = new VectorLayer({source: vectorSource});
+
     /* create a new layer for the map */
-    const vectorSource = new VectorSource({features: new GeoJSON().readFeatures(geojsonObject)});
-    const vectorLayer = new VectorLayer({source: vectorSource, style: WrfViewerComponent.selfStyle});
-    vectorLayer.setOpacity(layer.opacity);
+    let features: Feature[];
+    let style;
+    if (layer.plot_type === 'contour') {
+      features = new GeoJSON().readFeatures(geojsonObject);
+      style = WrfViewerComponent.selfContourStyle;
+      vectorLayer.setOpacity(layer.opacity);
+    }
+    else if (layer.plot_type === 'vector') {
+      features = this.readFeaturesVector(geojsonObject);
+      style = this.selfVectorStyle.bind(this);
+
+      layer.zoom = this.map!.getView().getZoom();
+      layer.handleZoomChange = this.doZoomChange;
+      this.map!.getView().on('change:resolution', layer.handleZoomChange.bind(this, layer, vectorLayer));
+    }
+    else {
+      return;
+    }
+
+    vectorSource.addFeatures(features);
+    vectorLayer.setStyle(style);
 
     /* cache the layer in the frames map */
     const frameKey = WrfViewerComponent.generateFrameKey(response.data);
@@ -265,6 +369,69 @@ export class WrfViewerComponent implements OnInit
       this.showSelectedTimeFromLayerGroup(layerGroup);
   }
 
+  private getVectorSpacing(zoom: number|undefined): number
+  {
+    // determine how many vectors to skip based on zoom value
+    // 1 displays all vectors, 2 skips 1 row and column, 3 skips 2 rows and columns, etc.
+    // TODO: improve logic to adjust spacing based on the projection, grid spacing, etc.
+
+    // if zoom is undefined
+    if(!zoom) {
+      return 5;
+    }
+    if(zoom >= 6.0) {
+      return 1;
+    }
+    if(zoom >= 5.2) {
+      return 2;
+    }
+    if(zoom >= 4.7) {
+      return 3;
+    }
+    if(zoom >= 3.7) {
+      return 4;
+    }
+    if(zoom >= 3.3) {
+      return 5;
+    }
+    return 6;
+  }
+  private getVectorScale(zoom: number|undefined): number
+  {
+    // determine the multiplier to scale the wind arrows based on the current zoom
+    if(!zoom || zoom >= 4.8) {
+      return 1.0;
+    }
+    if (zoom >= 4.3) {
+      return 0.9;
+    }
+    if (zoom >= 4.0) {
+      return 0.8;
+    }
+    return 0.7;
+  }
+
+  private readFeaturesVector(geojsonObject: any): Feature[]
+  {
+    // read map zoom and determine how many points to skip
+    const spacing = this.getVectorSpacing(this.map?.getView().getZoom());
+    let features: Feature[] = [];
+    const row_length: number = Number(geojsonObject['row_length']);
+    geojsonObject['vectors'].forEach(function(vector: VectorData, i: number){
+      // skip rows and columns of points based on spacing
+      if(i % spacing != 0 || Math.floor(i/row_length) % spacing != 0) {
+        return;
+      }
+      // uses EPSG:4326 projection to match projection set by useGeographic()
+      const feature = new Feature(
+          new Point(fromLonLat([parseFloat(vector['lon']), parseFloat(vector['lat'])], 'EPSG:4326'))
+      );
+      feature.setProperties(vector);
+      features.push(feature);
+    });
+    return features;
+
+  }
 
   /**
    *
@@ -286,6 +453,7 @@ export class WrfViewerComponent implements OnInit
     });
     this.frames[key].setVisible(true);
   }
+
 
   /**
    * Send a request to get selected job details
@@ -400,11 +568,54 @@ export class WrfViewerComponent implements OnInit
    * @param feature
    * @private
    */
-  private static selfStyle(feature: any): Style
+  private static selfContourStyle(feature: any): Style
   {
     return new Style({
       fill: new Fill({color: feature.getProperties().fill})
     });
+  }
+
+    /**
+   * Set the style for vectors, e.g. wind
+   * @param feature
+   * @private
+   */
+  private selfVectorStyle(feature: any): Style[]
+  {
+    const vectorScale = this.getVectorScale(this.map?.getView().getZoom());
+    //console.log('scale: ' + vectorScale);
+    const shaft = new RegularShape({
+      points: 2,
+      radius: 5,
+      stroke: new Stroke({
+        width: 2,
+        color: 'black',
+      }),
+      rotateWithView: true,
+    });
+
+    const head = new RegularShape({
+      points: 3,
+      radius: 5*vectorScale,
+      fill: new Fill({
+        color: 'black',
+      }),
+      rotateWithView: true,
+    });
+    const styles = [new Style({image: shaft}), new Style({image: head})];
+    const wind_direction = feature.get('wind_direction');
+    const wind_speed = feature.get('wind_speed');
+    // rotate arrow away from wind origin
+    const angle = ((parseFloat(wind_direction) - 180) * Math.PI) / 180;
+    const scale = vectorScale * parseFloat(wind_speed) / 10;
+    shaft.setScale([1, scale]);
+    shaft.setRotation(angle);
+    head.setDisplacement([
+      0,
+      head.getRadius() / 2 + shaft.getRadius() * scale,
+    ]);
+    head.setRotation(angle);
+    return styles;
   }
 
 
@@ -418,9 +629,67 @@ export class WrfViewerComponent implements OnInit
   {
   }
 
+  /**
+   * This function will store the latest zoom event in a class variable and call the real
+   * handler after a short delay.  This will prevent the system from getting bogged down
+   * with too many zoom events that can be generated by mouse-wheel zooming.
+   *
+   * @param layer
+   * @param vectorLayer
+   * @param event
+   * @private
+   */
+  private doZoomChange(layer: WrfLayer, vectorLayer: VectorLayer<any>, event: any): void
+  {
+    /* call the real handler after 500ms to allow for zooming to finish */
+    if (this.unhandledZoomEvent === undefined)
+      setTimeout(this.handleZoomEventNow.bind(this), 500);
+
+    /* save the event information and handle it in a sec */
+    this.unhandledZoomEvent = {
+      'layer': layer,
+      'vectorLayer': vectorLayer,
+      'event': event
+    };
+  }
+
 
   /**
+   * Handle zoom on the map event -- regenerates features if needed
    *
+   * @private
+   */
+  private handleZoomEventNow(): void
+  {
+    /* if there is no event to handle, do nothing */
+    if (this.unhandledZoomEvent === undefined)
+      return;
+
+    /* extract the zoom event parameters and set the unhandled to 'undefined' to signify it is being handled now */
+    const layer: WrfLayer = this.unhandledZoomEvent.layer;
+    const vectorLayer: VectorLayer<any> = this.unhandledZoomEvent.vectorLayer;
+    const event: any = this.unhandledZoomEvent.event;
+    this.unhandledZoomEvent = undefined;
+
+    const new_zoom = event.target.values_.zoom;
+    const new_spacing = this.getVectorSpacing(new_zoom);
+    const old_spacing = this.getVectorSpacing(layer.zoom);
+    //console.log('zoom: ' + layer.zoom + ' -> ' + new_zoom);
+
+    if (new_spacing != old_spacing) {
+      //console.log('spacing: ' + old_spacing + ' -> ' + new_spacing);
+      const features = this.readFeaturesVector(layer.layer_data);
+      let source = vectorLayer.getSource();
+      source.clear();
+      source.addFeatures(features);
+      source.changed();
+    }
+    layer.zoom = new_zoom;
+
+  }
+
+  /**
+   * Handle an event from the height selector changing
    * @param event
    */
   public heightChanged(event: MatSliderChange): void

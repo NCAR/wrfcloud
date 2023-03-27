@@ -28,7 +28,7 @@
 
   <!-- job table -->
   <div class="job-table-container">
-    <table mat-table [dataSource]="dataSource" matSort class="job-table mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" matSort class="job-table">
       <ng-container matColumnDef="job_id" class="job-table-cell">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Job ID </th>
         <td mat-cell *matCellDef="let item"> {{item.job_id}} </td>

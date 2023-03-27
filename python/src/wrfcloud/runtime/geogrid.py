@@ -1,8 +1,8 @@
 import os
-import requests
 import io
 import tarfile
 import glob
+import requests
 import f90nml
 from wrfcloud.jobs import WrfJob
 from wrfcloud.system import get_aws_session
