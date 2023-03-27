@@ -43,7 +43,7 @@ The following definitions and table describe the user roles and corresponding pe
      -   X
      -   X
      -   X 
-     -   X
+     -   
    * - View Forecasts 
      - X
      - X
