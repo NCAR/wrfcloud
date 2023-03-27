@@ -60,14 +60,31 @@ table
   background: $background-plain
   border-top-left-radius: 12px
 
+.viewer-height-selector-label
+  font-size: 1.0rem
+  text-orientation: sideways
+  writing-mode: vertical-lr
+  position: relative
+  top: -60%
+
 ::ng-deep .mat-slider-thumb-label-text
   color: $text-contrast !important
   background: $background-edit !important
 
 .viewer-height-selector-widget
   color: $text-contrast
-  margin-top: 25px
-  min-height: calc(100vh - 400px)
+  margin-top: 0
+  min-height: 100%
+
+.viewer-height-selector-value-label-container
+  display: inline
+  margin: 8px 5px 8px -15px
+  min-width: 20px
+  text-align: right
+
+.viewer-height-selector-value-label
+  position: relative
+  top: 5%
 
 .map
   width: calc(98vw - 400px)
