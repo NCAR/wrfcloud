@@ -38,7 +38,7 @@ The Run WRF tab is where you can launch a new WRF run. There are several paramet
 After the parameters are set, check or uncheck the "Notify when finished" box. Then click the Launch button. You will be automatically taken to the WRF Jobs status page after the system initializes the cluster.
 
 .. note::
-   The initialization data currently used is the Global Forecasting System (GFS) at 3-hourly intervals. Currently GFS data availability is limited to roughly the last two years. In addition, users running close to real-time cycles should allow a 6-hour buffer to ensure that cycle is available on the server.
+   The initialization data currently used is the Global Forecasting System (GFS) at 3-hourly intervals. Currently GFS data availability is limited to roughly the last two years. In addition, users running close to real-time cycles should allow a 6-hour buffer to ensure that cycle is available on the server. Data can be retrieved from two sources: NOAA's GFS archive on `AWS's S3 <https://registry.opendata.aws/noaa-gfs-bdp-pds/>`_, and the `NOMADS <https://nomads.ncep.noaa.gov/>`_ server if requeseted data is within 10 days.
    
    Remember that longer forecast length and greater the output frequency, the more the forecast will cost.
 
