@@ -124,7 +124,7 @@ export class WrfViewerComponent implements OnInit
    * Initialize the layer request
    */
   public req: LayerRequest = {
-    height: this.validHeights[0]
+    height: this.validHeights[this.validHeights.length - 1]
   };
 
 
