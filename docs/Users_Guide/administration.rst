@@ -43,7 +43,7 @@ The following definitions and table describe the user roles and corresponding pe
      -   X
      -   X
      -   X 
-     -  
+     -   X
    * - View Forecasts 
      - X
      - X
@@ -90,15 +90,15 @@ Users with the **Admin** role have permission to manage the users on their syste
 
 **Add a New User**
 
-Select the "Manage Users" menu option and click on the "Add User" option at the top of the page. A popup box will appear to fill in the new user's email address and name. Select the Role for that user and click "Create". An email will be sent to the new user asking them to activate their account and setup a new password.
+Select the "Manage Users" menu option and click on the "Add User" option at the top of the page. A pop-up box will appear to fill in the new user's email address and name. Select the Role for that user and click "Create". An email will be sent to the new user asking them to activate their account and setup a new password.
 
 **Update Roles**
 
-Select the "Manage Users" menu option to view a current list of users. Click on the user you wish to update. A popbox box with the user's information will appear. Select the new role you wish to assign and click "Update". The user will automatically be given permissions associated with this new role. 
+Select the "Manage Users" menu option to view a current list of users. Click on the user you wish to update. A pop-box box with the user's information will appear. Select the new role you wish to assign and click "Update". The user will automatically be given permissions associated with this new role. 
 
 **Delete a User**
 
-Select the "Manage Users" menu option to view a current list of users. Click on the user you wish to remove. A popbox box with the user's information will appear. Click "Remove" to delete the user from the system.
+Select the "Manage Users" menu option to view a current list of users. Click on the user you wish to remove. A pop-box box with the user's information will appear. Click "Remove" to delete the user from the system.
 
 
 
@@ -143,3 +143,7 @@ to do.
 **Duration**: The total amount of time in milliseconds that it took to handle the request.
 
 **Action Success**: A boolean flat that indicates if the request was successful or failed.
+
+CloudWatch Logs
+---------------
+The reference ID can be used to search the CloudWatch Logs to find logs leading up to an error, which may be useful to when debugging failures.
