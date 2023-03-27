@@ -184,7 +184,7 @@ def _save_log_files(job: WrfJob) -> None:
     """
     # find the files
     log_files: List[str] = []
-    log_files += glob.glob(f'/data/wrfcloud-run-{job.job_id}')
+    log_files += glob.glob(f'/data/wrfcloud-run-{job.job_id}.log')
     log_files += glob.glob(f'{job.work_dir}/geogrid/geogrid.log')
     log_files += glob.glob(f'{job.work_dir}/ungrib/ungrib.log')
     log_files += glob.glob(f'{job.work_dir}/metgrid/metgrid.log')
