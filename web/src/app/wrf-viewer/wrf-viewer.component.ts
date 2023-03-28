@@ -227,8 +227,8 @@ export class WrfViewerComponent implements OnInit
   {
     this.politicalBoundariesLayer?.setVisible(this.politicalBoundariesVisible);
   }
-  
-  
+
+
   /**
    * Compute the default zoom level based on the job's domain size
    * @private
@@ -330,12 +330,13 @@ export class WrfViewerComponent implements OnInit
     /* create a new layer for the map */
     let features: Feature[];
     let style;
-    if (layer.plot_type === 'contour') {
+    if (layer.plot_type === 'contour')
+    {
       features = new GeoJSON().readFeatures(geojsonObject);
       style = WrfViewerComponent.selfContourStyle;
-      vectorLayer.setOpacity(layer.opacity);
     }
-    else if (layer.plot_type === 'vector') {
+    else if (layer.plot_type === 'vector')
+    {
       features = this.readFeaturesVector(geojsonObject);
       style = this.selfVectorStyle.bind(this);
 
@@ -343,9 +344,8 @@ export class WrfViewerComponent implements OnInit
       layer.handleZoomChange = this.doZoomChange;
       this.map!.getView().on('change:resolution', layer.handleZoomChange.bind(this, layer, vectorLayer));
     }
-    else {
+    else
       return;
-    }
 
     vectorSource.addFeatures(features);
     vectorLayer.setStyle(style);
@@ -363,6 +363,9 @@ export class WrfViewerComponent implements OnInit
     if (layerGroup === undefined) return;
     layerGroup.loaded += 1;
     layerGroup.progress = (layerGroup.loaded / layerGroup.layers[layer.z_level].length) * 100;
+
+    /* set the opacity from the layer group */
+    vectorLayer.setOpacity(layerGroup.opacity);
 
     /* load the first frame if finished loading */
     if (layerGroup && layerGroup.loaded === layerGroup.layers[layer.z_level].length)
