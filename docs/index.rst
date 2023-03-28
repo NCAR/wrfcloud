@@ -10,6 +10,10 @@ Welcome
 -------
 The WRF Cloud framework is the realization of a idea years in the making to leverage maturing cloud computing techonologies to make numerical weather predition more accessible and efficient. The cloud-based forecasting system is designed to easily facilitate cost-effective state-of-the-art numerical weather prediction system forecasts in communities that lack the large computational resources. 
 
+Contact
+-------
+Please visit `www.wrfcloud.com <https://www.wrfcloud.com>`_ for more information about how to become a WRF Cloud user.
+
 Acronyms
 --------
 

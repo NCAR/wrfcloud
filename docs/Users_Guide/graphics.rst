@@ -7,7 +7,7 @@ Graphical Outputs
 Forecast Viewer
 ===============
 
-The forecast plots can be accessed by clicking on the Job ID or Status of a run in the WRF Jobs tab. Each available product will be listed in the right-hand menu and can be toggled on/off with the checkmark. Each product also has a transparency slider bar to adjust the field's transparency. Automation play/pause/advance buttons and slider can be found at the bottom of the map. On the left, a vertical slider bar allows users to select different vertical levels for appropriate products.
+The forecast plots can be accessed by clicking on the "WRF Jobs" menu option. When the model has finished, an "Open Viewer" button will appear. The button is also available in the pop-up box if you click on a job to see its details. Each available product will be listed in the right-hand menu and can be toggled on/off with the checkmark. Each product also has a transparency slider bar to adjust the field's transparency. Additionally, there is a Political Boundaries selector at the top of the products list that can be toggled on/off depending on preference. Automation play/pause/advance buttons and slider can be found at the bottom of the map. On the left, a vertical slider bar allows users to select different vertical pressure levels for appropriate products. 
 
 Current products available for viewing include:
 
