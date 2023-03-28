@@ -22,14 +22,13 @@ User Roles & Permissions
 
 The following definitions and table describe the user roles and corresponding permissions for each role that exist in this framework.
 
-* **anonymous:** Unknown user, will be prompted to sign up
 * **readonly:** Active user who will view forecasts only
 * **regular:** Active user who will schedule, launch, manage, and view forecasts
 * **maintainer:** Active user in the system with permissions of a regular user and can also create or update new model configurations 
 * **admin:** Active user with permissions of a maintainer and also admin permissions to manage users and the system
 
 .. list-table:: Roles and Permissions
-   :widths: 10 10 10 10 10 10
+   :widths: 10 10 10 10 10
    :header-rows: 1
    
    * -   
@@ -37,47 +36,39 @@ The following definitions and table describe the user roles and corresponding pe
      - maintainer
      - regular
      - readonly
-     - anonymous
    * - Change Password
      -   X
      -   X
      -   X
      -   X 
-     -   
    * - View Forecasts 
      - X
      - X
      - X
      - X
-     -  
    * - List jobs  
      - X
      - X
      - X
-     - X
-     -  
+     - X 
    * - Run and Schedule Forecasts
      -  X
      -  X
      -  X
-     -    
-     -   
+     -     
    * - Cancel and Delete Jobs
      - X
      - X
      - X 
-     -  
      -  
    * - Create and Update Model Configurations
      - X
      - X
      -  
      -  
-     -  
    * - Manage Users  
      - X
      -   
-     -  
      -  
      -  
 
