@@ -44,7 +44,7 @@ def setup():
     # Image Builder - create stack and run image builder pipeline
     print('Creating WRF Image...')
     image_builder = WrfCloudImageBuilder()
-    image_builder.create_stack()
+    image_builder.replace_stack()
     image_builder.build_image()
 
     # CloudFormation - Data stack
@@ -188,7 +188,7 @@ def _setup_get_domain_user_data() -> (str, str, str, str, str):
     domains = _get_available_domains()
     print(f'Which domain name would you like to use? [1-{len(domains)}]')
     for i in range(len(domains)):
-        print(str(i+1) + '. ' + domains[i]['Name'])
+        print(str(i + 1) + '. ' + domains[i]['Name'])
     domain_choice: int = int(_get_input(f'Enter choice [1-{len(domains)}]: ', default='1', min=1, max=len(domains))) - 1
     hosted_zone_id = domains[domain_choice]['Id'].split('/')[-1]
     domain = domains[domain_choice]['Name'][:-1]
@@ -304,6 +304,15 @@ def _add_email_identity(email: str) -> bool:
     session = get_aws_session()
     ses = session.client('sesv2')
 
+    # delete the email identity if it already exists AND is not verified
+    try:
+        res = ses.get_email_identity(EmailIdentity=email)
+        if res['VerificationStatus'] == 'SUCCESS':
+            return True
+        ses.delete_email_identity(EmailIdentity=email)
+    except Exception:
+        pass
+
     # send email confirmation
     res = ses.create_email_identity(EmailIdentity=email)
 
@@ -354,7 +363,8 @@ def _upload_to_s3(bucket: str, key: str, default_file: str, not_found_prompt: Un
         print(e)
 
 
-def _finalize_and_upload_webapp_to_s3(bucket: str, prefix: str, default_dir: str, not_found_prompt: str, api: str, ws: str) -> None:
+def _finalize_and_upload_webapp_to_s3(bucket: str, prefix: str, default_dir: str, not_found_prompt: str, api: str,
+                                      ws: str) -> None:
     """
     Sync the directory to the S3 bucket
     :param bucket: S3 bucket name
@@ -482,8 +492,20 @@ def _create_cluster_policy() -> None:
     policy_document: str = pkgutil.get_data('wrfcloud', 'setup/aws/wrfcloud_cluster_policy.json').decode()
     policy_document = policy_document.replace('__AWS_ACCOUNT_ID__', account_id)
 
+    # set the policy name
+    policy_name: str = 'wrfcloud_parallelcluster'
+
     # get an iam client
     iam = get_aws_session().client('iam')
+
+    # delete the policy if it exists already
+    try:
+        policy_arn: str = f'arn:aws:iam::{account_id}:policy/{policy_name}'
+        iam.delete_policy(PolicyArn=policy_arn)
+    except Exception:
+        pass
+
+    # create the policy
     res = iam.create_policy(
         PolicyName='wrfcloud_parallelcluster',
         PolicyDocument=policy_document
@@ -491,6 +513,12 @@ def _create_cluster_policy() -> None:
 
     if res['ResponseMetadata']['HTTPStatusCode'] != 200:
         print('Failed to create IAM policy: wrfcloud_parallelcluster')
+
+
+def _delete_policy_if_exists() -> None:
+    """
+    Delete a policy if it exists in the account
+    """
 
 
 def _install_sample_data(s3_bucket: str) -> None:
@@ -535,7 +563,8 @@ def _upload_public_ssh_key(pub_key: str) -> None:
         if res['ResponseMetadata']['HTTPStatusCode'] != 200:
             raise Exception('Failed to import SSH key')
     except Exception as e:
-        print('Failed to upload SSH key pair.  You can do this in the AWS console at https://us-east-2.console.aws.amazon.com/ec2/v2/home?region=us-east-2#KeyPairs:')
+        print(
+            'Failed to upload SSH key pair.  You can do this in the AWS console at https://us-east-2.console.aws.amazon.com/ec2/v2/home?region=us-east-2#KeyPairs:')
         print('Be sure to name the new key: wrfcloud-admin')
 
 
@@ -543,6 +572,7 @@ class WrfCloudCertificates(CloudFormation):
     """
     Help manipulate the CloudFormation stack that contains the web certificates
     """
+
     def __init__(self, hosted_zone_id: str):
         """
         AWS requires these resources to be created in us-east-1

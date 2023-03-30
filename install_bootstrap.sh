@@ -9,7 +9,15 @@ function main()
   if [ $# -gt 0 ]; then
     export GIT_CLONE_OPTS="--branch ${1}"
   else
-    export GIT_CLONE_OPTS=""
+    export GIT_CLONE_OPTS="--branch develop"
+  fi
+
+  ### Check Free Disk Space /home
+  free_space=$(df ${HOME} | grep /home | awk \{print\$4\})
+  if [ "${free_space}" -lt 524288 ]; then
+    echo "Must have at least 512MB of free disk space on /home.  Free up some space and try again."
+    df -h "${HOME}"
+    return
   fi
 
   ### Setup Build Directory

@@ -28,14 +28,10 @@ class WrfCloudImageBuilder(CloudFormation):
 
         # maybe add the GIT_CLONE_OPTS parameter
         if 'GIT_CLONE_OPTS' in os.environ:
-            self.parameters.append({'ParameterKey': 'GitCloneOpts', 'ParameterValue': os.environ['GIT_CLONE_OPTS']})
-
-    def replace_stack(self) -> None:
-        """
-        Replace the stack (i.e., delete and create)
-        """
-        self.delete_stack()
-        self.create_stack()
+            git_clone_opts: str = os.environ['GIT_CLONE_OPTS']
+            if git_clone_opts == '':
+                git_clone_opts = '--branch develop'
+            self.parameters.append({'ParameterKey': 'GitCloneOpts', 'ParameterValue': git_clone_opts})
 
     def build_image(self) -> None:
         """
