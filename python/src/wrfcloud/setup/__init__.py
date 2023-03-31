@@ -44,7 +44,7 @@ def setup():
     # Image Builder - create stack and run image builder pipeline
     print('Creating WRF Image...')
     image_builder = WrfCloudImageBuilder()
-    image_builder.create_stack()
+    image_builder.replace_stack()
     image_builder.build_image()
 
     # CloudFormation - Data stack
@@ -304,6 +304,15 @@ def _add_email_identity(email: str) -> bool:
     session = get_aws_session()
     ses = session.client('sesv2')
 
+    # delete the email identity if it already exists AND is not verified
+    try:
+        res = ses.get_email_identity(EmailIdentity=email)
+        if res['VerificationStatus'] == 'SUCCESS':
+            return True
+        ses.delete_email_identity(EmailIdentity=email)
+    except Exception:
+        pass
+
     # send email confirmation
     res = ses.create_email_identity(EmailIdentity=email)
 
@@ -482,8 +491,20 @@ def _create_cluster_policy() -> None:
     policy_document: str = pkgutil.get_data('wrfcloud', 'setup/aws/wrfcloud_cluster_policy.json').decode()
     policy_document = policy_document.replace('__AWS_ACCOUNT_ID__', account_id)
 
+    # set the policy name
+    policy_name: str = 'wrfcloud_parallelcluster'
+
     # get an iam client
     iam = get_aws_session().client('iam')
+
+    # delete the policy if it exists already
+    try:
+        policy_arn: str = f'arn:aws:iam::{account_id}:policy/{policy_name}'
+        iam.delete_policy(PolicyArn=policy_arn)
+    except Exception:
+        pass
+
+    # create the policy
     res = iam.create_policy(
         PolicyName='wrfcloud_parallelcluster',
         PolicyDocument=policy_document
