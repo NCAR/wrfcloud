@@ -111,11 +111,16 @@ If you do not have sufficient space, you can either manually remove unneeded fil
 
     export GITHUB_NAME=develop
 
-6. Copy and paste the following into the CloudShell terminal:
+6. Copy and paste the following into the CloudShell terminal to clone the repository:
 
   .. code-block:: ini
 
     git clone --branch ${GITHUB_NAME} https://github.com/NCAR/wrfcloud
+
+7. Copy and paste the following into the CloudShell terminal to start the installation:
+
+  .. code-block:: ini
+  
     ./wrfcloud/install_bootstrap.sh ${GITHUB_NAME}
 
 This bootstrap script takes about 25 minutes to run. It is followed by a series of interactive questions that must be completed prior to WRF Cloud being installed. For each question, the default option (if applicable) is provided in square braces. Simply hit enter to accept the default or modify the setting as needed. These questions include:
@@ -132,10 +137,22 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
   * Enter host name for REST API: [e.g. api.{DOMAIN}]
   * Enter host name for websocket API: [e.g. ws.{DOMAIN}]
   * Enter administrator's full name:
+  
+     * Note: This is your name, you are the administrator installing WRF Cloud on your AWS account.
+  
   * Enter email address for application administrator:
+  
+       * Note: This is your email, you are the administrator installing WRF Cloud on your AWS account and you will use this email to login to WRF Cloud.
+  
   * Enter administrator's new password:
+  
+       * Note: You will use this to login into WRF Cloud.
+  
   * Do you want to install example model configurations? [*Recommend Yes*]
   * Do you want to upload an SSH public key for an admin? [*Recommend Yes*]
+  
+       * Note: This is not necessary, but we recommend it because administrators may need to login to clusters directly for advanced troubleshooting, this allows you to do so.
+  
   * Paste your public key, often found at ${HOME}/.ssh/id_rsa.pub:
 
     * Copy and paste the output of this command into the CloudShell terminal:
@@ -146,53 +163,29 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
       If this file does not exist, refer to `this documentation <https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key>`_ to generate a public key.
 
-7. After completing these steps, check the email address provided above to verify it. It takes approximately 10-20 minutes for the website to become available.
+8. After completing these steps, check the email address provided above to verify it. It takes approximately 10-20 minutes for the website to become available.
 
-8. Monitor the installation progress:
+9. Monitor the installation progress:
 
   * Launch a new `AWS Management Console <https://aws.amazon.com/console>`_ window, and use the top-level search bar to find and launch the AWS **CloudFormation** Service.
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
   * Select **Stacks** from the left navigation menu.
   * Click an item (**WrfIntelImageBuilder**, **WrfCloudApiData**, or **WrfCloudWebApp**) listed in the **Stack name** column and select the **Events** tab to monitor progress.
 
-9. When installation completes, a log message in the CloudShell terminal directs you to the newly created WRF Cloud URL.
+10. When installation completes, a log message in the CloudShell terminal directs you to the newly created WRF Cloud URL.
 
   .. code-block:: ini
 
     WRF Cloud installation is complete.
     Open your browser to https://app.{DOMAIN}
 
-10. Confirm that you can login.
+11. Confirm that you can login.
 
   * Open a web browser and clear the cache to ensure a clean test environment.
   * Navigate to https://app.{DOMAIN}.
   * If directed to the **WRF Cloud Login** page, use the administrator email address and password defined above to login and proceed to the next step.
-  * If, however, your browser downloads a file named **download** rather than allowing you to login, follow the steps outlined below to fix this behavior.
 
-    a. In the CloudShell terminal, check that temporary build directory still exists. It should remain for a while after install but will eventually be scrubbed from **/tmp**.
-
-    .. code-block:: ini
-
-       ls /tmp/wrfcloud-build-*
-
-    b. If it exists, run the following commands to update the WRF Cloud web files:
-
-    .. code-block:: ini
-
-      cd /tmp/wrfcloud-build-*
-      bucket=`aws s3 ls | sed -r 's/ /\n/g' | grep wrfcloud`
-      find web -type f -exec aws s3 cp {} s3://${bucket}/\{\} \;
-
-    c. Create an AWS **CloudFront** invalidation.
-
-      * Use the top-level search bar to find and launch the AWS **CloudFront** Service.
-      * In **Distributions**, click on the **ID** for the line whose **Description** is **wrfcloud production**.
-      * Select the **Invalidations** tab and click **Create Invalidation**.
-      * In the **Add object paths** text box, type **/\***, and click **Create Invalidation**.
-
-    d. In your browser window, clear your cache and navigate to https://app.{DOMAIN} again. If the **download** problem persists, repeats steps (a)-(c) until it stops. Remember to *clear your browser cache* before checking the URL.
-
-11. Confirm that the WRF Amazon Machine Image (AMI) has finished building.
+12. Confirm that the WRF Amazon Machine Image (AMI) has finished building.
 
   * Use the top-level search bar to find and launch the AWS **EC2** Service.
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
@@ -200,7 +193,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
   * Confirm that an AMI that includes **wrf** in the **AMI name** column.
   * Note that it may take several hours for this AMI to finish building. While you can add new users and configurations via the WRF Cloud user interface, you will not be able to actually launch a run until the WRF AMI is available.
 
-12. After completing these installation steps, proceed to System Administration (:numref:`administration`).
+13. After completing these installation steps, proceed to System Administration (:numref:`administration`).
 
 .. _uninstall:
 
