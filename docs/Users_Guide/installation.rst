@@ -191,7 +191,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
   * Select **Images > AMIs** from the left navigation menu and search for **wrf**.
   * Confirm that an AMI that includes **wrf** in the **AMI name** column.
-  * Note that it may take several hours for this AMI to finish building. While you can add new users and configurations via the WRF Cloud user interface, you will not be able to actually launch a run until the WRF AMI is available.
+  * Note that it may take several hours for this AMI to finish building. You may need to refresh the page occassionally to see the new image appear in the list. While you can add new users and configurations via the WRF Cloud user interface, you will not be able to actually launch a run until the WRF AMI is available.
 
 13. After completing these installation steps, proceed to System Administration (:numref:`administration`).
 
