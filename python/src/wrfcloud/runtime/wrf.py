@@ -37,23 +37,15 @@ class Wrf(Process):
         body_file = f'{self.job.real_dir}/wrfbdy_d01'
         self.symlink(body_file, f'{self.job.wrf_dir}/' + os.path.basename(body_file))
 
+        # link to other files in the WRF run directory
+        self.log.debug('Linking other necessary static files')
+        static_files = glob.glob(f'{self.job.wrf_code_dir}/run/*[!.exe|namelist.input]')
+        for static_file in static_files:
+            self.symlink(static_file, static_file.split('/')[-1])
+
+        # link the namelist file to the run directory
         self.log.debug('Linking namelist.input from real working directory')
         self.symlink(f'{self.job.real_dir}/namelist.input', 'namelist.input')
-
-        self.log.debug('Linking other necessary static files')
-        static_files = ['CAMtr_volume_mixing_ratio',
-                        'ozone.formatted',
-                        'ozone_lat.formatted',
-                        'ozone_plev.formatted',
-                        'RRTMG_LW_DATA',
-                        'RRTMG_SW_DATA',
-                        'GENPARM.TBL',
-                        'LANDUSE.TBL',
-                        'SOILPARM.TBL',
-                        'VEGPARM.TBL']
-
-        for static_file in static_files:
-            self.symlink(f'{self.job.wrf_code_dir}/run/' + static_file, static_file)
 
     def run_wrf(self) -> None:
         """

@@ -9,7 +9,7 @@ function main()
   if [ $# -gt 0 ]; then
     export GIT_CLONE_OPTS="--branch ${1}"
   else
-    export GIT_CLONE_OPTS="--branch develop"
+    export GIT_CLONE_OPTS="--branch main"
   fi
 
   ### Check Free Disk Space /home

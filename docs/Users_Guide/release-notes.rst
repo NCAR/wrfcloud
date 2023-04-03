@@ -5,7 +5,7 @@ When applicable, release notes are followed by the GitHub issue number which des
 enhancement, or new feature (`WRF Cloud GitHub issues <https://github.com/NCAR/wrfcloud/issues>`_).
 Important issues are listed **in bold** for emphasis.
 
-WRF Cloud Version 1.0 release notes (2023MMDD)
+WRF Cloud Version 1.0.0 release notes (20230403)
 ------------------------------------------------
 **Goal:** Ability for others to be able to install and use the package on their AWS account and create/run model configuration of their choosing. 
 
@@ -14,8 +14,8 @@ WRF Cloud Version 1.0 release notes (2023MMDD)
 **Key Features:**
 
 * Automated installation
-* Customize model configurations
-* 
+* Customizable model configurations
+* Updated forecast products
 
 Details can be viewed on the `GitHub v1.0 milestone <https://github.com/NCAR/wrfcloud/milestone/3?closed=1>`_ page for this release.
 

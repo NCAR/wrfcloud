@@ -30,7 +30,7 @@ class WrfCloudImageBuilder(CloudFormation):
         if 'GIT_CLONE_OPTS' in os.environ:
             git_clone_opts: str = os.environ['GIT_CLONE_OPTS']
             if git_clone_opts == '':
-                git_clone_opts = '--branch develop'
+                git_clone_opts = '--branch main'
             self.parameters.append({'ParameterKey': 'GitCloneOpts', 'ParameterValue': git_clone_opts})
 
     def build_image(self) -> None:
