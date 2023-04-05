@@ -121,15 +121,6 @@ products:
     palette: viridis
     display_name: 'Precipitable Water'
     units: 'mm'
-  - netcdf:
-      variable: wind_speed_10
-    range:
-      min: 0
-      max: 60
-    contour_interval: 2
-    palette: PuOr
-    display_name: 'Wind Speed 10m'
-    units: 'kt'
 
   # 3D variables - 1000mb 925mb 850mb 700mb 500mb 300mb 250mb 100mb
   - netcdf:
@@ -188,6 +179,17 @@ products:
       - 300
       - 250
       - 100
+
+  - netcdf:
+      variable: wind_speed_10
+    range:
+      min: 0
+      max: 60
+    contour_interval: 2
+    palette: PuOr
+    display_name: 'Wind Speed 10m'
+    units: 'kt'
+
   - netcdf:
       variable: wind_speed_pres
     range:
@@ -195,7 +197,7 @@ products:
       max: 60
     contour_interval: 2
     palette: PuOr
-    display_name: 'Wind Speed'
+    display_name: 'Wind Speed (3D)'
     units: 'kt'
     z_levels:
       - 1000
