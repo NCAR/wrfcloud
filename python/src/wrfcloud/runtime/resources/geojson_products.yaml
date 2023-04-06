@@ -184,7 +184,7 @@ products:
       variable: wind_speed_10
     range:
       min: 0
-      max: 60
+      max: 120
     contour_interval: 2
     palette: PuOr
     display_name: 'Wind Speed 10m'
