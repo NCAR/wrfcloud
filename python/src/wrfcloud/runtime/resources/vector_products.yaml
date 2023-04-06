@@ -9,11 +9,11 @@ products:
   - wind:
       speed: wind_speed_10
       direction: wind_dir_10
-    display_name: 'Wind 10m'
+    display_name: 'Wind Vector 10m'
   - wind:
       speed: wind_speed_pres
       direction: wind_dir_pres
-    display_name: 'Wind (3D)'
+    display_name: 'Wind Vector (3D)'
     z_levels:
       - 1000
       - 925

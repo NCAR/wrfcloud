@@ -179,3 +179,32 @@ products:
       - 300
       - 250
       - 100
+
+  - netcdf:
+      variable: wind_speed_10
+    range:
+      min: 0
+      max: 120
+    contour_interval: 2
+    palette: PuOr
+    display_name: 'Wind Speed 10m'
+    units: 'kt'
+
+  - netcdf:
+      variable: wind_speed_pres
+    range:
+      min: 0
+      max: 120
+    contour_interval: 2
+    palette: PuOr
+    display_name: 'Wind Speed (3D)'
+    units: 'kt'
+    z_levels:
+      - 1000
+      - 925
+      - 850
+      - 700
+      - 500
+      - 300
+      - 250
+      - 100
