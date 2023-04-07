@@ -217,8 +217,50 @@ class WrfConfig:
 
     def _calculate_optimal_core_count(self) -> int:
         """
-        Calculate the optimal number of cores to use for this configuration
+        Calculate the optimal number of cores to use for this configuration.
+        Estimation based on advice from:
+        https://forum.mmm.ucar.edu/threads/how-many-processors-should-i-use-to-run-wrf.5082
+        Assumes 1 node will be used. If more than 96 cores are suggested, use 96.
         :return: Number of cores
         """
-        self.log.warn('WrfConfig._calculate_optimal_core_count is not implemented.  Returning default 96 cores.')
-        return 96
+        wps_namelist = f90nml.reads(self.wps_namelist)
+        geogrid = wps_namelist.get('geogrid')
+        nx = geogrid.get('e_we', 0)
+        ny = geogrid.get('e_sn', 0)
+        if isinstance(nx, list):
+            # TODO: using first domain only. when adding support for multiple domains, determine largest/smallest grids
+            min_idx, max_idx = 0, 0  # self._get_min_max_grids(nx, ny)
+            min_nx = nx[min_idx]
+            max_nx = nx[max_idx]
+            min_ny = ny[min_idx]
+            max_ny = ny[max_idx]
+        else:
+            min_nx = max_nx = nx
+            min_ny = max_ny = ny
+
+        min_proc = (max_nx / 100) * (max_ny / 100)
+        max_proc = (min_nx / 25) * (min_ny / 25)
+        avg_proc = (min_proc + max_proc) / 2
+        # TODO: if more than 1 node is supported, factor that into result
+        return 96 if avg_proc > 96 else avg_proc
+
+    @staticmethod
+    def _get_min_max_grids(nx_list: list, ny_list: list):
+        """
+        Get indices of smallest and largest grids.
+        :param nx_list: List of nx values
+        :param ny_list: List of ny values
+        :return: Number of cores
+        """
+        min_grid = max_grid = None
+        min_idx = max_idx = 0
+        for idx, (nx, ny) in enumerate(zip(nx_list, ny_list)):
+            grid_size = nx * ny
+            if min_grid is None or grid_size < min_grid:
+                min_grid = grid_size
+                min_idx = idx
+            if max_grid is None or grid_size > max_grid:
+                max_grid = grid_size
+                max_idx = idx
+
+        return min_idx, max_idx
