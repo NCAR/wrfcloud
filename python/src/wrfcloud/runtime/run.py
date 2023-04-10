@@ -51,6 +51,7 @@ def main() -> None:
         # set up the configuration
         config: WrfConfig = _load_model_configuration(job)
         job.cores = config.cores
+        log.info(f'Using {job.cores} cores')
         job.domain_center = config.domain_center
         job.domain_size = config.domain_size
 

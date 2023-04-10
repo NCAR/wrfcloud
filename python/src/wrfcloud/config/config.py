@@ -240,7 +240,7 @@ class WrfConfig:
         ny = ny[0:1]
 
         core_estimate = self._estimate_core_count(nx, ny)
-        self.log.info('Estimate core count: ', core_estimate)
+        self.log.info(f'Estimate core count: {core_estimate}')
         # TODO: if more than 1 node is supported, factor that into result
         return 96 if core_estimate > 96 else core_estimate
 
