@@ -119,17 +119,17 @@ class WrfConfig:
     def cores(self) -> int:
         """
         Get the number of compute cores
-        :return: Number of compute cores to use
+        :return: Number of compute cores to use, or <= 0 to calculate number automatically
         """
-        return self._cores
+        return self._calculate_optimal_core_count() if self._cores <= 0 else self._cores
 
     @cores.setter
     def cores(self, core_count: int) -> None:
         """
         Set the number of cores
-        :param core_count: Number of cores to use, or <= 0 to calculate number automatically
+        :param core_count: Number of cores to use
         """
-        self._cores = self._calculate_optimal_core_count() if core_count <= 0 else core_count
+        self._cores = core_count
 
     @property
     def domain_center(self) -> LatLonPoint:
