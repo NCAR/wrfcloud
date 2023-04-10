@@ -1,4 +1,7 @@
+import pytest
+
 from typing import List
+
 from wrfcloud.system import init_environment
 from wrfcloud.config import WrfConfig
 from helper import _get_all_sample_wrf_configurations
@@ -31,3 +34,26 @@ def test_wrf_configuration() -> None:
         sanitized_data = config.sanitized_data
         for key in config.SANITIZE_KEYS:
             assert key not in sanitized_data
+
+
+@pytest.mark.parametrize(
+    'nx_list, ny_list, expected_cores', [
+        ([100], [100], 8),
+        ([700], [500], 297),
+        ([400], [300], 102),
+    ]
+)
+def test_estimate_core_count(nx_list, ny_list, expected_cores) -> None:
+    assert WrfConfig._estimate_core_count(nx_list, ny_list) == expected_cores
+
+@pytest.mark.parametrize(
+    'nx_list, ny_list, expected_indices', [
+        ([100], [100], (0, 0)),
+        ([700], [500], (0, 0)),
+        ([700, 500], [500, 500], (1, 0)),
+        ([500, 500], [500, 700], (0, 1)),
+        ([500, 500, 500], [600, 700, 500], (2, 1)),
+    ]
+)
+def test_get_min_max_grids(nx_list, ny_list, expected_indices) -> None:
+    assert WrfConfig._get_min_max_grids(nx_list, ny_list) == expected_indices
