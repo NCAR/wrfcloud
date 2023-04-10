@@ -37,24 +37,28 @@ def test_wrf_configuration() -> None:
 
 
 @pytest.mark.parametrize(
-    'xy_pair_list, expected_cores', [
-        ([(100, 100)], 8),
-        ([(700, 500)], 297),
-        ([(400, 300)], 102),
+    'domain_list, expected_cores', [
+        ([WrfConfig.Domain(100, 100)], 8),
+        ([WrfConfig.Domain(700, 500)], 297),
+        ([WrfConfig.Domain(400, 300)], 102),
     ]
 )
-def test_estimate_core_count(xy_pair_list, expected_cores) -> None:
-    assert WrfConfig._estimate_core_count(xy_pair_list) == expected_cores
+def test_estimate_core_count(domain_list, expected_cores) -> None:
+    assert WrfConfig._estimate_core_count(domain_list) == expected_cores
 
 
 @pytest.mark.parametrize(
-    'xy_pair_list, expected_indices', [
-        ([(100, 100)], (0, 0)),
-        ([(700, 500)], (0, 0)),
-        ([(700, 500), (500, 500)], (1, 0)),
-        ([(500, 500), (500, 700)], (0, 1)),
-        ([(500, 600), (500, 700), (500, 500)], (2, 1)),
+    'domain_list, expected_indices', [
+        ([WrfConfig.Domain(100, 100)], (0, 0)),
+        ([WrfConfig.Domain(700, 500)], (0, 0)),
+        ([WrfConfig.Domain(700, 500),
+          WrfConfig.Domain(500, 500)], (1, 0)),
+        ([WrfConfig.Domain(500, 500),
+          WrfConfig.Domain(500, 700)], (0, 1)),
+        ([WrfConfig.Domain(500, 600),
+          WrfConfig.Domain(500, 700),
+          WrfConfig.Domain(500, 500)], (2, 1)),
     ]
 )
-def test_get_min_max_grids(xy_pair_list, expected_indices) -> None:
-    assert WrfConfig._get_min_max_grids(xy_pair_list) == expected_indices
+def test_get_min_max_grids(domain_list, expected_indices) -> None:
+    assert WrfConfig._get_min_max_grids(domain_list) == expected_indices

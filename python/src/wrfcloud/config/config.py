@@ -2,6 +2,8 @@ import math
 import copy
 import re
 from typing import List, Union
+from collections import namedtuple
+
 import f90nml
 from wrfcloud.jobs import LatLonPoint
 from wrfcloud.log import Logger
@@ -17,6 +19,8 @@ class WrfConfig:
 
     # list of fields to remove from the data
     SANITIZE_KEYS: List[str] = ['s3_key_geo_em', 's3_key_wrf_namelist', 's3_key_wps_namelist']
+
+    Domain = namedtuple('Domain', 'nx ny')
 
     def __init__(self, data: dict = None):
         """
@@ -239,42 +243,42 @@ class WrfConfig:
         nx = nx[0:1]
         ny = ny[0:1]
 
-        xy_pair_list = [(x, y) for x, y in zip(nx, ny)]
-        core_estimate = self._estimate_core_count(xy_pair_list)
+        domain_list = [WrfConfig.Domain(x, y) for x, y in zip(nx, ny)]
+        core_estimate = self._estimate_core_count(domain_list)
         self.log.info(f'Estimate core count: {core_estimate}')
         # TODO: if more than 1 node is supported, factor that into result
         return 96 if core_estimate > 96 else core_estimate
 
     @staticmethod
-    def _estimate_core_count(xy_pair_list: list):
+    def _estimate_core_count(domain_list: list):
         """
         Estimate the optimal number of cores to use for this configuration.
         Estimation based on advice from:
         https://forum.mmm.ucar.edu/threads/how-many-processors-should-i-use-to-run-wrf.5082
         Assumes 1 node will be used. If more than 96 cores are suggested, use 96.
-        :param xy_pair_list: List of tuples with nx/ny pairs (integers)
+        :param domain_list: List of tuples with nx/ny pairs (integers)
         :return: Number of cores (integer)
         """
-        min_idx, max_idx = WrfConfig._get_min_max_grids(xy_pair_list)
-        min_nx = xy_pair_list[min_idx][0]
-        max_nx = xy_pair_list[max_idx][0]
-        min_ny = xy_pair_list[min_idx][1]
-        max_ny = xy_pair_list[max_idx][1]
+        min_idx, max_idx = WrfConfig._get_min_max_grids(domain_list)
+        min_nx = domain_list[min_idx].nx
+        max_nx = domain_list[max_idx].nx
+        min_ny = domain_list[min_idx].ny
+        max_ny = domain_list[max_idx].ny
 
         min_proc = (max_nx / 100) * (max_ny / 100)
         max_proc = (min_nx / 25) * (min_ny / 25)
         return int((min_proc + max_proc) / 2)
 
     @staticmethod
-    def _get_min_max_grids(xy_pair_list: list):
+    def _get_min_max_grids(domain_list: list):
         """
         Get indices of smallest and largest grids.
-        :param xy_pair_list: List of tuples with nx/ny pairs (integers)
+        :param domain_list: List of tuples with nx/ny pairs (integers)
         :return: Number of cores
         """
         min_grid = max_grid = None
         min_idx = max_idx = 0
-        for idx, (nx, ny) in enumerate(xy_pair_list):
+        for idx, (nx, ny) in enumerate(domain_list):
             grid_size = nx * ny
             if min_grid is None or grid_size < min_grid:
                 min_grid = grid_size
