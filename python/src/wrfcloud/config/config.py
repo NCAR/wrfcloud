@@ -259,12 +259,7 @@ class WrfConfig:
         :param domain_list: List of tuples with nx/ny pairs (integers)
         :return: Number of cores (integer)
         """
-        min_idx, max_idx = WrfConfig._get_min_max_grids(domain_list)
-        min_nx = domain_list[min_idx].nx
-        max_nx = domain_list[max_idx].nx
-        min_ny = domain_list[min_idx].ny
-        max_ny = domain_list[max_idx].ny
-
+        (min_nx, min_ny), (max_nx, max_ny) = WrfConfig._get_min_max_grids(domain_list)
         min_proc = (max_nx / 100) * (max_ny / 100)
         max_proc = (min_nx / 25) * (min_ny / 25)
         return int((min_proc + max_proc) / 2)
@@ -274,7 +269,7 @@ class WrfConfig:
         """
         Get indices of smallest and largest grids.
         :param domain_list: List of tuples with nx/ny pairs (integers)
-        :return: Number of cores
+        :return: tuple with 2 WrfConfig.Domain for min and max grid sizes
         """
         min_grid = max_grid = None
         min_idx = max_idx = 0
@@ -287,4 +282,4 @@ class WrfConfig:
                 max_grid = grid_size
                 max_idx = idx
 
-        return min_idx, max_idx
+        return domain_list[min_idx], domain_list[max_idx]
