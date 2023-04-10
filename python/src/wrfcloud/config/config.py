@@ -224,8 +224,8 @@ class WrfConfig:
         # read nx/ny info from WPS namelist geogrid section
         wps_namelist = f90nml.reads(self.wps_namelist)
         geogrid = wps_namelist.get('geogrid')
-        nx = geogrid.get('e_we', 0)
-        ny = geogrid.get('e_sn', 0)
+        nx = geogrid.get('e_we')
+        ny = geogrid.get('e_sn')
 
         # format nx/ny values into lists
         if isinstance(nx, int):
