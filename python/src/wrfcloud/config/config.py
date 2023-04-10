@@ -218,31 +218,52 @@ class WrfConfig:
     def _calculate_optimal_core_count(self) -> int:
         """
         Calculate the optimal number of cores to use for this configuration.
-        Estimation based on advice from:
-        https://forum.mmm.ucar.edu/threads/how-many-processors-should-i-use-to-run-wrf.5082
         Assumes 1 node will be used. If more than 96 cores are suggested, use 96.
         :return: Number of cores
         """
+        # read nx/ny info from WPS namelist geogrid section
         wps_namelist = f90nml.reads(self.wps_namelist)
         geogrid = wps_namelist.get('geogrid')
         nx = geogrid.get('e_we', 0)
         ny = geogrid.get('e_sn', 0)
-        if isinstance(nx, list):
-            # TODO: using first domain only. when adding support for multiple domains, determine largest/smallest grids
-            min_idx, max_idx = 0, 0  # self._get_min_max_grids(nx, ny)
-            min_nx = nx[min_idx]
-            max_nx = nx[max_idx]
-            min_ny = ny[min_idx]
-            max_ny = ny[max_idx]
-        else:
-            min_nx = max_nx = nx
-            min_ny = max_ny = ny
+
+        # format nx/ny values into lists
+        if isinstance(nx, int):
+            nx = [nx]
+            ny = [ny]
+        elif not isinstance(nx, list):
+            self.log.warn('Could not read e_we/e_sn from WPS namelist')
+            return 96
+
+        # TODO: using first domain only. when adding support for multiple domains, remove subset of list
+        nx = nx[0:1]
+        ny = ny[0:1]
+
+        core_estimate = self._estimate_core_count(nx, ny)
+        self.log.info('Estimate core count: ', core_estimate)
+        # TODO: if more than 1 node is supported, factor that into result
+        return 96 if core_estimate > 96 else core_estimate
+
+    @staticmethod
+    def _estimate_core_count(nx_list: list, ny_list: list):
+        """
+        Estimate the optimal number of cores to use for this configuration.
+        Estimation based on advice from:
+        https://forum.mmm.ucar.edu/threads/how-many-processors-should-i-use-to-run-wrf.5082
+        Assumes 1 node will be used. If more than 96 cores are suggested, use 96.
+        :param nx_list: Number of x grid values as a list of integers
+        :param ny_list: Number of y grid values as a list of integers
+        :return: Number of cores (integer)
+        """
+        min_idx, max_idx = WrfConfig._get_min_max_grids(nx_list, ny_list)
+        min_nx = nx_list[min_idx]
+        max_nx = nx_list[max_idx]
+        min_ny = ny_list[min_idx]
+        max_ny = ny_list[max_idx]
 
         min_proc = (max_nx / 100) * (max_ny / 100)
         max_proc = (min_nx / 25) * (min_ny / 25)
-        avg_proc = (min_proc + max_proc) / 2
-        # TODO: if more than 1 node is supported, factor that into result
-        return 96 if avg_proc > 96 else avg_proc
+        return int((min_proc + max_proc) / 2)
 
     @staticmethod
     def _get_min_max_grids(nx_list: list, ny_list: list):
