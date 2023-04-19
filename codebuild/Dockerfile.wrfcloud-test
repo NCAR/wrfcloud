@@ -35,4 +35,4 @@ RUN echo "output = json" >> ~/.aws/credentials
 # install nodejs and angular cli
 RUN curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum -y install nodejs
-RUN npm install -g @angular/cli
+RUN npm install -g @angular/cli@14

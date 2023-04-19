@@ -21,7 +21,7 @@ phases:
       - npm install
       - ng build
       - cd dist/web/
-      - zip -r ${CODEBUILD_SRC_DIR}/wrfcloud_web.zip .
+      - zip -r "${CODEBUILD_SRC_DIR}/wrfcloud_web.zip" .
 
   post_build:
     commands:
