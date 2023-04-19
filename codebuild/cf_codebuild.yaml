@@ -138,7 +138,7 @@ Resources:
         Auth:
           Type: OAUTH
           Resource: !Ref CodeBuildSourceCredential
-      SourceVersion: feature-2/codebuild
+      SourceVersion: develop
       TimeoutInMinutes: 120  # 2 hours
       Triggers:
         Webhook: true

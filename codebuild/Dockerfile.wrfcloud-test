@@ -2,7 +2,7 @@ FROM amazonlinux:latest
 
 # install required os packages
 RUN yum -y update
-RUN yum -y install zip gzip tar java-11-amazon-corretto git which procps-ng jq
+RUN yum -y install zip gzip tar java-11-amazon-corretto git which procps-ng jq wget
 
 # download, build, and install python3
 RUN yum -y install gcc-c++ make openssl-devel bzip2-devel libffi-devel sqlite-devel
@@ -36,6 +36,3 @@ RUN echo "output = json" >> ~/.aws/credentials
 RUN curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum -y install nodejs
 RUN npm install -g @angular/cli
-
-# start the local dynamodb service when the container starts
-#CMD java -jar /opt/dynamodb/DynamoDBLocal.jar -inMemory &

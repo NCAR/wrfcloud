@@ -1,4 +1,4 @@
-version: 0.1
+version: 1.0.0
 
 phases:
   pre_build:
@@ -9,12 +9,14 @@ phases:
   build:
     commands:
       - echo "Installing package dependencies"
-      - pip3 install $CODEBUILD_SRC_DIR/python/src
+      - mv "${CODEBUILD_SRC_DIR}/python/src/setup.py" "${CODEBUILD_SRC_DIR}/python/src/setup-with-pygrib.py"
+      - cat "${CODEBUILD_SRC_DIR}/python/src/setup-with-pygrib.py" | sed "s/'pygrib.*',//g" > "${CODEBUILD_SRC_DIR}/python/src/setup.py"
+      - pip3 "install $CODEBUILD_SRC_DIR/python/src"
       - pip3 uninstall -y wrfcloud
       - echo "Checking for Python code errors"
-      - pylint -E $CODEBUILD_SRC_DIR/python/src/wrfcloud
+      - pylint -E "$CODEBUILD_SRC_DIR/python/src/wrfcloud"
       - echo "Running unit tests and code coverage"
-      - $CODEBUILD_SRC_DIR/python/coverage.sh
+      - "$CODEBUILD_SRC_DIR/python/coverage.sh"
       - cd $CODEBUILD_SRC_DIR/web
       - npm install
       - ng build
