@@ -1,6 +1,6 @@
 import boto3
 from wrfcloud.dynamodb import DynamoDao
-
+from wrfcloud.system import init_environment
 
 # constants to define the dynamodb table for this test
 TABLE = 'ncaraws_unit_test'
@@ -8,6 +8,9 @@ KEY_FIELDS = ['id']
 ENDPOINT_URL = 'http://localhost:8000'
 ATTRIBUTE_DEFINITIONS = [{'AttributeName': 'id', 'AttributeType': 'S'}]
 KEY_SCHEMA = [{'AttributeName': 'id', 'KeyType': 'HASH'}]
+
+
+init_environment('test')
 
 
 def test_create_and_read_item() -> None:
@@ -165,7 +168,7 @@ def _test_setup() -> bool:
     Setup required test resources (i.e. DynamoDB table in local dynamodb)
     :return: True if successful, otherwise False
     """
-    dao = DynamoDao(TABLE, KEY_FIELDS, 'http://localhost:8000')
+    dao = DynamoDao(TABLE, KEY_FIELDS, ENDPOINT_URL)
 
     try:
         # just in case the table already exists, get rid of it
@@ -187,11 +190,10 @@ def _test_teardown() -> bool:
     :return: True if successful, otherwise False
     """
     try:
-        # get a dynamodb client pointing to local dynamodb
-        client = boto3.client('dynamodb', endpoint_url=ENDPOINT_URL)
+        dao = DynamoDao(TABLE, KEY_FIELDS, ENDPOINT_URL)
 
         # delete the table
-        client.delete_table(TableName=TABLE)
+        dao.delete_table(TABLE)
     except Exception as e:
         print(e)
         return False
