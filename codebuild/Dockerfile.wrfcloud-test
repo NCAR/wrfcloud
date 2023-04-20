@@ -6,7 +6,7 @@ RUN yum -y update
 RUN yum -y install zip gzip tar java-11-amazon-corretto git which procps-ng jq wget
 
 # download, build, and install python3
-RUN yum -y install gcc-c++ make openssl-devel bzip2-devel libffi-devel sqlite-devel
+RUN yum -y install gcc-c++ make openssl-devel bzip2-devel libffi-devel sqlite-devel zlib-devel
 RUN mkdir -p /opt/src
 WORKDIR /opt/src
 RUN curl https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz > Python-3.9.13.tgz
