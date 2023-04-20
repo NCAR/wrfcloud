@@ -18,8 +18,9 @@ phases:
       - echo "Running unit tests and code coverage"
       - "$CODEBUILD_SRC_DIR/python/coverage.sh"
       - cd "$CODEBUILD_SRC_DIR/web"
-      - ${HOME}/.nvm/versions/node/v16.20.0/bin/npm install
-      - ${HOME}/.nvm/versions/node/v16.20.0/bin/ng build
+      - source ~/.bashrc
+      - npm install
+      - ng build
       - cd dist/web/
       - zip -r "${CODEBUILD_SRC_DIR}/wrfcloud_web.zip" .
 
