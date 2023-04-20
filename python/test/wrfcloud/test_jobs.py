@@ -1,3 +1,8 @@
+"""
+Test the wrfcloud.jobs module
+"""
+
+
 import wrfcloud.system
 from wrfcloud.jobs import WrfJob
 from wrfcloud.jobs import add_job_to_system

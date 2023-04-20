@@ -1,4 +1,8 @@
-import boto3
+"""
+Test the wrfcloud.dynamodb module
+"""
+
+
 from wrfcloud.dynamodb import DynamoDao
 from wrfcloud.system import init_environment
 

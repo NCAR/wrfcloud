@@ -1,3 +1,8 @@
+"""
+Test the wrfcloud.api.handler module
+"""
+
+
 import os
 import secrets
 import json

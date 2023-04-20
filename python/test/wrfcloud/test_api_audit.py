@@ -1,3 +1,8 @@
+"""
+Test the wrfcloud.api.audit module
+"""
+
+
 from datetime import datetime
 from random import random
 from wrfcloud.system import init_environment
