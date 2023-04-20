@@ -1,5 +1,8 @@
 FROM amazonlinux:latest
 
+# check the system architecture
+RUN if [[ "$(uname -m)" != "x86_64" ]]; then echo 'Must run on x86_64 architecture for compatibility with AWS codebuild'; exit 1; fi
+
 # install required os packages
 RUN yum -y update
 RUN yum -y install zip gzip tar java-11-amazon-corretto git which procps-ng jq wget
