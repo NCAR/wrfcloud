@@ -1,5 +1,4 @@
 FROM amazonlinux:latest
-# amazonlinux:latest    906a46221faa   4 months ago    194MB
 
 # install required os packages
 RUN yum -y update
@@ -36,11 +35,9 @@ RUN echo "output = json" >> ~/.aws/credentials
 # install nodejs and angular cli
 RUN touch "${HOME}/.bashrc"
 RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
-RUN source ~/.bashrc
-RUN nvm install 16
-RUN source ~/.bashrc
-RUN export node_version=$(${NVM_BIN}/node --version)
-RUN npm install -g @angular/cli@14
-RUN echo -n 'ewogICIkc2NoZW1hIjogIi4vbm9kZV9tb2R1bGVzL0Bhbmd1bGFyL2NsaS9saWIvY29uZmlnL3NjaGVtYS5qc29uIiwKICAidmVyc2lvbiI6IDEsCiAgImNsaSI6IHsKICAgICJjb21wbGV0aW9uIjogewogICAgICAicHJvbXB0ZWQiOiB0cnVlCiAgICB9CiAgfSwKICAicHJvamVjdHMiOiB7fQp9' | base64 -d > .angular-config.json
+RUN source ~/.nvm/nvm.sh; nvm install 16
+RUN source ~/.bashrc; npm install -g @angular/cli@14
+RUN echo -n 'ewogICIkc2NoZW1hIjogIi4vbm9kZV9tb2R1bGVzL0Bhbmd1bGFyL2NsaS9saWIvY29uZmlnL3NjaGVtYS5qc29uIiwKICAidmVyc2lvbiI6IDEsCiAgImNsaSI6IHsKICAgICJjb21wbGV0aW9uIjogewogICAgICAicHJvbXB0ZWQiOiB0cnVlCiAgICB9LAogICAgImFuYWx5dGljcyI6ICJhY2UxOTcxNS01Y2Q5LTQyYTItODI2Mi1jYmVlNDFhOTNjNWMiCiAgfSwKICAicHJvamVjdHMiOiB7fQp9Cg==' | base64 -d > ~/.angular-config.json
 RUN echo -n 'CiMgTG9hZCBBbmd1bGFyIENMSSBhdXRvY29tcGxldGlvbi4Kc291cmNlIDwobmcgY29tcGxldGlvbiBzY3JpcHQpCg==' | base64 -d >> ~/.bashrc
 RUN source ~/.bashrc
+
