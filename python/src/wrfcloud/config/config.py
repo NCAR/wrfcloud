@@ -2,6 +2,8 @@ import math
 import copy
 import re
 from typing import List, Union
+from collections import namedtuple
+
 import f90nml
 from wrfcloud.jobs import LatLonPoint
 from wrfcloud.log import Logger
@@ -17,6 +19,9 @@ class WrfConfig:
 
     # list of fields to remove from the data
     SANITIZE_KEYS: List[str] = ['s3_key_geo_em', 's3_key_wrf_namelist', 's3_key_wps_namelist']
+
+    # define a Domain type to store grid dimensions of a domain
+    Domain = namedtuple('Domain', 'nx ny')
 
     def __init__(self, data: dict = None):
         """
@@ -115,17 +120,17 @@ class WrfConfig:
     def cores(self) -> int:
         """
         Get the number of compute cores
-        :return: Number of compute cores to use
+        :return: Number of compute cores to use, or <= 0 to calculate number automatically
         """
-        return self._cores
+        return self._calculate_optimal_core_count() if self._cores <= 0 else self._cores
 
     @cores.setter
     def cores(self, core_count: int) -> None:
         """
         Set the number of cores
-        :param core_count: Number of cores to use, or <= 0 to calculate number automatically
+        :param core_count: Number of cores to use
         """
-        self._cores = self._calculate_optimal_core_count() if core_count <= 0 else core_count
+        self._cores = core_count
 
     @property
     def domain_center(self) -> LatLonPoint:
@@ -217,8 +222,65 @@ class WrfConfig:
 
     def _calculate_optimal_core_count(self) -> int:
         """
-        Calculate the optimal number of cores to use for this configuration
+        Calculate the optimal number of cores to use for this configuration.
+        Assumes 1 node will be used. If more than 96 cores are suggested, use 96.
         :return: Number of cores
         """
-        self.log.warn('WrfConfig._calculate_optimal_core_count is not implemented.  Returning default 96 cores.')
-        return 96
+        # read nx/ny info from WPS namelist geogrid section
+        wps_namelist = f90nml.reads(self.wps_namelist)
+        geogrid = wps_namelist.get('geogrid')
+        nx = geogrid.get('e_we')
+        ny = geogrid.get('e_sn')
+
+        # format nx/ny values into lists
+        if isinstance(nx, int):
+            nx = [nx]
+            ny = [ny]
+        elif not isinstance(nx, list):
+            self.log.warn('Could not read e_we/e_sn from WPS namelist')
+            return 96
+
+        # TODO: using first domain only. when adding support for multiple domains, remove subset of list
+        nx = nx[0:1]
+        ny = ny[0:1]
+
+        domain_list = [WrfConfig.Domain(x, y) for x, y in zip(nx, ny)]
+        core_estimate = self._estimate_core_count(domain_list)
+        self.log.info(f'Estimate core count: {core_estimate}')
+        # TODO: if more than 1 node is supported, factor that into result
+        return 96 if core_estimate > 96 else core_estimate
+
+    @staticmethod
+    def _estimate_core_count(domain_list: list):
+        """
+        Estimate the optimal number of cores to use for this configuration.
+        Estimation based on advice from:
+        https://forum.mmm.ucar.edu/threads/how-many-processors-should-i-use-to-run-wrf.5082
+        Assumes 1 node will be used. If more than 96 cores are suggested, use 96.
+        :param domain_list: List of tuples with nx/ny pairs (integers)
+        :return: Number of cores (integer)
+        """
+        (min_nx, min_ny), (max_nx, max_ny) = WrfConfig._get_min_max_grids(domain_list)
+        min_proc = (max_nx / 100) * (max_ny / 100)
+        max_proc = (min_nx / 25) * (min_ny / 25)
+        return int((min_proc + max_proc) / 2)
+
+    @staticmethod
+    def _get_min_max_grids(domain_list: list):
+        """
+        Get indices of smallest and largest grids.
+        :param domain_list: List of tuples with nx/ny pairs (integers)
+        :return: tuple with 2 WrfConfig.Domain for min and max grid sizes
+        """
+        min_grid = max_grid = None
+        min_idx = max_idx = 0
+        for idx, (nx, ny) in enumerate(domain_list):
+            grid_size = nx * ny
+            if min_grid is None or grid_size < min_grid:
+                min_grid = grid_size
+                min_idx = idx
+            if max_grid is None or grid_size > max_grid:
+                max_grid = grid_size
+                max_idx = idx
+
+        return domain_list[min_idx], domain_list[max_idx]
