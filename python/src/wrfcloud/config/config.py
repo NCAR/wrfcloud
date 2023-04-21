@@ -20,6 +20,7 @@ class WrfConfig:
     # list of fields to remove from the data
     SANITIZE_KEYS: List[str] = ['s3_key_geo_em', 's3_key_wrf_namelist', 's3_key_wps_namelist']
 
+    # define a Domain type to store grid dimensions of a domain
     Domain = namedtuple('Domain', 'nx ny')
 
     def __init__(self, data: dict = None):
