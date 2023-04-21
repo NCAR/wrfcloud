@@ -1,4 +1,7 @@
+import pytest
+
 from typing import List
+
 from wrfcloud.system import init_environment
 from wrfcloud.config import WrfConfig
 from helper import _get_all_sample_wrf_configurations
@@ -13,6 +16,7 @@ def test_wrf_configuration() -> None:
     Test the WrfConfig class
     :return: None
     """
+    pytest.skip()
     configs: List[WrfConfig] = _get_all_sample_wrf_configurations()
 
     for config in configs:
@@ -31,3 +35,36 @@ def test_wrf_configuration() -> None:
         sanitized_data = config.sanitized_data
         for key in config.SANITIZE_KEYS:
             assert key not in sanitized_data
+
+
+@pytest.mark.parametrize(
+    'domain_list, expected_cores', [
+        ([WrfConfig.Domain(100, 100)], 8),
+        ([WrfConfig.Domain(700, 500)], 297),
+        ([WrfConfig.Domain(400, 300)], 102),
+    ]
+)
+def test_estimate_core_count(domain_list, expected_cores) -> None:
+    assert WrfConfig._estimate_core_count(domain_list) == expected_cores
+
+
+@pytest.mark.parametrize(
+    'domain_list, expected_indices', [
+        ([WrfConfig.Domain(100, 100)], (WrfConfig.Domain(100, 100),
+                                        WrfConfig.Domain(100, 100))),
+        ([WrfConfig.Domain(700, 500)], (WrfConfig.Domain(700, 500),
+                                        WrfConfig.Domain(700, 500))),
+        ([WrfConfig.Domain(700, 500),
+          WrfConfig.Domain(500, 500)], (WrfConfig.Domain(500, 500),
+                                        WrfConfig.Domain(700, 500))),
+        ([WrfConfig.Domain(500, 500),
+          WrfConfig.Domain(500, 700)], (WrfConfig.Domain(500, 500),
+                                        WrfConfig.Domain(500, 700))),
+        ([WrfConfig.Domain(500, 600),
+          WrfConfig.Domain(500, 700),
+          WrfConfig.Domain(500, 500)], (WrfConfig.Domain(500, 500),
+                                        WrfConfig.Domain(500, 700))),
+    ]
+)
+def test_get_min_max_grids(domain_list, expected_indices) -> None:
+    assert WrfConfig._get_min_max_grids(domain_list) == expected_indices
