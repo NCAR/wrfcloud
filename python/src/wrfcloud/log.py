@@ -209,6 +209,8 @@ class Logger:
         """
         if self.log_level <= LogLevel.FATAL:
             self._log_it(LogLevel.FATAL, msg, error)
+        # raise exception
+        raise Exception(msg)
 
     def _log_it(self, level, msg, error=None):
         """
@@ -328,3 +330,12 @@ def traceback_to_array(error):
     :return: {str} The traceback as a string
     """
     return traceback.format_exception(None, error, error.__traceback__)
+
+
+class WRFCloudError(Exception):
+    def __init__(self, message, logs=None):
+        # Call the base class constructor with the parameters it needs
+        super().__init__(message)
+
+        # capture any error logs
+        self.logs = logs
