@@ -759,6 +759,9 @@ export class WrfViewerComponent implements OnInit
     /* show a new layer */
     if (layerGroup.visible)
     {
+      /* set the color palette and value range of the variable */
+      layerGroup.palette = layerGroup.layers[this.req.height][0].palette;
+
       /* turn off all other layers */
       for (let lg of this.layerGroups)
       {
