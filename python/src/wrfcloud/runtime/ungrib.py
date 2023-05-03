@@ -28,6 +28,9 @@ class Ungrib(Process):
         self.log: Logger = Logger(self.__class__.__name__)
         self.job: WrfJob = job
         self.namelist: Union[None, Namelist] = None
+        self.expected_output = [
+            os.path.join(self.ungrib_dir, 'FILE:*'),
+        ]
 
     def get_files(self) -> None:
         """

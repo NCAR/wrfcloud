@@ -8,6 +8,8 @@ import os
 from typing import Union
 from datetime import datetime
 import pytz
+import glob
+
 from wrfcloud.log import Logger
 
 
@@ -23,6 +25,8 @@ class Process:
         self.success: bool = False
         self.start_time: Union[None, float] = None
         self.end_time: Union[None, float] = None
+        self.expected_output: Union[None, list] = None
+        self.error_logs = None
 
     def start(self) -> None:
         """
@@ -30,6 +34,8 @@ class Process:
         """
         self.start_time = pytz.utc.localize(datetime.utcnow()).timestamp()
         self.success = self.run()
+        if not self.check_success():
+            self.parse_error_logs()
         self.end_time = pytz.utc.localize(datetime.utcnow()).timestamp()
 
     def get_run_summary(self) -> str:
@@ -100,3 +106,31 @@ class Process:
         """
         self.log.error('run is an abstract method on {self.__class__} and should not be called directly.')
         return False
+
+    def check_success(self) -> bool:
+        """
+        Check expected output files and logs to ensure run was successful.
+        """
+        # if self.run was unsuccessful, don't check for expected files
+        if not self.success:
+            return False
+
+        if self.expected_output is None:
+            self.log.debug(f'Error checking not implemented for {self.__class__.__name__}.')
+            return True
+
+        for expected_path in self.expected_output:
+            if not glob.glob(expected_path):
+                self.log.error(f'Expected file not found: {expected_path}')
+                self.log.fatal(f'{self.__class__.__name__} failed')
+                return False
+        return True
+
+    def parse_error_logs(self) -> None:
+        """
+        Read log file(s) on error to pass useful information to user.
+        Each subclass of Process should implement its own logic by
+        overriding this function.
+        """
+        self.log.debug(f'Error log parsing not implemented for {self.__class__.__name__}.')
+        return
