@@ -117,8 +117,10 @@ def main() -> None:
         _update_job_status(job, WrfJob.STATUS_CODE_FINISHED, 'Done', 1)
     except WRFCloudError as e:
         log.error(e.message, e)
+        if e.details:
+            log.info('Details about error updated in job status')
         if job:
-            _update_job_status(job, WrfJob.STATUS_CODE_FAILED, e.message, 1)
+            _update_job_status(job, WrfJob.STATUS_CODE_FAILED, e.message, 1, status_details=e.details)
     except Exception as e:
         log.error('Failed to run the model', e)
         if job:
@@ -134,13 +136,14 @@ def main() -> None:
                            'Failed to delete cluster, shutdown from AWS web console to avoid additional costs.', 1)
 
 
-def _update_job_status(job: Union[None, WrfJob], status_code: int, status_message: str, progress: float) -> None:
+def _update_job_status(job: Union[None, WrfJob], status_code: int, status_message: str, progress: float, status_details: Union[None, str]) -> None:
     """
     Update the job status in the database and web applications
     :param job: Job object to update
     :param status_code: Status code see WrfJob.STATUS_CODE_*
     :param status_message: Message to set and pass to the user
     :param progress: Fraction complete 0-1
+    :param status_details: Details about failure
     """
     if not job:
         return
@@ -149,6 +152,7 @@ def _update_job_status(job: Union[None, WrfJob], status_code: int, status_messag
     job.status_code = status_code
     job.progress = progress
     job.status_message = status_message
+    job.status_details = status_details
     update_job_in_system(job, True)
 
 

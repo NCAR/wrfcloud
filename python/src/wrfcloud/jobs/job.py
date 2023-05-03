@@ -59,6 +59,7 @@ class WrfJob:
         self.start_date: Union[str, None] = None
         self.end_date: Union[str, None] = None
         self.cores: Union[int, None] = None
+        self.status_details: Union[str, None] = None
 
         # initialize from data if provided
         if data is not None:
@@ -79,6 +80,7 @@ class WrfJob:
             'output_frequency': self.output_frequency,
             'status_code': self.status_code,
             'status_message': self.status_message,
+            'status_details': self.status_details,
             'progress': self.progress,
             'user_email': self.user_email,
             'notify': self.notify,
@@ -104,6 +106,7 @@ class WrfJob:
         self.input_frequency = None if 'input_frequency' not in data else data['input_frequency']
         self.status_code = None if 'status_code' not in data else data['status_code']
         self.status_message = None if 'status_message' not in data else data['status_message']
+        self.status_details = None if 'status_details' not in data else data['status_details']
         self.progress = None if 'progress' not in data else data['progress']
         self.user_email = None if 'user_email' not in data else data['user_email']
         self.notify = False if 'notify' not in data else data['notify']
