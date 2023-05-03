@@ -122,7 +122,7 @@ class Process:
         for expected_path in self.expected_output:
             if not glob.glob(expected_path):
                 self.log.error(f'Expected file not found: {expected_path}')
-                self.log.fatal(f'{self.__class__.__name__} failed')
+                self.log.fatal(f'{self.__class__.__name__} failed', logs=None)
                 return False
         return True
 

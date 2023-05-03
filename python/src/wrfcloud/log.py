@@ -200,17 +200,18 @@ class Logger:
         if self.log_level <= LogLevel.ERROR:
             self._log_it(LogLevel.ERROR, msg, error)
 
-    def fatal(self, msg, error=None):
+    def fatal(self, msg, error=None, logs=None):
         """
         Log a message
         :param msg: {str} The message
         :param error: {Error} Error object for stacktrace
+        :param logs: log file containing information about error
         :return: None
         """
         if self.log_level <= LogLevel.FATAL:
             self._log_it(LogLevel.FATAL, msg, error)
         # raise exception
-        raise Exception(msg)
+        raise WRFCloudError(msg, logs=logs)
 
     def _log_it(self, level, msg, error=None):
         """
@@ -336,6 +337,7 @@ class WRFCloudError(Exception):
     def __init__(self, message, logs=None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message)
-
+        # store error message to send to UI
+        self.message = message
         # capture any error logs
         self.logs = logs
