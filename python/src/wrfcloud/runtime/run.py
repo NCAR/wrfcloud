@@ -136,7 +136,7 @@ def main() -> None:
                            'Failed to delete cluster, shutdown from AWS web console to avoid additional costs.', 1)
 
 
-def _update_job_status(job: Union[None, WrfJob], status_code: int, status_message: str, progress: float, status_details: Union[None, str]) -> None:
+def _update_job_status(job: Union[None, WrfJob], status_code: int, status_message: str, progress: float, status_details: Union[None, str] = None) -> None:
     """
     Update the job status in the database and web applications
     :param job: Job object to update
