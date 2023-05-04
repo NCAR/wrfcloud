@@ -21,7 +21,8 @@ class WrfJob:
     # list of all fields supported
     ALL_KEYS = ['job_id', 'job_name', 'configuration_name', 'forecast_length', 'output_frequency',
                 'input_frequency', 'status_code', 'status_message', 'progress', 'user_email',
-                'layers', 'domain_center', 'domain_size', 'start_date', 'end_date', 'cores']
+                'layers', 'domain_center', 'domain_size', 'start_date', 'end_date', 'cores',
+                'status_details']
 
     # do not return these fields to the user
     SANITIZE_KEYS = ['input_frequency']
@@ -50,6 +51,7 @@ class WrfJob:
         self.input_frequency: Union[int, None] = None
         self.status_code: int = self.STATUS_CODE_PENDING
         self.status_message: Union[str, None] = None
+        self.status_details: Union[str, None] = None
         self.progress: float = 0
         self.user_email: Union[str, None] = None
         self.notify: bool = False
@@ -59,7 +61,6 @@ class WrfJob:
         self.start_date: Union[str, None] = None
         self.end_date: Union[str, None] = None
         self.cores: Union[int, None] = None
-        self.status_details: Union[str, None] = None
 
         # initialize from data if provided
         if data is not None:
@@ -434,6 +435,8 @@ class WrfJob:
             self.status_code = data['status_code']
         if 'status_message' in data:
             self.status_message = data['status_message']
+        if 'status_details' in data:
+            self.status_details = data['status_details']
         if 'progress' in data:
             self.progress = data['progress']
         if 'notify' in data:

@@ -84,6 +84,7 @@ export class JobDetailsComponent implements OnInit
     this.info[this.info.length] = {name: 'Job Progress', value: (data.job.progress * 100) + '%'};
     this.info[this.info.length] = {name: 'Job Status', value: this.statusCodeToText[data.job.status_code]};
     this.info[this.info.length] = {name: 'Status Message', value: data.job.status_message};
+    this.info[this.info.length] = {name: 'Error Logs', value: data.job.status_details};
   }
 
 
