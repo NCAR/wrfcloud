@@ -197,16 +197,16 @@ def _save_log_files(job: WrfJob) -> None:
     log_files += glob.glob(f'{job.work_dir}/wrf/rsl.error.*')
 
     # zip the files
-    zip_file: str = f'logs.zip'
-    with ZipFile(zip_file, 'w') as logs_zip:
+    zip_file: str = 'logs.zip'
+    zip_path: str = os.path.join(job.work_dir, zip_file)
+    with ZipFile(zip_path, 'w') as logs_zip:
         for log_file in log_files:
             logs_zip.write(log_file)
-        logs_zip.close()
 
     # save the zip file to S3
     bucket = os.environ['WRFCLOUD_BUCKET']
     s3 = boto3.client('s3')
-    s3.upload_file(zip_file, bucket, f'jobs/{job.job_id}/{zip_file}')
+    s3.upload_file(zip_path, bucket, f'jobs/{job.job_id}/{zip_file}')
 
 
 def _delete_cluster() -> None:
