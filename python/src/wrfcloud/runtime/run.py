@@ -149,6 +149,8 @@ def _update_job_status(job: Union[None, WrfJob], status_code: int, status_messag
         return
 
     Logger().info(f'Updating job status {job.job_id} {status_message}')
+    if status_details:
+        Logger().info(f'Details: {status_details}')
     job.status_code = status_code
     job.progress = progress
     job.status_message = status_message
