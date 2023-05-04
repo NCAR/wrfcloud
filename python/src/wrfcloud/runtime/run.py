@@ -117,14 +117,10 @@ def main() -> None:
         _update_job_status(job, WrfJob.STATUS_CODE_FINISHED, 'Done', 1)
     except WRFCloudError as e:
         log.error(e.message, e)
-        if e.details:
-            log.info('Details about error updated in job status')
-        if job:
-            _update_job_status(job, WrfJob.STATUS_CODE_FAILED, e.message, 1, status_details=e.details)
+        _update_job_status(job, WrfJob.STATUS_CODE_FAILED, e.message, 1, error_logs=e.details)
     except Exception as e:
         log.error('Failed to run the model', e)
-        if job:
-            _update_job_status(job, WrfJob.STATUS_CODE_FAILED, 'Failed', 1)
+        _update_job_status(job, WrfJob.STATUS_CODE_FAILED, 'Failed', 1)
 
     # Shutdown the cluster after completion or failure
     try:
@@ -136,25 +132,25 @@ def main() -> None:
                            'Failed to delete cluster, shutdown from AWS web console to avoid additional costs.', 1)
 
 
-def _update_job_status(job: Union[None, WrfJob], status_code: int, status_message: str, progress: float, status_details: Union[None, str] = None) -> None:
+def _update_job_status(job: Union[None, WrfJob], status_code: int, status_message: str, progress: float, error_logs: Union[None, str] = None) -> None:
     """
     Update the job status in the database and web applications
     :param job: Job object to update
     :param status_code: Status code see WrfJob.STATUS_CODE_*
     :param status_message: Message to set and pass to the user
     :param progress: Fraction complete 0-1
-    :param status_details: Details about failure
+    :param error_logs: Details about failure
     """
     if not job:
         return
 
     Logger().info(f'Updating job status {job.job_id} {status_message}')
-    if status_details:
-        Logger().info(f'Details: {status_details}')
+    if error_logs:
+        Logger().info(f'Details: {error_logs}')
     job.status_code = status_code
     job.progress = progress
     job.status_message = status_message
-    job.status_details = status_details
+    job.error_logs = error_logs
     update_job_in_system(job, True)
 
 
