@@ -156,4 +156,5 @@ class Process:
                 return
 
         # fail if success string was not found in log file
+        self.log.error(f'Success string ({self.log_success_string}) not found in {self.log_file}')
         self.success = False
