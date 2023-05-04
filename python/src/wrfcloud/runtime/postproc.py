@@ -114,13 +114,12 @@ class UPP(Process):
             # Create the itag namelist file for this fhr
             self.log.debug('Creating itag file')
             wrf_date = this_date.strftime("%Y-%m-%d_%H:%M:%S")
-            f = open('itag', "w")
-            f.write(f'{self.job.wrf_dir}/wrfout_d01_{wrf_date}\n')
-            f.write("netcdf\n")
-            f.write("grib2\n")
-            f.write(this_date.strftime("%Y-%m-%d_%H:%M:%S"))
-            f.write("\nNCAR\n")
-            f.close()
+            with open('itag', "w") as file_handle:
+                file_handle.write(f'{self.job.wrf_dir}/wrfout_d01_{wrf_date}\n')
+                file_handle.write("netcdf\n")
+                file_handle.write("grib2\n")
+                file_handle.write(this_date.strftime("%Y-%m-%d_%H:%M:%S"))
+                file_handle.write("\nNCAR\n")
 
             # run UPP
             self.log.debug('Calling run_upp')
