@@ -113,6 +113,8 @@ class Process:
         """
         # if self.run was unsuccessful, don't check for expected files
         if not self.success:
+            details = self.parse_error_logs()
+            self.log.fatal(f'{self.__class__.__name__} failed', details=details)
             return
 
         if self.expected_output is None:
@@ -141,5 +143,7 @@ class Process:
             return ''
         if not os.path.exists(self.log_file):
             return f'Log file does not exist: {self.log_file}'
+        output = f'*****\nContent from log file: {self.log_file}\n*****\n\n'
         with open(self.log_file, 'r') as file_handle:
-            return file_handle.read()
+            output += file_handle.read()
+        return output
