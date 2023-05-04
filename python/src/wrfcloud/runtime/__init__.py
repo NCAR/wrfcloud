@@ -27,6 +27,7 @@ class Process:
         self.end_time: Union[None, float] = None
         self.expected_output: Union[None, list] = None
         self.error_logs = None
+        self.log_file: Union[None, str] = None
 
     def start(self) -> None:
         """
@@ -34,8 +35,7 @@ class Process:
         """
         self.start_time = pytz.utc.localize(datetime.utcnow()).timestamp()
         self.success = self.run()
-        if not self.check_success():
-            self.parse_error_logs()
+        self.check_success()
         self.end_time = pytz.utc.localize(datetime.utcnow()).timestamp()
 
     def get_run_summary(self) -> str:
@@ -107,30 +107,39 @@ class Process:
         self.log.error('run is an abstract method on {self.__class__} and should not be called directly.')
         return False
 
-    def check_success(self) -> bool:
+    def check_success(self) -> None:
         """
         Check expected output files and logs to ensure run was successful.
         """
         # if self.run was unsuccessful, don't check for expected files
         if not self.success:
-            return False
+            return
 
         if self.expected_output is None:
             self.log.debug(f'Error checking not implemented for {self.__class__.__name__}.')
-            return True
+            self.success = True
+            return
 
         for expected_path in self.expected_output:
             if not glob.glob(expected_path):
-                details = f'Expected file not found: {expected_path}'
+                details = f'Expected file not found: {expected_path}\n'
+                details += self.parse_error_logs()
                 self.log.fatal(f'{self.__class__.__name__} failed', details=details)
-                return False
-        return True
+                self.success = False
+                return
+        self.success = True
+        return
 
-    def parse_error_logs(self) -> None:
+    def parse_error_logs(self) -> str:
         """
         Read log file(s) on error to pass useful information to user.
         Each subclass of Process should implement its own logic by
         overriding this function.
         """
-        self.log.debug(f'Error log parsing not implemented for {self.__class__.__name__}.')
-        return
+        if self.log_file is None:
+            self.log.debug(f'Error log parsing not implemented for {self.__class__.__name__}.')
+            return ''
+        if not os.path.exists(self.log_file):
+            return f'Log file does not exist: {self.log_file}'
+        with open(self.log_file, 'r') as file_handle:
+            return file_handle.read()

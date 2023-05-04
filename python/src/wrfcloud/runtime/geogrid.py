@@ -35,6 +35,7 @@ class GeoGrid(Process):
         self.expected_output = [
             os.path.join(self.config_dir, 'geo_em.d01.nc'),
         ]
+        self.log_file = os.path.join(self.geogrid_dir, 'geogrid.log')
 
     def run(self):
         """

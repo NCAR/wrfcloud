@@ -31,6 +31,7 @@ class Ungrib(Process):
         self.expected_output = [
             os.path.join(self.ungrib_dir, 'FILE:*'),
         ]
+        self.log_file = os.path.join(self.ungrib_dir, 'ungrib.log')
 
     def get_files(self) -> None:
         """
