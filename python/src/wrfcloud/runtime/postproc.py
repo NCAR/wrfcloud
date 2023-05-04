@@ -33,6 +33,7 @@ class UPP(Process):
         self.job = job
         self.namelist: Union[None, Namelist] = None
         self.grib_files: List[str] = []
+        self.expected_output = [os.path.join(self.job.upp_dir, 'fhr_*', 'WRFPRS.GrbF*')]
 
     def _get_files(self) -> None:
         """
@@ -155,6 +156,9 @@ class Derive(Process):
         self.log = Logger(self.__class__.__name__)
         self.job = job
         self.nc_files = []
+        self.expected_output = [
+            os.path.join(self.job.derive_dir, 'wrfderive_d0*.nc'),
+        ]
 
     def run(self) -> bool:
         """
@@ -201,6 +205,10 @@ class GeoJson(Process):
         self.grib_files: List[str] = []
         self.nc_files: List[str] = []
         self.wrf_layers: List[WrfLayer] = []
+        self.expected_output = [
+            os.path.join(self.job.derive_dir, 'wrfderive_d0*json.gz'),
+            os.path.join(self.job.upp_dir, 'fhr_*', 'WRFPRS.GrbF*.geojson.gz')
+        ]
 
     def set_grib_files(self, grib_files: List[str]) -> None:
         """
