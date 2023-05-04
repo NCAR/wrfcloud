@@ -246,7 +246,6 @@ export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, Webs
       {
         job_.status_code = job.status_code;
         job_.status_message = job.status_message;
-        job_.error_logs = job.error_logs;
         job_.job_name = job.job_name;
         job_.output_frequency = job.output_frequency;
         job_.forecast_length = job.forecast_length;

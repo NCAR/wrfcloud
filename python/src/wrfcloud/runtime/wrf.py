@@ -26,6 +26,7 @@ class Wrf(Process):
         self.namelist: Union[None, Namelist] = None
         self.expected_output = [os.path.join(self.job.wrf_dir, 'wrfout_d0*')]
         self.log_file = os.path.join(self.job.wrf_dir, 'rsl.out.0000')
+        self.log_success_string = 'SUCCESS COMPLETE WRF'
 
     def get_files(self) -> None:
         """

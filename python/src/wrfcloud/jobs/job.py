@@ -21,8 +21,7 @@ class WrfJob:
     # list of all fields supported
     ALL_KEYS = ['job_id', 'job_name', 'configuration_name', 'forecast_length', 'output_frequency',
                 'input_frequency', 'status_code', 'status_message', 'progress', 'user_email',
-                'layers', 'domain_center', 'domain_size', 'start_date', 'end_date', 'cores',
-                'error_logs']
+                'layers', 'domain_center', 'domain_size', 'start_date', 'end_date', 'cores']
 
     # do not return these fields to the user
     SANITIZE_KEYS = ['input_frequency']
@@ -51,7 +50,6 @@ class WrfJob:
         self.input_frequency: Union[int, None] = None
         self.status_code: int = self.STATUS_CODE_PENDING
         self.status_message: Union[str, None] = None
-        self.error_logs: Union[str, None] = None
         self.progress: float = 0
         self.user_email: Union[str, None] = None
         self.notify: bool = False
@@ -81,7 +79,6 @@ class WrfJob:
             'output_frequency': self.output_frequency,
             'status_code': self.status_code,
             'status_message': self.status_message,
-            'error_logs': self.error_logs,
             'progress': self.progress,
             'user_email': self.user_email,
             'notify': self.notify,
@@ -107,7 +104,6 @@ class WrfJob:
         self.input_frequency = None if 'input_frequency' not in data else data['input_frequency']
         self.status_code = None if 'status_code' not in data else data['status_code']
         self.status_message = None if 'status_message' not in data else data['status_message']
-        self.error_logs = None if 'error_logs' not in data else data['error_logs']
         self.progress = None if 'progress' not in data else data['progress']
         self.user_email = None if 'user_email' not in data else data['user_email']
         self.notify = False if 'notify' not in data else data['notify']
@@ -435,8 +431,6 @@ class WrfJob:
             self.status_code = data['status_code']
         if 'status_message' in data:
             self.status_message = data['status_message']
-        if 'error_logs' in data:
-            self.error_logs = data['error_logs']
         if 'progress' in data:
             self.progress = data['progress']
         if 'notify' in data:

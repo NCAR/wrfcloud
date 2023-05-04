@@ -26,8 +26,8 @@ class Process:
         self.start_time: Union[None, float] = None
         self.end_time: Union[None, float] = None
         self.expected_output: Union[None, list] = None
-        self.error_logs = None
         self.log_file: Union[None, str] = None
+        self.log_success_string: Union[None, str] = None
 
     def start(self) -> None:
         """
@@ -35,8 +35,10 @@ class Process:
         """
         self.start_time = pytz.utc.localize(datetime.utcnow()).timestamp()
         self.success = self.run()
-        self.check_success()
         self.end_time = pytz.utc.localize(datetime.utcnow()).timestamp()
+        self.check_success()
+        if not self.success:
+            self.log.fatal(f'{self.__class__.__name__} failed')
 
     def get_run_summary(self) -> str:
         """
@@ -111,39 +113,47 @@ class Process:
         """
         Check expected output files and logs to ensure run was successful.
         """
-        # if self.run was unsuccessful, don't check for expected files
+        # if self.run was unsuccessful, don't check expected files or logs
         if not self.success:
-            details = self.parse_error_logs()
-            self.log.fatal(f'{self.__class__.__name__} failed', details=details)
             return
 
+        # check if the expected output files exist and error if they do not
         if self.expected_output is None:
-            self.log.debug(f'Error checking not implemented for {self.__class__.__name__}.')
-            self.success = True
-            return
+            self.log.debug(f'Expected output file check not implemented for {self.__class__.__name__}.')
+        else:
+            for expected_path in self.expected_output:
+                if not glob.glob(expected_path):
+                    self.log.error(f'Expected file not found: {expected_path}')
+                    self.success = False
+                    return
 
-        for expected_path in self.expected_output:
-            if not glob.glob(expected_path):
-                details = f'Expected file not found: {expected_path}\n'
-                details += self.parse_error_logs()
-                self.log.fatal(f'{self.__class__.__name__} failed', details=details)
-                self.success = False
-                return
-        self.success = True
-        return
+        # parse logs and error if expected string is not found
+        self._parse_error_logs()
 
-    def parse_error_logs(self) -> str:
+    def _parse_error_logs(self) -> None:
         """
-        Read log file(s) on error to pass useful information to user.
-        Each subclass of Process should implement its own logic by
-        overriding this function.
+        Read log file(s) to check for string that indicates a successful run.
         """
         if self.log_file is None:
             self.log.debug(f'Error log parsing not implemented for {self.__class__.__name__}.')
-            return ''
+            return
+
         if not os.path.exists(self.log_file):
-            return f'Log file does not exist: {self.log_file}'
-        output = f'*****\nContent from log file: {self.log_file}\n*****\n\n'
+            self.log.debug(f'Log file does not exist: {self.log_file}')
+            return
+
+        self.log.debug(f'Looking for success string in {self.log_file}')
         with open(self.log_file, 'r') as file_handle:
-            output += file_handle.read()
-        return output
+            output = file_handle.read().splitlines()
+
+        # traverse through file contents backwards
+        output.reverse()
+
+        # look for string to indicate a successful run
+        for line in output:
+            if self.log_success_string in line:
+                self.log.debug(f'Success string found in log file: {self.log_success_string}')
+                return
+
+        # fail if success string was not found in log file
+        self.success = False

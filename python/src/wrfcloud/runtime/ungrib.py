@@ -30,6 +30,7 @@ class Ungrib(Process):
         self.namelist: Union[None, Namelist] = None
         self.expected_output = [os.path.join(self.job.ungrib_dir, 'FILE:*')]
         self.log_file = os.path.join(self.job.ungrib_dir, 'ungrib.log')
+        self.log_success_string = 'Successful completion of program ungrib.exe'
 
     def get_files(self) -> None:
         """

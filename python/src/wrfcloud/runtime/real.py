@@ -29,6 +29,7 @@ class Real(Process):
             os.path.join(self.job.real_dir, 'wrfinput_d0*'),
         ]
         self.log_file = os.path.join(self.job.real_dir, 'rsl.out.0000')
+        self.log_success_string = 'SUCCESS COMPLETE REAL_EM INIT'
 
     def get_files(self) -> None:
         """

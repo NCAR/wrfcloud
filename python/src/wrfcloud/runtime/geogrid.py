@@ -34,6 +34,7 @@ class GeoGrid(Process):
         self.num_domains: int = 0
         self.expected_output = [os.path.join(self.config_dir, 'geo_em.d01.nc')]
         self.log_file = os.path.join(self.geogrid_dir, 'geogrid.log')
+        self.log_success_string = 'Successful completion of program geogrid.exe'
 
     def run(self):
         """

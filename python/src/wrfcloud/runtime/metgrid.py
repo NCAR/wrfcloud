@@ -27,6 +27,7 @@ class MetGrid(Process):
         self.namelist: Union[None, Namelist] = None
         self.expected_output = [os.path.join(self.job.metgrid_dir, 'met_em.d0*.nc')]
         self.log_file = os.path.join(self.job.metgrid_dir, 'metgrid.log')
+        self.log_success_string = 'Successful completion of program metgrid.exe'
 
     def get_files(self) -> None:
         """

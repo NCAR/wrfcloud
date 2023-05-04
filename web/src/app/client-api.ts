@@ -913,7 +913,6 @@ export interface WrfJob
   output_frequency: number;
   status_code: number;
   status_message: string;
-  error_logs: string;
   progress: number;
   user_email: string;
   notify: boolean;
