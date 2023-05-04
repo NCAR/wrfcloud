@@ -29,9 +29,9 @@ class Ungrib(Process):
         self.job: WrfJob = job
         self.namelist: Union[None, Namelist] = None
         self.expected_output = [
-            os.path.join(self.ungrib_dir, 'FILE:*'),
+            os.path.join(self.job.ungrib_dir, 'FILE:*'),
         ]
-        self.log_file = os.path.join(self.ungrib_dir, 'ungrib.log')
+        self.log_file = os.path.join(self.job.ungrib_dir, 'ungrib.log')
 
     def get_files(self) -> None:
         """
