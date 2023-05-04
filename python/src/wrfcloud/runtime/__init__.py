@@ -97,8 +97,11 @@ class Process:
         f.close()
 
         # submit the job to the batch queue
-        slurm_job_id = os.system(f'/opt/slurm/bin/sbatch -p {partition_name} -W {slurm_file}')
-        self.log.info(f'Submitted {exe_name} to {partition_name} as job {slurm_job_id}.')
+        # TODO: get job ID by using subprocess -- os.system returns success status
+        self.log.info(f'Submitted {exe_name} to {partition_name}.')
+        if os.system(f'/opt/slurm/bin/sbatch -p {partition_name} -W {slurm_file}'):
+            self.log.error(f'sbatch returned non-zero')
+            return False
 
         return True
 
@@ -139,7 +142,8 @@ class Process:
             return
 
         if not os.path.exists(self.log_file):
-            self.log.debug(f'Log file does not exist: {self.log_file}')
+            self.log.error(f'Log file does not exist: {self.log_file}')
+            self.success = False
             return
 
         self.log.debug(f'Looking for success string in {self.log_file}')

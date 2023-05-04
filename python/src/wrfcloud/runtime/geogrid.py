@@ -77,6 +77,21 @@ class GeoGrid(Process):
 
         return True
 
+    def _parse_error_logs(self) -> None:
+        """
+        Check if geogrid log file exists. GeoGrid will not run if it has
+        already run, so the log file will not exist in this case.
+        If the log file doesn't exist, skip the log parsing logic.
+        Without this check, the log parsing logic will fail when it can't
+        find the log file.
+        """
+        # geogrid may not run, so the log file may not exist
+        # if log file does not exist, do not fail and skip parsing logic
+        if not os.path.exists(self.log_file):
+            self.log.debug(f'Log file does not exist: {self.log_file}')
+            return
+        super()._parse_error_logs()
+
     def _any_geo_em_files_exist_local(self):
         """
         Check if geo_em.dXX.nc files already exist in static data dir.
@@ -207,7 +222,7 @@ class GeoGrid(Process):
         cmd: str = f'cd {self.geogrid_dir}; ./{self.EXE} >& geogrid.log'
         # if return code is non-zero, return False
         if os.system(cmd):
-            self.log.error(f'geogrid.exe failed, see {self.geogrid_dir}/geogrid.log')
+            self.log.error(f'geogrid.exe returned non-zero')
             return False
 
         return True
