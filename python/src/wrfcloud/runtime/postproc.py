@@ -72,9 +72,12 @@ class UPP(Process):
         self.log.debug('Executing unipost.exe')
         if self.job.cores == 1:
             upp_cmd = './unipost.exe >& unipost.log'
-            os.system(upp_cmd)
-        else:
-            self.submit_job('unipost.exe', self.job.cores, 'wrf')
+            if os.system(upp_cmd):
+                self.log.error(f'unipost.exe returned non-zero')
+                return False
+            return True
+
+        return self.submit_job('unipost.exe', self.job.cores, 'wrf')
 
     def run(self) -> bool:
         """
@@ -120,7 +123,8 @@ class UPP(Process):
 
             # run UPP
             self.log.debug('Calling run_upp')
-            self._run_upp()
+            if not self._run_upp():
+                return False
 
             # collect list of grib files
             try:
@@ -130,12 +134,12 @@ class UPP(Process):
                 self.grib_files.append(grib_file)
             except Exception as e:
                 self.log.error(f'Failed to find grib file in directory: {fhr_dir}', e)
+                return False
 
             # increment the date and forecast hour
             this_date = this_date + increment
             fhr = fhr + 1
 
-        # TODO: Check for successful completion of postproc
         return True
 
 

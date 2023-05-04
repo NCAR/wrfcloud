@@ -50,7 +50,7 @@ class Wrf(Process):
         self.log.debug('Linking namelist.input from real working directory')
         self.symlink(f'{self.job.real_dir}/namelist.input', 'namelist.input')
 
-    def run_wrf(self) -> None:
+    def run_wrf(self) -> bool:
         """
         Executes the wrf.exe program
         """
@@ -60,9 +60,12 @@ class Wrf(Process):
         self.log.debug('Executing wrf.exe')
         if self.job.cores == 1:
             wrf_cmd = './wrf.exe >& wrf.log'
-            os.system(wrf_cmd)
-        else:
-            self.submit_job('wrf.exe', self.job.cores, 'wrf')
+            if os.system(wrf_cmd):
+                self.log.error(f'real.exe returned non-zero')
+                return False
+            return True
+
+        return self.submit_job('wrf.exe', self.job.cores, 'wrf')
 
     def run(self) -> bool:
         """Main routine that sets up, runs, and monitors WRF end-to-end"""
@@ -80,7 +83,4 @@ class Wrf(Process):
         self.get_files()
 
         self.log.debug('Calling run_wrf')
-        self.run_wrf()
-
-        # TODO: Check for successful completion of WRF
-        return True
+        return self.run_wrf()

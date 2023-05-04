@@ -57,7 +57,9 @@ class MetGrid(Process):
 
         self.log.debug('Executing metgrid.exe')
         metgrid_cmd = './metgrid.exe >& metgrid.log'
-        os.system(metgrid_cmd)
+        if os.system(metgrid_cmd):
+            self.log.error(f'metgrid.exe returned non-zero')
+            return False
 
     def run(self) -> bool:
         """

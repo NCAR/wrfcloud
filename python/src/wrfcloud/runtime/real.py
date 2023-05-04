@@ -41,7 +41,7 @@ class Real(Process):
         for met_em_file in filelist:
             self.symlink(met_em_file, f'{self.job.real_dir}/' + os.path.basename(met_em_file))
 
-    def run_real(self) -> None:
+    def run_real(self) -> bool:
         """
         Executes the real.exe program
         """
@@ -51,9 +51,12 @@ class Real(Process):
         self.log.debug('Executing real.exe')
         if self.job.cores == 1:
             real_cmd = './real.exe >& real.log'
-            os.system(real_cmd)
-        else:
-            self.submit_job('real.exe', self.job.cores, 'wrf')
+            if os.system(real_cmd):
+                self.log.error(f'real.exe returned non-zero')
+                return False
+            return True
+
+        return self.submit_job('real.exe', self.job.cores, 'wrf')
 
     def run(self) -> bool:
         """
@@ -77,7 +80,4 @@ class Real(Process):
         self.get_files()
 
         self.log.debug('Calling run_real')
-        self.run_real()
-
-        # TODO: Check for successful completion of real
-        return True
+        return self.run_real()
