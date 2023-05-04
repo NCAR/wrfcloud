@@ -24,6 +24,8 @@ class Wrf(Process):
         self.log = Logger(self.__class__.__name__)
         self.job = job
         self.namelist: Union[None, Namelist] = None
+        self.expected_output = [os.path.join(self.job.wrf_dir, 'wrfout_d0*')]
+        self.log_file = os.path.join(self.job.wrf_dir, 'rsl.out.0000')
 
     def get_files(self) -> None:
         """

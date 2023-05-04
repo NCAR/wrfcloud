@@ -24,6 +24,11 @@ class Real(Process):
         self.log = Logger(self.__class__.__name__)
         self.job = job
         self.namelist: Union[None, Namelist] = None
+        self.expected_output = [
+            os.path.join(self.job.real_dir, 'wrfbdy_d01'),
+            os.path.join(self.job.real_dir, 'wrfinput_d0*'),
+        ]
+        self.log_file = os.path.join(self.job.real_dir, 'rsl.out.0000')
 
     def get_files(self) -> None:
         """

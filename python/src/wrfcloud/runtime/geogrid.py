@@ -32,9 +32,7 @@ class GeoGrid(Process):
         self.wps_dir: str = self.job.wps_code_dir
         self.bucket_name: str = os.environ['WRFCLOUD_BUCKET']
         self.num_domains: int = 0
-        self.expected_output = [
-            os.path.join(self.config_dir, 'geo_em.d01.nc'),
-        ]
+        self.expected_output = [os.path.join(self.config_dir, 'geo_em.d01.nc')]
         self.log_file = os.path.join(self.geogrid_dir, 'geogrid.log')
 
     def run(self):

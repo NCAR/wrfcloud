@@ -25,6 +25,8 @@ class MetGrid(Process):
         self.log = Logger(self.__class__.__name__)
         self.job = job
         self.namelist: Union[None, Namelist] = None
+        self.expected_output = [os.path.join(self.job.metgrid_dir, 'met_em.d0*.nc')]
+        self.log_file = os.path.join(self.job.metgrid_dir, 'metgrid.log')
 
     def get_files(self) -> None:
         """
