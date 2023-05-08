@@ -19,7 +19,13 @@ class Process:
     """
     def __init__(self):
         """
-        Initialize the process member variables
+        Initialize the process member variables.
+        Override the following values in the sub-classes to incorporate
+        error checking for a successful process run.
+        Set self.expected_output to a list of file paths (wildcards accepted)
+        that will alert us to a failed run if they do not exist.
+        Set self.log_file to a string of the path for a log file to read and
+        check for a success message, defined by self.log_success_string.
         """
         self.log = Logger(self.__class__.__name__)
         self.success: bool = False
@@ -115,6 +121,7 @@ class Process:
     def check_success(self) -> None:
         """
         Check expected output files and logs to ensure run was successful.
+        Also calls logic to parse logs for success string.
         """
         # if self.run was unsuccessful, don't check expected files or logs
         if not self.success:
@@ -136,6 +143,9 @@ class Process:
     def _parse_error_logs(self) -> None:
         """
         Read log file(s) to check for string that indicates a successful run.
+        Failure is reported if the log file to check does not exist or if
+        the self.log_success_string is not found in the log file.
+        Sets self.success to False if a check fails.
         """
         if self.log_file is None:
             self.log.debug(f'Error log parsing not implemented for {self.__class__.__name__}.')
