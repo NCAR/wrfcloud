@@ -759,8 +759,10 @@ export class WrfViewerComponent implements OnInit
     /* show a new layer */
     if (layerGroup.visible)
     {
-      /* set the color palette and value range of the variable */
-      layerGroup.palette = layerGroup.layers[this.req.height][0].palette;
+      /* set the color palette and value range of the variable based on the first time */
+      /* step of the layer group if this is a 3D field, we need to insert the selected */
+      /* height, if it is a 2D field, we just use 0 for the height */
+      layerGroup.palette = layerGroup.layers.hasOwnProperty(this.req.height) ? layerGroup.layers[this.req.height][0].palette : layerGroup.layers[0][0].palette;
 
       /* turn off all other layers */
       for (let lg of this.layerGroups)

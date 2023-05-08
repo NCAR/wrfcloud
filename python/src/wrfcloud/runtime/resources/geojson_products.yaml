@@ -168,8 +168,38 @@ products:
     units: 'ºC'
     z_levels:
       - 500
+  - netcdf:
+      variable: temp_pres
+    range:
+      min: -50
+      max: -30
+    contour_interval: 2
+    palette: viridis
+    display_name: 'Temperature (3D)'
+    units: 'ºC'
+    z_levels:
       - 300
+  - netcdf:
+      variable: temp_pres
+    range:
+      min: -70
+      max: -30
+    contour_interval: 2
+    palette: viridis
+    display_name: 'Temperature (3D)'
+    units: 'ºC'
+    z_levels:
       - 250
+  - netcdf:
+      variable: temp_pres
+    range:
+      min: -70
+      max: -50
+    contour_interval: 2
+    palette: viridis
+    display_name: 'Temperature (3D)'
+    units: 'ºC'
+    z_levels:
       - 100
 
   - netcdf:
