@@ -61,7 +61,7 @@ class Wrf(Process):
         if self.job.cores == 1:
             wrf_cmd = './wrf.exe >& wrf.log'
             if os.system(wrf_cmd):
-                self.log.error(f'real.exe returned non-zero')
+                self.log.error(f'wrf.exe returned non-zero')
                 return False
             return True
 
