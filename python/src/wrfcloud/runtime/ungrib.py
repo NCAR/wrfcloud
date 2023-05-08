@@ -20,6 +20,12 @@ class Ungrib(Process):
     """
     Class for setting up, executing, and monitoring a run of the WPS program ungrib
     """
+
+    """
+    Ungrib executable filename
+    """
+    EXE = 'ungrib.exe'
+
     def __init__(self, job: WrfJob):
         """
         Initialize the Ungrib object
@@ -76,13 +82,13 @@ class Ungrib(Process):
 
     def run_ungrib(self) -> bool:
         """Executes the ungrib.exe program"""
-        self.log.debug('Linking ungrib.exe to ungrib working directory')
-        self.symlink(f'{self.job.wps_code_dir}/ungrib/ungrib.exe', 'ungrib.exe')
+        self.log.debug(f'Linking {self.EXE} to ungrib working directory')
+        self.symlink(f'{self.job.wps_code_dir}/ungrib/{self.EXE}', self.EXE)
 
-        self.log.debug('Executing ungrib.exe')
-        ungrib_cmd = './ungrib.exe >& ungrib.log'
+        self.log.debug(f'Executing {self.EXE}')
+        ungrib_cmd = f'./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
         if os.system(ungrib_cmd):
-            self.log.error(f'ungrib.exe returned non-zero')
+            self.log.error(f'{self.EXE} returned non-zero')
             return False
 
         return True

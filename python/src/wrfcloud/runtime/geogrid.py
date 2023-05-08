@@ -219,10 +219,10 @@ class GeoGrid(Process):
         :returns: True if geogrid.exe runs successfully, False if it fails
         """
         self.log.info(f'Running {self.EXE} from {self.geogrid_dir}, logging to geogrid.log')
-        cmd: str = f'cd {self.geogrid_dir}; ./{self.EXE} >& geogrid.log'
+        cmd: str = f'cd {self.geogrid_dir}; ./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
         # if return code is non-zero, return False
         if os.system(cmd):
-            self.log.error(f'geogrid.exe returned non-zero')
+            self.log.error(f'{self.EXE} returned non-zero')
             return False
 
         return True

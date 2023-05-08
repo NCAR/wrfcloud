@@ -16,6 +16,12 @@ class Wrf(Process):
     """
     Class for setting up, executing, and monitoring a run of the WRF model
     """
+
+    """
+    WRF executable filename
+    """
+    EXE = 'wrf.exe'
+
     def __init__(self, job: WrfJob):
         """
         Initialize the Wrf object
@@ -54,22 +60,22 @@ class Wrf(Process):
         """
         Executes the wrf.exe program
         """
-        self.log.debug('Linking wrf.exe to wrf working directory')
-        self.symlink(f'{self.job.wrf_code_dir}/main/wrf.exe', 'wrf.exe')
+        self.log.debug(f'Linking {self.EXE} to wrf working directory')
+        self.symlink(f'{self.job.wrf_code_dir}/main/{self.EXE}', self.EXE)
 
-        self.log.debug('Executing wrf.exe')
+        self.log.debug(f'Executing {self.EXE}')
         if self.job.cores == 1:
-            wrf_cmd = './wrf.exe >& wrf.log'
+            wrf_cmd = f'./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
             if os.system(wrf_cmd):
-                self.log.error(f'wrf.exe returned non-zero')
+                self.log.error(f'{self.EXE} returned non-zero')
                 return False
             return True
 
-        return self.submit_job('wrf.exe', self.job.cores, 'wrf')
+        return self.submit_job(self.EXE, self.job.cores, 'wrf')
 
     def run(self) -> bool:
         """Main routine that sets up, runs, and monitors WRF end-to-end"""
-        self.log.info(f'Setting up wrf.exe for "{self.job.job_id}"')
+        self.log.info(f'Setting up {self.EXE} for "{self.job.job_id}"')
 
         # Check if experiment working directory already exists, take action based on value of runinfo.exists
         action = check_wd_exist(self.job.exists, self.job.wrf_dir)

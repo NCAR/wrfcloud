@@ -16,6 +16,12 @@ class Real(Process):
     """
     Class for setting up, executing, and monitoring a run of the 'real.exe' WRF pre-processing program
     """
+
+    """
+    Real executable filename
+    """
+    EXE = 'real.exe'
+
     def __init__(self, job: WrfJob):
         """
         Initialize the Real object
@@ -45,18 +51,18 @@ class Real(Process):
         """
         Executes the real.exe program
         """
-        self.log.debug('Linking real.exe to real working directory')
-        self.symlink(f'{self.job.wrf_code_dir}/main/real.exe', 'real.exe')
+        self.log.debug(f'Linking {self.EXE} to real working directory')
+        self.symlink(f'{self.job.wrf_code_dir}/main/{self.EXE}', self.EXE)
 
-        self.log.debug('Executing real.exe')
+        self.log.debug(f'Executing {self.EXE}')
         if self.job.cores == 1:
-            real_cmd = './real.exe >& real.log'
+            real_cmd = f'./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
             if os.system(real_cmd):
-                self.log.error(f'real.exe returned non-zero')
+                self.log.error(f'{self.EXE} returned non-zero')
                 return False
             return True
 
-        return self.submit_job('real.exe', self.job.cores, 'wrf')
+        return self.submit_job(self.EXE, self.job.cores, 'wrf')
 
     def run(self) -> bool:
         """

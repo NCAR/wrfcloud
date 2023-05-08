@@ -24,6 +24,12 @@ class UPP(Process):
     """
     Class for setting up, executing, and monitoring a run of WRF post-processing tasks
     """
+
+    """
+    UPP executable filename
+    """
+    EXE = 'unipost.exe'
+
     def __init__(self, job: WrfJob):
         """
         Initialize the ProcProc object
@@ -67,18 +73,18 @@ class UPP(Process):
         """
         Executes the unipost.exe program
         """
-        self.log.debug('Linking unipost.exe to upp working directory')
-        self.symlink(f'{self.job.upp_code_dir}/bin/unipost.exe', 'unipost.exe')
+        self.log.debug(f'Linking {self.EXE} to upp working directory')
+        self.symlink(f'{self.job.upp_code_dir}/bin/{self.EXE}', self.EXE)
 
-        self.log.debug('Executing unipost.exe')
+        self.log.debug(f'Executing {self.EXE}')
         if self.job.cores == 1:
-            upp_cmd = './unipost.exe >& unipost.log'
+            upp_cmd = f'./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
             if os.system(upp_cmd):
-                self.log.error(f'unipost.exe returned non-zero')
+                self.log.error(f'{self.EXE} returned non-zero')
                 return False
             return True
 
-        return self.submit_job('unipost.exe', self.job.cores, 'wrf')
+        return self.submit_job(self.EXE, self.job.cores, 'wrf')
 
     def run(self) -> bool:
         """

@@ -17,6 +17,12 @@ class MetGrid(Process):
     """
     Class for setting up, executing, and monitoring a run of the WPS program metgrid
     """
+
+    """
+    MetGrid executable filename
+    """
+    EXE = 'metgrid.exe'
+
     def __init__(self, job: WrfJob):
         """
         Initialize the MetGrid object
@@ -52,13 +58,13 @@ class MetGrid(Process):
         """
         Executes the metgrid.exe program
         """
-        self.log.debug('Linking metgrid.exe to metgrid working directory')
-        self.symlink(f'{self.job.wps_code_dir}/metgrid/metgrid.exe', 'metgrid.exe')
+        self.log.debug(f'Linking {self.EXE} to metgrid working directory')
+        self.symlink(f'{self.job.wps_code_dir}/metgrid/{self.EXE}', self.EXE)
 
-        self.log.debug('Executing metgrid.exe')
-        metgrid_cmd = './metgrid.exe >& metgrid.log'
+        self.log.debug(f'Executing {self.EXE}')
+        metgrid_cmd = f'./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
         if os.system(metgrid_cmd):
-            self.log.error(f'metgrid.exe returned non-zero')
+            self.log.error(f'{self.EXE} returned non-zero')
             return False
 
         return True
