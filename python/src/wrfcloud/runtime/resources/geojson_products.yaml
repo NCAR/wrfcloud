@@ -193,8 +193,8 @@ products:
   - netcdf:
       variable: temp_pres
     range:
-      min: -70
-      max: -50
+      min: -80
+      max: -40
     contour_interval: 2
     palette: viridis
     display_name: 'Temperature (3D)'
