@@ -89,18 +89,17 @@ class Process:
         :return: True if successfully submitted to the batch queue
         """
         slurm_file = exe_name + ".sbatch"
-        f = open(slurm_file, "w")
-        f.write('#!/bin/bash\n')
-        f.write(f'#SBATCH --job-name={exe_name}\n')
-        f.write(f'#SBATCH --ntasks={n_tasks}\n')
-        f.write(f'#SBATCH --cpus-per-task=1\n')
-        f.write(f'#SBATCH --nodes=1\n')
-        f.write(f'#SBATCH --ntasks-per-node={n_tasks}\n')
-        f.write(f'#SBATCH --output={exe_name}_%j.log\n')
-        f.write(f'\ndate +%s > START\n')
-        f.write(f'\n/opt/slurm/bin/srun --mpi=pmi2 {exe_name}\n')
-        f.write(f'\ndate +%s > STOP\n')
-        f.close()
+        with open(slurm_file, "w") as file_handle:
+            file_handle.write('#!/bin/bash\n')
+            file_handle.write(f'#SBATCH --job-name={exe_name}\n')
+            file_handle.write(f'#SBATCH --ntasks={n_tasks}\n')
+            file_handle.write(f'#SBATCH --cpus-per-task=1\n')
+            file_handle.write(f'#SBATCH --nodes=1\n')
+            file_handle.write(f'#SBATCH --ntasks-per-node={n_tasks}\n')
+            file_handle.write(f'#SBATCH --output={exe_name}_%j.log\n')
+            file_handle.write(f'\ndate +%s > START\n')
+            file_handle.write(f'\n/opt/slurm/bin/srun --mpi=pmi2 {exe_name}\n')
+            file_handle.write(f'\ndate +%s > STOP\n')
 
         # submit the job to the batch queue
         # TODO: get job ID by using subprocess -- os.system returns success status
