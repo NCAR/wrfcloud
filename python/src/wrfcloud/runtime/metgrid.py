@@ -48,7 +48,7 @@ class MetGrid(Process):
         for ungrib_file in filelist:
             self.symlink(ungrib_file, f'{self.job.metgrid_dir}/' + os.path.basename(ungrib_file))
 
-    def run_metgrid(self) -> None:
+    def run_metgrid(self) -> bool:
         """
         Executes the metgrid.exe program
         """
@@ -60,6 +60,8 @@ class MetGrid(Process):
         if os.system(metgrid_cmd):
             self.log.error(f'metgrid.exe returned non-zero')
             return False
+
+        return True
 
     def run(self) -> bool:
         """
@@ -87,7 +89,4 @@ class MetGrid(Process):
         self.get_files()
 
         self.log.debug('Calling run_metgrid')
-        self.run_metgrid()
-
-        # TODO: Check for successful completion of metgrid
-        return True
+        return self.run_metgrid()

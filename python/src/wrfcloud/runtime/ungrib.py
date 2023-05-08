@@ -74,7 +74,7 @@ class Ungrib(Process):
         self.log.debug('Getting VTable.GFS')
         self.symlink(f'{self.job.wps_code_dir}/ungrib/Variable_Tables/Vtable.GFS', 'Vtable')
 
-    def run_ungrib(self) -> None:
+    def run_ungrib(self) -> bool:
         """Executes the ungrib.exe program"""
         self.log.debug('Linking ungrib.exe to ungrib working directory')
         self.symlink(f'{self.job.wps_code_dir}/ungrib/ungrib.exe', 'ungrib.exe')
@@ -84,6 +84,8 @@ class Ungrib(Process):
         if os.system(ungrib_cmd):
             self.log.error(f'ungrib.exe returned non-zero')
             return False
+
+        return True
 
     def run(self) -> bool:
         """Main routine that sets up, runs, and monitors ungrib end-to-end"""
