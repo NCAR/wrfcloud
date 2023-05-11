@@ -9,6 +9,6 @@ System overview, installation and usage information can be found in the [Users G
 Questions can be posted to the [GitHub Discussions](https://github.com/NCAR/wrfcloud/discussions) page.
 
 More information:
-[wrfcloud.com](wrfcloud.com) or email at info@wrfcloud.com
+[wrfcloud.com](https://wrfcloud.com) or email at info@wrfcloud.com
 
 
