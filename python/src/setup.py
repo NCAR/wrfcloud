@@ -17,6 +17,7 @@ setup(
         'pyyaml>=5.4',
         'bcrypt>=3.2.0',
         'PyJWT>=2.4.0',
+        'flask==2.2.3',  # TODO: flask is a pcluster dependency, but the latest version (2.3.2) breaks the API, explicitly install version 2.2.3 until pcluster team has a fix  https://github.com/aws/aws-parallelcluster/issues/5244
         'aws-parallelcluster==3.2.1',
         'f90nml>=1.4',
         'netCDF4>=1.5.0',
