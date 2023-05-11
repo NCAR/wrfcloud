@@ -242,7 +242,7 @@ class GeoJson:
         range_max = int(self.max * 10)
         contour_interval = int(self.contour_interval*10)
         levels = [i/10 for i in range(range_min, range_max, contour_interval)]
-        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette)
+        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette, extend='both')
 
         # loop over each contour level
         for i, contour_line in enumerate(contours.collections):
