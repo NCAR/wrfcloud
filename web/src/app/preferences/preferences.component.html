@@ -7,6 +7,7 @@
         <mat-panel-title class="prefs-section-header">
           User Information
         </mat-panel-title>
+        <mat-icon class="help-icon" (click)="app.showContextHelp('prefs-user-info')">info</mat-icon>
       </mat-expansion-panel-header>
       <div class="prefs-section-container" *ngIf="app.user">
         <table>
