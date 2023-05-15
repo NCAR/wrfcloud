@@ -31,7 +31,7 @@ class Process:
         self.success: bool = False
         self.start_time: Union[None, float] = None
         self.end_time: Union[None, float] = None
-        self.expected_output: Union[None, list] = None
+        self.expected_output: Union[None, List[str]] = None
         self.log_file: Union[None, str] = None
         self.log_success_string: Union[None, str] = None
 
