@@ -10,8 +10,7 @@ from datetime import datetime
 import pytz
 import glob
 
-from wrfcloud.log import Logger
-
+from wrfcloud.log import Logger, ModelProcessError
 
 class Process:
     """
