@@ -5,7 +5,7 @@ Shared classes and functions for the WRF runtime
 __all__ = ['run', 'tools', 'geogrid', 'ungrib', 'metgrid', 'real', 'wrf', 'postproc', 'Process']
 
 import os
-from typing import Union
+from typing import Union, List
 from datetime import datetime
 import pytz
 import glob
@@ -44,7 +44,7 @@ class Process:
         self.end_time = pytz.utc.localize(datetime.utcnow()).timestamp()
         self.check_success()
         if not self.success:
-            self.log.fatal(f'{self.__class__.__name__} failed')
+            raise ModelProcessError(f'{self.__class__.__name__} failed')
 
     def get_run_summary(self) -> str:
         """

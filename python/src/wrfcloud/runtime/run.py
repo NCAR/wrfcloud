@@ -22,7 +22,7 @@ from wrfcloud.runtime.postproc import UPP, GeoJson, Derive
 from wrfcloud.config import WrfConfig, get_config_from_system
 from wrfcloud.jobs import WrfJob, get_job_from_system, update_job_in_system
 from wrfcloud.system import init_environment, get_aws_session
-from wrfcloud.log import Logger, WRFCloudError
+from wrfcloud.log import Logger, ModelProcessError
 
 
 def main() -> None:
@@ -115,8 +115,8 @@ def main() -> None:
 
         # final job and status update
         _update_job_status(job, WrfJob.STATUS_CODE_FINISHED, 'Done', 1)
-    except WRFCloudError as e:
-        log.error(e.message, e)
+    except ModelProcessError as e:
+        log.fatal(e.message, e)
         _update_job_status(job, WrfJob.STATUS_CODE_FAILED, e.message, 1)
     except Exception as e:
         log.error('Failed to run the model', e)

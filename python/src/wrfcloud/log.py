@@ -209,8 +209,6 @@ class Logger:
         """
         if self.log_level <= LogLevel.FATAL:
             self._log_it(LogLevel.FATAL, msg, error)
-        # raise exception
-        raise WRFCloudError(msg)
 
     def _log_it(self, level, msg, error=None):
         """
@@ -332,8 +330,12 @@ def traceback_to_array(error):
     return traceback.format_exception(None, error, error.__traceback__)
 
 
-class WRFCloudError(Exception):
-    def __init__(self, message):
+class ModelProcessError(Exception):
+    def __init__(self, message: str):
+        """Initialize custom exception to handle when a process fails
+
+        :param message: error message that may get sent to UI to display status
+        """
         # Call the base class constructor with the parameters it needs
         super().__init__(message)
         # store error message to send to UI
