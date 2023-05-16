@@ -16,6 +16,12 @@ class Real(Process):
     """
     Class for setting up, executing, and monitoring a run of the 'real.exe' WRF pre-processing program
     """
+
+    """
+    Real executable filename
+    """
+    EXE = 'real.exe'
+
     def __init__(self, job: WrfJob):
         """
         Initialize the Real object
@@ -24,6 +30,12 @@ class Real(Process):
         self.log = Logger(self.__class__.__name__)
         self.job = job
         self.namelist: Union[None, Namelist] = None
+        self.expected_output = [
+            os.path.join(self.job.real_dir, 'wrfbdy_d01'),
+            os.path.join(self.job.real_dir, 'wrfinput_d0*'),
+        ]
+        self.log_file = os.path.join(self.job.real_dir, 'rsl.out.0000')
+        self.log_success_string = 'SUCCESS COMPLETE REAL_EM INIT'
 
     def get_files(self) -> None:
         """
@@ -35,19 +47,22 @@ class Real(Process):
         for met_em_file in filelist:
             self.symlink(met_em_file, f'{self.job.real_dir}/' + os.path.basename(met_em_file))
 
-    def run_real(self) -> None:
+    def run_real(self) -> bool:
         """
         Executes the real.exe program
         """
-        self.log.debug('Linking real.exe to real working directory')
-        self.symlink(f'{self.job.wrf_code_dir}/main/real.exe', 'real.exe')
+        self.log.debug(f'Linking {self.EXE} to real working directory')
+        self.symlink(f'{self.job.wrf_code_dir}/main/{self.EXE}', self.EXE)
 
-        self.log.debug('Executing real.exe')
+        self.log.debug(f'Executing {self.EXE}')
         if self.job.cores == 1:
-            real_cmd = './real.exe >& real.log'
-            os.system(real_cmd)
-        else:
-            self.submit_job('real.exe', self.job.cores, 'wrf')
+            real_cmd = f'./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
+            if os.system(real_cmd):
+                self.log.error(f'{self.EXE} returned non-zero')
+                return False
+            return True
+
+        return self.submit_job(self.EXE, self.job.cores, 'wrf')
 
     def run(self) -> bool:
         """
@@ -71,7 +86,4 @@ class Real(Process):
         self.get_files()
 
         self.log.debug('Calling run_real')
-        self.run_real()
-
-        # TODO: Check for successful completion of real
-        return True
+        return self.run_real()

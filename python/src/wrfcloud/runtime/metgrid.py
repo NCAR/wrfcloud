@@ -17,6 +17,12 @@ class MetGrid(Process):
     """
     Class for setting up, executing, and monitoring a run of the WPS program metgrid
     """
+
+    """
+    MetGrid executable filename
+    """
+    EXE = 'metgrid.exe'
+
     def __init__(self, job: WrfJob):
         """
         Initialize the MetGrid object
@@ -25,6 +31,9 @@ class MetGrid(Process):
         self.log = Logger(self.__class__.__name__)
         self.job = job
         self.namelist: Union[None, Namelist] = None
+        self.expected_output = [os.path.join(self.job.metgrid_dir, 'met_em.d0*.nc')]
+        self.log_file = os.path.join(self.job.metgrid_dir, 'metgrid.log')
+        self.log_success_string = 'Successful completion of program metgrid.exe'
 
     def get_files(self) -> None:
         """
@@ -45,16 +54,20 @@ class MetGrid(Process):
         for ungrib_file in filelist:
             self.symlink(ungrib_file, f'{self.job.metgrid_dir}/' + os.path.basename(ungrib_file))
 
-    def run_metgrid(self) -> None:
+    def run_metgrid(self) -> bool:
         """
         Executes the metgrid.exe program
         """
-        self.log.debug('Linking metgrid.exe to metgrid working directory')
-        self.symlink(f'{self.job.wps_code_dir}/metgrid/metgrid.exe', 'metgrid.exe')
+        self.log.debug(f'Linking {self.EXE} to metgrid working directory')
+        self.symlink(f'{self.job.wps_code_dir}/metgrid/{self.EXE}', self.EXE)
 
-        self.log.debug('Executing metgrid.exe')
-        metgrid_cmd = './metgrid.exe >& metgrid.log'
-        os.system(metgrid_cmd)
+        self.log.debug(f'Executing {self.EXE}')
+        metgrid_cmd = f'./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
+        if os.system(metgrid_cmd):
+            self.log.error(f'{self.EXE} returned non-zero')
+            return False
+
+        return True
 
     def run(self) -> bool:
         """
@@ -82,7 +95,4 @@ class MetGrid(Process):
         self.get_files()
 
         self.log.debug('Calling run_metgrid')
-        self.run_metgrid()
-
-        # TODO: Check for successful completion of metgrid
-        return True
+        return self.run_metgrid()
