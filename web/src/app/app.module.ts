@@ -42,7 +42,8 @@ import {PreferencesComponent} from './preferences/preferences.component';
 import {LogoutComponent} from './logout/logout.component';
 import {ModelConfigComponent} from './model-config/model-config.component';
 import {EditModelConfigurationComponent} from './edit-model-configuration/edit-model-configuration.component';
-import { JobDetailsComponent } from './job-details/job-details.component';
+import {JobDetailsComponent} from './job-details/job-details.component';
+import {ContextHelpComponent} from './context-help/context-help.component';
 
 
 @NgModule({
@@ -63,7 +64,8 @@ import { JobDetailsComponent } from './job-details/job-details.component';
     ResetPasswordComponent,
     ModelConfigComponent,
     EditModelConfigurationComponent,
-    JobDetailsComponent
+    JobDetailsComponent,
+    ContextHelpComponent
   ],
     imports: [
         BrowserModule,

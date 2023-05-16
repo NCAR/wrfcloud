@@ -1,9 +1,10 @@
 import {Component} from '@angular/core';
 import {Router} from "@angular/router";
-import {User, WhoAmIResponse, ClientApi, WrfMetaDataConfiguration, GetWrfMetaDataResponse, GetWrfMetaDataRequest} from "./client-api";
+import {User, WhoAmIResponse, ClientApi, WrfMetaDataConfiguration} from "./client-api";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
+import {ContextHelpComponent} from "./context-help/context-help.component";
 
 
 @Component({
@@ -275,6 +276,17 @@ export class AppComponent
 
     /* open the dialog and show the errors */
     this.dialog.open(ErrorDialogComponent, {data: errors});
+  }
+
+
+  /**
+   * Show a context help for a specific item
+   * @param helpId
+   */
+  public showContextHelp(helpId: string): void
+  {
+    /* open the dialog and show the help information */
+    this.dialog.open(ContextHelpComponent, {data: helpId});
   }
 
 
