@@ -9,10 +9,10 @@ from gzip import compress
 import json
 from argparse import ArgumentParser
 import yaml
-import netCDF4
+# pylint: disable=E0401,E0611
+from netCDF4 import Dataset
 from numpy.ma.core import MaskedArray
 from datetime import datetime
-
 from wrfcloud.jobs.job import WrfLayer
 from wrfcloud.log import Logger
 from wrfcloud.system import init_environment
@@ -97,7 +97,7 @@ class VectorJson:
         """
         # open the NetCDF file and get the requested horizontal slice
         # pylint thinks that the Dataset class does not exist in netCDF4 pylint: disable=E1101
-        wrf = netCDF4.Dataset(self.wrf_file)
+        wrf = Dataset(self.wrf_file)
         data = wrf[variable]
         grid = data[:] if data.dimensions[0] != 'Time' else data[0]
         if self.z_level:
@@ -261,7 +261,7 @@ def automate_vector_products(wrf_file: str) -> List[WrfLayer]:
             wrf_layer.layer_data = out_file
             wrf_layer.z_level = z_level
 
-            with netCDF4.Dataset(wrf_file) as wrf_nc:
+            with Dataset(wrf_file) as wrf_nc:
                 file_time = wrf_nc['Times'][:].tobytes().decode()
                 dt = datetime.strptime(file_time, '%Y-%m-%d_%H:%M:%S')
                 wrf_layer.dt = dt.timestamp()

@@ -328,3 +328,15 @@ def traceback_to_array(error):
     :return: {str} The traceback as a string
     """
     return traceback.format_exception(None, error, error.__traceback__)
+
+
+class ModelProcessError(Exception):
+    def __init__(self, message: str):
+        """Initialize custom exception to handle when a process fails
+
+        :param message: error message that may get sent to UI to display status
+        """
+        # Call the base class constructor with the parameters it needs
+        super().__init__(message)
+        # store error message to send to UI
+        self.message = message

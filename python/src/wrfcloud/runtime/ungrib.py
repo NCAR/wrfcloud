@@ -20,6 +20,12 @@ class Ungrib(Process):
     """
     Class for setting up, executing, and monitoring a run of the WPS program ungrib
     """
+
+    """
+    Ungrib executable filename
+    """
+    EXE = 'ungrib.exe'
+
     def __init__(self, job: WrfJob):
         """
         Initialize the Ungrib object
@@ -28,6 +34,9 @@ class Ungrib(Process):
         self.log: Logger = Logger(self.__class__.__name__)
         self.job: WrfJob = job
         self.namelist: Union[None, Namelist] = None
+        self.expected_output = [os.path.join(self.job.ungrib_dir, 'FILE:*')]
+        self.log_file = os.path.join(self.job.ungrib_dir, 'ungrib.log')
+        self.log_success_string = 'Successful completion of program ungrib.exe'
 
     def get_files(self) -> None:
         """
@@ -71,14 +80,18 @@ class Ungrib(Process):
         self.log.debug('Getting VTable.GFS')
         self.symlink(f'{self.job.wps_code_dir}/ungrib/Variable_Tables/Vtable.GFS', 'Vtable')
 
-    def run_ungrib(self) -> None:
+    def run_ungrib(self) -> bool:
         """Executes the ungrib.exe program"""
-        self.log.debug('Linking ungrib.exe to ungrib working directory')
-        self.symlink(f'{self.job.wps_code_dir}/ungrib/ungrib.exe', 'ungrib.exe')
+        self.log.debug(f'Linking {self.EXE} to ungrib working directory')
+        self.symlink(f'{self.job.wps_code_dir}/ungrib/{self.EXE}', self.EXE)
 
-        self.log.debug('Executing ungrib.exe')
-        ungrib_cmd = './ungrib.exe >& ungrib.log'
-        os.system(ungrib_cmd)
+        self.log.debug(f'Executing {self.EXE}')
+        ungrib_cmd = f'./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
+        if os.system(ungrib_cmd):
+            self.log.error(f'{self.EXE} returned non-zero')
+            return False
+
+        return True
 
     def run(self) -> bool:
         """Main routine that sets up, runs, and monitors ungrib end-to-end"""
@@ -99,10 +112,7 @@ class Ungrib(Process):
         self.get_files()
 
         self.log.debug('Calling run_ungrib')
-        self.run_ungrib()
-
-        # TODO: Check for successful completion of ungrib
-        return True
+        return self.run_ungrib()
 
 
 if __name__ == "__main__":

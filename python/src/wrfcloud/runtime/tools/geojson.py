@@ -10,12 +10,14 @@ import json
 from argparse import ArgumentParser
 from datetime import datetime
 import yaml
-import netCDF4
+# pylint: disable=E0401,E0611
+from netCDF4 import Dataset
 from matplotlib import colors
 from matplotlib import contour
 from matplotlib import pyplot
 import numpy
 from numpy.ma.core import MaskedArray
+# pylint: disable=E0401
 import pygrib
 
 from wrfcloud.jobs.job import WrfLayer, Palette
@@ -103,7 +105,7 @@ class GeoJson:
         """
         # open the NetCDF file and get the requested horizontal slice
         # pylint thinks that the Dataset class does not exist in netCDF4 pylint: disable=E1101
-        wrf = netCDF4.Dataset(self.wrf_file)
+        wrf = Dataset(self.wrf_file)
         data = wrf[self.variable]
         time_index = 0
         grid = data[:] if data.dimensions[0] != 'Time' else data[time_index]
@@ -240,7 +242,7 @@ class GeoJson:
         range_max = int(self.max * 10)
         contour_interval = int(self.contour_interval*10)
         levels = [i/10 for i in range(range_min, range_max, contour_interval)]
-        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette)
+        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette, extend='both')
 
         # loop over each contour level
         for i, contour_line in enumerate(contours.collections):
@@ -392,10 +394,11 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
             wrf_layer.z_level = z_level
 
             if file_type == 'grib2':
+                # pylint: disable=E1101
                 with pygrib.open(wrf_file) as grib:
                     wrf_layer.dt = grib.select(shortName=variable)[0].validDate.timestamp()
             else:
-                with netCDF4.Dataset(wrf_file) as wrf_nc:
+                with Dataset(wrf_file) as wrf_nc:
                     file_time = wrf_nc['Times'][:].tobytes().decode()
                     dt = datetime.strptime(file_time, '%Y-%m-%d_%H:%M:%S')
                     wrf_layer.dt = dt.timestamp()

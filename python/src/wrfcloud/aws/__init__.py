@@ -90,6 +90,13 @@ class CloudFormation:
         # wait for stack to be gone
         self._wait_for_stack_status(None)
 
+    def replace_stack(self) -> None:
+        """
+        Replace the stack (i.e., delete and create)
+        """
+        self.delete_stack()
+        self.create_stack()
+
     def stack_status(self) -> None:
         """
         Print the stack status

@@ -117,14 +117,14 @@ export class WrfViewerComponent implements OnInit
   /**
    * List of valid height value selections
    */
-  public validHeights: number[] = [1000, 925, 850, 700, 500, 300, 250, 100];
+  public validHeights: number[] = [100, 250, 300, 500, 700, 850, 925, 1000];
 
 
   /**
    * Initialize the layer request
    */
   public req: LayerRequest = {
-    height: this.validHeights[0]
+    height: this.validHeights[this.validHeights.length - 1]
   };
 
 
@@ -227,8 +227,8 @@ export class WrfViewerComponent implements OnInit
   {
     this.politicalBoundariesLayer?.setVisible(this.politicalBoundariesVisible);
   }
-  
-  
+
+
   /**
    * Compute the default zoom level based on the job's domain size
    * @private
@@ -330,12 +330,13 @@ export class WrfViewerComponent implements OnInit
     /* create a new layer for the map */
     let features: Feature[];
     let style;
-    if (layer.plot_type === 'contour') {
+    if (layer.plot_type === 'contour')
+    {
       features = new GeoJSON().readFeatures(geojsonObject);
       style = WrfViewerComponent.selfContourStyle;
-      vectorLayer.setOpacity(layer.opacity);
     }
-    else if (layer.plot_type === 'vector') {
+    else if (layer.plot_type === 'vector')
+    {
       features = this.readFeaturesVector(geojsonObject);
       style = this.selfVectorStyle.bind(this);
 
@@ -344,9 +345,8 @@ export class WrfViewerComponent implements OnInit
       layer.handleZoomChange = this.doZoomChange;
       this.map!.getView().on('change:resolution', layer.handleZoomChange.bind(this, layer, vectorLayer));
     }
-    else {
+    else
       return;
-    }
 
     vectorSource.addFeatures(features);
     vectorLayer.setStyle(style);
@@ -364,6 +364,9 @@ export class WrfViewerComponent implements OnInit
     if (layerGroup === undefined) return;
     layerGroup.loaded += 1;
     layerGroup.progress = (layerGroup.loaded / layerGroup.layers[layer.z_level].length) * 100;
+
+    /* set the opacity from the layer group */
+    vectorLayer.setOpacity(layerGroup.opacity);
 
     /* load the first frame if finished loading */
     if (layerGroup && layerGroup.loaded === layerGroup.layers[layer.z_level].length)
@@ -671,7 +674,7 @@ export class WrfViewerComponent implements OnInit
   }
 
   /**
-   *
+   * Handle an event from the height selector changing
    * @param event
    */
   public heightChanged(event: MatSliderChange): void
@@ -738,6 +741,11 @@ export class WrfViewerComponent implements OnInit
     /* show a new layer */
     if (layerGroup.visible)
     {
+      /* set the color palette and value range of the variable based on the first time */
+      /* step of the layer group if this is a 3D field, we need to insert the selected */
+      /* height, if it is a 2D field, we just use 0 for the height */
+      layerGroup.palette = layerGroup.layers.hasOwnProperty(this.req.height) ? layerGroup.layers[this.req.height][0].palette : layerGroup.layers[0][0].palette;
+
       /* turn off all other layers */
       for (let lg of this.layerGroups)
       {

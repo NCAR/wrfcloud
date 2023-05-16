@@ -8,8 +8,11 @@ run.
 
 import argparse
 import os
+import glob
 import json
-from typing import Union
+import boto3
+from typing import Union, List
+from zipfile import ZipFile
 from wrfcloud.runtime.geogrid import GeoGrid
 from wrfcloud.runtime.ungrib import Ungrib
 from wrfcloud.runtime.metgrid import MetGrid
@@ -19,7 +22,7 @@ from wrfcloud.runtime.postproc import UPP, GeoJson, Derive
 from wrfcloud.config import WrfConfig, get_config_from_system
 from wrfcloud.jobs import WrfJob, get_job_from_system, update_job_in_system
 from wrfcloud.system import init_environment, get_aws_session
-from wrfcloud.log import Logger
+from wrfcloud.log import Logger, ModelProcessError
 
 
 def main() -> None:
@@ -48,6 +51,7 @@ def main() -> None:
         # set up the configuration
         config: WrfConfig = _load_model_configuration(job)
         job.cores = config.cores
+        log.info(f'Using {job.cores} cores')
         job.domain_center = config.domain_center
         job.domain_size = config.domain_size
 
@@ -111,13 +115,16 @@ def main() -> None:
 
         # final job and status update
         _update_job_status(job, WrfJob.STATUS_CODE_FINISHED, 'Done', 1)
+    except ModelProcessError as e:
+        log.fatal(e.message, e)
+        _update_job_status(job, WrfJob.STATUS_CODE_FAILED, e.message, 1)
     except Exception as e:
         log.error('Failed to run the model', e)
-        if job:
-            _update_job_status(job, WrfJob.STATUS_CODE_FAILED, 'Failed', 1)
+        _update_job_status(job, WrfJob.STATUS_CODE_FAILED, 'Failed', 1)
 
     # Shutdown the cluster after completion or failure
     try:
+        _save_log_files(job)
         _delete_cluster()
     except Exception as e:
         log.error('Failed to delete cluster.', e)
@@ -166,10 +173,40 @@ def _load_model_configuration(job: WrfJob) -> WrfConfig:
         key = config.s3_key_geo_em
         file = f'{job.static_dir}/geo_em.d01.nc'
         s3.download_file(bucket, key, file)
-    except Exception as e:
+    except Exception:
         Logger().info('geo_em file not found -- must run geogrid process')
 
     return config
+
+
+def _save_log_files(job: WrfJob) -> None:
+    """
+    Save the log files from the run to S3
+    :param job: WRF job details
+    :return: None
+    """
+    # find the files
+    log_files: List[str] = []
+    log_files += glob.glob(f'/data/wrfcloud-run-{job.job_id}.log')
+    log_files += glob.glob(f'{job.work_dir}/geogrid/geogrid.log')
+    log_files += glob.glob(f'{job.work_dir}/ungrib/ungrib.log')
+    log_files += glob.glob(f'{job.work_dir}/metgrid/metgrid.log')
+    log_files += glob.glob(f'{job.work_dir}/real/rsl.out.*')
+    log_files += glob.glob(f'{job.work_dir}/real/rsl.error.*')
+    log_files += glob.glob(f'{job.work_dir}/wrf/rsl.out.*')
+    log_files += glob.glob(f'{job.work_dir}/wrf/rsl.error.*')
+
+    # zip the files
+    zip_file: str = 'logs.zip'
+    zip_path: str = os.path.join(job.work_dir, zip_file)
+    with ZipFile(zip_path, 'w') as logs_zip:
+        for log_file in log_files:
+            logs_zip.write(log_file)
+
+    # save the zip file to S3
+    bucket = os.environ['WRFCLOUD_BUCKET']
+    s3 = boto3.client('s3')
+    s3.upload_file(zip_path, bucket, f'jobs/{job.job_id}/{zip_file}')
 
 
 def _delete_cluster() -> None:

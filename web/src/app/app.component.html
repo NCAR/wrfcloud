@@ -1,6 +1,6 @@
 <div class="app-desktop-menu" (window:resize)="windowResized($event)">
   <div class="app-header">
-    <div class="app-logo-container"><img class="app-cloud-icon" src="assets/logo.png"></div>
+    <div class="app-logo-container"><img alt="logo" class="app-cloud-icon" src="assets/logo.png"></div>
     <div class="app-menu-container">
       <mat-grid-list [cols]="menuOptions.length + 1" rowHeight="100px">
         <!--      <mat-grid-tile class="app-menubar-item" (click)="routeTo('')" mat-ripple>-->
@@ -31,7 +31,7 @@
 <div class="app-mobile-menu">
   <div class="app-header">
     <span>
-      <img src="assets/logo.png" class="app-cloud-icon">
+      <img alt="logo" src="assets/logo.png" class="app-cloud-icon">
     </span>
     <button mat-button [matMenuTriggerFor]="menu" class="app-hamburger-menu">
       <mat-icon>
@@ -62,5 +62,6 @@
   <a href="https://wrfcloud.readthedocs.io/en/stable/Users_Guide/index.html" target="_blank">
     TERMS OF USE
   </a>
+  <mat-icon class="help-icon" (click)="showContextHelp('app-about')">info</mat-icon>
 </div>
 

@@ -106,6 +106,8 @@ export class EditModelConfigurationComponent implements OnInit
       delete this.modelConfig['domain_center'];
     if (this.modelConfig.hasOwnProperty('domain_size'))
       delete this.modelConfig['domain_size'];
+    if (this.autoCoreCount)
+      this.modelConfig.cores = 0;
 
     /* send the update request to the API */
     const requestData: UpdateModelConfigurationRequest = {

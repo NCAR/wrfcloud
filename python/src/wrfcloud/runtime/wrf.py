@@ -16,6 +16,12 @@ class Wrf(Process):
     """
     Class for setting up, executing, and monitoring a run of the WRF model
     """
+
+    """
+    WRF executable filename
+    """
+    EXE = 'wrf.exe'
+
     def __init__(self, job: WrfJob):
         """
         Initialize the Wrf object
@@ -24,6 +30,9 @@ class Wrf(Process):
         self.log = Logger(self.__class__.__name__)
         self.job = job
         self.namelist: Union[None, Namelist] = None
+        self.expected_output = [os.path.join(self.job.wrf_dir, 'wrfout_d0*')]
+        self.log_file = os.path.join(self.job.wrf_dir, 'rsl.out.0000')
+        self.log_success_string = 'SUCCESS COMPLETE WRF'
 
     def get_files(self) -> None:
         """
@@ -37,41 +46,36 @@ class Wrf(Process):
         body_file = f'{self.job.real_dir}/wrfbdy_d01'
         self.symlink(body_file, f'{self.job.wrf_dir}/' + os.path.basename(body_file))
 
+        # link to other files in the WRF run directory
+        self.log.debug('Linking other necessary static files')
+        static_files = glob.glob(f'{self.job.wrf_code_dir}/run/*[!.exe|namelist.input]')
+        for static_file in static_files:
+            self.symlink(static_file, static_file.split('/')[-1])
+
+        # link the namelist file to the run directory
         self.log.debug('Linking namelist.input from real working directory')
         self.symlink(f'{self.job.real_dir}/namelist.input', 'namelist.input')
 
-        self.log.debug('Linking other necessary static files')
-        static_files = ['CAMtr_volume_mixing_ratio',
-                        'ozone.formatted',
-                        'ozone_lat.formatted',
-                        'ozone_plev.formatted',
-                        'RRTMG_LW_DATA',
-                        'RRTMG_SW_DATA',
-                        'GENPARM.TBL',
-                        'LANDUSE.TBL',
-                        'SOILPARM.TBL',
-                        'VEGPARM.TBL']
-
-        for static_file in static_files:
-            self.symlink(f'{self.job.wrf_code_dir}/run/' + static_file, static_file)
-
-    def run_wrf(self) -> None:
+    def run_wrf(self) -> bool:
         """
         Executes the wrf.exe program
         """
-        self.log.debug('Linking wrf.exe to wrf working directory')
-        self.symlink(f'{self.job.wrf_code_dir}/main/wrf.exe', 'wrf.exe')
+        self.log.debug(f'Linking {self.EXE} to wrf working directory')
+        self.symlink(f'{self.job.wrf_code_dir}/main/{self.EXE}', self.EXE)
 
-        self.log.debug('Executing wrf.exe')
+        self.log.debug(f'Executing {self.EXE}')
         if self.job.cores == 1:
-            wrf_cmd = './wrf.exe >& wrf.log'
-            os.system(wrf_cmd)
-        else:
-            self.submit_job('wrf.exe', self.job.cores, 'wrf')
+            wrf_cmd = f'./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
+            if os.system(wrf_cmd):
+                self.log.error(f'{self.EXE} returned non-zero')
+                return False
+            return True
+
+        return self.submit_job(self.EXE, self.job.cores, 'wrf')
 
     def run(self) -> bool:
         """Main routine that sets up, runs, and monitors WRF end-to-end"""
-        self.log.info(f'Setting up wrf.exe for "{self.job.job_id}"')
+        self.log.info(f'Setting up {self.EXE} for "{self.job.job_id}"')
 
         # Check if experiment working directory already exists, take action based on value of runinfo.exists
         action = check_wd_exist(self.job.exists, self.job.wrf_dir)
@@ -85,7 +89,4 @@ class Wrf(Process):
         self.get_files()
 
         self.log.debug('Calling run_wrf')
-        self.run_wrf()
-
-        # TODO: Check for successful completion of WRF
-        return True
+        return self.run_wrf()

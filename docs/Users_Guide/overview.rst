@@ -4,7 +4,7 @@
 Overview of WRF Cloud 
 *********************
 
-The WRF Cloud framework is a cloud-based forecasting system that was designed to easily facilitate cost-effective state-of-the-art numerical weather prediction system forecasts in communities that lack the large computational resources. 
+The WRF Cloud framework is a cloud-based forecasting system that was designed to easily facilitate cost-effective state-of-the-art numerical weather prediction system forecasts in communities that lack the large computational resources. It is a self-managed software-as-a-service, meaning users install and manage the system independently in their own cloud accounts.
 
 Purpose and organization of the User's Guide
 ============================================
@@ -60,11 +60,8 @@ Compute Cluster
 ---------------
 The compute cluster component is where the bulk of the computing is done, including running the numerical weather prediction software and producing the graphical outputs. Care is taken to ensure these resoureces are only provisioned when necessary and that they are shut down when the jobs are complete as this component is the most expensive part of the framework. AWS's Parallel Cluster is used to deploy and manage the cluster resources which include launching an AWS EC2 instance from an AMI developed specifically for this framework. 
 
-The weather forecasts use initial conditions from the Global Forecast System (GFS) and are pulled from AWS's S3 on demand for each forecast. The numrical weather prediction software used for making the forecasts is the Weather Research and Modeling version 4.4.1 (`WRF <https://www2.mmm.ucar.edu/wrf/users/>`_) system, including it's pre-processor WPS. The WRF model output is then post-processed using the Unified Post Processor version 4.0.1 (`UPP <https://dtcenter.org/community-code/unified-post-processor-upp>`_) and from there the data are processed for plotting and served up to the system's website. The components of the numerical weather prediction part of the framework for shown in the schematic below.
+The weather forecasts use initial conditions from the Global Forecast System (GFS) and are pulled from AWS's S3 on demand for each forecast. The numrical weather prediction software used for making the forecasts is the Weather Research and Forecasting version 4.4.1 (`WRF <https://www2.mmm.ucar.edu/wrf/users/>`_) system, including it's pre-processor WPS. The WRF model output is then post-processed using the `wrf-python <https://wrf-python.readthedocs.io/en/latest/index.html>`_ package version v1.3.2, and the Unified Post Processor version 4.0.1 (`UPP <https://dtcenter.org/community-code/unified-post-processor-upp>`_) and from there the data are processed for plotting and served up to the system's user interface and forecast viewer. 
 
-.. _nwp-components:
-
-.. figure:: figure/nwp_components.png
 
 Application Data
 --------------------------------
@@ -96,4 +93,4 @@ New features being considered for future releases:
 Code support
 ============
 
-At this time, support beyond the contents of this User's Guide is available through established collaborations only. Please use the contact form on wrfcloud.com for further inquires.
+Questions may be posted on the `GitHub Discussions page <https://github.com/NCAR/wrfcloud/discussions>`_.

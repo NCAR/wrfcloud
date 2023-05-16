@@ -32,6 +32,9 @@ class GeoGrid(Process):
         self.wps_dir: str = self.job.wps_code_dir
         self.bucket_name: str = os.environ['WRFCLOUD_BUCKET']
         self.num_domains: int = 0
+        self.expected_output = [os.path.join(self.config_dir, 'geo_em.d01.nc')]
+        self.log_file = os.path.join(self.geogrid_dir, 'geogrid.log')
+        self.log_success_string = 'Successful completion of program geogrid.exe'
 
     def run(self):
         """
@@ -73,6 +76,21 @@ class GeoGrid(Process):
             return False
 
         return True
+
+    def _parse_error_logs(self) -> None:
+        """
+        Check if geogrid log file exists. GeoGrid will not run if it has
+        already run, so the log file will not exist in this case.
+        If the log file doesn't exist, skip the log parsing logic.
+        Without this check, the log parsing logic will fail when it can't
+        find the log file.
+        """
+        # geogrid may not run, so the log file may not exist
+        # if log file does not exist, do not fail and skip parsing logic
+        if not os.path.exists(self.log_file):
+            self.log.debug(f'Log file does not exist: {self.log_file}')
+            return
+        super()._parse_error_logs()
 
     def _any_geo_em_files_exist_local(self):
         """
@@ -201,10 +219,10 @@ class GeoGrid(Process):
         :returns: True if geogrid.exe runs successfully, False if it fails
         """
         self.log.info(f'Running {self.EXE} from {self.geogrid_dir}, logging to geogrid.log')
-        cmd: str = f'cd {self.geogrid_dir}; ./{self.EXE} >& geogrid.log'
+        cmd: str = f'cd {self.geogrid_dir}; ./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
         # if return code is non-zero, return False
         if os.system(cmd):
-            self.log.error(f'geogrid.exe failed, see {self.geogrid_dir}/geogrid.log')
+            self.log.error(f'{self.EXE} returned non-zero')
             return False
 
         return True
