@@ -1,4 +1,4 @@
-version: 0.1
+version: 0.2
 
 phases:
   pre_build:
@@ -9,22 +9,25 @@ phases:
   build:
     commands:
       - echo "Installing package dependencies"
-      - pip3 install $CODEBUILD_SRC_DIR/python/src
+      - mv "${CODEBUILD_SRC_DIR}/python/src/setup.py" "${CODEBUILD_SRC_DIR}/python/src/setup-with-pygrib.py"
+      - cat "${CODEBUILD_SRC_DIR}/python/src/setup-with-pygrib.py" | sed "s/'pygrib.*',//g" > "${CODEBUILD_SRC_DIR}/python/src/setup.py"
+      - pip3 install "$CODEBUILD_SRC_DIR/python/src"
       - pip3 uninstall -y wrfcloud
       - echo "Checking for Python code errors"
-      - pylint -E $CODEBUILD_SRC_DIR/python/src/wrfcloud
+      - pylint -E "$CODEBUILD_SRC_DIR/python/src/wrfcloud"
       - echo "Running unit tests and code coverage"
-      - $CODEBUILD_SRC_DIR/python/coverage.sh
-      - cd $CODEBUILD_SRC_DIR/web
+      - "$CODEBUILD_SRC_DIR/python/coverage.sh"
+      - cd "$CODEBUILD_SRC_DIR/web"
+      - source ~/.bashrc
       - npm install
       - ng build
       - cd dist/web/
-      - zip -r ${CODEBUILD_SRC_DIR}/wrfcloud_web.zip .
+      - zip -r "${CODEBUILD_SRC_DIR}/wrfcloud_web.zip" .
 
   post_build:
     commands:
       - echo "Publishing code coverage report to codecov.io"
-      - curl -s https://codecov.io/bash > codecov_temp.sh
+      - curl -s https://codecov.io/bash > "${CODEBUILD_SRC_DIR}/codecov_temp.sh"
       - CODECOV_TOKEN=$(aws secretsmanager get-secret-value --secret-id CodeCovToken | jq -r .SecretString)
       - cd "${CODEBUILD_SRC_DIR}"
       - /bin/bash ./codecov_temp.sh -t ${CODECOV_TOKEN} -f ${CODEBUILD_SRC_DIR}/python/test/coverage.xml -R $CODEBUILD_SRC_DIR

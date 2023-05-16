@@ -1,3 +1,8 @@
+"""
+Test the wrfcloud.subscribers module
+"""
+
+
 import wrfcloud.system
 from wrfcloud.subscribers import add_subscriber_to_system
 from wrfcloud.subscribers import get_all_subscribers_in_system

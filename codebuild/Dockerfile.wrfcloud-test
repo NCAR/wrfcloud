@@ -1,11 +1,14 @@
 FROM amazonlinux:latest
 
+# check the system architecture
+RUN if [[ "$(uname -m)" != "x86_64" ]]; then echo 'Must run on x86_64 architecture for compatibility with AWS codebuild'; exit 1; fi
+
 # install required os packages
 RUN yum -y update
-RUN yum -y install zip gzip tar java-11-amazon-corretto git which procps-ng jq
+RUN yum -y install zip gzip tar java-11-amazon-corretto git which procps-ng jq wget
 
 # download, build, and install python3
-RUN yum -y install gcc-c++ make openssl-devel bzip2-devel libffi-devel sqlite-devel
+RUN yum -y install gcc-c++ make openssl-devel bzip2-devel libffi-devel sqlite-devel zlib-devel
 RUN mkdir -p /opt/src
 WORKDIR /opt/src
 RUN curl https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz > Python-3.9.13.tgz
@@ -33,9 +36,11 @@ RUN echo "region = us-east-1" >> ~/.aws/credentials
 RUN echo "output = json" >> ~/.aws/credentials
 
 # install nodejs and angular cli
-RUN curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
-RUN yum -y install nodejs
-RUN npm install -g @angular/cli
+RUN touch "${HOME}/.bashrc"
+RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
+RUN source ~/.nvm/nvm.sh; nvm install 16
+RUN source ~/.bashrc; npm install -g @angular/cli@14
+RUN echo -n 'ewogICIkc2NoZW1hIjogIi4vbm9kZV9tb2R1bGVzL0Bhbmd1bGFyL2NsaS9saWIvY29uZmlnL3NjaGVtYS5qc29uIiwKICAidmVyc2lvbiI6IDEsCiAgImNsaSI6IHsKICAgICJjb21wbGV0aW9uIjogewogICAgICAicHJvbXB0ZWQiOiB0cnVlCiAgICB9LAogICAgImFuYWx5dGljcyI6ICJhY2UxOTcxNS01Y2Q5LTQyYTItODI2Mi1jYmVlNDFhOTNjNWMiCiAgfSwKICAicHJvamVjdHMiOiB7fQp9Cg==' | base64 -d > ~/.angular-config.json
+RUN echo -n 'CiMgTG9hZCBBbmd1bGFyIENMSSBhdXRvY29tcGxldGlvbi4Kc291cmNlIDwobmcgY29tcGxldGlvbiBzY3JpcHQpCg==' | base64 -d >> ~/.bashrc
+RUN source ~/.bashrc
 
-# start the local dynamodb service when the container starts
-#CMD java -jar /opt/dynamodb/DynamoDBLocal.jar -inMemory &

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='wrfcloud',
-    version='1.0.0',
+    version='1.1.0-dev',
     description='NCAR/RAL WRF Cloud Framework',
     author='David Hahn',
     author_email='hahnd@ucar.edu',
