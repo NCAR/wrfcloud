@@ -20,7 +20,7 @@ print(sys.path)
 project = 'WRF Cloud'
 author = 'UCAR/UCP/COMET and UCAR/NCAR/RAL and UCAR/NCAR/MMM'
 author_list = 'Fossell, K., D. Hahn, G. McCabe, J. Halley Gotway, P. Kucera, M. Harrold, M. Kavlich,'
-version = '1.0.0'
+version = '1.0.1'
 verinfo = version
 release = f'{version}'
 release_year = '2023'
