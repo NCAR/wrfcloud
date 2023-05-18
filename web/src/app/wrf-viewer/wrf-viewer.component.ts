@@ -380,11 +380,8 @@ export class WrfViewerComponent implements OnInit
     if(resolution == undefined) {
       return 3;
     }
-    const new_spacing: number = Math.floor((resolution * 13) / data_spacing) + 1;
-    if(new_spacing < 1) {
-      return 1;
-    }
-    return new_spacing;
+    const space_for_each_arrow = 10;
+    return Math.floor((resolution * space_for_each_arrow) / data_spacing) + 1;
   }
 
   private getVectorScale(zoom: number|undefined): number
@@ -637,9 +634,7 @@ export class WrfViewerComponent implements OnInit
 
     /* save the event information and handle it in a sec */
     this.unhandledZoomEvent = {
-      'layer': layer,
-      'vectorLayer': vectorLayer,
-      'event': event
+      'layer': layer
     };
   }
 
@@ -656,21 +651,37 @@ export class WrfViewerComponent implements OnInit
       return;
 
     /* extract the zoom event parameters and set the unhandled to 'undefined' to signify it is being handled now */
-    const layer: WrfLayer = this.unhandledZoomEvent.layer;
-    const vectorLayer: VectorLayer<any> = this.unhandledZoomEvent.vectorLayer;
-    const event: any = this.unhandledZoomEvent.event;
+    const eventLayer: WrfLayer = this.unhandledZoomEvent.layer;
     this.unhandledZoomEvent = undefined;
 
-    const new_spacing = this.getVectorSpacing(this.map?.getView().getResolution(), Number(layer.data_spacing));
-    if (new_spacing != layer.display_spacing) {
-      const features = this.readFeaturesVector(layer.layer_data);
-      let source = vectorLayer.getSource();
-      source.clear();
-      source.addFeatures(features);
-      source.changed();
-    }
-    layer.display_spacing = new_spacing;
+    const new_spacing = this.getVectorSpacing(this.map?.getView().getResolution(), Number(eventLayer.data_spacing));
+    if (new_spacing == eventLayer.display_spacing)
+      return;
 
+    const layerGroup: WrfLayerGroup|undefined = this.findLayerGroup(eventLayer.variable_name);
+    if (layerGroup === undefined)
+      return;
+    const wrfLayers: WrfLayer[] = layerGroup.layers[eventLayer.z_level];
+    for (let wrfLayer of wrfLayers) {
+      const key: string = WrfViewerComponent.generateFrameKey(
+          {
+            'job_id': this.job!.job_id,
+            'valid_time': wrfLayer.dt,
+            'variable': eventLayer.variable_name,
+            'z_level': eventLayer.z_level
+          }
+      );
+
+      let vectorLayer: Layer = this.frames[key];
+      if (vectorLayer instanceof VectorLayer) {
+        const features = this.readFeaturesVector(wrfLayer.layer_data);
+        const source = vectorLayer.getSource();
+        source.clear();
+        source.addFeatures(features);
+        source.changed();
+      }
+      wrfLayer.display_spacing = new_spacing;
+    }
   }
 
   /**
