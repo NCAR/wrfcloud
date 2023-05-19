@@ -1,0 +1,30 @@
+<div class="log-viewer-title">
+  Log Viewer
+</div>
+<div class="log-viewer-container">
+  <div class="log-viewer-select-container">
+    <mat-form-field>
+      <mat-label>Select Log File</mat-label>
+      <mat-select [(ngModel)]="selectedLogFile" (ngModelChange)="updateLogContent()">
+        <mat-option *ngFor="let logFile of logFiles | keyvalue" [value]="logFile.key">
+          {{logFile.key}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="log-viewer-display-container">
+    <mat-form-field class="log-viewer-display" appearance="fill">
+      <mat-label>Log File Content</mat-label>
+      <textarea matInput type="text" disabled="true">{{logContent}}</textarea>
+    </mat-form-field>
+  </div>
+</div>
+
+<div class="log-viewer-button-panel" mat-dialog-actions>
+  <button mat-stroked-button class="log-viewer-cancel-button" [mat-dialog-close]="">
+    Cancel
+  </button>
+  <div class="log-viewer-busy-spinner">
+    <mat-icon class="spin" *ngIf="busy">autorenew</mat-icon>
+  </div>
+</div>
