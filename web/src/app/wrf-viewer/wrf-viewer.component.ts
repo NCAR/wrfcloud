@@ -384,7 +384,7 @@ export class WrfViewerComponent implements OnInit
     if(resolution == undefined) {
       return 3;
     }
-    const space_for_each_arrow = 10;
+    const space_for_each_arrow = 40;
     return Math.floor((resolution * space_for_each_arrow) / data_spacing) + 1;
   }
 
@@ -622,10 +622,11 @@ export class WrfViewerComponent implements OnInit
   }
 
   /**
-   * Call the real handler function from a separate thread so the display is not locked up
-   * @param layer
-   * @param vectorLayer
-   * @param event
+   * Call the real handler function from a separate thread so the display thread is not locked up
+   *
+   * @param layer The layer firing the event
+   * @param vectorLayer The rendered OpenLayers layer related to this event
+   * @param event Other information from the event
    * @private
    */
   private doZoomChange(layer: WrfLayer, vectorLayer: VectorLayer<any>, event: any): void
@@ -634,6 +635,14 @@ export class WrfViewerComponent implements OnInit
   }
 
 
+  /**
+   * Handle zoom on the map event -- regenerates features if needed
+   *
+   * @param layer The layer firing the event
+   * @param vectorLayer The rendered OpenLayers layer related to this event
+   * @param event Other information from the event
+   * @private
+   */
   private doZoomChangeNow(layer: WrfLayer, vectorLayer: VectorLayer<any>, event: any): void
   {
     /* ignore if layer is not a VectorLayer type */
