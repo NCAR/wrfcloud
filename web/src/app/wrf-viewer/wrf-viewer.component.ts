@@ -340,7 +340,8 @@ export class WrfViewerComponent implements OnInit
       features = this.readFeaturesVector(geojsonObject);
       style = this.selfVectorStyle.bind(this);
 
-      layer.zoom = this.map!.getView().getZoom();
+      layer.data_spacing = Number(geojsonObject['dx'])
+      layer.display_spacing = this.getVectorSpacing(this.map?.getView().getResolution(), layer.data_spacing );
       layer.handleZoomChange = this.doZoomChange;
       this.map!.getView().on('change:resolution', layer.handleZoomChange.bind(this, layer, vectorLayer));
     }
@@ -372,33 +373,17 @@ export class WrfViewerComponent implements OnInit
       this.showSelectedTimeFromLayerGroup(layerGroup);
   }
 
-  private getVectorSpacing(zoom: number|undefined): number
+  private getVectorSpacing(resolution: number|undefined, data_spacing: number): number
   {
-    // determine how many vectors to skip based on zoom value
+    // determine how many vectors to skip based on the resolution and spacing between vectors
     // 1 displays all vectors, 2 skips 1 row and column, 3 skips 2 rows and columns, etc.
-    // TODO: improve logic to adjust spacing based on the projection, grid spacing, etc.
-
-    // if zoom is undefined
-    if(!zoom) {
-      return 5;
-    }
-    if(zoom >= 6.0) {
-      return 1;
-    }
-    if(zoom >= 5.2) {
-      return 2;
-    }
-    if(zoom >= 4.7) {
+    if(resolution == undefined) {
       return 3;
     }
-    if(zoom >= 3.7) {
-      return 4;
-    }
-    if(zoom >= 3.3) {
-      return 5;
-    }
-    return 6;
+    const space_for_each_arrow = 10;
+    return Math.floor((resolution * space_for_each_arrow) / data_spacing) + 1;
   }
+
   private getVectorScale(zoom: number|undefined): number
   {
     // determine the multiplier to scale the wind arrows based on the current zoom
@@ -417,7 +402,7 @@ export class WrfViewerComponent implements OnInit
   private readFeaturesVector(geojsonObject: any): Feature[]
   {
     // read map zoom and determine how many points to skip
-    const spacing = this.getVectorSpacing(this.map?.getView().getZoom());
+    const spacing = this.getVectorSpacing(this.map?.getView().getResolution(), Number(geojsonObject['dx']));
     let features: Feature[] = [];
     const row_length: number = Number(geojsonObject['row_length']);
     geojsonObject['vectors'].forEach(function(vector: VectorData, i: number){
@@ -586,7 +571,6 @@ export class WrfViewerComponent implements OnInit
   private selfVectorStyle(feature: any): Style[]
   {
     const vectorScale = this.getVectorScale(this.map?.getView().getZoom());
-    //console.log('scale: ' + vectorScale);
     const shaft = new RegularShape({
       points: 2,
       radius: 5,
@@ -650,9 +634,7 @@ export class WrfViewerComponent implements OnInit
 
     /* save the event information and handle it in a sec */
     this.unhandledZoomEvent = {
-      'layer': layer,
-      'vectorLayer': vectorLayer,
-      'event': event
+      'layer': layer
     };
   }
 
@@ -669,26 +651,37 @@ export class WrfViewerComponent implements OnInit
       return;
 
     /* extract the zoom event parameters and set the unhandled to 'undefined' to signify it is being handled now */
-    const layer: WrfLayer = this.unhandledZoomEvent.layer;
-    const vectorLayer: VectorLayer<any> = this.unhandledZoomEvent.vectorLayer;
-    const event: any = this.unhandledZoomEvent.event;
+    const eventLayer: WrfLayer = this.unhandledZoomEvent.layer;
     this.unhandledZoomEvent = undefined;
 
-    const new_zoom = event.target.values_.zoom;
-    const new_spacing = this.getVectorSpacing(new_zoom);
-    const old_spacing = this.getVectorSpacing(layer.zoom);
-    //console.log('zoom: ' + layer.zoom + ' -> ' + new_zoom);
+    const new_spacing = this.getVectorSpacing(this.map?.getView().getResolution(), Number(eventLayer.data_spacing));
+    if (new_spacing == eventLayer.display_spacing)
+      return;
 
-    if (new_spacing != old_spacing) {
-      //console.log('spacing: ' + old_spacing + ' -> ' + new_spacing);
-      const features = this.readFeaturesVector(layer.layer_data);
-      let source = vectorLayer.getSource();
-      source.clear();
-      source.addFeatures(features);
-      source.changed();
+    const layerGroup: WrfLayerGroup|undefined = this.findLayerGroup(eventLayer.variable_name);
+    if (layerGroup === undefined)
+      return;
+    const wrfLayers: WrfLayer[] = layerGroup.layers[eventLayer.z_level];
+    for (let wrfLayer of wrfLayers) {
+      const key: string = WrfViewerComponent.generateFrameKey(
+          {
+            'job_id': this.job!.job_id,
+            'valid_time': wrfLayer.dt,
+            'variable': eventLayer.variable_name,
+            'z_level': eventLayer.z_level
+          }
+      );
+
+      let vectorLayer: Layer = this.frames[key];
+      if (vectorLayer instanceof VectorLayer) {
+        const features = this.readFeaturesVector(wrfLayer.layer_data);
+        const source = vectorLayer.getSource();
+        source.clear();
+        source.addFeatures(features);
+        source.changed();
+      }
+      wrfLayer.display_spacing = new_spacing;
     }
-    layer.zoom = new_zoom;
-
   }
 
   /**
