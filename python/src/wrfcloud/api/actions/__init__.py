@@ -6,7 +6,7 @@ __all__ = ['Action', 'Login', 'ChangePassword', 'CreateUser', 'ActivateUser', 'L
            'UpdateUser', 'DeleteUser', 'WhoAmI', 'ResetPassword', 'RefreshToken', 'GetWrfMetaData',
            'GetWrfGeoJson', 'RunWrf', 'ListJobs', 'RequestPasswordRecoveryToken', 'ListJobs',
            'SubscribeJobs', 'ListModelConfigurations', 'AddModelConfiguration', 'DeleteModelConfiguration',
-           'UpdateModelConfiguration', 'DeleteCluster', 'CancelJob', 'DeleteJob']
+           'UpdateModelConfiguration', 'DeleteCluster', 'CancelJob', 'DeleteJob', 'ListLogs', 'GetLog']
 
 from wrfcloud.api.actions.action import Action
 from wrfcloud.api.actions.login import Login
@@ -32,3 +32,5 @@ from wrfcloud.api.actions.configurations import ListModelConfigurations
 from wrfcloud.api.actions.configurations import AddModelConfiguration
 from wrfcloud.api.actions.configurations import DeleteModelConfiguration
 from wrfcloud.api.actions.configurations import UpdateModelConfiguration
+from wrfcloud.api.actions.log import ListLogs
+from wrfcloud.api.actions.log import GetLog
