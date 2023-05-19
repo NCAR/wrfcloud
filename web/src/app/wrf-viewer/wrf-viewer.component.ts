@@ -133,11 +133,6 @@ export class WrfViewerComponent implements OnInit
    */
   public frames: {[key: string]: Layer} = {};
 
-  /**
-   * Store the latest unhandled zoom event here
-   * @private
-   */
-  private unhandledZoomEvent: any;
 
   /**
    * Get the singleton app object
@@ -343,7 +338,8 @@ export class WrfViewerComponent implements OnInit
       layer.data_spacing = Number(geojsonObject['dx'])
       layer.display_spacing = this.getVectorSpacing(this.map?.getView().getResolution(), layer.data_spacing );
       layer.handleZoomChange = this.doZoomChange;
-      this.map!.getView().on('change:resolution', layer.handleZoomChange.bind(this, layer, vectorLayer));
+      // this.map!.getView().on('change:resolution', layer.handleZoomChange.bind(this, layer, vectorLayer));
+      this.map!.on('moveend', layer.handleZoomChange.bind(this, layer, vectorLayer));
     }
     else
       return;
@@ -399,10 +395,11 @@ export class WrfViewerComponent implements OnInit
     return 0.7;
   }
 
-  private readFeaturesVector(geojsonObject: any): Feature[]
+  private readFeaturesVector(geojsonObject: any, new_spacing?: number): Feature[]
   {
     // read map zoom and determine how many points to skip
-    const spacing = this.getVectorSpacing(this.map?.getView().getResolution(), Number(geojsonObject['dx']));
+    // const spacing = this.getVectorSpacing(this.map?.getView().getResolution(), Number(geojsonObject['dx']));
+    const spacing: number = new_spacing !== undefined ? new_spacing : this.getVectorSpacing(this.map?.getView().getResolution(), Number(geojsonObject['dx']));
     let features: Feature[] = [];
     const row_length: number = Number(geojsonObject['row_length']);
     geojsonObject['vectors'].forEach(function(vector: VectorData, i: number){
@@ -563,7 +560,7 @@ export class WrfViewerComponent implements OnInit
     });
   }
 
-    /**
+  /**
    * Set the style for vectors, e.g. wind
    * @param feature
    * @private
@@ -628,60 +625,22 @@ export class WrfViewerComponent implements OnInit
    */
   private doZoomChange(layer: WrfLayer, vectorLayer: VectorLayer<any>, event: any): void
   {
-    /* call the real handler after 500ms to allow for zooming to finish */
-    if (this.unhandledZoomEvent === undefined)
-      setTimeout(this.handleZoomEventNow.bind(this), 500);
-
-    /* save the event information and handle it in a sec */
-    this.unhandledZoomEvent = {
-      'layer': layer
-    };
-  }
-
-
-  /**
-   * Handle zoom on the map event -- regenerates features if needed
-   *
-   * @private
-   */
-  private handleZoomEventNow(): void
-  {
-    /* if there is no event to handle, do nothing */
-    if (this.unhandledZoomEvent === undefined)
+    /* ignore if layer is not a VectorLayer type */
+    if (! (vectorLayer instanceof VectorLayer))
       return;
 
-    /* extract the zoom event parameters and set the unhandled to 'undefined' to signify it is being handled now */
-    const eventLayer: WrfLayer = this.unhandledZoomEvent.layer;
-    this.unhandledZoomEvent = undefined;
-
-    const new_spacing = this.getVectorSpacing(this.map?.getView().getResolution(), Number(eventLayer.data_spacing));
-    if (new_spacing == eventLayer.display_spacing)
+    /* calculate the new spacing value and ignore the event if it is the same as the old spacing */
+    const new_spacing = this.getVectorSpacing(this.map?.getView().getResolution(), Number(layer.data_spacing));
+    if (new_spacing == layer.display_spacing)
       return;
 
-    const layerGroup: WrfLayerGroup|undefined = this.findLayerGroup(eventLayer.variable_name);
-    if (layerGroup === undefined)
-      return;
-    const wrfLayers: WrfLayer[] = layerGroup.layers[eventLayer.z_level];
-    for (let wrfLayer of wrfLayers) {
-      const key: string = WrfViewerComponent.generateFrameKey(
-          {
-            'job_id': this.job!.job_id,
-            'valid_time': wrfLayer.dt,
-            'variable': eventLayer.variable_name,
-            'z_level': eventLayer.z_level
-          }
-      );
-
-      let vectorLayer: Layer = this.frames[key];
-      if (vectorLayer instanceof VectorLayer) {
-        const features = this.readFeaturesVector(wrfLayer.layer_data);
-        const source = vectorLayer.getSource();
-        source.clear();
-        source.addFeatures(features);
-        source.changed();
-      }
-      wrfLayer.display_spacing = new_spacing;
-    }
+    /* re-create the features based on the new spacing */
+    const features = this.readFeaturesVector(layer.layer_data, new_spacing);
+    const source = vectorLayer.getSource();
+    source.clear();
+    source.addFeatures(features);
+    source.changed();
+    layer.display_spacing = new_spacing;
   }
 
   /**
@@ -802,12 +761,12 @@ export class WrfViewerComponent implements OnInit
       {
         /* generate the key value for the frame */
         const key: string = WrfViewerComponent.generateFrameKey(
-          {
-            'job_id': this.job!.job_id,
-            'valid_time': layer.dt,
-            'variable': layerGroup.variable_name,
-            'z_level': z_level
-          }
+            {
+              'job_id': this.job!.job_id,
+              'valid_time': layer.dt,
+              'variable': layerGroup.variable_name,
+              'z_level': z_level
+            }
         );
 
         /* if the layer exists, then set the visibility */
@@ -844,12 +803,12 @@ export class WrfViewerComponent implements OnInit
     {
       const timestamp: number = Math.trunc(validTime.getTime() / 1000);
       const frameKey = WrfViewerComponent.generateFrameKey(
-        {
-          'job_id': jobId,
-          'valid_time': timestamp,
-          'variable': variable,
-          'z_level': z_level
-        }
+          {
+            'job_id': jobId,
+            'valid_time': timestamp,
+            'variable': variable,
+            'z_level': z_level
+          }
       );
       if (this.frames[frameKey] === undefined)
         this.loadLayer(jobId, timestamp, variable, z_level);
@@ -970,12 +929,12 @@ export class WrfViewerComponent implements OnInit
 
     /* hide the layer that corresponds to the current time */
     let frameKey = WrfViewerComponent.generateFrameKey(
-      {
-        'job_id': this.job!.job_id,
-        'valid_time': Math.trunc(this.selectedFrameMs / 1000),
-        'variable': variableName,
-        'z_level': z_level
-      }
+        {
+          'job_id': this.job!.job_id,
+          'valid_time': Math.trunc(this.selectedFrameMs / 1000),
+          'variable': variableName,
+          'z_level': z_level
+        }
     );
     if (this.frames[frameKey] !== undefined)
       this.frames[frameKey].setVisible(false);
@@ -1003,12 +962,12 @@ export class WrfViewerComponent implements OnInit
 
     /* show the layer that corresponds to the new time */
     frameKey = WrfViewerComponent.generateFrameKey(
-      {
-        'job_id': this.job!.job_id,
-        'valid_time': Math.trunc(this.selectedFrameMs / 1000),
-        'variable': variableName,
-        'z_level': z_level
-      }
+        {
+          'job_id': this.job!.job_id,
+          'valid_time': Math.trunc(this.selectedFrameMs / 1000),
+          'variable': variableName,
+          'z_level': z_level
+        }
     );
     if (this.frames[frameKey] !== undefined)
       this.frames[frameKey].setVisible(true);
