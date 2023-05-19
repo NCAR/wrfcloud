@@ -900,6 +900,7 @@ export interface WrfLayer
   plot_type: string;
   data_spacing: number|undefined;
   display_spacing: number|undefined;
+  features: {[spacing: number]: any};
   handleZoomChange: Function;
 }
 
