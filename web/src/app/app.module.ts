@@ -44,6 +44,7 @@ import {ModelConfigComponent} from './model-config/model-config.component';
 import {EditModelConfigurationComponent} from './edit-model-configuration/edit-model-configuration.component';
 import {JobDetailsComponent} from './job-details/job-details.component';
 import {ContextHelpComponent} from './context-help/context-help.component';
+import {LogViewerComponent} from './log-viewer/log-viewer.component';
 
 
 @NgModule({
@@ -65,7 +66,8 @@ import {ContextHelpComponent} from './context-help/context-help.component';
     ModelConfigComponent,
     EditModelConfigurationComponent,
     JobDetailsComponent,
-    ContextHelpComponent
+    ContextHelpComponent,
+    LogViewerComponent
   ],
     imports: [
         BrowserModule,

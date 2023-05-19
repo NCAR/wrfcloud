@@ -1,7 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {ApiResponse, CancelDeleteJobRequest, WrfJob} from "../client-api";
 import {AppComponent} from "../app.component";
+import {LogViewerComponent} from "../log-viewer/log-viewer.component";
 
 @Component({
   selector: 'app-job-details',
@@ -47,6 +48,11 @@ export class JobDetailsComponent implements OnInit
    */
   public allowOpen: boolean = false;
 
+  /**
+   * Allow the job log viewer to be opened
+   */
+  public allowLog: boolean = false;
+
 
   /**
    * Flag the dialog as busy or not (i.e., waiting for API response)
@@ -66,7 +72,7 @@ export class JobDetailsComponent implements OnInit
    * @param dialogRef
    * @param data Contains the full job object and the edit flag
    */
-  constructor(public dialogRef: MatDialogRef<JobDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: {job: WrfJob, edit: boolean})
+  constructor(public dialogRef: MatDialogRef<JobDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: {job: WrfJob, edit: boolean}, public dialog: MatDialog)
   {
     /* get a reference to the application singleton */
     this.app = AppComponent.singleton;
@@ -102,6 +108,7 @@ export class JobDetailsComponent implements OnInit
     this.allowCancel = sc >= 0 && sc <= 2;  // pending, starting, running
     this.allowDelete = sc >= 3 && sc <= 5;  // finished, canceled, failed
     this.allowOpen = sc === 3;              // finished
+    this.allowLog = sc >= 3 && sc <= 5;     // finished, canceled, failed
   }
 
 
@@ -127,6 +134,12 @@ export class JobDetailsComponent implements OnInit
   {
     this.app.routeTo('/view/' + this.data.job.job_id);
     this.closeDialog();
+  }
+
+  public openLog(): void
+  {
+    /* open the dialog and show the help information */
+    this.dialog.open(LogViewerComponent, {data: {job_id: this.data.job.job_id}});
   }
 
 

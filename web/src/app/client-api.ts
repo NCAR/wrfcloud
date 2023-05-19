@@ -598,6 +598,44 @@ export class ClientApi
 
 
   /**
+   * Get list of log files
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendGetLogFilesRequest(requestData: GetLogFilesRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'GetLogs',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
+   * Get content of log file
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendOpenLogFileRequest(requestData: OpenLogFileRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'OpenLog',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
    * Send a refresh token request
    *
    * @param requestData
@@ -1126,5 +1164,30 @@ export interface UpdateModelConfigurationResponse extends ApiResponse
 {
   data: {
     model_config: ModelConfiguration
+  }
+}
+
+export interface GetLogFilesRequest
+{
+  job_id: string;
+}
+
+export interface GetLogFilesResponse extends ApiResponse
+{
+  data: {
+    log_filenames: Array<string>;
+  }
+}
+
+export interface OpenLogFileRequest
+{
+  job_id: string;
+  log_file: string;
+}
+
+export interface OpenLogFileResponse extends ApiResponse
+{
+  data: {
+    log_content: string;
   }
 }
