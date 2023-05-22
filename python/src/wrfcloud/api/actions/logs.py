@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from zipfile import ZipFile
 
-from wrfcloud.api.jobs import get_job_from_system
+from wrfcloud.api.actions.jobs import get_job_from_system
 from wrfcloud.api.actions.action import Action
 
 
