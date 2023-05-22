@@ -603,11 +603,12 @@ export class ClientApi
    * @param requestData
    * @param responseHandler
    */
-  public sendGetLogFilesRequest(requestData: GetLogFilesRequest, responseHandler: Function): void
+  public sendListLogsRequest(requestData: ListLogsRequest, responseHandler: Function): void
   {
     /* create the API request */
     const request: ApiRequest = {
-      action: 'GetLogs',
+      action: 'ListLogs',
+      //jwt: this.jwt,
       data: requestData
     };
 
@@ -622,11 +623,12 @@ export class ClientApi
    * @param requestData
    * @param responseHandler
    */
-  public sendOpenLogFileRequest(requestData: OpenLogFileRequest, responseHandler: Function): void
+  public sendGetLogRequest(requestData: GetLogRequest, responseHandler: Function): void
   {
     /* create the API request */
     const request: ApiRequest = {
-      action: 'OpenLog',
+      action: 'GetLog',
+      //jwt: this.jwt,
       data: requestData
     };
 
@@ -1167,25 +1169,25 @@ export interface UpdateModelConfigurationResponse extends ApiResponse
   }
 }
 
-export interface GetLogFilesRequest
+export interface ListLogsRequest
 {
   job_id: string;
 }
 
-export interface GetLogFilesResponse extends ApiResponse
+export interface ListLogsResponse extends ApiResponse
 {
   data: {
     log_filenames: Array<string>;
   }
 }
 
-export interface OpenLogFileRequest
+export interface GetLogRequest
 {
   job_id: string;
   log_file: string;
 }
 
-export interface OpenLogFileResponse extends ApiResponse
+export interface GetLogResponse extends ApiResponse
 {
   data: {
     log_content: string;

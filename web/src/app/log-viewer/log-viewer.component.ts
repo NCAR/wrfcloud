@@ -1,10 +1,10 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {
-  GetLogFilesResponse,
-  GetLogFilesRequest,
-  OpenLogFileRequest,
-  OpenLogFileResponse, WrfJob
+  ListLogsResponse,
+  ListLogsRequest,
+  GetLogRequest,
+  GetLogResponse, WrfJob
 } from "../client-api";
 import {AppComponent} from "../app.component";
 
@@ -53,7 +53,7 @@ export class LogViewerComponent implements OnInit
     /* get a reference to the application singleton */
     this.app = AppComponent.singleton;
 
-    this.getLogFiles();
+    this.listLogs();
   }
 
 
@@ -67,6 +67,7 @@ export class LogViewerComponent implements OnInit
    */
   public updateLogContent(): void
   {
+    this.openLog(this.selectedLogFile);
     this.logContent = this.logFiles[this.selectedLogFile];
   }
 
@@ -86,21 +87,20 @@ export class LogViewerComponent implements OnInit
   public openLog(log_filename: string): void
   {
     this.busy = true;
-    const req: OpenLogFileRequest = {job_id: this.data.job_id, log_file: log_filename};
-    this.app.api.sendOpenLogFileRequest(req, this.handleOpenLogFileResponse.bind(this));
+    const req: GetLogRequest = {job_id: this.data.job_id, log_file: log_filename};
+    this.app.api.sendGetLogRequest(req, this.handleGetLogResponse.bind(this));
   }
 
 
-  public getLogFiles(): void
+  public listLogs(): void
   {
     this.busy = true;
-    const req: GetLogFilesRequest = {job_id: this.data.job_id};
-    console.log(req);
-    this.app.api.sendGetLogFilesRequest(req, this.handleGetLogFilesResponse.bind(this));
+    const req: ListLogsRequest = {job_id: this.data.job_id};
+    this.app.api.sendListLogsRequest(req, this.handleListLogsResponse.bind(this));
   }
 
 
-  public handleOpenLogFileResponse(response: OpenLogFileResponse): void
+  public handleGetLogResponse(response: GetLogResponse): void
   {
     this.busy = false;
     if (!response.ok)
@@ -109,7 +109,7 @@ export class LogViewerComponent implements OnInit
       this.logFiles[this.selectedLogFile] = response.data.log_content;
   }
 
-  public handleGetLogFilesResponse(response: GetLogFilesResponse): void
+  public handleListLogsResponse(response: ListLogsResponse): void
   {
     this.busy = false;
     if (!response.ok)
