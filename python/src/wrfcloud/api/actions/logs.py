@@ -2,19 +2,12 @@
 API actions that are responsible for reading log files
 """
 import os
-import base64
-import gzip
-import pkgutil
-from typing import Union
-from datetime import datetime, timedelta
-from pytz import utc
+from datetime import datetime
 from zipfile import ZipFile
 
-from wrfcloud.api.auth import create_jwt
+from wrfcloud.api.jobs import get_job_from_system
 from wrfcloud.api.actions.action import Action
-from wrfcloud.system import get_aws_session
-from wrfcloud.aws.pcluster import WrfCloudCluster, CustomAction
-from wrfcloud.jobs import WrfJob, JobDao, LatLonPoint
+
 
 class ListLogs(Action):
     """
@@ -64,6 +57,7 @@ class ListLogs(Action):
             return False
 
         return True
+
 
 class GetLog(Action):
     """

@@ -32,5 +32,5 @@ from wrfcloud.api.actions.configurations import ListModelConfigurations
 from wrfcloud.api.actions.configurations import AddModelConfiguration
 from wrfcloud.api.actions.configurations import DeleteModelConfiguration
 from wrfcloud.api.actions.configurations import UpdateModelConfiguration
-from wrfcloud.api.actions.log import ListLogs
-from wrfcloud.api.actions.log import GetLog
+from wrfcloud.api.actions.logs import ListLogs
+from wrfcloud.api.actions.logs import GetLog
