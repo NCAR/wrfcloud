@@ -2,8 +2,8 @@
 API actions that are responsible for reading log files
 """
 import os
-from datetime import datetime
 from zipfile import ZipFile
+import io
 
 from wrfcloud.api.actions.jobs import get_job_from_system
 from wrfcloud.api.actions.action import Action
@@ -38,7 +38,7 @@ class ListLogs(Action):
 
             # check for the job ID not found case
             if job is None:
-                self.errors.append(f'Job ID not found.')
+                self.errors.append('Job ID not found.')
                 self.log.error('Job ID not found: ' + self.request['job_id'])
                 return False
 
@@ -49,7 +49,7 @@ class ListLogs(Action):
             # read the object from S3
             data = self._s3_read(bucket, key)
 
-            with ZipFile(data) as zip_file:
+            with ZipFile(io.BytesIO(data)) as zip_file:
                 self.response['log_filenames'] = zip_file.namelist()
         except Exception as e:
             self.log.error('Failed to get a list of log files for job', e)
@@ -98,12 +98,10 @@ class GetLog(Action):
 
             # read the object from S3
             data = self._s3_read(bucket, key)
-            with ZipFile(data) as zip_file:
-                log_path = zip_file.extract(self.request['log_file'])
-            with open(log_path, 'r') as file_handle:
-                self.response['log_content'] = file_handle.read()
+            with ZipFile(io.BytesIO(data)) as zip_file:
+                self.response['log_content'] = zip_file.read(self.request['log_file'])
         except Exception as e:
-            self.log.error('Failed to get a list of log files for job', e)
+            self.log.error('Failed to get a log file content', e)
             self.errors.append('General error')
             return False
 
