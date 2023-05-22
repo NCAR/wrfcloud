@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 from pytz import utc
 from wrfcloud.api.auth import create_jwt
 from wrfcloud.api.actions.action import Action
-from wrfcloud.system import get_aws_session
 from wrfcloud.aws.pcluster import WrfCloudCluster, CustomAction
 from wrfcloud.jobs import WrfJob, JobDao, LatLonPoint
 
@@ -134,24 +133,6 @@ class GetWrfGeoJson(Action):
 
         # unzip the data -- the whole response gets compressed again later
         return gzip.decompress(data)
-
-    def _s3_read(self, bucket: str, key: str) -> bytes:
-        """
-        Read an S3 object and return its bytes
-        :param bucket: Read from this S3 bucket
-        :param key: Read this S3 key
-        :return: Object data
-        """
-        # get an s3 client
-        session = get_aws_session()
-        self.s3 = session.client('s3')
-
-        # read the object
-        key = key[1:] if key.startswith('/') else key
-        response = self.s3.get_object(Bucket=bucket, Key=key)
-        data: bytes = response['Body'].read()
-
-        return data
 
 
 class RunWrf(Action):
