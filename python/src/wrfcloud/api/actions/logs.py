@@ -99,7 +99,9 @@ class GetLog(Action):
             # read the object from S3
             data = self._s3_read(bucket, key)
             with ZipFile(io.BytesIO(data)) as zip_file:
-                self.response['log_content'] = zip_file.read(self.request['log_file'])
+                with zip_file.open(self.request['log_file']) as log_file:
+                    log_content = log_file.read()
+            self.response['log_content'] = log_content.decode('utf-8')
         except Exception as e:
             self.log.error('Failed to get a log file content', e)
             self.errors.append('General error')
