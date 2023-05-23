@@ -24,7 +24,7 @@ export class LogViewerComponent implements OnInit
   /**
    * Content of log file to display
    */
-  public logFiles: {[log_filename: string]: string} = {'fake/log_filename.txt': "some fake file content", 'other/log_fakename.txt': "some content for another fake file file"};
+  public logFiles: {[log_filename: string]: string} = {'Loading Logs...': ""};
 
   public selectedLogFile: string = "";
 
@@ -68,7 +68,6 @@ export class LogViewerComponent implements OnInit
   public updateLogContent(): void
   {
     this.openLog(this.selectedLogFile);
-    this.logContent = this.logFiles[this.selectedLogFile];
   }
 
 
@@ -78,6 +77,7 @@ export class LogViewerComponent implements OnInit
    */
   private updateLogList(log_filenames: Array<string>): void
   {
+    this.logFiles = {};
     for (let log_filename of log_filenames) {
       this.logFiles[log_filename] = "";
     }
@@ -105,8 +105,10 @@ export class LogViewerComponent implements OnInit
     this.busy = false;
     if (!response.ok)
       this.app.showErrorDialog(response.errors);
-    else
+    else {
       this.logFiles[this.selectedLogFile] = response.data.log_content;
+      this.logContent = this.logFiles[this.selectedLogFile];
+    }
   }
 
   public handleListLogsResponse(response: ListLogsResponse): void
