@@ -608,7 +608,6 @@ export class ClientApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'ListLogs',
-      //jwt: this.jwt,
       data: requestData
     };
 
@@ -628,7 +627,6 @@ export class ClientApi
     /* create the API request */
     const request: ApiRequest = {
       action: 'GetLog',
-      //jwt: this.jwt,
       data: requestData
     };
 
