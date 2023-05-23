@@ -136,7 +136,7 @@ export class JobDetailsComponent implements OnInit
     this.closeDialog();
   }
 
-  public openLog(): void
+  public openLogViewer(): void
   {
     /* open the dialog and show the help information */
     this.dialog.open(LogViewerComponent, {data: {job_id: this.data.job.job_id}});

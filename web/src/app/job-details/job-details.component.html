@@ -17,7 +17,7 @@
   <button *ngIf="allowCancel" mat-flat-button class="job-details-action-button" (click)="cancelJob()">Cancel Job</button>
   <button *ngIf="allowDelete" mat-flat-button class="job-details-action-button" (click)="deleteJob()">Delete Job</button>
   <button *ngIf="allowOpen" mat-stroked-button class="job-details-action-button job-details-open-button" (click)="openJob()">Viewer</button>
-  <button *ngIf="allowLog" mat-stroked-button class="job-details-action-button" (click)="openLog()">Logs</button>
+  <button *ngIf="allowLog" mat-stroked-button class="job-details-action-button" (click)="openLogViewer()">Logs</button>
   <button mat-stroked-button class="job-details-cancel-button" (click)="closeDialog()">Close</button>
 </div>
 
