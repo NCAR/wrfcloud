@@ -1118,6 +1118,11 @@ export interface ModelConfiguration
   domain_size?: number[];
 }
 
+export interface LogInfo
+{
+  log_name: string;
+}
+
 export interface ListModelConfigurationsRequest
 {
   configuration_name?: string;

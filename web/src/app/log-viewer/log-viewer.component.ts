@@ -1,17 +1,19 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+/*import {MatToolbarModule} from '@angular/material/toolbar';*/
 import {
   ListLogsResponse,
   ListLogsRequest,
   GetLogRequest,
-  GetLogResponse, WrfJob
+  GetLogResponse, LogInfo,
 } from "../client-api";
 import {AppComponent} from "../app.component";
+import {MatTableDataSource} from "@angular/material/table";
 
 @Component({
   selector: 'app-log-viewer',
   templateUrl: './log-viewer.component.html',
-  styleUrls: ['./log-viewer.component.sass']
+  styleUrls: ['./log-viewer.component.sass'],
 })
 export class LogViewerComponent implements OnInit
 {
@@ -41,6 +43,21 @@ export class LogViewerComponent implements OnInit
    */
   public busy: boolean = false;
 
+  /**
+   * Table data
+   */
+  public dataSource: MatTableDataSource<LogInfo> = new MatTableDataSource<LogInfo>([]);
+
+  /**
+   * Column names to display on a desktop computer
+   */
+  public desktopColumns: Array<string> = ['log_name'];
+
+
+  /**
+   * Column names to display on a mobile device
+   */
+  public mobileColumns: Array<string> = ['log_name'];
 
   /**
    * Default constructor
@@ -78,9 +95,13 @@ export class LogViewerComponent implements OnInit
   private updateLogList(log_filenames: Array<string>): void
   {
     this.logFiles = {};
+    let log_infos = [];
     for (let log_filename of log_filenames) {
       this.logFiles[log_filename] = "";
+      let log_info = {['log_name']: log_filename};
+      log_infos.push(log_info);
     }
+    this.dataSource.data = log_infos;
   }
 
 

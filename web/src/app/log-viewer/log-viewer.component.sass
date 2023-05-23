@@ -1,5 +1,10 @@
 @import '../../globals'
 
+.log-viewer-mobile-select
+  display: block
+
+.log-viewer-desktop-select
+  display: none
 
 .log-viewer-container
   display: grid
@@ -43,3 +48,11 @@
 
 .log-viewer-right
   float: right
+
+@media screen and (min-width: 840px)
+
+  .log-viewer-mobile-select
+    display: none
+
+  .log-viewer-desktop-select
+    display: block
