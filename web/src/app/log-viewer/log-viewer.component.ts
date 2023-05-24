@@ -84,7 +84,12 @@ export class LogViewerComponent implements OnInit
    */
   public updateLogContent(): void
   {
-    this.openLog(this.selectedLogFile);
+    // only get log contents from API if it has not already been read
+    // otherwise just update the display with log file contents
+    if(this.logFiles[this.selectedLogFile].length === 0)
+      this.openLog(this.selectedLogFile);
+    else
+      this.logContent = this.logFiles[this.selectedLogFile];
   }
 
 
