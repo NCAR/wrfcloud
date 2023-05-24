@@ -15,7 +15,8 @@
   <mat-drawer-container class="example-container">
     <mat-drawer mode="side" class="log-viewer-desktop-select" opened>
       <div class="log-viewer-table-container">
-        <table mat-table [dataSource]="dataSource" [(ngModel)]="selectedLogFile" (ngModelChange)="updateLogContent()" matSort class="log-viewer-user-table">
+<!--        <table mat-table [dataSource]="dataSource" [(ngModel)]="selectedLogFile" (ngModelChange)="updateLogContent()" matSort class="log-viewer-user-table">-->
+        <table mat-table [dataSource]="dataSource" [(ngModel)]="selectedLogFile" matSort class="log-viewer-user-table">
           <ng-container matColumnDef="log_name" class="log-viewer-log-table-cell">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Select Log File</th>
             <td mat-cell *matCellDef="let item"> {{item.name}} </td>
