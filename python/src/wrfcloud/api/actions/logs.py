@@ -51,8 +51,22 @@ class ListLogs(Action):
 
             with ZipFile(io.BytesIO(data)) as zip_file:
                 logs = zip_file.namelist()
-            logs = [item.replace(f'data/{job.job_id}/', '') for item in logs]
-            self.response['log_filenames'] = logs
+
+            log_dict = {}
+            for log in logs:
+                log = log.replace(f'data/{job.job_id}/', '')
+                app, filename = log.split('/')
+                if app not in log_dict:
+                    log_dict[app] = []
+                log_dict[app].append({'name': filename})
+
+            # format logs into dictionary to display as tree in UI
+            log_tree = []
+            for app, filenames in log_dict.items():
+                log_node = {'name': app, 'children': filenames}
+                log_tree.append(log_node)
+
+            self.response['log_filenames'] = log_tree
         except Exception as e:
             self.log.error('Failed to get a list of log files for job', e)
             self.errors.append('General error')
