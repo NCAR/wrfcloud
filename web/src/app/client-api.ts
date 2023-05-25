@@ -1177,10 +1177,14 @@ export interface ListLogsRequest
   job_id: string;
 }
 
+export interface LogNode {
+  name: string;
+  children?: LogNode[];
+}
 export interface ListLogsResponse extends ApiResponse
 {
   data: {
-    log_filenames: Array<string>;
+    log_tree: Array<LogNode>;
   }
 }
 
@@ -1196,3 +1200,10 @@ export interface GetLogResponse extends ApiResponse
     log_content: string;
   }
 }
+
+/** Flat node with expandable and level information */
+export interface ExampleFlatNode {
+  expandable: boolean;
+  name: string;
+  level: number;
+};

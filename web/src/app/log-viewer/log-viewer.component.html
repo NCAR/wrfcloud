@@ -12,32 +12,43 @@
       </mat-select>
     </mat-form-field>
   </div>
-  <mat-drawer-container class="example-container">
-    <mat-drawer mode="side" class="log-viewer-desktop-select" opened>
-      <div class="log-viewer-table-container">
-<!--        <table mat-table [dataSource]="dataSource" [(ngModel)]="selectedLogFile" (ngModelChange)="updateLogContent()" matSort class="log-viewer-user-table">-->
-        <table mat-table [dataSource]="dataSource" [(ngModel)]="selectedLogFile" matSort class="log-viewer-user-table">
-          <ng-container matColumnDef="log_name" class="log-viewer-log-table-cell">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Select Log File</th>
-            <td mat-cell *matCellDef="let item"> {{item.name}} </td>
-          </ng-container>
+  <div class="log-viewer-desktop-select">
+    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+      <!-- This is the tree node template for leaf nodes -->
+      <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+        <!-- use a disabled button to provide padding for tree leaf -->
+        <button mat-icon-button disabled></button>
+        {{node.name}}
+      </mat-tree-node>
+      <!-- This is the tree node template for expandable nodes -->
+      <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
+        <button mat-icon-button matTreeNodeToggle
+                [attr.aria-label]="'Toggle ' + node.name">
+          <mat-icon class="mat-icon-rtl-mirror">
+            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+          </mat-icon>
+        </button>
+        {{node.name}}
+      </mat-tree-node>
+    </mat-tree>
 
-          <tr mat-header-row *matHeaderRowDef="app.isMobile ? mobileColumns : desktopColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: (app.isMobile ? mobileColumns : desktopColumns);"></tr>
-          <!--<tr mat-row *matRowDef="let row; columns: (app.isMobile ? mobileColumns : desktopColumns);" (click)="updateLogContent()"></tr>-->
-        </table>
+<!--    <table mat-table [dataSource]="dataSource" [(ngModel)]="selectedLogFile" matSort class="log-viewer-user-table">-->
+<!--      <ng-container matColumnDef="log_name" class="log-viewer-log-table-cell">-->
+<!--        <th mat-header-cell *matHeaderCellDef mat-sort-header>Select Log File</th>-->
+<!--        <td mat-cell *matCellDef="let item"> {{item.name}} </td>-->
+<!--      </ng-container>-->
+
+<!--      <tr mat-header-row *matHeaderRowDef="desktopColumns"></tr>-->
+<!--      <tr mat-row *matRowDef="let row; columns: (desktopColumns);"></tr>-->
+<!--    </table>-->
 <!--        <mat-paginator [pageSizeOptions]="[app.isMobile ? 5 : 8]" showFirstLastButtons #paginator>-->
 <!--        </mat-paginator>-->
-      </div>
+  </div>
 
-    </mat-drawer>
-    <mat-drawer-content>
-      <mat-form-field class="log-viewer-display" appearance="fill">
-        <mat-label>Log File Content</mat-label>
-        <textarea matInput type="text" disabled="true">{{logContent}}</textarea>
-      </mat-form-field>
-    </mat-drawer-content>
-  </mat-drawer-container>
+  <mat-form-field class="log-viewer-display" appearance="fill">
+    <mat-label>Log File Content</mat-label>
+    <textarea matInput type="text" disabled="true" class="log-viewer-textarea">{{logContent}}</textarea>
+  </mat-form-field>
 
 </div>
 

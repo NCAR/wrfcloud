@@ -1,14 +1,21 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-/*import {MatToolbarModule} from '@angular/material/toolbar';*/
+import {Pipe, PipeTransform} from '@angular/core';
+import {FlatTreeControl} from '@angular/cdk/tree';
+import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {
-  ListLogsResponse,
-  ListLogsRequest,
-  GetLogRequest,
-  GetLogResponse, LogInfo,
+  ListLogsResponse, ListLogsRequest,
+  GetLogRequest, GetLogResponse,
+  LogNode, ExampleFlatNode
 } from "../client-api";
 import {AppComponent} from "../app.component";
-import {MatTableDataSource} from "@angular/material/table";
+
+// @Pipe({name: 'get_log_path'})
+// export class LogPathPipe implements PipeTransform {
+//   transform(value: LogNode) {
+//     return value.name + "/" +
+//   }
+// }
 
 @Component({
   selector: 'app-log-viewer',
@@ -43,21 +50,32 @@ export class LogViewerComponent implements OnInit
    */
   public busy: boolean = false;
 
+  public treeControl = new FlatTreeControl<ExampleFlatNode>(
+      node => node.level,
+      node => node.expandable,
+  );
+
+  private _transformer = (node: LogNode, level: number) => {
+    return {
+      expandable: !!node.children && node.children.length > 0,
+      name: node.name,
+      level: level,
+    };
+  };
+
+  public treeFlattener = new MatTreeFlattener(
+      this._transformer,
+      node => node.level,
+      node => node.expandable,
+      node => node.children,
+  );
+
   /**
    * Table data
    */
-  public dataSource: MatTableDataSource<LogInfo> = new MatTableDataSource<LogInfo>([]);
+  public dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-  /**
-   * Column names to display on a desktop computer
-   */
-  public desktopColumns: Array<string> = ['log_name'];
-
-
-  /**
-   * Column names to display on a mobile device
-   */
-  public mobileColumns: Array<string> = ['log_name'];
+  public hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
 
   /**
    * Default constructor
@@ -97,16 +115,18 @@ export class LogViewerComponent implements OnInit
    * Update list of available log files in menu
    * @private
    */
-  private updateLogList(log_filenames: Array<string>): void
+  private updateLogList(log_tree: Array<LogNode>): void
   {
     this.logFiles = {};
-    let log_infos = [];
-    for (let log_filename of log_filenames) {
-      this.logFiles[log_filename] = "";
-      let log_info = {['log_name']: log_filename};
-      log_infos.push(log_info);
+    for (let log_app of log_tree) {
+      if (log_app.children !== undefined) {
+        for (let log_file of log_app.children) {
+          let log_path = log_app.name + "/" + log_file.name;
+          this.logFiles[log_path] = "";
+        }
+      }
     }
-    this.dataSource.data = log_infos;
+    this.dataSource.data = log_tree;
   }
 
 
@@ -143,6 +163,6 @@ export class LogViewerComponent implements OnInit
     if (!response.ok)
       this.app.showErrorDialog(response.errors);
     else
-      this.updateLogList(response.data.log_filenames);
+      this.updateLogList(response.data.log_tree);
   }
 }
