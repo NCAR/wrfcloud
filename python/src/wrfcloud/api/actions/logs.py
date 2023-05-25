@@ -58,7 +58,7 @@ class ListLogs(Action):
                 app, filename = log.split('/')
                 if app not in log_dict:
                     log_dict[app] = []
-                log_dict[app].append({'name': filename})
+                log_dict[app].append({'name': filename, 'full_name': f'{app}/{filename}'})
 
             # format logs into dictionary to display as tree in UI
             log_tree = []
