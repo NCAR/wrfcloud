@@ -1179,6 +1179,7 @@ export interface ListLogsRequest
 
 export interface LogNode {
   name: string;
+  full_name?: string;
   children?: LogNode[];
 }
 export interface ListLogsResponse extends ApiResponse
@@ -1205,5 +1206,6 @@ export interface GetLogResponse extends ApiResponse
 export interface ExampleFlatNode {
   expandable: boolean;
   name: string;
+  full_name: string|undefined;
   level: number;
 };

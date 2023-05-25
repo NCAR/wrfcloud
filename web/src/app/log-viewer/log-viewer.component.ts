@@ -59,6 +59,7 @@ export class LogViewerComponent implements OnInit
     return {
       expandable: !!node.children && node.children.length > 0,
       name: node.name,
+      full_name: node.full_name,
       level: level,
     };
   };
@@ -112,27 +113,46 @@ export class LogViewerComponent implements OnInit
 
 
   /**
+   * Update text shown in log content display
+   * @private
+   */
+  public setAndUpdateLogFile(node: LogNode): void
+  {
+    if (node.full_name === undefined)
+      return;
+    this.selectedLogFile = node.full_name;
+    this.updateLogContent();
+  }
+  /**
    * Update list of available log files in menu
    * @private
    */
   private updateLogList(log_tree: Array<LogNode>): void
   {
+    this.dataSource.data = log_tree;
+
     this.logFiles = {};
     for (let log_app of log_tree) {
-      if (log_app.children !== undefined) {
-        for (let log_file of log_app.children) {
-          let log_path = log_app.name + "/" + log_file.name;
-          this.logFiles[log_path] = "";
-        }
+      // find top level logs that have a full name defined
+      if (log_app.full_name !== undefined)
+        this.logFiles[log_app.full_name] = "";
+
+      // loop through children if any are defined
+      if (log_app.children === undefined)
+        continue
+
+      for (let log_file of log_app.children) {
+        if (log_file.full_name !== undefined)
+          this.logFiles[log_file.full_name] = "";
       }
     }
-    this.dataSource.data = log_tree;
   }
 
 
   public openLog(log_filename: string): void
   {
     this.busy = true;
+    this.logContent = 'Loading log...';
     const req: GetLogRequest = {job_id: this.data.job_id, log_file: log_filename};
     this.app.api.sendGetLogRequest(req, this.handleGetLogResponse.bind(this));
   }

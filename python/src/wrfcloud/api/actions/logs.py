@@ -63,8 +63,13 @@ class ListLogs(Action):
             # format logs into dictionary to display as tree in UI
             log_tree = []
             for app, filenames in log_dict.items():
-                log_node = {'name': app, 'children': filenames}
-                log_tree.append(log_node)
+                if app == 'data':
+                    for filename in [item['name'] for item in filenames]:
+                        log_node = {'name': filename, 'full_name': f"{app}/{filename}"}
+                        log_tree.append(log_node)
+                else:
+                    log_node = {'name': app, 'children': filenames}
+                    log_tree.append(log_node)
 
             self.response['log_tree'] = log_tree
         except Exception as e:
