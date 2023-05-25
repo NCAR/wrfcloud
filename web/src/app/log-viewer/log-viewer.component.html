@@ -13,7 +13,7 @@
     </mat-form-field>
   </div>
   <div class="log-viewer-desktop-select">
-    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="log-viewer-mat-tree">
       <!-- This is the tree node template for leaf nodes -->
       <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding (click)="setAndUpdateLogFile(node)">
         <!-- use a disabled button to provide padding for tree leaf -->
@@ -33,11 +33,12 @@
     </mat-tree>
   </div>
 
-  <mat-form-field class="log-viewer-display" appearance="fill">
-    <mat-label>Log File Content</mat-label>
-    <textarea matInput type="text" disabled="true" class="log-viewer-textarea">{{logContent}}</textarea>
-  </mat-form-field>
-
+  <div class="log-viewer-display-div">
+    <mat-form-field class="log-viewer-display" appearance="fill">
+      <mat-label>Log File Content</mat-label>
+      <textarea matInput type="text" disabled="true" class="log-viewer-textarea">{{logContent}}</textarea>
+    </mat-form-field>
+  </div>
 </div>
 
 <div class="log-viewer-button-panel" mat-dialog-actions>

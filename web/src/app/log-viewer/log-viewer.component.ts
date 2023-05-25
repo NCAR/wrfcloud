@@ -1,21 +1,13 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {Pipe, PipeTransform} from '@angular/core';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {
   ListLogsResponse, ListLogsRequest,
   GetLogRequest, GetLogResponse,
-  LogNode, ExampleFlatNode
+  LogNode, LogFlatNode
 } from "../client-api";
 import {AppComponent} from "../app.component";
-
-// @Pipe({name: 'get_log_path'})
-// export class LogPathPipe implements PipeTransform {
-//   transform(value: LogNode) {
-//     return value.name + "/" +
-//   }
-// }
 
 @Component({
   selector: 'app-log-viewer',
@@ -50,7 +42,7 @@ export class LogViewerComponent implements OnInit
    */
   public busy: boolean = false;
 
-  public treeControl = new FlatTreeControl<ExampleFlatNode>(
+  public treeControl = new FlatTreeControl<LogFlatNode>(
       node => node.level,
       node => node.expandable,
   );
@@ -76,7 +68,7 @@ export class LogViewerComponent implements OnInit
    */
   public dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-  public hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
+  public hasChild = (_: number, node: LogFlatNode) => node.expandable;
 
   /**
    * Default constructor
@@ -148,6 +140,21 @@ export class LogViewerComponent implements OnInit
     }
   }
 
+  public listLogs(): void
+  {
+    this.busy = true;
+    const req: ListLogsRequest = {job_id: this.data.job_id};
+    this.app.api.sendListLogsRequest(req, this.handleListLogsResponse.bind(this));
+  }
+
+  public handleListLogsResponse(response: ListLogsResponse): void
+  {
+    this.busy = false;
+    if (!response.ok)
+      this.app.showErrorDialog(response.errors);
+    else
+      this.updateLogList(response.data.log_tree);
+  }
 
   public openLog(log_filename: string): void
   {
@@ -156,15 +163,6 @@ export class LogViewerComponent implements OnInit
     const req: GetLogRequest = {job_id: this.data.job_id, log_file: log_filename};
     this.app.api.sendGetLogRequest(req, this.handleGetLogResponse.bind(this));
   }
-
-
-  public listLogs(): void
-  {
-    this.busy = true;
-    const req: ListLogsRequest = {job_id: this.data.job_id};
-    this.app.api.sendListLogsRequest(req, this.handleListLogsResponse.bind(this));
-  }
-
 
   public handleGetLogResponse(response: GetLogResponse): void
   {
@@ -175,14 +173,5 @@ export class LogViewerComponent implements OnInit
       this.logFiles[this.selectedLogFile] = response.data.log_content;
       this.logContent = this.logFiles[this.selectedLogFile];
     }
-  }
-
-  public handleListLogsResponse(response: ListLogsResponse): void
-  {
-    this.busy = false;
-    if (!response.ok)
-      this.app.showErrorDialog(response.errors);
-    else
-      this.updateLogList(response.data.log_tree);
   }
 }

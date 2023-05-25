@@ -1118,11 +1118,6 @@ export interface ModelConfiguration
   domain_size?: number[];
 }
 
-export interface LogInfo
-{
-  log_name: string;
-}
-
 export interface ListModelConfigurationsRequest
 {
   configuration_name?: string;
@@ -1203,7 +1198,7 @@ export interface GetLogResponse extends ApiResponse
 }
 
 /** Flat node with expandable and level information */
-export interface ExampleFlatNode {
+export interface LogFlatNode {
   expandable: boolean;
   name: string;
   full_name: string|undefined;
