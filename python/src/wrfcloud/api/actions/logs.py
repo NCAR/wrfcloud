@@ -50,7 +50,9 @@ class ListLogs(Action):
             data = self._s3_read(bucket, key)
 
             with ZipFile(io.BytesIO(data)) as zip_file:
-                self.response['log_filenames'] = zip_file.namelist()
+                logs = zip_file.namelist()
+            logs = [item.replace(f'data/{job.job_id}/', '') for item in logs]
+            self.response['log_filenames'] = logs
         except Exception as e:
             self.log.error('Failed to get a list of log files for job', e)
             self.errors.append('General error')
