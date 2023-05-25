@@ -53,7 +53,7 @@ class ListLogs(Action):
                 logs = zip_file.namelist()
 
             log_dict = {}
-            for log in logs:
+            for log in sorted(logs):
                 log = log.replace(f'data/{job.job_id}/', '')
                 app, filename = log.split('/')
                 if app not in log_dict:
@@ -66,7 +66,7 @@ class ListLogs(Action):
                 log_node = {'name': app, 'children': filenames}
                 log_tree.append(log_node)
 
-            self.response['log_filenames'] = log_tree
+            self.response['log_tree'] = log_tree
         except Exception as e:
             self.log.error('Failed to get a list of log files for job', e)
             self.errors.append('General error')
@@ -112,11 +112,15 @@ class GetLog(Action):
             bucket: str = os.environ['WRFCLOUD_BUCKET']
             key: str = f"jobs/{job.job_id}/logs.zip"
 
+            log_file = self.request['log_file']
+            if not log_file.startswith('data/'):
+                log_file = f"data/{job.job_id}/{log_file}"
+
             # read the object from S3
             data = self._s3_read(bucket, key)
             with ZipFile(io.BytesIO(data)) as zip_file:
-                with zip_file.open(self.request['log_file']) as log_file:
-                    log_content = log_file.read()
+                with zip_file.open(log_file) as file_handle:
+                    log_content = file_handle.read()
             self.response['log_content'] = log_content.decode('utf-8')
         except Exception as e:
             self.log.error('Failed to get a log file content', e)
