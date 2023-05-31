@@ -145,5 +145,5 @@ Troubleshooting WRF Failures
 ============================
 A full set of log files is saved when a WRF job either finishes or fails to complete.  The log
 files are stored as a zip file in the system's S3 bucket.  To find the zip file, look for
-`s3://wrfcloud-XXXXXXXX/jobs/<job-id>/logs.zip`
+`s3://wrfcloud-XXXXXXXX/jobs/<job-id>/logs-<job-id>.zip`
 

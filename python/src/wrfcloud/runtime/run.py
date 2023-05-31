@@ -197,7 +197,7 @@ def _save_log_files(job: WrfJob) -> None:
     log_files += glob.glob(f'{job.work_dir}/wrf/rsl.error.*')
 
     # zip the files
-    zip_file: str = 'logs.zip'
+    zip_file: str = f'logs-{job.job_id}.zip'
     zip_path: str = os.path.join(job.work_dir, zip_file)
     with ZipFile(zip_path, 'w') as logs_zip:
         for log_file in log_files:
