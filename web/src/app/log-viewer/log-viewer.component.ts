@@ -22,6 +22,7 @@ export class LogViewerComponent implements OnInit
   public app: AppComponent;
 
   public job_id: string = "";
+
   /**
    * Content of log file to display
    */
@@ -95,6 +96,9 @@ export class LogViewerComponent implements OnInit
    */
   public updateLogContent(): void
   {
+    // prevent error when selecting default value in mobile log list before log list has loaded
+    if(this.selectedLogFile == 'Loading Logs...')
+      return
     // only get log contents from API if it has not already been read
     // otherwise just update the display with log file contents
     if(this.logFiles[this.selectedLogFile].length === 0)
