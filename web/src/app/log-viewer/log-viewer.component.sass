@@ -1,29 +1,39 @@
 @import '../../globals'
 
+.log-viewer-title
+  font-size: 1.1rem
+  font-weight: bold
+  margin-bottom: 12px
+
+.log-viewer-container
+  display: flex
+  font-size: 1rem
+  max-height: 75vh
+  width: 100vw
+  max-width: 800px
+
 .log-viewer-mobile-select
   display: block
 
 .log-viewer-desktop-select
   display: none
 
-.log-viewer-textarea
-  display: grid
+.log-viewer-display-div
+  display: block
+  width: 100%
+  height: 100%
 
 .log-viewer-display
-  display: grid
+  display: block
+  width: 100%
+  height: 100%
 
-.log-viewer-container
-  display: grid
-  font-size: 1rem
-  max-height: 75vh
-  width: 100vw
-  max-width: 500px
-  overflow-y: scroll
+.log-viewer-textarea
+  height: 50vh
+  width: 60vw
 
-.log-viewer-title
-  font-size: 1.1rem
-  font-weight: bold
-  margin-bottom: 12px
+.log-viewer-button-panel
+  display: block
 
 .log-viewer-busy
   text-align: center
@@ -39,3 +49,5 @@
   .log-viewer-desktop-select
     float: left
     display: block
+    overflow: scroll
+    width: 30%

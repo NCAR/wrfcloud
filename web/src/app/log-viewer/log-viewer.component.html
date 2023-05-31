@@ -2,16 +2,6 @@
   Log Viewer
 </div>
 <div class="log-viewer-container">
-  <div class="log-viewer-mobile-select">
-    <mat-form-field>
-      <mat-label>Select Log File</mat-label>
-      <mat-select [(ngModel)]="selectedLogFile" (ngModelChange)="updateLogContent()">
-        <mat-option *ngFor="let logFile of logFiles | keyvalue" [value]="logFile.key">
-          {{logFile.key}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
   <div class="log-viewer-desktop-select">
     <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="log-viewer-mat-tree">
       <!-- This is the tree node template for leaf nodes -->
@@ -34,8 +24,18 @@
   </div>
 
   <div class="log-viewer-display-div">
+    <div class="log-viewer-mobile-select">
+      <mat-form-field>
+        <mat-label>Select Log File</mat-label>
+        <mat-select [(ngModel)]="selectedLogFile" (ngModelChange)="updateLogContent()">
+          <mat-option *ngFor="let logFile of logFiles | keyvalue" [value]="logFile.key">
+            {{logFile.key}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
     <mat-form-field class="log-viewer-display" appearance="fill">
-      <mat-label>Log File Content</mat-label>
+      <mat-label>{{selectedLogFile}}</mat-label>
       <textarea matInput type="text" disabled="true" class="log-viewer-textarea">{{logContent}}</textarea>
     </mat-form-field>
   </div>
