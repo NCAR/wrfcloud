@@ -32,7 +32,7 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit
 
   public projections: {[key: string]: string} = {
     'Mercator': 'EPSG:3857',
-    'Lambert': 'EPSG:2154'
+    'Lambert': 'SR-ORG:29'
   };
 
 
@@ -67,10 +67,9 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit
 
   constructor()
   {
-    proj4.defs('EPSG:2154',
-      '+proj=somerc +lat_0=33 +lon_0=7.439583333333333 +k_0=1 ' +
-      '+x_0=600000 +y_0=200000 +ellps=bessel ' +
-      '+towgs84=660.077,13.551,369.344,2.484,1.783,2.939,5.66 +units=m +no_defs');
+    /* define WRF Lambert Conformal Conic projection */
+    /* Reference: https://spatialreference.org/ref/sr-org/wrf-lambert-conformal-conic/ */
+    proj4.defs('SR-ORG:29', '+proj=lcc +lat_1=33 +lat_2=45 +lat_0=40 +lon_0=-97 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs');
     register(proj4);
   }
 
@@ -148,11 +147,25 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit
     if (this.map === undefined || this.boxStartCoords === undefined || this.boxEndCoords === undefined)
       return;
 
-    this.north = Number.parseFloat(Math.max(this.boxStartCoords![1], this.boxEndCoords![1]).toFixed(4));
-    this.south = Number.parseFloat(Math.min(this.boxStartCoords![1], this.boxEndCoords![1]).toFixed(4));
-    this.east = Number.parseFloat(Math.max(this.boxStartCoords![0], this.boxEndCoords![0]).toFixed(4));
-    this.west = Number.parseFloat(Math.min(this.boxStartCoords![0], this.boxEndCoords![0]).toFixed(4));
+    /* maybe swap the north/south and east/west values */
+    this.north = Math.max(this.boxStartCoords![1], this.boxEndCoords![1]);
+    this.south = Math.min(this.boxStartCoords![1], this.boxEndCoords![1]);
+    this.east = Math.max(this.boxStartCoords![0], this.boxEndCoords![0]);
+    this.west = Math.min(this.boxStartCoords![0], this.boxEndCoords![0]);
 
+    /* adjust values to stay between -180 to 180 and -90 to 90 for longitudes and latitudes respectively */
+    while (this.east > 180) this.east -= 360;
+    while (this.east < -180) this.east += 360;
+    while (this.west > 180) this.west -= 360;
+    while (this.west < -180) this.west += 360;
+
+    /* round precision to 4 decimal places, which is on the order of a few meters */
+    this.north = Number.parseFloat(this.north.toFixed(4));
+    this.south = Number.parseFloat(this.south.toFixed(4));
+    this.east = Number.parseFloat(this.east.toFixed(4));
+    this.west = Number.parseFloat(this.west.toFixed(4));
+
+    /* find the vector layer and add a polygon representing the domain boundaries */
     const layers: Collection<BaseLayer> = this.map.getLayers();
     for (let i = 0; i < layers.getLength(); i++)
     {
