@@ -82,6 +82,15 @@ $background-footer: $darker-gray
   position: relative
   top: 2px
 
+.dialog-panel
+  max-width: 95vw !important
+  padding: 0
+
 @keyframes animation-spin
   100%
     transform: rotate(360deg)
+
+@media screen and (min-width: 840px)
+
+  .dialog-panel
+    max-width: 80vw !important

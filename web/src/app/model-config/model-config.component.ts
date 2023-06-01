@@ -6,6 +6,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatSort} from "@angular/material/sort";
 import {MatPaginator} from "@angular/material/paginator";
 import {EditModelConfigurationComponent} from "../edit-model-configuration/edit-model-configuration.component";
+import {max} from "rxjs";
 
 @Component({
   selector: 'app-model-config',
@@ -137,7 +138,8 @@ export class ModelConfigComponent implements OnInit
       edit: true
     };
 
-    this.dialog.open(EditModelConfigurationComponent, {data: editData}).afterClosed().subscribe(
+    const maxWidth: number = this.app.isMobile ? 95 : 80;
+    this.dialog.open(EditModelConfigurationComponent, {data: editData, panelClass: 'dialog-panel'}).afterClosed().subscribe(
       () => { this.loadModelConfigList(); }
     );
   }
@@ -162,7 +164,8 @@ export class ModelConfigComponent implements OnInit
       edit: false
     };
 
-    this.dialog.open(EditModelConfigurationComponent, {data: editData}).afterClosed().subscribe(
+    const maxWidth: number = this.app.isMobile ? 95 : 80;
+    this.dialog.open(EditModelConfigurationComponent, {data: editData, panelClass: 'dialog-panel'}).afterClosed().subscribe(
       () => { this.loadModelConfigList(); }
     );
   }

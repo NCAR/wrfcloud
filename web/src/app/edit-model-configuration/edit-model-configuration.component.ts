@@ -1,8 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {
   AddModelConfigurationRequest, AddModelConfigurationResponse,
-  CreateUserResponse, DeleteModelConfigurationRequest, DeleteModelConfigurationResponse,
-  DeleteUserResponse, ModelConfiguration, UpdateModelConfigurationRequest,
+  DeleteModelConfigurationRequest, DeleteModelConfigurationResponse,
+  ModelConfiguration, UpdateModelConfigurationRequest,
   UpdateUserResponse,
 } from "../client-api";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
@@ -41,6 +41,12 @@ export class EditModelConfigurationComponent implements OnInit
    * User to edit
    */
   public modelConfig: ModelConfiguration;
+
+
+  /**
+   * A flag to show advanced or basic mode
+   */
+  public advanced: boolean = false;
 
 
   /**

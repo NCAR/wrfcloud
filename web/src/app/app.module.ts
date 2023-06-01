@@ -44,6 +44,8 @@ import {ModelConfigComponent} from './model-config/model-config.component';
 import {EditModelConfigurationComponent} from './edit-model-configuration/edit-model-configuration.component';
 import {JobDetailsComponent} from './job-details/job-details.component';
 import {ContextHelpComponent} from './context-help/context-help.component';
+import {MatTabsModule} from "@angular/material/tabs";
+import { MapAreaSelectorComponent } from './map-area-selector/map-area-selector.component';
 
 
 @NgModule({
@@ -65,7 +67,8 @@ import {ContextHelpComponent} from './context-help/context-help.component';
     ModelConfigComponent,
     EditModelConfigurationComponent,
     JobDetailsComponent,
-    ContextHelpComponent
+    ContextHelpComponent,
+    MapAreaSelectorComponent
   ],
     imports: [
         BrowserModule,
@@ -92,7 +95,8 @@ import {ContextHelpComponent} from './context-help/context-help.component';
         MatBadgeModule,
         MatDatepickerModule,
         MatMomentDateModule,
-        MatRadioModule
+        MatRadioModule,
+        MatTabsModule
     ],
   providers: [
     {provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}
