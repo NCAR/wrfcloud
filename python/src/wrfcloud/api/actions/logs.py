@@ -44,7 +44,7 @@ class ListLogs(Action):
 
             # get log zip file from S3
             bucket: str = os.environ['WRFCLOUD_BUCKET']
-            key: str = f"jobs/{job.job_id}/logs-{job.job_id}.zip"
+            key: str = f"jobs/{job.job_id}/logs.zip"
 
             # read the object from S3
             data = self._s3_read(bucket, key)
@@ -120,7 +120,7 @@ class GetLog(Action):
 
             # get log zip file from S3
             bucket: str = os.environ['WRFCLOUD_BUCKET']
-            key: str = f"jobs/{job.job_id}/logs-{job.job_id}.zip"
+            key: str = f"jobs/{job.job_id}/logs.zip"
 
             log_file = f"data/{job.job_id}/{self.request['log_file']}"
 
