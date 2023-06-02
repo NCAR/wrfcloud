@@ -1,13 +1,12 @@
-<div class="log-viewer-title">
-  Log Viewer
-</div>
+<button mat-stroked-button class="log-viewer-cancel-button" [mat-dialog-close]=""><mat-icon>close</mat-icon></button>
+
+<div class="log-viewer-title">Log Viewer</div>
 <div class="log-viewer-container">
   <div class="log-viewer-desktop-select">
     <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="log-viewer-mat-tree">
       <!-- This is the tree node template for leaf nodes -->
       <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding (click)="setAndUpdateLogFile(node)">
-        <!-- use a disabled button to provide padding for tree leaf -->
-        <button mat-icon-button disabled></button>
+         <span style="width: 50px; max-width: 50px;"></span> <!-- provide padding for tree leaf -->
         {{node.name}}
       </mat-tree-node>
       <!-- This is the tree node template for expandable nodes -->
@@ -28,7 +27,7 @@
       <mat-form-field>
         <mat-label>Select Log File</mat-label>
         <mat-select [(ngModel)]="selectedLogFile" (ngModelChange)="updateLogContent()">
-          <mat-option *ngFor="let logFile of logFiles | keyvalue" [value]="logFile.key">
+          <mat-option *ngFor="let logFile of logFiles | keyvalue: originalOrder" [value]="logFile.key">
             {{logFile.key}}
           </mat-option>
         </mat-select>
@@ -42,9 +41,6 @@
 </div>
 
 <div class="log-viewer-button-panel" mat-dialog-actions>
-  <button mat-stroked-button class="log-viewer-cancel-button" [mat-dialog-close]="">
-    Exit
-  </button>
   <div class="log-viewer-busy-spinner">
     <mat-icon class="spin" *ngIf="busy">autorenew</mat-icon>
   </div>

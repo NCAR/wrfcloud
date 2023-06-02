@@ -8,6 +8,7 @@ import {
   LogNode, LogFlatNode
 } from "../client-api";
 import {AppComponent} from "../app.component";
+import {KeyValue} from "@angular/common";
 
 @Component({
   selector: 'app-log-viewer',
@@ -70,6 +71,10 @@ export class LogViewerComponent implements OnInit
   public dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
   public hasChild = (_: number, node: LogFlatNode) => node.expandable;
+
+  public originalOrder = (a: KeyValue<string,string>, b: KeyValue<string,string>): number => {
+    return 0;
+  }
 
   /**
    * Default constructor
