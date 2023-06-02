@@ -36,6 +36,7 @@ def main() -> None:
         log.debug('Reading command line arguments')
         parser = argparse.ArgumentParser()
         parser.add_argument('--job-id', type=str, help='Job ID with run details.', required=True)
+        parser.add_argument('--delete-cluster', action=argparse.BooleanOptionalAction, help='Delete cluster or not')
         args = parser.parse_args()
         job_id = args.job_id
 
@@ -125,7 +126,8 @@ def main() -> None:
     # Shutdown the cluster after completion or failure
     try:
         _save_log_files(job)
-        _delete_cluster()
+        if args.delete_cluster:
+            _delete_cluster()
     except Exception as e:
         log.error('Failed to delete cluster.', e)
         _update_job_status(job, WrfJob.STATUS_CODE_FAILED,
