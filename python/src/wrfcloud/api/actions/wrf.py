@@ -171,6 +171,7 @@ class RunWrf(Action):
                 .replace('__S3_BUCKET__', os.environ['WRFCLOUD_BUCKET'])\
                 .replace('__APP_HOSTNAME__', os.environ['APP_HOSTNAME'])\
                 .replace('__API_HOSTNAME__', os.environ['API_HOSTNAME'])\
+                .replace('__ADMIN_EMAIL__', os.environ['ADMIN_EMAIL'])\
                 .replace('__JWT__', jwt)
             ca = CustomAction(self.ref_id, script)
 
