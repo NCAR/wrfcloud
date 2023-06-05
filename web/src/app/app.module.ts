@@ -24,6 +24,7 @@ import {MatBadgeModule} from "@angular/material/badge";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MatMomentDateModule} from "@angular/material-moment-adapter";
 import {MatRadioModule} from "@angular/material/radio";
+import {MatTreeModule} from '@angular/material/tree';
 
 import {HomeComponent} from './home/home.component';
 import {LoginComponent} from './login/login.component';
@@ -44,6 +45,7 @@ import {ModelConfigComponent} from './model-config/model-config.component';
 import {EditModelConfigurationComponent} from './edit-model-configuration/edit-model-configuration.component';
 import {JobDetailsComponent} from './job-details/job-details.component';
 import {ContextHelpComponent} from './context-help/context-help.component';
+import {LogViewerComponent} from './log-viewer/log-viewer.component';
 
 
 @NgModule({
@@ -65,7 +67,8 @@ import {ContextHelpComponent} from './context-help/context-help.component';
     ModelConfigComponent,
     EditModelConfigurationComponent,
     JobDetailsComponent,
-    ContextHelpComponent
+    ContextHelpComponent,
+    LogViewerComponent
   ],
     imports: [
         BrowserModule,
@@ -92,7 +95,8 @@ import {ContextHelpComponent} from './context-help/context-help.component';
         MatBadgeModule,
         MatDatepickerModule,
         MatMomentDateModule,
-        MatRadioModule
+        MatRadioModule,
+        MatTreeModule,
     ],
   providers: [
     {provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}

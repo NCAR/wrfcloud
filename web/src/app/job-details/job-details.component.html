@@ -1,3 +1,6 @@
+<button mat-stroked-button class="job-details-cancel-button" (click)="closeDialog()"><mat-icon>close</mat-icon></button>
+
+
 <div class="job-details-title">
   {{data.job.job_id}}
   <span class="job-details-title-status">({{statusCodeToText[data.job.status_code]}})</span>
@@ -17,7 +20,8 @@
   <button *ngIf="allowCancel" mat-flat-button class="job-details-action-button" (click)="cancelJob()">Cancel Job</button>
   <button *ngIf="allowDelete" mat-flat-button class="job-details-action-button" (click)="deleteJob()">Delete Job</button>
   <button *ngIf="allowOpen" mat-stroked-button class="job-details-action-button job-details-open-button" (click)="openJob()">Viewer</button>
-  <button mat-stroked-button class="job-details-cancel-button" (click)="closeDialog()">Close</button>
+  <button *ngIf="allowLog" mat-stroked-button class="job-details-action-button job-details-logs-button" (click)="openLogViewer()">Logs</button>
+
 </div>
 
 <mat-divider style="margin: 12px 0">

@@ -1,0 +1,47 @@
+<button mat-stroked-button class="log-viewer-cancel-button" [mat-dialog-close]=""><mat-icon>close</mat-icon></button>
+
+<div class="log-viewer-title">Log Viewer</div>
+<div class="log-viewer-container">
+  <div class="log-viewer-desktop-select">
+    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="log-viewer-mat-tree">
+      <!-- This is the tree node template for leaf nodes -->
+      <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding (click)="setAndUpdateLogFile(node)">
+         <span style="width: 50px; max-width: 50px;"></span> <!-- provide padding for tree leaf -->
+        {{node.name}}
+      </mat-tree-node>
+      <!-- This is the tree node template for expandable nodes -->
+      <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
+        <button mat-icon-button matTreeNodeToggle
+                [attr.aria-label]="'Toggle ' + node.name">
+          <mat-icon class="mat-icon-rtl-mirror">
+            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+          </mat-icon>
+        </button>
+        {{node.name}}
+      </mat-tree-node>
+    </mat-tree>
+  </div>
+
+  <div class="log-viewer-display-div">
+    <div class="log-viewer-mobile-select">
+      <mat-form-field>
+        <mat-label>Select Log File</mat-label>
+        <mat-select [(ngModel)]="selectedLogFile" (ngModelChange)="updateLogContent()">
+          <mat-option *ngFor="let logFile of logFiles | keyvalue: originalOrder" [value]="logFile.key">
+            {{logFile.key}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <mat-form-field class="log-viewer-display" appearance="fill">
+      <mat-label>{{selectedLogFile}}</mat-label>
+      <textarea matInput type="text" disabled="true" class="log-viewer-textarea">{{logContent}}</textarea>
+    </mat-form-field>
+  </div>
+</div>
+
+<div class="log-viewer-button-panel" mat-dialog-actions>
+  <div class="log-viewer-busy-spinner">
+    <mat-icon class="spin" *ngIf="busy">autorenew</mat-icon>
+  </div>
+</div>

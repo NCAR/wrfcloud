@@ -598,6 +598,44 @@ export class ClientApi
 
 
   /**
+   * Get list of log files
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendListLogsRequest(requestData: ListLogsRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'ListLogs',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
+   * Get content of log file
+   *
+   * @param requestData
+   * @param responseHandler
+   */
+  public sendGetLogRequest(requestData: GetLogRequest, responseHandler: Function): void
+  {
+    /* create the API request */
+    const request: ApiRequest = {
+      action: 'GetLog',
+      data: requestData
+    };
+
+    /* send the API request */
+    this.sendRequest(request, responseHandler, true);
+  }
+
+
+  /**
    * Send a refresh token request
    *
    * @param requestData
@@ -1129,3 +1167,41 @@ export interface UpdateModelConfigurationResponse extends ApiResponse
     model_config: ModelConfiguration
   }
 }
+
+export interface ListLogsRequest
+{
+  job_id: string;
+}
+
+export interface LogNode {
+  name: string;
+  full_name?: string;
+  children?: LogNode[];
+}
+export interface ListLogsResponse extends ApiResponse
+{
+  data: {
+    log_tree: Array<LogNode>;
+  }
+}
+
+export interface GetLogRequest
+{
+  job_id: string;
+  log_file: string;
+}
+
+export interface GetLogResponse extends ApiResponse
+{
+  data: {
+    log_content: string;
+  }
+}
+
+/** Flat node with expandable and level information */
+export interface LogFlatNode {
+  expandable: boolean;
+  name: string;
+  full_name: string|undefined;
+  level: number;
+};

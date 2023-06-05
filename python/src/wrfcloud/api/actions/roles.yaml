@@ -29,6 +29,10 @@ readonly:
       package: wrfcloud.api.actions
     - action: SubscribeJobs
       package: wrfcloud.api.actions
+    - action: ListLogs
+      package: wrfcloud.api.actions
+    - action: GetLog
+      package: wrfcloud.api.actions
 
 regular:
   permitted_actions:
@@ -53,6 +57,10 @@ regular:
     - action: CancelJob
       package: wrfcloud.api.actions
     - action: DeleteJob
+      package: wrfcloud.api.actions
+    - action: ListLogs
+      package: wrfcloud.api.actions
+    - action: GetLog
       package: wrfcloud.api.actions
 
 maintainer:
@@ -84,6 +92,10 @@ maintainer:
     - action: CancelJob
       package: wrfcloud.api.actions
     - action: DeleteJob
+      package: wrfcloud.api.actions
+    - action: ListLogs
+      package: wrfcloud.api.actions
+    - action: GetLog
       package: wrfcloud.api.actions
 
 admin:
@@ -123,6 +135,10 @@ admin:
     - action: CancelJob
       package: wrfcloud.api.actions
     - action: DeleteJob
+      package: wrfcloud.api.actions
+    - action: ListLogs
+      package: wrfcloud.api.actions
+    - action: GetLog
       package: wrfcloud.api.actions
 
 cluster:
