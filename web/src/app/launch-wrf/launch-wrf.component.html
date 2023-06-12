@@ -24,7 +24,7 @@
   <div class="launch-input-container">
     <mat-form-field appearance="fill">
       <mat-label>Cycle Date</mat-label>
-      <input matInput [matDatepicker]="picker" [(ngModel)]="start_time">
+      <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" [(ngModel)]="start_time">
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>

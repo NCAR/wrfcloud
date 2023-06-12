@@ -59,10 +59,20 @@ export class LaunchWrfComponent implements OnInit
   /* list of valid model configuration options */
   public modelConfigOptions: Array<string> = [];
 
+  /* Earliest date that can be selected */
+  public minDate: Date;
+
+  /* Latest date that can be selected */
+  public maxDate: Date;
+
 
   constructor()
   {
     this.refreshModelConfigurations();
+    // earliest date to select is Feb. 26, 2021
+    this.minDate = new Date("2021-02-26");
+    // latest date to select is today
+    this.maxDate = new Date();
   }
 
 
