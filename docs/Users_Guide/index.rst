@@ -42,6 +42,7 @@ UCAR/UCP/COMET and UCAR/NCAR/RAL. Available at: https://github.com/NCAR/wrfcloud
    administration
    user_interface
    graphics
+   faqs
    refs
  
 .. only:: html
