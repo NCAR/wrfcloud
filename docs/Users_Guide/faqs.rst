@@ -24,3 +24,12 @@ Frequently Asked Questions
   .. dropdown:: Can you download the model output?
 
      At this time, the model data is not saved. Only the forecast plots viewable on the Forecast Viewer are saved. But, we expect to include the option to save model output in the next released version.
+
+  .. dropdown:: What cloud service providers are supported?
+
+     Currently the system only works on Amazon Web Services (AWS). Interested in porting it to another CSP? We are too! Let’s talk, send us an email.
+     
+  .. dropdown:: What model is used?
+
+     The system is currently designed to use the WRF model.
+     
