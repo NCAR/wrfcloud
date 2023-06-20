@@ -59,10 +59,38 @@ export class LaunchWrfComponent implements OnInit
   /* list of valid model configuration options */
   public modelConfigOptions: Array<string> = [];
 
+  /* Earliest date that can be selected */
+  public minDate: Date;
+
+  /* Latest date that can be selected */
+  public maxDate: Date;
 
   constructor()
   {
     this.refreshModelConfigurations();
+
+    /* GRIB data are not available before Feb. 26, 2021, so this is the earliest time */
+    this.minDate = new Date("2021-02-26");
+
+    /* latest date to select is today */
+    this.maxDate = moment().utc().toDate();
+
+    this.refreshDateRange();
+  }
+
+  /**
+   * Update the valid date range of the cycle date
+   */
+  private refreshDateRange(): void
+  {
+    /* latest date to select is today */
+    this.maxDate = moment().utc().toDate();
+
+    /* get 1 second into the next UTC day */
+    const next_day = moment().utc().add(1, 'days').startOf('day').seconds(1);
+
+    /* update these dates when next UTC date starts */
+    setTimeout(this.refreshDateRange.bind(this), next_day.diff(this.maxDate));
   }
 
 
