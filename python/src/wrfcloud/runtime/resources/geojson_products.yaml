@@ -82,7 +82,7 @@ products:
       min: 1
       max: 101
     contour_interval: 5
-    palette: BrBG
+    palette: viridis
     display_name: 'Precipitation Accumulation'
     units: 'mm'
   - grib2:
