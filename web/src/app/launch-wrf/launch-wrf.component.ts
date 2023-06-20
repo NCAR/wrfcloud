@@ -90,7 +90,7 @@ export class LaunchWrfComponent implements OnInit
     const next_day = moment().utc().add(1, 'days').startOf('day').seconds(1);
 
     /* update these dates when next UTC date starts */
-    setTimeout(this.refreshDateRange.bind(this), next_day.diff(this.maxDate, 'seconds'));
+    setTimeout(this.refreshDateRange.bind(this), next_day.diff(this.maxDate));
   }
 
 
