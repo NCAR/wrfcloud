@@ -15,8 +15,10 @@ import {AppComponent} from "../app.component";
 })
 export class EditModelConfigurationComponent implements OnInit
 {
-  // TODO: AND HERE:
-  // https://wrfcloud.readthedocs.io/en/stable/Users_Guide/user_interface.html#configuration-parameters
+  /**
+   * Get a reference to the PhysicsSuite class so that it can be referenced in the HTML
+   */
+  public PhysicsSuite: any = PhysicsSuite;
 
 
   /**
@@ -46,13 +48,19 @@ export class EditModelConfigurationComponent implements OnInit
   /**
    * The WRF namelist parsed as an object
    */
-  public wrfNamelist: Object = {};
+  public wrfNamelist: any = {};
 
 
   /**
    * A flag to show advanced or basic mode
    */
   public advanced: boolean = false;
+
+
+  /**
+   * Physics suite
+   */
+  public physicsSuite: string = PhysicsSuite.CONVECTION_PERMITTING;
 
 
   /**
@@ -101,6 +109,13 @@ export class EditModelConfigurationComponent implements OnInit
     /* parse namelists */
     this.wpsNamelist = this.parseNamelist(this.modelConfig.wps_namelist);
     this.wrfNamelist = this.parseNamelist(this.modelConfig.wrf_namelist);
+
+    /* set the default physics suite option */
+    if (this.modelConfig.wrf_namelist !== '')
+    {
+      this.physicsSuite = 'custom';
+      PhysicsSuite.PRESETS.push(this.physicsSuite);
+    }
   }
 
 
@@ -120,7 +135,7 @@ export class EditModelConfigurationComponent implements OnInit
     const sections: Array<string> = text.split('&');
 
     /* throw away the first string if it is empty */
-    if (sections[0] === '')
+    while (sections[0] === '')
       sections.splice(0, 1);
 
     /* create a section object for each section */
@@ -172,11 +187,14 @@ export class EditModelConfigurationComponent implements OnInit
 
     for (let section of namelist.sections)
     {
+      if (section === '')
+        continue;
+
       text += '&' + section + '\n';
 
       for (let name of namelist[section].names)
         text += '  ' + name + ' = ' + namelist[section][name] + '\n';
-      text += '/\n';
+      text += '/\n\n';
     }
 
     return text;
@@ -356,6 +374,32 @@ export class EditModelConfigurationComponent implements OnInit
   }
 
 
+  /**
+   * Update the physics options based on the newly selected preset name
+   *
+   * @param presetName See PhysicsSuite.PRESETS
+   */
+  public updatePhysicsSuite(presetName: string): void
+  {
+    const physics: PhysicsSuite = new PhysicsSuite(presetName);
+
+    this.wrfNamelist.physics.mp_physics = physics.mp_physics;
+    this.wrfNamelist.physics.cu_physics = physics.cu_physics;
+    this.wrfNamelist.physics.ra_lw_physics = physics.ra_lw_physics;
+    this.wrfNamelist.physics.ra_sw_physics = physics.ra_sw_physics;
+    this.wrfNamelist.physics.bl_pbl_physics = physics.bl_pbl_physics;
+    this.wrfNamelist.physics.sf_sfclay_physics = physics.sf_sfclay_physics;
+    this.wrfNamelist.physics.sf_surface_physics = physics.sf_surface_physics;
+
+    this.modelConfig.wrf_namelist = this.unparseNamelist(this.wrfNamelist);
+
+    /* get rid of custom as an option if user selects a preset */
+    const customIndex: number = PhysicsSuite.PRESETS.indexOf('custom');
+    if (customIndex >= 0)
+      PhysicsSuite.PRESETS.splice(customIndex, 1);
+  }
+
+
   public updateGrid(event: any): void
   {
     this.wpsNamelist.geogrid.map_proj = "'" + event['mapProj'] + "',";
@@ -369,7 +413,14 @@ export class EditModelConfigurationComponent implements OnInit
     this.wpsNamelist.geogrid.truelat2 = event['refLat'];
     this.wpsNamelist.geogrid.stand_lon = event['refLon'];
 
+    this.wrfNamelist.domains.e_we = event['e_we'];
+    this.wrfNamelist.domains.e_sn = event['e_sn'];
+    this.wrfNamelist.domains.dx = event['dx'];
+    this.wrfNamelist.domains.dy = event['dy'];
+    this.wrfNamelist.domains.time_step = event['time_step'];
+
     this.modelConfig.wps_namelist = this.unparseNamelist(this.wpsNamelist);
+    this.modelConfig.wrf_namelist = this.unparseNamelist(this.wrfNamelist);
   }
 
   private wpsNamelistLoaded(event: any): void
@@ -387,5 +438,110 @@ export class EditModelConfigurationComponent implements OnInit
   public round(val: number): number
   {
     return Math.round(val * 100) / 100;
+  }
+}
+
+
+class PhysicsSuite
+{
+  /**
+   * Preset name for convection-permitting suite
+   */
+  public static CONVECTION_PERMITTING: string = 'convection-permitting';
+
+
+  /**
+   * Preset name for tropical suite
+   */
+  public static TROPICAL: string = 'tropical';
+
+
+  /**
+   * List of preset options available
+   */
+  public static PRESETS: Array<string> = [PhysicsSuite.CONVECTION_PERMITTING, PhysicsSuite.TROPICAL];
+
+
+  /**
+   * Microphysics
+   */
+  public mp_physics: number;
+
+
+  /**
+   * Cumulus
+   */
+  public cu_physics: number;
+
+
+  /**
+   * Longwave radiation
+   */
+  public ra_lw_physics: number;
+
+
+  /**
+   * Shortwave radiation
+   */
+  public ra_sw_physics: number;
+
+
+  /**
+   * Boundary layer
+   */
+  public bl_pbl_physics: number;
+
+
+  /**
+   * Surface layer
+   */
+  public sf_sfclay_physics: number;
+
+
+  /**
+   * Land surface
+   */
+  public sf_surface_physics: number;
+
+
+  /**
+   * Default constructor
+   *
+   * @param suite
+   */
+  constructor(suite: string)
+  {
+    switch (suite)
+    {
+      case PhysicsSuite.TROPICAL:
+        this.mp_physics = 6;
+        this.cu_physics = 16;
+        this.ra_lw_physics = 4;
+        this.ra_sw_physics = 4;
+        this.bl_pbl_physics = 1;
+        this.sf_sfclay_physics = 91;
+        this.sf_surface_physics = 2;
+        break;
+
+      case PhysicsSuite.CONVECTION_PERMITTING:
+        this.mp_physics = 8;
+        this.cu_physics = 6;
+        this.ra_lw_physics = 4;
+        this.ra_sw_physics = 4;
+        this.bl_pbl_physics = 2;
+        this.sf_sfclay_physics = 2;
+        this.sf_surface_physics = 2;
+        break;
+
+      default:
+        this.mp_physics = 8;
+        this.cu_physics = 6;
+        this.ra_lw_physics = 4;
+        this.ra_sw_physics = 4;
+        this.bl_pbl_physics = 2;
+        this.sf_sfclay_physics = 2;
+        this.sf_surface_physics = 2;
+        break;
+    }
   }
 }

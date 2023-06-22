@@ -204,7 +204,8 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
       'dx': this.gridResolution + ',',
       'dy': this.gridResolution + ',',
       'e_we': nx + ',',
-      'e_sn': ny + ','
+      'e_sn': ny + ',',
+      'time_step': Math.floor(6 * this.gridResolution / 1000)
     };
   }
 

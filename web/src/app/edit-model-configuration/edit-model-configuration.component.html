@@ -24,6 +24,16 @@
       <mat-tab label="Basic">
         <app-map-area-selector [namelist]="wpsNamelist" (gridChange)="updateGrid($event)">
         </app-map-area-selector>
+        <div class="edit-model-config-field-container edit-model-config-shaded">
+          <mat-form-field appearance="fill">
+            <mat-label>Physics Suite</mat-label>
+            <mat-select [(ngModel)]="physicsSuite" (valueChange)="updatePhysicsSuite($event)">
+              <mat-option *ngFor="let preset of PhysicsSuite.PRESETS" [value]="preset">
+                {{preset}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </mat-tab>
       <mat-tab label="Advanced">
         <div class="edit-model-config-field-container">
