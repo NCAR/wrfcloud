@@ -191,6 +191,10 @@ class WrfConfig:
             nx: int = geogrid.get('e_we', 0)
             ny: int = geogrid.get('e_sn', 0)
 
+            # get first nx/ny values if a list of values are set
+            nx = nx[0] if isinstance(nx, list) else nx
+            ny = ny[0] if isinstance(ny, list) else ny
+
             # convert degrees to meters for lat/lon projections -- does not need to be exact
             if projection == 'lat-lon':
                 dx *= math.cos(center_lat*math.pi/180) * 111120

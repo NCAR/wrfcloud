@@ -24,6 +24,7 @@ import {MatBadgeModule} from "@angular/material/badge";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MatMomentDateModule} from "@angular/material-moment-adapter";
 import {MatRadioModule} from "@angular/material/radio";
+import {MatTreeModule} from '@angular/material/tree';
 
 import {HomeComponent} from './home/home.component';
 import {LoginComponent} from './login/login.component';
@@ -45,7 +46,8 @@ import {EditModelConfigurationComponent} from './edit-model-configuration/edit-m
 import {JobDetailsComponent} from './job-details/job-details.component';
 import {ContextHelpComponent} from './context-help/context-help.component';
 import {MatTabsModule} from "@angular/material/tabs";
-import { MapAreaSelectorComponent } from './map-area-selector/map-area-selector.component';
+import {MapAreaSelectorComponent} from './map-area-selector/map-area-selector.component';
+import {LogViewerComponent} from './log-viewer/log-viewer.component';
 
 
 @NgModule({
@@ -68,7 +70,8 @@ import { MapAreaSelectorComponent } from './map-area-selector/map-area-selector.
     EditModelConfigurationComponent,
     JobDetailsComponent,
     ContextHelpComponent,
-    MapAreaSelectorComponent
+    MapAreaSelectorComponent,
+    LogViewerComponent
   ],
     imports: [
         BrowserModule,
@@ -96,7 +99,8 @@ import { MapAreaSelectorComponent } from './map-area-selector/map-area-selector.
         MatDatepickerModule,
         MatMomentDateModule,
         MatRadioModule,
-        MatTabsModule
+        MatTabsModule,
+        MatTreeModule
     ],
   providers: [
     {provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}
