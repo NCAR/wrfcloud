@@ -8,7 +8,7 @@
         <!-- projection selector -->
         <mat-form-field appearance="fill" class="map-area-input">
             <mat-label>Projection</mat-label>
-            <mat-select [(ngModel)]="projection">
+            <mat-select [(ngModel)]="projection" (ngModelChange)="update()">
                 <mat-option
                         *ngFor="let proj of projections | keyvalue"
                         [value]="proj.value"
@@ -19,31 +19,31 @@
         </mat-form-field>
 
         <!-- north point -->
-        <mat-form-field appearance="fill" (focusout)="updateBox()">
+        <mat-form-field appearance="fill" (focusout)="update()">
             <mat-label>North</mat-label>
             <input matInput type="number" [(ngModel)]="north">
         </mat-form-field>
 
         <!-- west point -->
-        <mat-form-field appearance="fill" (focusout)="updateBox()">
+        <mat-form-field appearance="fill" (focusout)="update()">
             <mat-label>West</mat-label>
             <input matInput type="number" [(ngModel)]="west">
         </mat-form-field>
 
         <!-- south point -->
-        <mat-form-field appearance="fill" (focusout)="updateBox()">
+        <mat-form-field appearance="fill" (focusout)="update()">
             <mat-label>South</mat-label>
             <input matInput type="number" [(ngModel)]="south">
         </mat-form-field>
 
         <!-- east point -->
-        <mat-form-field appearance="fill" (focusout)="updateBox()">
+        <mat-form-field appearance="fill" (focusout)="update()">
             <mat-label>East</mat-label>
             <input matInput type="number" [(ngModel)]="east">
         </mat-form-field>
 
         <!-- resolution -->
-        <mat-form-field appearance="fill">
+        <mat-form-field appearance="fill" (focusout)="update()">
             <mat-label>Grid Resolution (meters)</mat-label>
             <input matInput type="number" [(ngModel)]="gridResolution">
         </mat-form-field>

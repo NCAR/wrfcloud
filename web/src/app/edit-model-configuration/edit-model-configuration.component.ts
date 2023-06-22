@@ -3,7 +3,7 @@ import {
   AddModelConfigurationRequest, AddModelConfigurationResponse,
   DeleteModelConfigurationRequest, DeleteModelConfigurationResponse,
   ModelConfiguration, UpdateModelConfigurationRequest,
-  UpdateUserResponse,
+  UpdateUserResponse
 } from "../client-api";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {AppComponent} from "../app.component";
@@ -15,14 +15,8 @@ import {AppComponent} from "../app.component";
 })
 export class EditModelConfigurationComponent implements OnInit
 {
-  /**
-   * Available role options
-   */
-  public roles: any = [
-    {value: 'readonly', displayName: 'Read-only'},
-    {value: 'regular', displayName: 'Regular'},
-    {value: 'admin', displayName: 'Admin'}
-  ];
+  // TODO: AND HERE:
+  // https://wrfcloud.readthedocs.io/en/stable/Users_Guide/user_interface.html#configuration-parameters
 
 
   /**
@@ -41,6 +35,18 @@ export class EditModelConfigurationComponent implements OnInit
    * User to edit
    */
   public modelConfig: ModelConfiguration;
+
+
+  /**
+   * The WPS namelist parsed as an object
+   */
+  public wpsNamelist: any = {};
+
+
+  /**
+   * The WRF namelist parsed as an object
+   */
+  public wrfNamelist: Object = {};
 
 
   /**
@@ -91,11 +97,89 @@ export class EditModelConfigurationComponent implements OnInit
     /* set the edit/create flag */
     this.edit = data.edit;
     this.create = !this.edit;
+
+    /* parse namelists */
+    this.wpsNamelist = this.parseNamelist(this.modelConfig.wps_namelist);
+    this.wrfNamelist = this.parseNamelist(this.modelConfig.wrf_namelist);
   }
 
 
   ngOnInit(): void
   {
+  }
+
+
+  /**
+   * Parse the namelist files into JSON
+   */
+  public parseNamelist(text: string): Object
+  {
+    const namelist: any = {'sections': []};
+
+    /* split the string into an array of strings by section */
+    const sections: Array<string> = text.split('&');
+
+    /* throw away the first string if it is empty */
+    if (sections[0] === '')
+      sections.splice(0, 1);
+
+    /* create a section object for each section */
+    for (let section of sections)
+    {
+      const lines: Array<string> = section.split('\n');
+
+      while (lines[0] === '')
+        lines.splice(0, 1);
+
+      const sectionName: string = lines.splice(0, 1)[0];
+      const values: any = {'names': []};
+      namelist['sections'].push(sectionName);
+      for (let line of lines)
+      {
+        /* check for a section terminator */
+        if (line.trim().startsWith('/'))
+          break;
+
+        /* build the sections name/value pairs */
+        const tokens: Array<string> = line.split('=');
+        while (tokens[0] === '')
+          tokens.splice(0, 1);
+
+        /* if this is not a name=value pair, it is a continuation of the previous value */
+        if (tokens.length < 2)
+        {
+          const lastName: string = values.names[values.names.length - 1];
+          values[lastName] += line;
+          continue;
+        }
+
+        /* parse the name/value pair and add them to the dictionary */
+        const name: string = tokens[0].trim();
+        const value: string = tokens[1].trim();
+        values['names'].push(name);
+        values[name] = value;
+      }
+      namelist[sectionName] = values;
+    }
+
+    return namelist;
+  }
+
+
+  public unparseNamelist(namelist: any): string
+  {
+    let text: string = '';
+
+    for (let section of namelist.sections)
+    {
+      text += '&' + section + '\n';
+
+      for (let name of namelist[section].names)
+        text += '  ' + name + ' = ' + namelist[section][name] + '\n';
+      text += '/\n';
+    }
+
+    return text;
   }
 
 
@@ -245,7 +329,6 @@ export class EditModelConfigurationComponent implements OnInit
 
     /* create a new reader and set up the load listener */
     const fileReader = new FileReader();
-    console.log(type);
     const loadHandler = type === 'wrf' ?
       this.wrfNamelistLoaded.bind(this) :
       this.wpsNamelistLoaded.bind(this);
@@ -272,6 +355,22 @@ export class EditModelConfigurationComponent implements OnInit
     this.showNameHint = true;
   }
 
+
+  public updateGrid(event: any): void
+  {
+    this.wpsNamelist.geogrid.map_proj = "'" + event['mapProj'] + "',";
+    this.wpsNamelist.geogrid.ref_lat = event['refLat'];
+    this.wpsNamelist.geogrid.ref_lon = event['refLon'];
+    this.wpsNamelist.geogrid.dx = event['dx'];
+    this.wpsNamelist.geogrid.dy = event['dy'];
+    this.wpsNamelist.geogrid.e_we = event['e_we'];
+    this.wpsNamelist.geogrid.e_sn = event['e_sn'];
+    this.wpsNamelist.geogrid.truelat1 = event['refLat'];
+    this.wpsNamelist.geogrid.truelat2 = event['refLat'];
+    this.wpsNamelist.geogrid.stand_lon = event['refLon'];
+
+    this.modelConfig.wps_namelist = this.unparseNamelist(this.wpsNamelist);
+  }
 
   private wpsNamelistLoaded(event: any): void
   {
