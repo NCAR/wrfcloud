@@ -152,7 +152,7 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
       this.namelist = changes['namelist'].currentValue;
       this.fromNamelist();
       this.update();
-      this.gridChange.emit(this.toNamelist());
+      this.gridChange.emit(this.createNamelistEvent());
     }
   }
 
@@ -185,7 +185,7 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
   }
 
 
-  private toNamelist(): any
+  private createNamelistEvent(): any
   {
     /* calculate the center lat/lon */
     const refLat: number = (this.north + this.south) / 2;
@@ -383,7 +383,7 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
 
     /* maybe emit an event */
     if (emit)
-      this.gridChange.emit(this.toNamelist());
+      this.gridChange.emit(this.createNamelistEvent());
   }
 
 
