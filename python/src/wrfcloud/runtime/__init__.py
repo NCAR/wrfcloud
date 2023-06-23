@@ -96,7 +96,7 @@ class Process:
             file_handle.write(f'#SBATCH --nodes=1\n')
             file_handle.write(f'#SBATCH --ntasks-per-node={n_tasks}\n')
             file_handle.write(f'#SBATCH --output={exe_name}_%j.log\n')
-            file_handle.write(f'#SBATCH --time=1:00:00\n')  # TODO: Change this to 12hours
+            file_handle.write(f'#SBATCH --time=12:00:00\n')
             file_handle.write(f'\ndate +%s > START\n')
             file_handle.write(f'\n/opt/slurm/bin/srun --mpi=pmi2 {exe_name}\n')
             file_handle.write(f'\ndate +%s > STOP\n')
