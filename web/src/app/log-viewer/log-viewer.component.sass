@@ -8,18 +8,19 @@
 .log-viewer-container
   display: flex
   font-size: 1rem
-  max-height: 75vh
-  width: 100vw
+  height: 75vh
+  max-height: 700px
+  width: 70vw
   max-width: 800px
 
 .log-viewer-mobile-select
   display: block
 
-.log-viewer-desktop-select
-  display: none
+.log-viewer-show-mobile
+  display: inherit
 
-.log-viewer-display-div
-  display: block
+.log-viewer-log-content
+  display: grid
   width: 100%
   height: 100%
 
@@ -29,19 +30,27 @@
   height: 100%
 
 .log-viewer-textarea
-  height: 50vh
-  width: 60vw
-  font-family: Monospaced
+  height: 60vh
+  min-width: 100%
 
 .log-viewer-button-panel
   display: block
 
 .log-viewer-busy
-  text-align: center
+  float: right
+  position: relative
+  top: 5px
+  left: -6px
 
 .log-viewer-cancel-button
   float: right
   margin-bottom: 5px
+
+.log-viewer-tree-node
+  padding-left: 50px !important
+
+.log-viewer-tree-node:current
+  background-color: $background-emphasize
 
 @media screen and (min-width: 840px)
 
@@ -53,3 +62,6 @@
     display: block
     overflow: scroll
     width: 30%
+
+  .log-viewer-show-mobile
+    display: none
