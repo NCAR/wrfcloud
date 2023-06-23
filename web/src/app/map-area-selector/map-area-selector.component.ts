@@ -3,7 +3,7 @@ import {Map, View} from 'ol';
 import {Layer} from 'ol/layer';
 import TileLayer from 'ol/layer/Tile';
 import {OSM} from 'ol/source';
-import {fromLonLat, toLonLat, useGeographic} from 'ol/proj';
+import {useGeographic} from 'ol/proj';
 import {platformModifierKeyOnly} from "ol/events/condition";
 import {DragBox} from "ol/interaction";
 import {DragBoxEvent} from "ol/interaction/DragBox";
@@ -256,6 +256,10 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
   }
 
 
+  /**
+   * Get a static style for the box on the map
+   * @private
+   */
   private getStyle(): Style
   {
     return new Style({
@@ -263,26 +267,48 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
       'fill': new Fill({color: '#cccccc44'}),
     });
   }
+
+
+  /**
+   * The user has started to draw a box, save the coordinate of the first click
+   * @param event Contains the coordinate
+   * @private
+   */
   private doBoxStart(event: any): void
   {
+    /* only process DragBoxEvents */
     if (! (event instanceof DragBoxEvent))
       return;
 
+    /* save the coordinate of the first corner */
     this.boxStartCoords = event.coordinate;
   }
 
+
+  /**
+   * The user is dragging the box corner, save as the second corner point
+   * @param event
+   * @private
+   */
   private doBoxDrag(event: any): void
   {
+    /* only process DragBoxEvents */
     if (! (event instanceof DragBoxEvent))
       return;
 
+    /* save the coordinate of the second corner */
     this.boxEndCoords = event.coordinate;
 
+    /* draw a new box on the map if user is finished */
     if (event.type === 'boxend')
       this.update();
   }
 
 
+  /**
+   * Flip E-W, N-S if necessary
+   * @private
+   */
   private sanitizeUserCorners(): void
   {
     if (this.map === undefined || this.domainLayer === undefined || this.boxStartCoords === undefined || this.boxEndCoords === undefined)
@@ -308,6 +334,10 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
   }
 
 
+  /**
+   * The user changed the projection type
+   * @param event
+   */
   public doProjectionChanged(event: any): void
   {
     /* ignore events not from user */
@@ -328,7 +358,6 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
    */
   public update(emit: boolean = true): void
   {
-    // TODO: https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.4/users_guide_chap3.html#_How_to_Run
     /* Sanitize the corners drawn by the user */
     this.sanitizeUserCorners();
 
@@ -338,10 +367,10 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
     const ny: number = 1 + Math.round(MapAreaSelectorComponent.haversine([this.east, this.north], [this.east, this.south]) / dx);
 
     /* Convert new corners back to lat/lon values */
-    var sw: Coordinate = [this.west, this.south];
-    var se: Coordinate = MapAreaSelectorComponent.haversineInverse(sw, [dx*nx, 0]);
-    var ne: Coordinate = MapAreaSelectorComponent.haversineInverse(se, [0, dx*ny]);
-    var nw: Coordinate = MapAreaSelectorComponent.haversineInverse(ne, [-dx*nx, 0]);
+    let sw: Coordinate = [this.west, this.south];
+    let se: Coordinate = MapAreaSelectorComponent.haversineInverse(sw, [dx*nx, 0]);
+    let ne: Coordinate = MapAreaSelectorComponent.haversineInverse(se, [0, dx*ny]);
+    let nw: Coordinate = MapAreaSelectorComponent.haversineInverse(ne, [-dx*nx, 0]);
 
     /* put simple back in */
     sw = [this.west, this.south];
@@ -358,6 +387,15 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
   }
 
 
+  /**
+   * Draw a box on the map
+   *
+   * @param sw South-west corner
+   * @param se South-east corner
+   * @param nw North-west corner
+   * @param ne North-east corner
+   * @private
+   */
   private drawBox(sw: Coordinate, se: Coordinate, nw: Coordinate, ne: Coordinate): void
   {
     /* make sure the map is ready */

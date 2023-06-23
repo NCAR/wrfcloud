@@ -119,6 +119,9 @@ export class EditModelConfigurationComponent implements OnInit
   }
 
 
+  /**
+   * No action
+   */
   ngOnInit(): void
   {
   }
@@ -181,17 +184,26 @@ export class EditModelConfigurationComponent implements OnInit
   }
 
 
+  /**
+   * Go from a namelist object to namelist text
+   * @param namelist
+   */
   public unparseNamelist(namelist: any): string
   {
+    /* initialize an empty string to append */
     let text: string = '';
 
+    /* add each section of the name list */
     for (let section of namelist.sections)
     {
+      /* skip empty sections */
       if (section === '')
         continue;
 
+      /* add the section header */
       text += '&' + section + '\n';
 
+      /* add all of the name/value pairs in the section */
       for (let name of namelist[section].names)
         text += '  ' + name + ' = ' + namelist[section][name] + '\n';
       text += '/\n\n';
@@ -381,8 +393,10 @@ export class EditModelConfigurationComponent implements OnInit
    */
   public updatePhysicsSuite(presetName: string): void
   {
+    /* get a physics suite given a preset name */
     const physics: PhysicsSuite = new PhysicsSuite(presetName);
 
+    /* update the namelist object with preset values */
     this.wrfNamelist.physics.mp_physics = physics.mp_physics;
     this.wrfNamelist.physics.cu_physics = physics.cu_physics;
     this.wrfNamelist.physics.ra_lw_physics = physics.ra_lw_physics;
@@ -391,6 +405,7 @@ export class EditModelConfigurationComponent implements OnInit
     this.wrfNamelist.physics.sf_sfclay_physics = physics.sf_sfclay_physics;
     this.wrfNamelist.physics.sf_surface_physics = physics.sf_surface_physics;
 
+    /* update the namelist text from the updated namelist object */
     this.modelConfig.wrf_namelist = this.unparseNamelist(this.wrfNamelist);
 
     /* get rid of custom as an option if user selects a preset */
@@ -400,8 +415,14 @@ export class EditModelConfigurationComponent implements OnInit
   }
 
 
+  /**
+   * Update the namelists when a grid parameter changes
+   *
+   * @param event see MapAreaSelector gridChange event
+   */
   public updateGrid(event: any): void
   {
+    /* update the WPS namelist file with new grid parameters */
     this.wpsNamelist.geogrid.map_proj = "'" + event['mapProj'] + "',";
     this.wpsNamelist.geogrid.ref_lat = event['refLat'];
     this.wpsNamelist.geogrid.ref_lon = event['refLon'];
@@ -413,31 +434,42 @@ export class EditModelConfigurationComponent implements OnInit
     this.wpsNamelist.geogrid.truelat2 = event['refLat'];
     this.wpsNamelist.geogrid.stand_lon = event['refLon'];
 
+    /* update the WRF namelist with new grid parameters */
     this.wrfNamelist.domains.e_we = event['e_we'];
     this.wrfNamelist.domains.e_sn = event['e_sn'];
     this.wrfNamelist.domains.dx = event['dx'];
     this.wrfNamelist.domains.dy = event['dy'];
     this.wrfNamelist.domains.time_step = event['time_step'];
 
+    /* update the namelist text representations from the namelist objects */
     this.modelConfig.wps_namelist = this.unparseNamelist(this.wpsNamelist);
     this.modelConfig.wrf_namelist = this.unparseNamelist(this.wrfNamelist);
   }
 
+
+  /**
+   * Final step to load a file from local disk
+   *
+   * @param event Contains the file contents
+   * @private
+   */
   private wpsNamelistLoaded(event: any): void
   {
     /* set as the WPS text */
     this.modelConfig.wps_namelist = event.target.result;
   }
 
+
+  /**
+   * Final step to load a file from local disk
+   *
+   * @param event Contains the file contents
+   * @private
+   */
   private wrfNamelistLoaded(event: any): void
   {
     /* set as the WRF text */
     this.modelConfig.wrf_namelist = event.target.result;
-  }
-
-  public round(val: number): number
-  {
-    return Math.round(val * 100) / 100;
   }
 }
 

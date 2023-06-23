@@ -138,7 +138,6 @@ export class ModelConfigComponent implements OnInit
       edit: true
     };
 
-    const maxWidth: number = this.app.isMobile ? 95 : 80;
     this.dialog.open(EditModelConfigurationComponent, {data: editData, panelClass: 'dialog-panel'}).afterClosed().subscribe(
       () => { this.loadModelConfigList(); }
     );
@@ -164,7 +163,6 @@ export class ModelConfigComponent implements OnInit
       edit: false
     };
 
-    const maxWidth: number = this.app.isMobile ? 95 : 80;
     this.dialog.open(EditModelConfigurationComponent, {data: editData, panelClass: 'dialog-panel'}).afterClosed().subscribe(
       () => { this.loadModelConfigList(); }
     );
