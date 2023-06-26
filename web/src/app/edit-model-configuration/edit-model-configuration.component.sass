@@ -2,12 +2,11 @@
 
 
 .edit-model-config-container
-  width: 90vw
-  max-width: min(400px, 68vw)
+  width: 100%
+  max-width: min(400px, 90vw)
   max-height: 60vh
   overflow-y: scroll
   overflow-x: hidden
-  padding-right: 16px
   margin: auto auto 15px auto
 
 .edit-model-config-title
@@ -21,12 +20,25 @@
   margin-top: 8px
 
 .edit-model-config-field-container
-  width: calc(100% - 24px)
+  width: 100%
   max-width: 376px
   margin: auto
+  display: grid
+
+.edit-model-width-30
+  display: grid
+
+.edit-model-width-60
+  display: grid
 
 .edit-model-config-field
   width: 100%
+
+.edit-model-edit-mode-tabs-container
+  display: grid
+
+.edit-model-edit-mode-tabs
+  display: grid
 
 .edit-model-config-hint
   color: $text-warn
@@ -36,12 +48,12 @@
   margin-top: 15px
 
 .edit-model-config-cancel-button
-  font-size: 1.0625rem
+  font-size: .9rem
 
 .edit-model-config-button
   background-color: $background-edit
   color: $text-contrast
-  font-size: 1.0625rem
+  font-size: .9rem
 
 .edit-model-config-hidden-file-input
   display: none
@@ -68,7 +80,7 @@
 
 .remove-model-config-button
   background-color: $background-warn
-  font-size: 1.0rem
+  font-size: .9rem
 
 .mat-input-element
   font-size: 1.25rem
@@ -92,3 +104,13 @@
 
   .edit-model-config-slider
     min-width: 600px
+
+  .edit-model-width-30
+    width: calc(30% - 24px)
+    margin-right: 24px
+    display: inline-block
+
+  .edit-model-width-60
+    width: calc(60% - 24px)
+    margin-right: 24px
+    display: inline-block

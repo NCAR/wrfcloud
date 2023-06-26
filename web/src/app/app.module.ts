@@ -45,6 +45,8 @@ import {ModelConfigComponent} from './model-config/model-config.component';
 import {EditModelConfigurationComponent} from './edit-model-configuration/edit-model-configuration.component';
 import {JobDetailsComponent} from './job-details/job-details.component';
 import {ContextHelpComponent} from './context-help/context-help.component';
+import {MatTabsModule} from "@angular/material/tabs";
+import {MapAreaSelectorComponent} from './map-area-selector/map-area-selector.component';
 import {LogViewerComponent} from './log-viewer/log-viewer.component';
 
 
@@ -68,6 +70,7 @@ import {LogViewerComponent} from './log-viewer/log-viewer.component';
     EditModelConfigurationComponent,
     JobDetailsComponent,
     ContextHelpComponent,
+    MapAreaSelectorComponent,
     LogViewerComponent
   ],
     imports: [
@@ -96,7 +99,8 @@ import {LogViewerComponent} from './log-viewer/log-viewer.component';
         MatDatepickerModule,
         MatMomentDateModule,
         MatRadioModule,
-        MatTreeModule,
+        MatTabsModule,
+        MatTreeModule
     ],
   providers: [
     {provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}

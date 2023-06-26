@@ -1,5 +1,5 @@
 @use 'sass:color'
-@import url('https://use.typekit.net/qzp0wjw.css')
+
 
 // color palette
 $white: #ffffff
@@ -82,6 +82,23 @@ $background-footer: $darker-gray
   position: relative
   top: 2px
 
+.dialog-panel
+  max-width: 95vw !important
+  padding: 0
+
+.monospaced-text
+  font-family: "Andale Mono", "Menlo", monospace
+  font-size: 1.0rem !important
+
 @keyframes animation-spin
   100%
     transform: rotate(360deg)
+
+@media screen and (min-width: 840px)
+
+  .dialog-panel
+    max-width: 80vw !important
+
+  .monospaced-text
+    font-size: 0.85rem !important
+

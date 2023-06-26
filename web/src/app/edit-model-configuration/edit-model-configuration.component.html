@@ -2,7 +2,7 @@
   {{edit ? 'Edit WRF Configuration' : 'Create WRF Configuration'}}
 </div>
 <div class="edit-model-config-container">
-  <div class="edit-model-config-field-container">
+  <div class="edit-model-config-field-container edit-model-width-30">
     <mat-form-field class="edit-model-config-field" appearance="fill">
       <mat-label>
         Name
@@ -13,27 +13,61 @@
       <input matInput type="text" [(ngModel)]="modelConfig.name" [disabled]="edit" (keyup)="validateConfigName()">
     </mat-form-field>
   </div>
-  <div class="edit-model-config-field-container">
+  <div class="edit-model-config-field-container edit-model-width-60">
     <mat-form-field class="edit-model-config-field" appearance="fill">
       <mat-label>Description</mat-label>
       <input matInput type="text" [(ngModel)]="modelConfig.description">
     </mat-form-field>
   </div>
-  <div class="edit-model-config-field-container">
-    <input class="edit-model-config-hidden-file-input" type="file" id="wps-namelist-file" (change)="fileSelected($event, 'wps')">
-    <mat-form-field class="edit-model-config-field" appearance="fill">
-      <mat-label>WPS Namelist</mat-label>
-      <textarea [rows]="modelConfig.wps_namelist?6:1" matInput [(ngModel)]="modelConfig.wps_namelist" [disabled]="!this.app.userHasRole('maintainer')"></textarea>
-      <button mat-stroked-button [disabled]="!this.app.userHasRole('maintainer')" (click)="loadNamelistFile('wps')">Load File</button>
-    </mat-form-field>
-  </div>
-  <div class="edit-model-config-field-container">
-    <input class="edit-model-config-hidden-file-input" type="file" id="wrf-namelist-file" (change)="fileSelected($event, 'wrf')">
-    <mat-form-field class="edit-model-config-field" appearance="fill">
-      <mat-label>WRF Namelist</mat-label>
-      <textarea [rows]="modelConfig.wrf_namelist?6:1" matInput [(ngModel)]="modelConfig.wrf_namelist" [disabled]="!this.app.userHasRole('maintainer')"></textarea>
-      <button mat-stroked-button [disabled]="!this.app.userHasRole('maintainer')" (click)="loadNamelistFile('wrf')">Load File</button>
-    </mat-form-field>
+  <div class="edit-model-edit-mode-tabs-container">
+    <mat-tab-group class="edit-model-edit-mode-tabs">
+      <mat-tab label="Basic">
+        <app-map-area-selector [namelist]="wpsNamelist" (gridChange)="updateGrid($event)">
+        </app-map-area-selector>
+        <div class="edit-model-config-field-container edit-model-config-shaded">
+          <mat-form-field appearance="fill">
+            <mat-label>Physics Suite</mat-label>
+            <mat-select [(ngModel)]="physicsSuite" (valueChange)="updatePhysicsSuite($event)">
+              <mat-option *ngFor="let preset of PhysicsSuite.PRESETS" [value]="preset">
+                {{preset}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-tab>
+      <mat-tab label="Advanced">
+        <div class="edit-model-config-field-container">
+          <input class="edit-model-config-hidden-file-input" type="file" id="wps-namelist-file" (change)="fileSelected($event, 'wps')">
+          <mat-form-field class="edit-model-config-field" appearance="fill">
+            <mat-label>WPS Namelist</mat-label>
+            <textarea
+                    matInput
+                    class="monospaced-text"
+                    [rows]="modelConfig.wps_namelist?6:1"
+                    [(ngModel)]="modelConfig.wps_namelist"
+                    [disabled]="!this.app.userHasRole('maintainer')"
+                    (focusout)="this.wpsNamelist = parseNamelist(this.modelConfig.wps_namelist)">
+            </textarea>
+            <button mat-stroked-button [disabled]="!this.app.userHasRole('maintainer')" (click)="loadNamelistFile('wps')">Load File</button>
+          </mat-form-field>
+        </div>
+        <div class="edit-model-config-field-container">
+          <input class="edit-model-config-hidden-file-input" type="file" id="wrf-namelist-file" (change)="fileSelected($event, 'wrf')">
+          <mat-form-field class="edit-model-config-field" appearance="fill">
+            <mat-label>WRF Namelist</mat-label>
+            <textarea
+                    matInput
+                    class='monospaced-text'
+                    [rows]="modelConfig.wrf_namelist?6:1"
+                    [(ngModel)]="modelConfig.wrf_namelist"
+                    [disabled]="!this.app.userHasRole('maintainer')"
+                    (focusout)="this.wrfNamelist = parseNamelist(this.modelConfig.wrf_namelist)">
+            </textarea>
+            <button mat-stroked-button [disabled]="!this.app.userHasRole('maintainer')" (click)="loadNamelistFile('wrf')">Load File</button>
+          </mat-form-field>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </div>
   <div class="edit-model-config-field-container edit-model-config-shaded">
     <div class="edit-model-config-slider-label">Core Count: {{autoCoreCount ? 'auto' : modelConfig.cores}}</div>

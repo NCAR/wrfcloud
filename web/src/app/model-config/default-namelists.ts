@@ -1,0 +1,149 @@
+export const defaultWpsNamelist: string = '&share\n' +
+  ' wrf_core = \'ARW\',\n' +
+  ' max_dom = 1\n' +
+  ' start_date = \'2022-06-01_00:00:00\',\n' +
+  ' end_date   = \'2022-06-02_00:00:00\',\n' +
+  ' interval_seconds = 10800\n' +
+  '/\n' +
+  '\n' +
+  '&geogrid\n' +
+  ' parent_id         =   1,\n' +
+  ' parent_grid_ratio =   1,\n' +
+  ' i_parent_start    =   1,\n' +
+  ' j_parent_start    =   1,\n' +
+  ' e_we              =  700,\n' +
+  ' e_sn              =  500,\n' +
+  ' geog_data_res = \'default\',\n' +
+  ' dx = 6000,\n' +
+  ' dy = 6000,\n' +
+  ' map_proj = \'mercator\',\n' +
+  ' ref_lat   =  19.0,\n' +
+  ' ref_lon   = -75.0,\n' +
+  ' truelat1  =  19.0,\n' +
+  ' truelat2  =  19.0,\n' +
+  ' stand_lon = -75.0,\n' +
+  ' geog_data_path = \'/glade/work/wrfhelp/WPS_GEOG/\'\n' +
+  ' opt_geogrid_tbl_path = \'/glade/p/ral/jntp/CCproject/wrfcloud/WPSV4.3.1_intel_serial_large-file/geogrid/\'\n' +
+  '/\n' +
+  '\n' +
+  '&ungrib\n' +
+  ' out_format = \'WPS\',\n' +
+  ' prefix = \'FILE\',\n' +
+  '/\n' +
+  '\n' +
+  '&metgrid\n' +
+  ' fg_name = \'FILE\'\n' +
+  '/\n';
+
+export const defaultWrfNamelist: string = '&time_control\n' +
+  '  run_days = 0,\n' +
+  '  run_hours = 24,\n' +
+  '  run_minutes = 0,\n' +
+  '  run_seconds = 0,\n' +
+  '  start_year = 2022,\n' +
+  '  start_month = 06,\n' +
+  '  start_day = 01,\n' +
+  '  start_hour = 00,\n' +
+  '  end_year = 2022,\n' +
+  '  end_month = 06,\n' +
+  '  end_day = 02,\n' +
+  '  end_hour = 00,\n' +
+  '  interval_seconds = 3600\n' +
+  '  input_from_file = .true.,\n' +
+  '  history_interval = 60,\n' +
+  '  frames_per_outfile = 1,\n' +
+  '  restart = .false.,\n' +
+  '  restart_interval = 3600,\n' +
+  '  io_form_history = 2,\n' +
+  '  io_form_restart = 2,\n' +
+  '  io_form_input = 2,\n' +
+  '  io_form_boundary = 2,\n' +
+  '  auxhist23_outname = \'auxhist23_d<domain>_<date>\',\n' +
+  '  auxhist23_interval = 60,\n' +
+  '  io_form_auxhist23 = 2,\n' +
+  '  frames_per_auxhist23 = 1,\n' +
+  '/\n' +
+  '\n' +
+  '&domains\n' +
+  '  time_step = 36\n' +
+  '  time_step_fract_num = 0,\n' +
+  '  time_step_fract_den = 1,\n' +
+  '  max_dom = 1,\n' +
+  '  e_we = 1027,\n' +
+  '  e_sn = 619,\n' +
+  '  e_vert = 45,\n' +
+  '  dzstretch_s = 1.1\n' +
+  '  p_top_requested = 5000,\n' +
+  '  num_metgrid_levels = 34,\n' +
+  '  num_metgrid_soil_levels = 4,\n' +
+  '  dx = 6000,\n' +
+  '  dy = 6000,\n' +
+  '  grid_id = 1,\n' +
+  '  parent_id = 0,\n' +
+  '  i_parent_start = 1,\n' +
+  '  j_parent_start = 1,\n' +
+  '  parent_grid_ratio = 1,\n' +
+  '  parent_time_step_ratio = 1,\n' +
+  '  feedback = 1,\n' +
+  '  smooth_option = 0\n' +
+  '/\n' +
+  '\n' +
+  '&physics\n' +
+  '  mp_physics = 6,\n' +
+  '  cu_physics = 16,\n' +
+  '  ra_lw_physics = 4,\n' +
+  '  ra_sw_physics = 4,\n' +
+  '  bl_pbl_physics = 1,\n' +
+  '  sf_sfclay_physics = 91,\n' +
+  '  sf_surface_physics = 2,\n' +
+  '  radt = 15,\n' +
+  '  bldt = 0,\n' +
+  '  cudt = 0,\n' +
+  '  icloud = 1,\n' +
+  '  num_land_cat = 21,\n' +
+  '  sf_urban_physics = 0,     0,\n' +
+  '  fractional_seaice = 1,\n' +
+  '/\n' +
+  '\n' +
+  '&fdda\n' +
+  '/\n' +
+  '\n' +
+  '&dynamics\n' +
+  '  hybrid_opt = 2,\n' +
+  '  w_damping = 0,\n' +
+  '  diff_opt = 2,\n' +
+  '  km_opt = 4,\n' +
+  '  diff_6th_opt = 0,\n' +
+  '  diff_6th_factor = 0.12,\n' +
+  '  base_temp = 290.\n' +
+  '  damp_opt = 3,\n' +
+  '  zdamp = 5000.,\n' +
+  '  dampcoef = 0.2,\n' +
+  '  khdif = 0,\n' +
+  '  kvdif = 0,\n' +
+  '  non_hydrostatic = .true.,\n' +
+  '  moist_adv_opt = 1,\n' +
+  '  scalar_adv_opt = 1,\n' +
+  '  gwd_opt = 1,\n' +
+  '/\n' +
+  '\n' +
+  '&bdy_control\n' +
+  '  spec_bdy_width = 5,\n' +
+  '  specified = .true.\n' +
+  '/\n' +
+  '\n' +
+  '&diags\n' +
+  '  p_lev_diags = 1,\n' +
+  '  num_press_levels = 5,\n' +
+  '  press_levels = 92500, 85000, 50000, 30000, 20000,\n' +
+  '  use_tot_or_hyd_p = 1,\n' +
+  '/\n' +
+  '\n' +
+  '&grib2\n' +
+  '/\n' +
+  '\n' +
+  '&namelist_quilt\n' +
+  '  nio_tasks_per_group = 0,\n' +
+  '  nio_groups = 1,\n' +
+  '/\n' +
+  '\n';

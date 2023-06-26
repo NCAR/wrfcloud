@@ -36,7 +36,7 @@ def main() -> None:
         log.debug('Reading command line arguments')
         parser = argparse.ArgumentParser()
         parser.add_argument('--job-id', type=str, help='Job ID with run details.', required=True)
-        parser.add_argument('--delete-cluster', action=argparse.BooleanOptionalAction, help='Delete cluster or not')
+        parser.add_argument('--keep-cluster', action=argparse.BooleanOptionalAction, help='Keep cluster when finished.')
         args = parser.parse_args()
         job_id = args.job_id
 
@@ -126,7 +126,7 @@ def main() -> None:
     # Shutdown the cluster after completion or failure
     try:
         _save_log_files(job)
-        if args.delete_cluster:
+        if not args.keep_cluster:
             _delete_cluster()
     except Exception as e:
         log.error('Failed to delete cluster.', e)
