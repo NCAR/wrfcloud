@@ -3,7 +3,7 @@
 <div class="log-viewer-title">Log Viewer</div>
 <div class="log-viewer-container">
   <div class="log-viewer-desktop-select">
-    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="log-viewer-mat-tree">
+    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="log-viewer-file-tree">
       <!-- This is the tree node template for leaf nodes -->
       <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding (click)="setAndUpdateLogFile(node)" class="log-viewer-tree-node">
         {{node.name}}

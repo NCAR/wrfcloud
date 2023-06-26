@@ -30,7 +30,7 @@
   height: 100%
 
 .log-viewer-textarea
-  height: 60vh
+  min-height: 60vh
   min-width: 100%
 
 .log-viewer-button-panel
@@ -45,6 +45,9 @@
 .log-viewer-cancel-button
   float: right
   margin-bottom: 5px
+
+.log-viewer-file-tree
+  display: none
 
 .log-viewer-tree-node
   padding-left: 50px !important
@@ -65,3 +68,9 @@
 
   .log-viewer-show-mobile
     display: none
+
+  .log-viewer-file-tree
+    display: unset
+
+  .log-viewer-textarea
+    min-height: 50vh
