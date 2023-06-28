@@ -232,7 +232,7 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
 
   * Remove any AMI Snapshots.
 
-    * Select **Elastic Block Store > Snapshots** from the left navigation menu.
+    * Select **Elastic Block Store > Snapshots** from the left navigation menu.
     * Select any entries for which the **AMI ID** noted above appears in the **Description** column.
     * Select **Actions > Delete snapshot** to remove them.
 
