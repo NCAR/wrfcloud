@@ -1,8 +1,11 @@
 from setuptools import setup
 
+with open("wrfcloud/VERSION", "r") as file_handle:
+    version = file_handle.read().strip()
+
 setup(
     name='wrfcloud',
-    version='1.1.0-dev',
+    version=version,
     description='NCAR/RAL WRF Cloud Framework',
     author='David Hahn',
     author_email='hahnd@ucar.edu',
