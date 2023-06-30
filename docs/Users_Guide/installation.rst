@@ -233,7 +233,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
 13. (Optional) Monitor the progress of the AMI build
 
-  * Use the top-level search bar to find and launch the AWS **CloudFormation** Service.
+  * Use the top-level search bar to find and launch the AWS **EC2 Image Builder** Service.
 
     .. image:: ../_static/install_13a_image_builder.png
 
@@ -248,8 +248,11 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
       .. image:: ../_static/install_13c_building.png
 
     * Scroll down and check the status of the steps. The AMI will be available when all of the values under **Step status** say **Completed**.
+      You may need to refresh the page occassionally to see the new image appear in the list.
 
       .. image:: ../_static/install_13d_steps.png
+
+    * Repeat step 12 to confirm that the AMI is available.
 
 14. After completing these installation steps, proceed to System Administration (:numref:`administration`).
 
