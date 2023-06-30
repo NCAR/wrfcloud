@@ -52,7 +52,9 @@ setup(
             'setup/aws/wrfcloud_cluster_policy.json',
             'runtime/configurations/test/namelist.*',
             'runtime/resources/*.yaml',
-            'api/actions/resources/run_wrf_template.sh'
+            'api/actions/resources/run_wrf_template.sh',
+            'VERSION',
+            'RELEASE_DATE',
         ]
     },
     include_package_data=True,
