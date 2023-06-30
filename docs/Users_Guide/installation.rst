@@ -207,27 +207,52 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
 2. Remove data from S3.
 
   * Use the top-level search bar to find and launch the AWS **S3** Service.
+
+    .. image:: ../_static/uninstall_2a_s3.png
+
   * Select **Buckets** from the left navigation menu and search for **wrfcloud**.
+
+    .. image:: ../_static/uninstall_2b_buckets.png
+
   * Select the **wrfcloud-XXXXXXX** S3 bucket and click **Empty** to remove its contents.
 
     * Do not **Delete** this bucket, as CloudFormation will handle that step.
 
+    .. image:: ../_static/uninstall_2c_wrfcloud-xx.png
+
 3. Remove IAM policy.
 
   * Use the top-level search bar to find and launch the AWS **IAM** Service.
+
+    .. image:: ../_static/uninstall_3a_iam.png
+
   * Select **Access Management > Policies** from the left navigation menu and search for **wrfcloud**.
+
+    .. image:: ../_static/uninstall_3b_policieswrf.png
+
   * Click the **wrfcloud_parallelcluster** radio button and select **Actions > Delete**.
 
     * Any other **wrfcloud** policies do not need to be removed.
 
+    .. image:: ../_static/uninstall_3c_Bdelete.png
+
 4. Modify EC2 settings.
 
   * Use the top-level search bar to find and launch the AWS **EC2** Service.
+
+    .. image:: ../_static/uninstall_4a_search_ec2.png
+
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
+
+    .. image:: ../_static/uninstall_4b_region.png
+
   * Remove the wrfcloud Amazon Machine Image (AMI).
 
     * Select **Images > AMIs** from the left navigation menu and search for **wrf**.
+      .. image:: ../_static/uninstall_4c_Aamis.png
+      .. image:: ../_static/uninstall_4c_Bsearchwrf.png
     * Make note of the **AMI ID** for the **wrf** AMI.
+      .. image:: ../_static/uninstall_4c_Cnoteid.png
     * Select that AMI followed by **Actions > Deregister AMI**.
 
   * Remove any AMI Snapshots.
