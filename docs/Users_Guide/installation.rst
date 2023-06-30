@@ -90,7 +90,7 @@ Once the AWS account prerequisites are satisfied (see :numref:`prerequisites`), 
 
 2. Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
 
-.. image:: ../_static/uninstall_4b_region.png
+.. image:: ../_static/uninstall_4b_region_2.png
 
 3. Click the **CloudShell** button (|cloudshell_16x16|) at the top of the screen to launch a terminal window.
 
@@ -181,10 +181,19 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
 9. Monitor the installation progress:
 
-  * Launch a new `AWS Management Console <https://aws.amazon.com/console>`_ window, and use the top-level search bar to find and launch the AWS **CloudFormation** Service.
+  * Use the top-level search bar to find and launch the AWS **CloudFormation** Service.
+
+    .. image:: ../_static/uninstall_6a_cf.png
+
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
+
+    .. image:: ../_static/uninstall_4b_region_2.png
+
   * Select **Stacks** from the left navigation menu.
   * Click an item (**WrfIntelImageBuilder**, **WrfCloudApiData**, or **WrfCloudWebApp**) listed in the **Stack name** column and select the **Events** tab to monitor progress.
+
+    .. image:: ../_static/install_9a_select_stack.png
+    .. image:: ../_static/install_9b_select_events.png
 
 10. When installation completes, a log message in the CloudShell terminal directs you to the newly created WRF Cloud URL.
 
@@ -199,13 +208,28 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
   * Navigate to https://app.{DOMAIN}.
   * If directed to the **WRF Cloud Login** page, use the administrator email address and password defined above to login and proceed to the next step.
 
+    .. image:: ../_static/install_11_login.png
+
 12. Confirm that the WRF Amazon Machine Image (AMI) has finished building.
 
   * Use the top-level search bar to find and launch the AWS **EC2** Service.
+
+    .. image:: ../_static/uninstall_4a_search_ec2.png
+
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
+
+    .. image:: ../_static/uninstall_4b_region_2.png
+
   * Select **Images > AMIs** from the left navigation menu and search for **wrf**.
+
+      .. image:: ../_static/uninstall_4ca_amis.png
+
   * Confirm that an AMI that includes **wrf** in the **AMI name** column.
-  * Note that it may take several hours for this AMI to finish building. You may need to refresh the page occassionally to see the new image appear in the list. While you can add new users and configurations via the WRF Cloud user interface, you will not be able to actually launch a run until the WRF AMI is available.
+    **Note that it may take several hours for this AMI to finish building.**
+    You may need to refresh the page occassionally to see the new image appear
+    in the list. **While you can add new users and configurations via the WRF
+    Cloud user interface, you will not be able to actually launch a run until
+    the WRF AMI is available.**
 
 13. After completing these installation steps, proceed to System Administration (:numref:`administration`).
 
@@ -266,7 +290,7 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
 
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
 
-    .. image:: ../_static/uninstall_4b_region.png
+    .. image:: ../_static/uninstall_4b_region_2.png
 
   * Remove the wrfcloud Amazon Machine Image (AMI).
 
@@ -329,6 +353,6 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
   * Select and **Delete** the following stack: **WrfCloudApiData**
   * Switch to the **US East (N. Virginia) / us-east-1** region and **Delete** the following stack: **WrfCloudWebCertificate**
 
-    .. image:: ../_static/uninstall_6c_region.png
+    .. image:: ../_static/uninstall_6c_region_1.png
 
 You have now finished uninstalling WRF Cloud from your AWS account.
