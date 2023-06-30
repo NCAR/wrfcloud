@@ -218,7 +218,14 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
 
     * Do not **Delete** this bucket, as CloudFormation will handle that step.
 
-    .. image:: ../_static/uninstall_2c_wrfcloud-xx.png
+    .. image:: ../_static/uninstall_2ca_wrfcloud-xx.png
+
+  * Type the words "permanently delete" in the text box and click Empty.
+
+    * This may take a few minutes.
+      Do not navigate away from this page while the bucket is being emptied.
+
+    .. image:: ../_static/uninstall_2cb_empty.png
 
 3. Remove IAM policy.
 
@@ -234,7 +241,7 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
 
     * Any other **wrfcloud** policies do not need to be removed.
 
-    .. image:: ../_static/uninstall_3c_Bdelete.png
+    .. image:: ../_static/uninstall_3c_delete.png
 
 4. Modify EC2 settings.
 
