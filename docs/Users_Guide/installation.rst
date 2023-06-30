@@ -220,7 +220,7 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
 
     .. image:: ../_static/uninstall_2ca_wrfcloud-xx.png
 
-  * Type the words "permanently delete" in the text box and click Empty.
+  * Type the words "permanently delete" in the text input field and click Empty.
 
     * This may take a few minutes.
       Do not navigate away from this page while the bucket is being emptied.
@@ -239,6 +239,7 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
 
   * Click the **wrfcloud_parallelcluster** radio button and select **Actions > Delete**.
 
+    * Type the **wrfcloud_parallelcluster** in the text input field and click **Delete**.
     * Any other **wrfcloud** policies do not need to be removed.
 
     .. image:: ../_static/uninstall_3c_delete.png
@@ -257,13 +258,11 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
 
     * Select **Images > AMIs** from the left navigation menu and search for **wrf**.
 
-      .. image:: ../_static/uninstall_4c_Aamis.png
-
-      .. image:: ../_static/uninstall_4c_Bsearchwrf.png
+      .. image:: ../_static/uninstall_4ca_amis.png
 
     * Make note of the **AMI ID** for the **wrf** AMI.
 
-      .. image:: ../_static/uninstall_4c_Cnoteid.png
+      .. image:: ../_static/uninstall_4cb_noteid.png
 
     * Select that AMI followed by **Actions > Deregister AMI**.
 
