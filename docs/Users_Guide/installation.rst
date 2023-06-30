@@ -270,28 +270,51 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
 
     * Select **Elastic Block Store > Snapshots** from the left navigation menu.
     * Select any entries for which the **AMI ID** noted above appears in the **Description** column.
+
+      .. image:: ../_static/uninstall_4da_find_ami_id.png
+
     * Select **Actions > Delete snapshot** to remove them.
+
+      .. image:: ../_static/uninstall_4db_delete_snapshot.png
 
   * Remove the SSH key.
 
     * Select **Network & Security > Key Pairs** from the left navigation menu.
     * Select the **wrfcloud-admin** key pair followed by **Actions > Delete**.
+    * Type **Delete** in the text input field and click **Delete** to confirm.
+
+    .. image:: ../_static/uninstall_4ea_delete_ssh.png
+
+    .. image:: ../_static/uninstall_4eb_confirm_delete.png
 
 5. Modify SES settings.
 
   * Use the top-level search bar to find and launch the AWS **SES** Service.
+
+    .. image:: ../_static/uninstall_5a_ses.png
+
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
   * Select **Configuration > Verified Identities** from the left navigation menu.
   * Select and **Delete** the email identity for your administrator's email address.
 
+    .. image:: ../_static/uninstall_5b_delete_email.png
+
 6. Delete CloudFormation stacks.
 
   * Use the top-level search bar to find and launch the AWS **CloudFormation** Service.
+
+    .. image:: ../_static/uninstall_6a_cf.png
+
   * Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
   * Select **Stacks** from the left navigation menu.
   * Select and **Delete** each of the following stacks: **WrfIntelImageBuilder**, **WrfCloudWebApp**
+
+    .. image:: ../_static/uninstall_6b_delete_stacks.png
+
   * Wait for **WrfCloudWebApp** to be completely deleted.  If a delete fails, delete it again, and DO NOT retain the resources.
   * Select and **Delete** the following stack: **WrfCloudApiData**
   * Switch to the **US East (N. Virginia) / us-east-1** region and **Delete** the following stack: **WrfCloudWebCertificate**
+
+    .. image:: ../_static/uninstall_6c_region.png
 
 You have now finished uninstalling WRF Cloud from your AWS account.
