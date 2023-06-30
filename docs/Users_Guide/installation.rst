@@ -90,6 +90,8 @@ Once the AWS account prerequisites are satisfied (see :numref:`prerequisites`), 
 
 2. Select the **US East (Ohio) / us-east-2** region from the top-right dropdown navigation.
 
+.. image:: ../_static/uninstall_4b_region.png
+
 3. Click the **CloudShell** button (|cloudshell_16x16|) at the top of the screen to launch a terminal window.
 
 .. |cloudshell_16x16| image:: figure/cloudshell_icon.png
@@ -97,13 +99,25 @@ Once the AWS account prerequisites are satisfied (see :numref:`prerequisites`), 
                :height: 16px
                :width: 16px
 
+.. image:: ../_static/install_3_cloudshell.png
+
 4. The WRF Cloud installation requires at least 512MB of space. Run the following command to check the disk usage of your home directory and confirm that at least 512MB of space are available, as listed in the **Avail** column.
 
   .. code-block:: ini
 
     df -kh ~/
 
+.. image:: ../_static/install_4a_check_space.png
+
 If you do not have sufficient space, you can either manually remove unneeded files (especially from the hidden **.cache** directory) or run **Actions > Delete AWS CloudShell home directory** to remove everything. Prior to deleting everything, please confirm that nothing in your home directory should be retained.
+
+To delete everything in the home directory:
+
+.. image:: ../_static/install_4b_delete_home.png
+
+Confirm deletion of home directory by typing **delete** in the text input field and clicking the **Delete** button.
+
+.. image:: ../_static/install_4c_confirm_delete.png
 
 5. Define the GitHub branch name (e.g. develop) or release name (e.g. v1.0) to be installed.
 
