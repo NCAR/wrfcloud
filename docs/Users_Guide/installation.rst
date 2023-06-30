@@ -231,7 +231,27 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
     Cloud user interface, you will not be able to actually launch a run until
     the WRF AMI is available.**
 
-13. After completing these installation steps, proceed to System Administration (:numref:`administration`).
+13. (Optional) Monitor the progress of the AMI build
+
+  * Use the top-level search bar to find and launch the AWS **CloudFormation** Service.
+
+    .. image:: ../_static/install_13a_image_builder.png
+
+    * Select **Image pipelines** from the left navigation menu and click on the wrf-X-Y-Z pipeline.
+
+      .. image:: ../_static/install_13b_wrf_pipeline.png
+
+    * Select the image version with the largest number after the forward slash (/).
+      The value of **Image status** for this version should say **Building** if
+      it is still in progress or **Available** if it has completed.
+
+      .. image:: ../_static/install_13c_building.png
+
+    * Scroll down and check the status of the steps. The AMI will be available when all of the values under **Step status** say **Completed**.
+
+      .. image:: ../_static/install_13d_steps.png
+
+14. After completing these installation steps, proceed to System Administration (:numref:`administration`).
 
 .. _uninstall:
 
