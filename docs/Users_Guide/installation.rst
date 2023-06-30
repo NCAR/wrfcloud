@@ -249,10 +249,15 @@ The steps for uninstalling WRF Cloud from an AWS account are described below.
   * Remove the wrfcloud Amazon Machine Image (AMI).
 
     * Select **Images > AMIs** from the left navigation menu and search for **wrf**.
+
       .. image:: ../_static/uninstall_4c_Aamis.png
+
       .. image:: ../_static/uninstall_4c_Bsearchwrf.png
+
     * Make note of the **AMI ID** for the **wrf** AMI.
+
       .. image:: ../_static/uninstall_4c_Cnoteid.png
+
     * Select that AMI followed by **Actions > Deregister AMI**.
 
   * Remove any AMI Snapshots.
