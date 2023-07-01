@@ -222,7 +222,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
   * Select **Images > AMIs** from the left navigation menu and search for **wrf**.
 
-      .. image:: ../_static/uninstall_4ca_amis.png
+    .. image:: ../_static/uninstall_4ca_amis.png
 
   * Confirm that an AMI that includes **wrf** in the **AMI name** column.
     **Note that it may take several hours for this AMI to finish building.**
@@ -230,6 +230,8 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
     in the list. **While you can add new users and configurations via the WRF
     Cloud user interface, you will not be able to actually launch a run until
     the WRF AMI is available.**
+
+    .. image:: ../_static/install_12_ami_complete.png
 
 13. (Optional) Monitor the progress of the AMI build
 
@@ -247,7 +249,7 @@ This bootstrap script takes about 25 minutes to run. It is followed by a series 
 
       .. image:: ../_static/install_13c_building.png
 
-    * Scroll down and check the status of the steps. The AMI will be available when all of the values under **Step status** say **Completed**.
+    * Scroll down and check the status of the steps. The AMI will be available when all of the values under **Step status** say **Completed** or **Skipped**.
       You may need to refresh the page occassionally to see the new image appear in the list.
 
       .. image:: ../_static/install_13d_steps.png
