@@ -1,8 +1,11 @@
 from setuptools import setup
 
+with open("wrfcloud/VERSION", "r") as file_handle:
+    version = file_handle.read().strip()
+
 setup(
     name='wrfcloud',
-    version='1.1.0-dev',
+    version=version,
     description='NCAR/RAL WRF Cloud Framework',
     author='David Hahn',
     author_email='hahnd@ucar.edu',
@@ -49,7 +52,9 @@ setup(
             'setup/aws/wrfcloud_cluster_policy.json',
             'runtime/configurations/test/namelist.*',
             'runtime/resources/*.yaml',
-            'api/actions/resources/run_wrf_template.sh'
+            'api/actions/resources/run_wrf_template.sh',
+            'VERSION',
+            'RELEASE_DATE',
         ]
     },
     include_package_data=True,
