@@ -7,7 +7,7 @@ Important issues are listed **in bold** for emphasis.
 
 WRF Cloud Version 1.1.0 release notes (20230714)
 ------------------------------------------------
-**Goal:** Work towards system use that can be achieved almost entirely from user interface on web. Including: enhance user interface with model configuration GUI; apply bug fixes and minor updates; enhancement of documentation and website to provide adequate info to users
+**Goal:** Work towards system use that can be achieved almost entirely from user interface on web. Including: enhance user interface with model configuration GUI; apply bug fixes and minor updates; enhancement of documentation and website to provide adequate info to users.
 
 **Target Audience:** Friendly users, general public w/o dedicated support
 
@@ -18,6 +18,8 @@ WRF Cloud Version 1.1.0 release notes (20230714)
 * Reinstate contoured wind speed 
 * Improved error checking 
 * Documentation updates and enhancements
+
+Details can be viewed on the `GitHub v1.1 milestone <https://github.com/NCAR/wrfcloud/milestone/4?closed=1>`_ page for this release.
 
 WRF Cloud Version 1.0.0 release notes (20230403)
 ------------------------------------------------
