@@ -156,7 +156,7 @@ A table of jobs that have been launched can be found under the WRF Jobs menu opt
 * **Configuration:** Name of model configuration use for the forecast. 
 * **Cycle Time:** The initialization date and time of the forecast.
 * **Forecast Length:** The total forecast length in hours.
-* **Status:** The current status and progress of the forecast. A completed job will show an "Open Viewer" button that users can click to take them to the forecast viewer for that WRF job.
+* **Status:** The current status and progress of the forecast. The initial status will say "Launching Cluster" as the system prepares its compute nodes and sets up the forecast. From there, the status will change indicating it's progress through the job, e.g. "Running Ungrib", "Running Metgrid", etc. A completed job will show an "Open Viewer" button that users can click to take them to the forecast viewer for that WRF job. A failed job with show a status inidicating which component it failed on, e.g. "Real failed", and providing a place to look for errors in the Log Viewer (see below).
 
 Managing a WRF Job
 ------------------
