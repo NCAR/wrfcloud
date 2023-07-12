@@ -143,7 +143,5 @@ The reference ID can be used to search the CloudWatch Logs to find logs leading 
 
 Troubleshooting WRF Failures
 ============================
-A full set of log files is saved when a WRF job either finishes or fails to complete.  The log
-files are stored as a zip file in the system's S3 bucket.  To find the zip file, look for
-`s3://wrfcloud-XXXXXXXX/jobs/<job-id>/logs.zip`
+Many log files are now available to view directly on the WRF Jobs status page of the user interface (see :numref:`wrf_jobs`). This is the best place to start looking for what caused a WRF job to fail. The full set of log files files are stored as a zip file in the system's S3 bucket. To find the zip file, look for `s3://wrfcloud-XXXXXXXX/jobs/<job-id>/logs.zip`
 
