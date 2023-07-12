@@ -86,4 +86,10 @@ Frequently Asked Questions
   .. dropdown:: What model is used?
 
      The system is currently designed to use the WRF model.
-     
+    
+  .. dropdown:: A WRF job failed, how do I fix it?
+
+     WRF jobs can fail for many reasons. First, look at the log files for the failed job on the WRF Jobs page. The status of the job may help indicate which component the job failed on, e.g. metgrid, or real, or wrf, so you can search those log files first for a clues as to what went wrong. If the job is based off a new configuration (i.e. model domain, physics, etc.), it's possible those settings aren't properly tuned. There are countless ways to create new model configurations and requires some knowledge of WRF and NWP modeling. See `WRF documentation <https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.4/contents.html>`_ for help. But, some common errors you may encounter include:
+
+     * Over-decomposition: The error "domain size is too small for this many processors" or something similar may appear in the rsl.* files and the real step will fail. This means that too many processors were used for the domain size. If you used the autocompute core count when creating your configuration, it's possible it over-estimated. Go back to your configuration and edit it, uncheck the autocompute core option, and manually set it to something smaller. Then try to run a forecast again with that updated configuration.
+     * CFS errors: "cfl" errors may occur in the WRF rsl.* log files. This means the model became unstable which can happen for a lot of reasons and often requires some advanced debugging. The `WRF Forum <https://forum.mmm.ucar.edu/>`_ may have some clues. 
