@@ -11,7 +11,7 @@ Frequently Asked Questions
      To give users a general idea of the range of costs, here are some example forecasts and their associated costs for compute. Note that these estimates are for completeing the forecast, the bulk of which happens on the compute nodes, i.e. the most expensive part of the system. Additional costs for tasks like viewing products are generally minimal and are described above. 
 
      .. list-table:: Forecast cost examples
-        :widths: 25 25 50
+        :widths: 25 25 25 25 25 25 25 25 25 25 25 25
         :header-rows: 1
 
         * - Name
