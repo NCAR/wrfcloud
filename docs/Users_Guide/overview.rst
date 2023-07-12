@@ -4,14 +4,14 @@
 Overview of WRF Cloud 
 *********************
 
-The WRF Cloud framework is a cloud-based forecasting system that was designed to easily facilitate cost-effective state-of-the-art numerical weather prediction system forecasts in communities that lack the large computational resources. It is a self-managed software-as-a-service, meaning users install and manage the system independently in their own cloud accounts.
+The WRF Cloud framework is a cloud-based forecasting system that was designed to easily facilitate cost-effective state-of-the-art numerical weather prediction system forecasts in communities that lack the large computational resources. It is a self-managed software-as-a-service, meaning users install and manage the system independently in their own cloud accounts. WRF Cloud currently uses Amazon Web Services as its cloud service provider.
 
 Purpose and organization of the User's Guide
 ============================================
 
 The goal of this User's Guide is to document the procedures required to install the WRF Cloud framework and to serve as a reference for using and adapting the system to an organization's own needs. As features are added to the framework, this User's Guide will continue to be expanded to document new capabilities. 
 
-The User Guide is organized by first providing an overview of the system, followed steps to install the framework and adminstartion details to manage the system. Finally the user interface is documented along with details about the graphical outputs produced by the system. 
+The User Guide is organized by first providing an overview of the system, followed steps to install the framework and adminstrrtion details to manage the system. Finally the user interface is documented along with details about the graphical outputs produced by the system. 
 
 UCAR/UCP/COMET and UCAR/NCAR/RAL
 ================================
@@ -23,7 +23,7 @@ This project is made possible by `UCAR <https://www.ucar.edu/>`_/`UCP <https://w
 WRF Cloud goals and design philosophy
 =====================================
 
-The primary goal of this projec is to provide easy access to powerful NWP forecasts to communities lacking financial or computation resources to maintain baremetal forecasting platforms. The aim for this framework is to be:
+The primary goal of this project is to provide easy access to powerful NWP forecasts to communities lacking financial or computation resources to maintain baremetal forecasting platforms. WRF Cloud accomplishes this by abstracting away the complexities of cloud computing and leaving the user with a simple website from which to launch, manage, and view their own forecasts. The aim for this framework is to be:
 
 * Flexibility and customizable
 * Efficeint and cost-effective
@@ -85,10 +85,13 @@ Future development plans
 
 New features being considered for future releases:
 
+* Enhance mobile-friendliness of Forecast Viewer
 * Verification capabilities
 * Enhanced User Interface plotting features
 * New plot types, e.g. vertical cross sections and Skew T - Log P plots
 * Increased customizabilitiy of configuration 
+* Scripting support for multi-node jobs
+* Multiple domain support
 
 Code support
 ============
