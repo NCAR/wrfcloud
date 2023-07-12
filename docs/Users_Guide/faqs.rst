@@ -10,16 +10,16 @@ Frequently Asked Questions
 
      To give users a general idea of the range of costs, here are some example forecasts and their associated costs for compute. Note that these estimates are for completeing the forecast, the bulk of which happens on the compute nodes, i.e. the most expensive part of the system. Additional costs for tasks like viewing products are generally minimal and are described above. 
 
-     +----------+-----+--------+------+-------+-------+------+-------+
-     | Name     | Res | Grid   | Fcst | Output| Wall  | Num  | Cost  |
-     |          |     | Size   |  Len |  Freq | Clock | Cores|       |
-     +==========+=====+========+======+=======+=======+======+=======+
-     | Caribbean| 6km | 700x500| 24 hr|  1 hr |2.17 hr|  96  | $6.91 |
-     +----------+-----+--------+------+-------+-------+------+-------+
-     |  Brail   | 3km | 500x520| 24 hr|  1 hr |1.62 hr|  96  | $5.11 |
-     +----------+-----+--------+------+-------+-------+------+-------+
-     |  Denver  | 1km | 250x250| 24 hr|  1 hr |1.53 hr|  48  | $4.71 |
-     +----------+-----+--------+------+-------+-------+------+-------+
+     +----------+---+-------+-----+------+-------+-----+------+
+     | Name     |Res|Grid   |Fcst |Output|Wall   |Num  |Cost  |
+     |          |   |Size   |Len  |Freq  |Clock  |Cores|      |
+     +==========+===+=======+=====+======+=======+=====+======+
+     | Caribbean|6km|700x500|24 hr| 1 hr |2.17 hr|96   |$6.91 |
+     +----------+---+-------+-----+------+-------+-----+------+
+     |  Brail   |3km|500x520|24 hr| 1 hr |1.62 hr|96   |$5.11 |
+     +----------+---+-------+-----+------+-------+-----+------+
+     |  Denver  |1km|250x250|24 hr| 1 hr |1.53 hr|48   |$4.71 |
+     +----------+---+-------+-----+------+-------+-----+------+
 
   .. dropdown:: Can you run multiple domains?
 
