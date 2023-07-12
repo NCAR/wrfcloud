@@ -10,58 +10,16 @@ Frequently Asked Questions
 
      To give users a general idea of the range of costs, here are some example forecasts and their associated costs for compute. Note that these estimates are for completeing the forecast, the bulk of which happens on the compute nodes, i.e. the most expensive part of the system. Additional costs for tasks like viewing products are generally minimal and are described above. 
 
-     .. list-table:: Forecast cost examples
-        :widths: 25 25 25 25 25 25 25 25 25 25 25 25
-        :header-rows: 1
-
-        * - Name
-          - Resolution
-          - Grid Size
-          - Projection
-          - Physics Suite
-          - Forecast Length (hrs)
-          - Output Frequency (hrs)
-          - Model wall clock (hr)
-          - Number of cores 
-          - Cost Estimate
-          - Post-processing Time (hrs)
-          - Total Time (hrs)
-        * - Caribbean
-          - 6 km
-          - 700x500
-          - Mercator 
-          - Tropical
-          - 24
-          - 1
-          - 2.17
-          - 96
-          - $6.91
-          - 2.45
-          - 4.62
-        * - Brazil 
-          - 3 km
-          - 500x520
-          - Lambert
-          - Conv-permitting
-          - 24
-          - 1
-          - 1.62
-          - 96
-          - $5.11
-          - 1.53
-          - 3.15
-        * - Denver
-          - 1 km
-          - 250x250
-          - Lambert
-          - Conv-permitting
-          - 24
-          - 1
-          - 1.53
-          - 48
-          - $4.71
-          - 0.63
-          - 2.17
+     +----------+-----+--------+------+-------+-------+------+-------+
+     | Name     | Res | Grid   | Fcst | Output| Wall  | Num  | Cost  |
+     |          |     | Size   |  Len |  Freq | Clock | Cores|       |
+     +==========+=====+========+======+=======+=======+======+=======+
+     | Caribbean| 6km | 700x500| 24 hr|  1 hr |2.17 hr|  96  | $6.91 |
+     +----------+-----+--------+------+-------+-------+------+-------+
+     |  Brail   | 3km | 500x520| 24 hr|  1 hr |1.62 hr|  96  | $5.11 |
+     +----------+-----+--------+------+-------+-------+------+-------+
+     |  Denver  | 1km | 250x250| 24 hr|  1 hr |1.53 hr|  48  | $4.71 |
+     +----------+-----+--------+------+-------+-------+------+-------+
 
   .. dropdown:: Can you run multiple domains?
 
