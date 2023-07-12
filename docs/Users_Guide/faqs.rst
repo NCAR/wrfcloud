@@ -5,8 +5,7 @@ Frequently Asked Questions
   .. dropdown:: How much does it cost?
 
      The main costs include hosting a web domain, compute cluster time, and data egress. The web domain typically costs $12/year.
-     The forecasts are run on AWS's hpc6a clusters, that cost $3.00/hour. The total cost of running a forecast depends on the forecast details. For example, a domain with 500x700 grid points and 6km resolution, 24-hour forecast with hourly output costs about $XX.xx.
-     The data egress costs $0.09/GB and the total cost depends on the interaction with the forecast viewer. For example, to view every variable available right now, for a 24-hour forecast with hourly output, it's about 700MB, which translates to about $0.06.
+     The forecasts are run on AWS's hpc6a clusters, that cost $3.00/hour. The data egress costs $0.09/GB and the total cost depends on the interaction with the forecast viewer. For example, to view every variable available right now, for a 24-hour forecast with hourly output, it's about 700MB, which translates to about $0.06.
 
      To give users a general idea of the range of costs, here are some example forecasts and their associated costs for compute. Note that these estimates are for completeing the forecast, the bulk of which happens on the compute nodes, i.e. the most expensive part of the system. Additional costs for tasks like viewing products are generally minimal and are described above. 
 
