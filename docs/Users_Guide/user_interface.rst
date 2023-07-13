@@ -48,17 +48,27 @@ WRF Configs
 ===========
 A model configuration is a combination of user-defined parameters that together define the computational domain, grid extents and projection, resolution, model dynamics and model physics. These parameters are defined in the namelist.wps and namelist.input that are used by WRF to run its forecasts. 
 
-Configuration Parameters
+The WRF Configs page will display a table listing all of the model configurations that have been created on your system thus far. Clicking on any of the model configs will pop up a window with the GUI for model config management described below. If you have not created any configurations yet, the table will be empty and you can start by clicking the "Add Config" button along the top (see below for more details on this step).
+
+Model Configurations GUI
 ------------------------
-The following information is needed to create a new model configuration:
+A GUI accessible on the WRF Configs page has been developed to help aid in the generation and management of the model configuration and corresponding namelists. To access the GUI, either click on the "Add Configs" button along the top to create a new configuration, or click on an existing config name in the table to update it or duplicate to use as a starting point for a new config. 
 
-**Name:** Name of the model configuration. This should ideally be a shorter character string, but it is helpful to provide a meaningful name to describe the model configuration details. For example, "6km_caribbean_trop" may be a name given to describe a configuration of the Caribbean Sea with 6km grid spacing that uses the tropical physics suite.  
+The model config GUI provides a simple interface to define new domains and configurations. The sections of the GUI include:
 
-**Description:** Additional description to provide more information about the model configuration. In the example above, "6km_caribbean_trop", the description might be "6km Caribbean Domain with standard tropical physics suite". 
+**Name:** Name of the model configuration. This should ideally be a shorter character string, but it is helpful to provide a meaningful name to describe the model configuration details. For example, "6km_caribbean_trop" may be a name given to describe a configuration of the Caribbean Sea with 6km grid spacing that uses the tropical physics suite. 
 
-**WPS Namelist:** The information contained in namelist.wps. Users will primarily be interested in modifying the &geogrid section of the namelist.wps to customize their region of interest. Note that currently the system only support single domains, so max_dom must be set to 1. Additional information about these settings can be found in the `WRF Users Guide <https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.4/contents.html>`_.
+**Description:** Optionally, add a description to provide more information about the model configuration. In the example above, "6km_caribbean_trop", the description might be "6km Caribbean Domain with standard tropical physics suite". 
 
-**WRF Namelist:** The information contained in namelist.input. Users will primarily be interested in modifying the &domains section to match their namelist.wps, and &physics section to change physics options. Note that currently the system only support single domains, so max_dom must be set to 1. Additional information about these settings can be found in the `WRF Users Guide <https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.4/contents.html>`_. As quick start, WRF provides two sample physics suites, which include settings for two typical applications: convection-permitting weather over the contiguous U.S. and tropical storms/convection. Information can be found `here <https://www2.mmm.ucar.edu/wrf/users/physics/wrf_physics_suites.php>`_, but the settings are shown below for quick reference and use in defining a new model configuration.
+Users have the option to use the **Basic** editing mode (shown by default) or an **Advanced** editing mode. The **Basic* editing mode allows the user to create the configuration in the GUI without having to edit namelists directly. The **Basic** mode information includes:
+
+**Projection:** Choose a projection from the dropdown menu. Options are Lambert or Mercator.
+
+**Domain Definition:** Use the map tool to draw a box of your regional domain. The latitude and longitude corners on the right side will automatically adjust based on your box on the map. You may also edit the North, West, South, East latitude/longitude boxes directly and the changes will be reflected in the box on the map. 
+
+**Grid Resolution:** Enter your model resolution in meters.
+
+**Physics Suite:** Select the physics suite option. Options include "tropical", "conv-permitting", or "custom". The custom setting simply means you will edit the physics settings directly in the namelist.input using the Advanced editing mode. The tropical and convection-permitting options reflect what the WRF modeling team provides as a good place to start, which include settings for two typical applications: convection-permitting weather over the contiguous U.S. and tropical storms/convection. Information can be found `here <https://www2.mmm.ucar.edu/wrf/users/physics/wrf_physics_suites.php>`_, but the settings are shown below for quick reference and use in defining a new model configuration.
 
 .. list-table:: CONUS convection-permitting suite
    :widths: 10 10 10
@@ -111,38 +121,35 @@ The following information is needed to create a new model configuration:
    * - Land surface
      - Noah LSM
      - sf_surface_physics= 2
- 
 
-**Core Count:** By default the system uses 96 cores. But for smaller or coarser configurations, using too many cores will over-decompose the grid and result in model failure. WRF provides some information in this `FAQ <https://forum.mmm.ucar.edu/threads/how-many-processors-should-i-use-to-run-wrf.5082/>`_ as a guide to set the appropriate number of cores. In the future, this will be automated.
+**Core count:** The default is to have "Set automatically" checked. This means the system will determine a good estimate of the number of cores to use based on the grid you defined in your model configuration. You may also uncheck this box and manually select the number of cores. This may come in handy in your job fails with over-decomposition and you need to manually adjust the cores to be smaller.
 
-
-Limitations of Model Configuration Options
-------------------------------------------
-* Currently the system only supports single domains.
-* Initialization data is limited to GFS at a 3-hourly interval and the date range of availability is generally within about the last 2 years.
-* Regional WRF resolutions may range from about 1km to 12km.
-* There are many options in WRF, choosing new configurations requires some knowledge of WRF to be successful.
-
+Advanced users may find it helpful to use the **Advanced** editing mode. This tab of the GUI shows the contents of the namelist.wps and namelist.input in an editable window. Users may edit the contents directly. Any edits made to the contents will also be reflected in the **Basic** editing tab, and vice versa. So for example, one may use the **Basic** editing mode to create a domain, and the **Advanced** editing mode to update the physics. Additionally, the **Advanced** editing mode allows users to upload namelist files directly in the event you have an existing one you'd like to use. 
 
 Managing Model Configurations
 -----------------------------
+
 **Create new config**
 
-To create a new model configuration, users can either do so from scratch or duplicate an existing config and save as new.
-
-Option 1. From scratch:
-   Click on the "Add Config" button and the Create WRF Configuration window will pop up. Enter a new name and description. The user can populate the WPS Namelist and WRF Namelist sections by either copy and paste from local file, enter the text manually, or uploading a file from their local computer using the "Load File" button. Set the appropriate number of cores. Then click "Save".
+To create a new model configuration, start by clicking on the "Add Configs" button on the WRF Configs page. This will pop up a new window with the model configuration GUI. Use the information provided in the GUI description above to create your new domain. Then click "Save" and you will see your new config in the table on the WRF Configs page. 
    
-Option 2. From existing config (duplicate and save as new):
-   As an alternative to avoid needing a local file, users can start with an existing configuration and duplicate it to use it as a guide or template, then modify the settings, and save it as a new model configuration name. To duplicate an existing model configuration, click on the Configuration name and a new Edit window will pop up. Click on the "Duplicate" button and a fresh editing window will appear with a copy of the configuration. You can then enter a new Name, make changes to the namelist, and click save. The new configuration will then appear in your list. 
+**Start from an existing config (Duplicate, modify, and save as new)**
+You can also use an existing configuration as a starting point and modify it slightly, then save as new configuration. To do this, click on the existing configuration in the table on the WRF Configs page. This will pop up a new window with GUI populated with that config's information. At the bottom, click "Duplicate". You may now edit as desired using the GUI description above. Be sure to change the Name and Description to be different then the one you started with. Click "Save" when done and you will see your new config in the table on the WRF Configs page.
 
 **Update existing config**
 
-To update an existing model configuration, click on the Configuration name and a new Edit window will pop up. Make the desired changes and click the "Update" button.
+To update an existing model configuration, click on the Configuration name in the table on the WRF Configs page. This will pop up a new window with GUI populated with that config's information. Make the desired changes using the GUI description above and click the "Update" button. 
 
 **Remove config**
 
-To remove an existing model configuration completely, click on the Configuration name and a new Edit window will pop up. Click the "Remove" button to remove.
+To remove an existing model configuration completely,  click on the Configuration name in the table on the WRF Configs page. This will pop up a new window with GUI populated with that config's information. Click the orange "Remove" button to remove.
+
+Limitations & Considerations of Model Configuration Options
+-----------------------------------------------------------
+* Currently the system only supports single domains. max_dom must be 1.
+* Initialization data is limited to GFS at a 3-hourly interval and the date range of availability is generally within about the last 2 years.
+* Regional WRF resolutions may range from about 1km to 12km.
+* There are many options in WRF, choosing new configurations requires some knowledge of WRF to be successful. Additional information about these settings can be found in the `WRF Users Guide <https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.4/contents.html>`_.
 
 
 .. _wrf_jobs:
