@@ -134,6 +134,7 @@ Managing Model Configurations
 To create a new model configuration, start by clicking on the "Add Configs" button on the WRF Configs page. This will pop up a new window with the model configuration GUI. Use the information provided in the GUI description above to create your new domain. Then click "Save" and you will see your new config in the table on the WRF Configs page. 
    
 **Start from an existing config (Duplicate, modify, and save as new)**
+
 You can also use an existing configuration as a starting point and modify it slightly, then save as new configuration. To do this, click on the existing configuration in the table on the WRF Configs page. This will pop up a new window with GUI populated with that config's information. At the bottom, click "Duplicate". You may now edit as desired using the GUI description above. Be sure to change the Name and Description to be different then the one you started with. Click "Save" when done and you will see your new config in the table on the WRF Configs page.
 
 **Update existing config**
