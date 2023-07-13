@@ -1,4 +1,4 @@
-.. _overview:
+adminstrrtion.. _overview:
 
 *********************
 Overview of WRF Cloud 
@@ -11,7 +11,7 @@ Purpose and organization of the User's Guide
 
 The goal of this User's Guide is to document the procedures required to install the WRF Cloud framework and to serve as a reference for using and adapting the system to an organization's own needs. As features are added to the framework, this User's Guide will continue to be expanded to document new capabilities. 
 
-The User Guide is organized by first providing an overview of the system, followed steps to install the framework and adminstrrtion details to manage the system. Finally the user interface is documented along with details about the graphical outputs produced by the system. 
+The User Guide is organized by first providing an overview of the system, followed steps to install the framework and administration details to manage the system. Finally the user interface is documented along with details about the graphical outputs produced by the system. 
 
 UCAR/UCP/COMET and UCAR/NCAR/RAL
 ================================
