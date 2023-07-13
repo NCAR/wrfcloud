@@ -60,7 +60,7 @@ The model config GUI provides a simple interface to define new domains and confi
 
 **Description:** Optionally, add a description to provide more information about the model configuration. In the example above, "6km_caribbean_trop", the description might be "6km Caribbean Domain with standard tropical physics suite". 
 
-Users have the option to use the **Basic** editing mode (shown by default) or an **Advanced** editing mode. The **Basic* editing mode allows the user to create the configuration in the GUI without having to edit namelists directly. The **Basic** mode information includes:
+Users have the option to use the **Basic** editing mode (shown by default) or an **Advanced** editing mode. The **Basic** editing mode allows the user to create the configuration in the GUI without having to edit namelists directly. The **Basic** mode information includes:
 
 **Projection:** Choose a projection from the dropdown menu. Options are Lambert or Mercator.
 
