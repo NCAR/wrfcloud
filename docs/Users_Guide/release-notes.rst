@@ -7,12 +7,17 @@ Important issues are listed **in bold** for emphasis.
 
 WRF Cloud Version 1.1.0 release notes (20230714)
 ------------------------------------------------
-**Goal:** Work towards system use that can be achieved almost entirely from user interface on web. Including: enhance user interface with model configuration GUI; apply bug fixes and minor updates; enhancement of documentation and website to provide adequate info to users.
+**Goal:** Work towards system use that can be achieved almost entirely from user interface on web, including:
+
+* Enhance user interface with model configuration GUI
+* Apply bug fixes and minor updates
+* Enhancement of documentation and website to provide adequate info to users
 
 **Target Audience:** Friendly users, general public w/o dedicated support
 
 **Key Features:**
-* New model configuration GUI 
+
+* New model configuration GUI
 * Fix Auto-compute of cores required for new model configurations 
 * Fix 3D temperatures ranges 
 * Reinstate contoured wind speed 
