@@ -5,7 +5,7 @@ When applicable, release notes are followed by the GitHub issue number which des
 enhancement, or new feature (`WRF Cloud GitHub issues <https://github.com/NCAR/wrfcloud/issues>`_).
 Important issues are listed **in bold** for emphasis.
 
-WRF Cloud Version 1.1.0 release notes (20230714)
+WRF Cloud Version 1.1.0 release notes (20230731)
 ------------------------------------------------
 **Goal:** Work towards system use that can be achieved almost entirely from user interface on web, including:
 
