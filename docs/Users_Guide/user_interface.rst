@@ -118,7 +118,7 @@ The **Basic** mode information includes:
 
 **Projection:** Choose a projection from the dropdown menu. Options are *Lambert* or *Mercator*.
 
-**Domain Definition:** Use the map tool to draw a box of your regional domain. From a desktop computer, hold the *CTRL* button and drag to draw a new box. The latitude and longitude corners on the right side will automatically adjust based on your box on the map. You may also edit the *North*, *West*, *South*, and *East* latitude/longitude boxes directly. Changes will be reflected in the box on the map.
+**Domain Definition:** Use the map tool to draw a box of your regional domain. From a desktop computer, hold the *CTRL* button and drag to draw a new box. The latitude and longitude corners on the right side will automatically adjust based on your box on the map. You may also edit the *North*, *West*, *South*, and *East* latitude/longitude boxes directly. Changes will be reflected in the box on the map. Note that drawing the domain box on the map tool is currently only available from a desktop. For mobile platforms, users must enter the latitude/longitude corners direcly and will see the domain box rendered on the map.
 
 **Grid Resolution:** Enter the model resolution in meters.
 
