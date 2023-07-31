@@ -42,23 +42,87 @@ After the parameters are set, check or uncheck the "Notify when finished" box. T
    
    Remember that longer forecast length and greater the output frequency, the more the forecast will cost.
 
-.. _wrf_configs:
+.. _ui_wrf_configs:
 
 WRF Configs
 ===========
-A model configuration is a combination of user-defined parameters that together define the computational domain, grid extents and projection, resolution, model dynamics and model physics. These parameters are defined in the namelist.wps and namelist.input that are used by WRF to run its forecasts. 
+A model configuration is a combination of user-defined parameters that define the computational domain, grid extents, projection, resolution, model dynamics, and model physics. These parameters are defined in the namelist.wps and namelist.input files that are used by WRF to run its forecasts.
 
-Configuration Parameters
-------------------------
-The following information is needed to create a new model configuration:
+The **WRF Configs** page displays a table with all of the model configurations that have been created on your system. Click on any of the model configs to view its settings. If you have not created any configurations yet, the table will be empty. Click the **Add Config** button at the top to create a new configuration. See :ref:`ui_model_config_gui` for more details.
 
-**Name:** Name of the model configuration. This should ideally be a shorter character string, but it is helpful to provide a meaningful name to describe the model configuration details. For example, "6km_caribbean_trop" may be a name given to describe a configuration of the Caribbean Sea with 6km grid spacing that uses the tropical physics suite.  
+.. _ui_managing_model_configs:
 
-**Description:** Additional description to provide more information about the model configuration. In the example above, "6km_caribbean_trop", the description might be "6km Caribbean Domain with standard tropical physics suite". 
+Managing Model Configurations
+-----------------------------
 
-**WPS Namelist:** The information contained in namelist.wps. Users will primarily be interested in modifying the &geogrid section of the namelist.wps to customize their region of interest. Note that currently the system only support single domains, so max_dom must be set to 1. Additional information about these settings can be found in the `WRF Users Guide <https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.4/contents.html>`_.
+Create new config
+^^^^^^^^^^^^^^^^^
 
-**WRF Namelist:** The information contained in namelist.input. Users will primarily be interested in modifying the &domains section to match their namelist.wps, and &physics section to change physics options. Note that currently the system only support single domains, so max_dom must be set to 1. Additional information about these settings can be found in the `WRF Users Guide <https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.4/contents.html>`_. As quick start, WRF provides two sample physics suites, which include settings for two typical applications: convection-permitting weather over the contiguous U.S. and tropical storms/convection. Information can be found `here <https://www2.mmm.ucar.edu/wrf/users/physics/wrf_physics_suites.php>`_, but the settings are shown below for quick reference and use in defining a new model configuration.
+To create a new model configuration, click on the **Add Config** button on the **WRF Configs** tab.
+Type a name for the new model configuration, adjust the settings to create your new domain, then click the **Save** button.
+The new configuration will appear in the table on the **WRF Configs** tab.
+See :ref:`ui_model_config_gui` for more information about customizing a new model configuration.
+
+Start from an existing config (Duplicate and modify)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can copy an existing configuration and modify it as desired.
+Click on the existing configuration in the table on the **WRF Configs** tab to open the **Edit WRF Configuration** window.
+Click the **Duplicate** button at the bottom of the window.
+The title of the window should change to **Create WRF Configuration** and the *Name* value will change to the original configuration name with *"_copy"* added to the end.
+Edit the settings described in the :ref:`ui_model_config_gui` section.
+Be sure to change the *Name* and *Description* values.
+Click **Save** when finished and the new configuration will appear in the table on the **WRF Configs** tab.
+
+.. _ui_update_existing_config:
+
+Update existing config
+^^^^^^^^^^^^^^^^^^^^^^
+
+To update an existing model configuration, click on the configuration name in the table on the **WRF Configs** tab to open the **Edit WRF Configuration** window.
+Edit the settings described in the :ref:`ui_model_config_gui` section.
+Click the **Update** button to save changes or click **Cancel** to discard changes.
+
+Remove config
+^^^^^^^^^^^^^
+
+To permanently remove an existing model configuration, click on the configuration name in the table on the **WRF Configs** tab, then click the orange **Remove** button to delete it.
+
+
+.. _ui_model_config_gui:
+
+Model Configuration GUI
+-----------------------
+
+Model configurations and their corresponding namelist files can be easily created and modified using the model configuration GUI.
+See :ref:`ui_managing_model_configs` for information on how to access the GUI.
+The model config GUI provides a simple interface to define new domains and configurations.
+The sections of the GUI include:
+
+Name
+^^^^
+
+Name of the model configuration. This should ideally be a shorter character string, but it is helpful to provide a meaningful name to describe the model configuration details. For example, *6km_caribbean_trop* may be a name given to describe a configuration of the Caribbean Sea with 6km grid spacing that uses the tropical physics suite.
+
+Description
+^^^^^^^^^^^
+(Optional) Add a description to provide more information about the model configuration.
+For a configuration named *6km_caribbean_trop*, the description could be *6km Caribbean Domain with standard tropical physics suite*.
+
+Users have the option to use the **Basic** editing mode (shown by default) or an **Advanced** editing mode. The **Basic** editing mode allows the user to create the configuration in the GUI without having to edit namelists directly.
+
+Basic
+^^^^^
+
+The **Basic** mode information includes:
+
+**Projection:** Choose a projection from the dropdown menu. Options are *Lambert* or *Mercator*.
+
+**Domain Definition:** Use the map tool to draw a box of your regional domain. From a desktop computer, hold the *CTRL* button and drag to draw a new box. The latitude and longitude corners on the right side will automatically adjust based on your box on the map. You may also edit the *North*, *West*, *South*, and *East* latitude/longitude boxes directly. Changes will be reflected in the box on the map. Note that drawing the domain box on the map tool is currently only available from a desktop. For mobile platforms, users must enter the latitude/longitude corners direcly and will see the domain box rendered on the map.
+
+**Grid Resolution:** Enter the model resolution in meters.
+
+**Physics Suite:** Select the physics suite option. Options include *tropical*, *conv-permitting*, or *custom*. The *custom* setting simply means you will edit the physics settings directly in the namelist.input file using the :ref:`ui_advanced` editing mode. The *tropical* and *convection-permitting* options reflect what the WRF modeling team provides as a good place to start, which include settings for two typical applications: convection-permitting weather over the contiguous U.S. and tropical storms/convection. More information can be found `here <https://www2.mmm.ucar.edu/wrf/users/physics/wrf_physics_suites.php>`_, but the settings are shown below for quick reference and use in defining a new model configuration.
 
 .. list-table:: CONUS convection-permitting suite
    :widths: 10 10 10
@@ -111,62 +175,75 @@ The following information is needed to create a new model configuration:
    * - Land surface
      - Noah LSM
      - sf_surface_physics= 2
- 
 
-**Core Count:** By default the system uses 96 cores. But for smaller or coarser configurations, using too many cores will over-decompose the grid and result in model failure. WRF provides some information in this `FAQ <https://forum.mmm.ucar.edu/threads/how-many-processors-should-i-use-to-run-wrf.5082/>`_ as a guide to set the appropriate number of cores. In the future, this will be automated.
+**Core count:** Number of cores used to run WRF. The *Set automatically* box is checked by default, which means the system will determine a good estimate of the number of cores to use based on the grid defined in the model configuration. This box can be unchecked to manually select the number of cores. This may come in handy if a job fails due to over-decomposition and the number of cores should be reduced.
 
+.. _ui_advanced:
 
-Limitations of Model Configuration Options
-------------------------------------------
-* Currently the system only supports single domains.
-* Initialization data is limited to GFS at a 3-hourly interval and the date range of availability is generally within about the last 2 years.
+Advanced
+^^^^^^^^
+
+Advanced users may find it helpful to use the **Advanced** editing mode. This tab shows the contents of the *namelist.wps* and *namelist.input* files in a window that can be edited directly. Any edits made to the contents will also be reflected in the **Basic** editing tab and vice versa. For example, one may use the **Basic** editing mode to create a domain, then switch to the **Advanced** editing mode to update the physics. The **Advanced** editing mode allows users to upload existing namelist files directly.
+
+Limitations & Considerations of Model Configuration Options
+-----------------------------------------------------------
+* The system currently only supports single domains: *max_dom* must be 1.
+* Initialization data is limited to GFS at 3-hour intervals. The available date range spans roughly the last 2 years.
 * Regional WRF resolutions may range from about 1km to 12km.
-* There are many options in WRF, choosing new configurations requires some knowledge of WRF to be successful.
-
-
-Managing Model Configurations
------------------------------
-**Create new config**
-
-To create a new model configuration, users can either do so from scratch or duplicate an existing config and save as new.
-
-Option 1. From scratch:
-   Click on the "Add Config" button and the Create WRF Configuration window will pop up. Enter a new name and description. The user can populate the WPS Namelist and WRF Namelist sections by either copy and paste from local file, enter the text manually, or uploading a file from their local computer using the "Load File" button. Set the appropriate number of cores. Then click "Save".
-   
-Option 2. From existing config (duplicate and save as new):
-   As an alternative to avoid needing a local file, users can start with an existing configuration and duplicate it to use it as a guide or template, then modify the settings, and save it as a new model configuration name. To duplicate an existing model configuration, click on the Configuration name and a new Edit window will pop up. Click on the "Duplicate" button and a fresh editing window will appear with a copy of the configuration. You can then enter a new Name, make changes to the namelist, and click save. The new configuration will then appear in your list. 
-
-**Update existing config**
-
-To update an existing model configuration, click on the Configuration name and a new Edit window will pop up. Make the desired changes and click the "Update" button.
-
-**Remove config**
-
-To remove an existing model configuration completely, click on the Configuration name and a new Edit window will pop up. Click the "Remove" button to remove.
+* There are many options in WRF. Choosing new configurations requires some knowledge of WRF to be successful. Additional information about these settings can be found in the `WRF Users Guide <https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.4/contents.html>`_.
 
 
 .. _wrf_jobs:
 
 WRF Jobs 
 ========
-A table of jobs that have been launched can be found under the WRF Jobs menu option. 
+
+A table of jobs that have been launched can be found in the **WRF Jobs** tab.
+The table provides the following information:
 
 * **Job ID:** Unique job ID for the forecast. This is automatically generated by the system and used for advanced debugging.
 * **Name:** If a Job Name was provided in the previous step when Launching a new forecast, it will appear in this column. (Note: this is optional)
-* **Configuration:** Name of model configuration. 
+* **Configuration:** Name of model configuration used for the forecast.
 * **Cycle Time:** The initialization date and time of the forecast.
 * **Forecast Length:** The total forecast length in hours.
-* **Status:** The current status and progress of the forecast. 
+* **Status:** The current status and progress of the forecast. The initial status will say "Launching Cluster" as the system prepares its compute nodes and sets up the forecast. From there, the status will change indicating it's progress through the job, e.g. "Running Ungrib", "Running Metgrid", etc. A completed job will display an **Open Viewer** button that users can click to take them to the forecast viewer for that job. A failed job will display a status message indicating which component has failed, e.g. "Real failed." Errors can be investigated using the the :ref:`ui_log_viewer`.
 
 Managing a WRF Job
 ------------------
-Clicking on the row of a particular job will pop up a window with complete job information along with status information and links to the forecast viewer.
 
-**Cancel or Delete a Job**
+Each row of the table can be clicked to open a window with additional job information and buttons to manage the job.
 
-There is also a "Delete" button if the user wants to remove a completed job, or there a "Cancel" button if the user wants to cancel and in-progress job. 
+**Cancel Job**
 
-The status column will display information about the progress and processing step of that particular forecast. When a run is finished, this column will display a button called "Open Viewer" which can be clicked to go to the forecast viewer to look at forecast plots.
+An orange **Cancel Job** button will be displayed while a job is running.
+Click on this button to stop the job. The job status will change to *Canceled*.
+Note that cancelling a job does not delete the job from the system.
+
+**Delete Job**
+
+An orange **Delete Job** button will be displayed for completed or failed jobs.
+Click on this button to completely remove all data for the job, including plots on the forecast viewer, from the system.
+
+**Viewer**
+
+A blue **Viewer** button will be displayed for a successful job.
+Click on this button to open the forecast viewer for the job.
+
+**Logs**
+
+A blue **Logs** button will be displayed for a successful, failed, or cancelled job.
+Click on this button to open the :ref:`ui_log_viewer` window to inspect log files from the system.
+
+.. _ui_log_viewer:
+
+Log Viewer
+----------
+
+The Log Viewer allows users to view log files for a given job. A list of log files is displayed on the left hand side.
+
+The first file (wrfcloud-run-W########.log) is the system log file that contains logging messages for each step. This provides a good overview of the progress and steps the system takes from start to finish.
+
+Next, each component of WPS (geogrid, ungrib, metgrid) and WRF (real, wrf) has an expandable menu that lists the component's log files. These log files can be inspected when a job fails to better understand where the problem occurred and how to fix it. Knowledge of WRF is helpful in understanding the contents of these files.
 
 .. _manage_users:
 
