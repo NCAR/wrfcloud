@@ -6,6 +6,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatSort} from "@angular/material/sort";
 import {MatPaginator} from "@angular/material/paginator";
 import {EditModelConfigurationComponent} from "../edit-model-configuration/edit-model-configuration.component";
+import {defaultWpsNamelist, defaultWrfNamelist} from "./default-namelists";
 
 @Component({
   selector: 'app-model-config',
@@ -137,7 +138,7 @@ export class ModelConfigComponent implements OnInit
       edit: true
     };
 
-    this.dialog.open(EditModelConfigurationComponent, {data: editData}).afterClosed().subscribe(
+    this.dialog.open(EditModelConfigurationComponent, {data: editData, panelClass: 'dialog-panel'}).afterClosed().subscribe(
       () => { this.loadModelConfigList(); }
     );
   }
@@ -158,11 +159,11 @@ export class ModelConfigComponent implements OnInit
   public addModelConfig(): void
   {
     const editData: {modelConfig: ModelConfiguration, edit: boolean} = {
-      modelConfig: {id: '', name: '', description: '', model_name: 'wrf', cores: 0, wps_namelist: '', wrf_namelist: ''},
+      modelConfig: {id: '', name: '', description: '', model_name: 'wrf', cores: 0, wps_namelist: defaultWpsNamelist, wrf_namelist: defaultWrfNamelist},
       edit: false
     };
 
-    this.dialog.open(EditModelConfigurationComponent, {data: editData}).afterClosed().subscribe(
+    this.dialog.open(EditModelConfigurationComponent, {data: editData, panelClass: 'dialog-panel'}).afterClosed().subscribe(
       () => { this.loadModelConfigList(); }
     );
   }

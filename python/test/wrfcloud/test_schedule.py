@@ -1,3 +1,8 @@
+"""
+Test the wrfcloud.schedule module
+"""
+
+
 from wrfcloud.system import init_environment
 from wrfcloud.schedule import Schedule, ScheduleDao
 from wrfcloud.api.handler import create_reference_id

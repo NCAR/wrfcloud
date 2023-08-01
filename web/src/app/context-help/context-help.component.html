@@ -1,0 +1,14 @@
+<div class="help-container">
+    <div class="help-title">
+        {{entry.title}}
+    </div>
+    <div class="help-text">
+        <div class="help-paragraph" *ngFor="let paragraph_text of entry.text" [innerHTML]="paragraph_text">
+        </div>
+    </div>
+    <div class="help-buttons">
+        <button mat-stroked-button class="help-button" (click)="dialogRef.close()">
+            Close
+        </button>
+    </div>
+</div>

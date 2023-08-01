@@ -1,3 +1,8 @@
+"""
+Test the wrfcloud.user module
+"""
+
+
 import secrets
 import wrfcloud.system
 from wrfcloud.user import User

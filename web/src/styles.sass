@@ -5,6 +5,10 @@ body
   margin: 0
   background: $background-default
 
+a
+  color: $text-edit
+  text-decoration: none
+
 // Material Design overrides
 .mat-checkbox-indeterminate.mat-primary .mat-checkbox-background, .mat-checkbox-checked.mat-primary .mat-checkbox-background
   background-color: $background-edit
@@ -32,6 +36,12 @@ body
 
 .mat-primary .mat-option.mat-selected:not(.mat-option-disabled)
   color: $text-menu-select
+
+.mat-dialog-container
+  padding: 24px 8px !important
+
+.mat-tree-node
+  min-height: unset
 
 // OpenLayers overrides
 .ol-attribution.ol-uncollapsible

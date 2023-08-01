@@ -24,6 +24,12 @@ class UPP(Process):
     """
     Class for setting up, executing, and monitoring a run of WRF post-processing tasks
     """
+
+    """
+    UPP executable filename
+    """
+    EXE = 'unipost.exe'
+
     def __init__(self, job: WrfJob):
         """
         Initialize the ProcProc object
@@ -33,6 +39,7 @@ class UPP(Process):
         self.job = job
         self.namelist: Union[None, Namelist] = None
         self.grib_files: List[str] = []
+        self.expected_output = [os.path.join(self.job.upp_dir, 'fhr_*', 'WRFPRS.GrbF*')]
 
     def _get_files(self) -> None:
         """
@@ -66,15 +73,18 @@ class UPP(Process):
         """
         Executes the unipost.exe program
         """
-        self.log.debug('Linking unipost.exe to upp working directory')
-        self.symlink(f'{self.job.upp_code_dir}/bin/unipost.exe', 'unipost.exe')
+        self.log.debug(f'Linking {self.EXE} to upp working directory')
+        self.symlink(f'{self.job.upp_code_dir}/bin/{self.EXE}', self.EXE)
 
-        self.log.debug('Executing unipost.exe')
+        self.log.debug(f'Executing {self.EXE}')
         if self.job.cores == 1:
-            upp_cmd = './unipost.exe >& unipost.log'
-            os.system(upp_cmd)
-        else:
-            self.submit_job('unipost.exe', self.job.cores, 'wrf')
+            upp_cmd = f'./{self.EXE} >& {os.path.splitext(self.EXE)[0]}.log'
+            if os.system(upp_cmd):
+                self.log.error(f'{self.EXE} returned non-zero')
+                return False
+            return True
+
+        return self.submit_job(self.EXE, self.job.cores, 'wrf')
 
     def run(self) -> bool:
         """
@@ -110,17 +120,17 @@ class UPP(Process):
             # Create the itag namelist file for this fhr
             self.log.debug('Creating itag file')
             wrf_date = this_date.strftime("%Y-%m-%d_%H:%M:%S")
-            f = open('itag', "w")
-            f.write(f'{self.job.wrf_dir}/wrfout_d01_{wrf_date}\n')
-            f.write("netcdf\n")
-            f.write("grib2\n")
-            f.write(this_date.strftime("%Y-%m-%d_%H:%M:%S"))
-            f.write("\nNCAR\n")
-            f.close()
+            with open('itag', "w") as file_handle:
+                file_handle.write(f'{self.job.wrf_dir}/wrfout_d01_{wrf_date}\n')
+                file_handle.write("netcdf\n")
+                file_handle.write("grib2\n")
+                file_handle.write(this_date.strftime("%Y-%m-%d_%H:%M:%S"))
+                file_handle.write("\nNCAR\n")
 
             # run UPP
             self.log.debug('Calling run_upp')
-            self._run_upp()
+            if not self._run_upp():
+                return False
 
             # collect list of grib files
             try:
@@ -130,12 +140,12 @@ class UPP(Process):
                 self.grib_files.append(grib_file)
             except Exception as e:
                 self.log.error(f'Failed to find grib file in directory: {fhr_dir}', e)
+                return False
 
             # increment the date and forecast hour
             this_date = this_date + increment
             fhr = fhr + 1
 
-        # TODO: Check for successful completion of postproc
         return True
 
 
@@ -151,6 +161,9 @@ class Derive(Process):
         self.log = Logger(self.__class__.__name__)
         self.job = job
         self.nc_files = []
+        self.expected_output = [
+            os.path.join(self.job.derive_dir, 'wrfderive_d0*.nc'),
+        ]
 
     def run(self) -> bool:
         """
@@ -197,6 +210,10 @@ class GeoJson(Process):
         self.grib_files: List[str] = []
         self.nc_files: List[str] = []
         self.wrf_layers: List[WrfLayer] = []
+        self.expected_output = [
+            os.path.join(self.job.derive_dir, 'wrfderive_d0*json.gz'),
+            os.path.join(self.job.upp_dir, 'fhr_*', 'WRFPRS.GrbF*.geojson.gz')
+        ]
 
     def set_grib_files(self, grib_files: List[str]) -> None:
         """

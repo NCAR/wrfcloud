@@ -24,6 +24,7 @@ import {MatBadgeModule} from "@angular/material/badge";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MatMomentDateModule} from "@angular/material-moment-adapter";
 import {MatRadioModule} from "@angular/material/radio";
+import {MatTreeModule} from '@angular/material/tree';
 
 import {HomeComponent} from './home/home.component';
 import {LoginComponent} from './login/login.component';
@@ -42,7 +43,11 @@ import {PreferencesComponent} from './preferences/preferences.component';
 import {LogoutComponent} from './logout/logout.component';
 import {ModelConfigComponent} from './model-config/model-config.component';
 import {EditModelConfigurationComponent} from './edit-model-configuration/edit-model-configuration.component';
-import { JobDetailsComponent } from './job-details/job-details.component';
+import {JobDetailsComponent} from './job-details/job-details.component';
+import {ContextHelpComponent} from './context-help/context-help.component';
+import {MatTabsModule} from "@angular/material/tabs";
+import {MapAreaSelectorComponent} from './map-area-selector/map-area-selector.component';
+import {LogViewerComponent} from './log-viewer/log-viewer.component';
 
 
 @NgModule({
@@ -63,7 +68,10 @@ import { JobDetailsComponent } from './job-details/job-details.component';
     ResetPasswordComponent,
     ModelConfigComponent,
     EditModelConfigurationComponent,
-    JobDetailsComponent
+    JobDetailsComponent,
+    ContextHelpComponent,
+    MapAreaSelectorComponent,
+    LogViewerComponent
   ],
     imports: [
         BrowserModule,
@@ -90,7 +98,9 @@ import { JobDetailsComponent } from './job-details/job-details.component';
         MatBadgeModule,
         MatDatepickerModule,
         MatMomentDateModule,
-        MatRadioModule
+        MatRadioModule,
+        MatTabsModule,
+        MatTreeModule
     ],
   providers: [
     {provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}

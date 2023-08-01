@@ -188,7 +188,7 @@ def _setup_get_domain_user_data() -> (str, str, str, str, str):
     domains = _get_available_domains()
     print(f'Which domain name would you like to use? [1-{len(domains)}]')
     for i in range(len(domains)):
-        print(str(i+1) + '. ' + domains[i]['Name'])
+        print(str(i + 1) + '. ' + domains[i]['Name'])
     domain_choice: int = int(_get_input(f'Enter choice [1-{len(domains)}]: ', default='1', min=1, max=len(domains))) - 1
     hosted_zone_id = domains[domain_choice]['Id'].split('/')[-1]
     domain = domains[domain_choice]['Name'][:-1]
@@ -363,7 +363,8 @@ def _upload_to_s3(bucket: str, key: str, default_file: str, not_found_prompt: Un
         print(e)
 
 
-def _finalize_and_upload_webapp_to_s3(bucket: str, prefix: str, default_dir: str, not_found_prompt: str, api: str, ws: str) -> None:
+def _finalize_and_upload_webapp_to_s3(bucket: str, prefix: str, default_dir: str, not_found_prompt: str, api: str,
+                                      ws: str) -> None:
     """
     Sync the directory to the S3 bucket
     :param bucket: S3 bucket name
@@ -514,6 +515,12 @@ def _create_cluster_policy() -> None:
         print('Failed to create IAM policy: wrfcloud_parallelcluster')
 
 
+def _delete_policy_if_exists() -> None:
+    """
+    Delete a policy if it exists in the account
+    """
+
+
 def _install_sample_data(s3_bucket: str) -> None:
     """
     Install sample data
@@ -556,7 +563,8 @@ def _upload_public_ssh_key(pub_key: str) -> None:
         if res['ResponseMetadata']['HTTPStatusCode'] != 200:
             raise Exception('Failed to import SSH key')
     except Exception as e:
-        print('Failed to upload SSH key pair.  You can do this in the AWS console at https://us-east-2.console.aws.amazon.com/ec2/v2/home?region=us-east-2#KeyPairs:')
+        print(
+            'Failed to upload SSH key pair.  You can do this in the AWS console at https://us-east-2.console.aws.amazon.com/ec2/v2/home?region=us-east-2#KeyPairs:')
         print('Be sure to name the new key: wrfcloud-admin')
 
 
@@ -564,6 +572,7 @@ class WrfCloudCertificates(CloudFormation):
     """
     Help manipulate the CloudFormation stack that contains the web certificates
     """
+
     def __init__(self, hosted_zone_id: str):
         """
         AWS requires these resources to be created in us-east-1

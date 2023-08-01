@@ -21,7 +21,8 @@ class WrfJob:
     # list of all fields supported
     ALL_KEYS = ['job_id', 'job_name', 'configuration_name', 'forecast_length', 'output_frequency',
                 'input_frequency', 'status_code', 'status_message', 'progress', 'user_email',
-                'layers', 'domain_center', 'domain_size', 'start_date', 'end_date', 'cores']
+                'layers', 'domain_center', 'domain_size', 'start_date', 'end_date', 'cores',
+                'notify']
 
     # do not return these fields to the user
     SANITIZE_KEYS = ['input_frequency']

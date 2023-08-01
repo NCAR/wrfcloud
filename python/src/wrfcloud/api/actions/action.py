@@ -5,6 +5,7 @@ The Action base class for all other actions to extend
 from typing import List, Union
 from wrfcloud.log import Logger
 from wrfcloud.user import User
+from wrfcloud.system import get_aws_session
 
 
 class Action:
@@ -107,3 +108,21 @@ class Action:
         """
         self.log.fatal(f'Class did not implement \'perform_action\' method: {self.__class__.__name__}')
         return False
+
+    def _s3_read(self, bucket: str, key: str) -> bytes:
+        """
+        Read an S3 object and return its bytes
+        :param bucket: Read from this S3 bucket
+        :param key: Read this S3 key
+        :return: Object data
+        """
+        # get an s3 client
+        session = get_aws_session()
+        self.s3 = session.client('s3')
+
+        # read the object
+        key = key[1:] if key.startswith('/') else key
+        response = self.s3.get_object(Bucket=bucket, Key=key)
+        data: bytes = response['Body'].read()
+
+        return data

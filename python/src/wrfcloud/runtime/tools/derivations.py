@@ -2,7 +2,9 @@ import os
 import pkgutil
 
 import numpy as np
+# pylint: disable=E0401
 from wrf import getvar, vinterp
+# pylint: disable=E0401,E0611
 from netCDF4 import Dataset
 import yaml
 

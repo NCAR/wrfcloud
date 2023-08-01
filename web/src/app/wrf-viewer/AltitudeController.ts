@@ -169,11 +169,8 @@ export class AltitudeController
    */
   public addListener(listener: Function): void
   {
-    if (typeof listener === "undefined" || listener == null)
-    {
-      console.log("ERROR: Attempting to add bogus listener to AltitudeController");
+    if (typeof listener === "undefined" || listener === null)
       return;
-    }
 
     this.listeners.push(listener);
   }

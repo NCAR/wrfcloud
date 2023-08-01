@@ -13,6 +13,12 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
+
+# add python/src to python path to import wrfcloud version
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                os.pardir, 'python', 'src')))
+from wrfcloud import __version__, __release_date__
+
 print(sys.path)
 
 # -- Project information -----------------------------------------------------
@@ -20,11 +26,13 @@ print(sys.path)
 project = 'WRF Cloud'
 author = 'UCAR/UCP/COMET and UCAR/NCAR/RAL and UCAR/NCAR/MMM'
 author_list = 'Fossell, K., D. Hahn, G. McCabe, J. Halley Gotway, P. Kucera, M. Harrold, M. Kavlich,'
-version = '1.0.1'
+
+release = __version__
+version = release
 verinfo = version
-release = f'{version}'
-release_year = '2023'
-release_date = f'{release_year}-03-31'
+
+release_date = __release_date__
+release_year = release_date[0:4]
 copyright = f'{release_year}, {author}'
 
 # -- General configuration ---------------------------------------------------
@@ -32,7 +40,7 @@ copyright = f'{release_year}, {author}'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc','sphinx.ext.intersphinx',]
+extensions = ['sphinx.ext.autodoc','sphinx.ext.intersphinx','sphinx_design',]
 
 # settings for ReadTheDocs PDF creation
 latex_engine = 'pdflatex'
