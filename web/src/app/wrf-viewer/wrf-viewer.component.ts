@@ -200,6 +200,7 @@ export class WrfViewerComponent implements OnInit
       }),
     });
     this.politicalBoundariesLayer.setZIndex(100);
+    this.politicalBoundariesLayer.setVisible(false);
     this.map.addLayer(this.politicalBoundariesLayer);
     this.politicalBoundariesVisible = this.politicalBoundariesLayer.getVisible();
 
