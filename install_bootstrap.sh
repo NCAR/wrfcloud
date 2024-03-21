@@ -105,6 +105,7 @@ function create_wrfcloud_lambda_layer()
   cd "${build_dir}/wrfcloud/python/src"
   mkdir -p install/python/lib
   pip3 install -t install/python/lib .
+  pip3 install -t install/python/lib --platform manylinux2014_x86_64 --implementation cp --python-version 3.9 --only-binary=:all: .
   cd install/python/lib
   rm -Rf pygrib pygrib.libs matplotlib numpy numpy.libs pyproj netCDF4 netCDF4.libs Pillow.libs fontTools kiwisolver setuptools cftime PIL contourpy botocore pyproj.libs mpl_toolkits wrfcloud
   cd ../../

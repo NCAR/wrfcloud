@@ -33,9 +33,7 @@ Resources:
                     - echo 'H4sIALNR52EAA4vOz0t1DPCM5cpLzE219cwrSc05tE4BIqhQlFqQX5xZkl9UyZWUWJxaWpRjm1FSUlBspa9fWZqrB5bWywTp0UvOz9UH6kosyORKzUtMyklNsTXkSi9IT85ITc4GMkFq45H4QGZ2aiVe48AsXaBCXaDKYn33AHfdgFAnXW/XSF1PvxBXH93gcN2AIH+XUOeQYD2gDBcAamMwicwAAAA=' | base64 -d | gunzip > /etc/yum.repos.d/oneAPI.repo
                     - rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
                     - yum -y update
-                    - yum -y install intel-oneapi-common-licensing
-                    - yum -y install intel-oneapi-libdpstd-devel intel-oneapi-itac
-                    - yum -y install intel-hpckit
+                    - yum -y install intel-hpckit-2023.1.0.x86_64
                     - yum -y install gcc gcc-c++ gcc-gfortran m4 curl-devel git cmake pkgconfig expat-devel libX11-devel libXmu-devel Xaw3d-devel libXaw-devel make openssl-devel bzip2-devel libffi-devel sqlite-devel
 
 
@@ -57,9 +55,9 @@ Resources:
                 action: ExecuteBash
                 inputs:
                   commands:
-                    - echo 'export MPI="/opt/intel/oneapi/mpi/latest"' | tee -a /etc/bashrc
+                    - echo 'export MPI="/opt/intel/mpi/latest"' | tee -a /etc/bashrc
                     - echo 'export OPENMPI="${MPI}"' | tee -a /etc/bashrc
-                    - echo 'export INTEL="/opt/intel/oneapi/compiler/latest/linux"' | tee -a /etc/bashrc
+                    - echo 'export INTEL="/opt/intel/oneapi/compiler/latest"' | tee -a /etc/bashrc
                     - echo 'export PATH="${INTEL}/bin/intel64:${MPI}/bin:${PATH}"' | tee -a /etc/bashrc
                     - echo 'export I_MPI_CC="icc"' | tee -a /etc/bashrc
                     - echo 'export I_MPI_CXX="icpc"' | tee -a /etc/bashrc
@@ -118,6 +116,7 @@ Resources:
                     - wget https://www.wrfcloud.com/libs/netcdf-cxx-4.3.1.tar.gz
                     - wget https://www.wrfcloud.com/libs/netcdf-fortran-4.5.2.tar.gz
                     - wget https://www.wrfcloud.com/libs/szip-2.1.1.tar.gz
+                    - wget https://www.wrfcloud.com/libs/zlib-1.2.11.tar.gz
 
   ComponentZLib:
     Type: AWS::ImageBuilder::Component
