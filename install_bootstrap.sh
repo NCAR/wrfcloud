@@ -104,7 +104,7 @@ function create_wrfcloud_lambda_layer()
 {
   cd "${build_dir}/wrfcloud/python/src"
   mkdir -p install/python/lib
-  pip3 install -t install/python/lib .
+  pip3 install -t install/python/lib --platform manylinux2014_x86_64 --implementation cp --python-version 3.9 --only-binary=:all: .
   cd install/python/lib
   rm -Rf pygrib pygrib.libs matplotlib numpy numpy.libs pyproj netCDF4 netCDF4.libs Pillow.libs fontTools kiwisolver setuptools cftime PIL contourpy botocore pyproj.libs mpl_toolkits wrfcloud
   cd ../../
@@ -127,10 +127,18 @@ function create_wrfcloud_lambda_function()
 # Post-condition: Directory created with front-end web content
 function create_wrfcloud_web_application()
 {
+  source ~/.bashrc
   cd "${build_dir}/wrfcloud/web"
   npm install
   ng build
-  mv dist/web "${build_dir}"/
+  if [[ -e "dist/web" ]]; then
+    mv dist/web "${build_dir}"/
+  else
+    echo "Failed to build the web application."
+    echo "  - Check the ng-cli installation"
+    echo "  - Check for errors in the web application build"
+    exit 1
+  fi
 }
 
 # Install wrfcloud Python package
