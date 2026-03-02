@@ -4,6 +4,7 @@ Test the wrfcloud.runtime module
 
 from typing import List
 
+import pytest
 from wrfcloud.system import init_environment
 from wrfcloud.config import WrfConfig
 from helper import _get_all_sample_wrf_configurations

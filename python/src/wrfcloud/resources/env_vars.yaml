@@ -6,7 +6,7 @@ test:
   LANGUAGE: en
 
   # AWS Account Profile
-  AWS_PROFILE: junk
+  AWS_PROFILE: None
   AWS_REGION: us-east-2
 
   # API Gateway Options

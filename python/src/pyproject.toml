@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wrfcloud"
+dynamic = ["version"]
+description = "NCAR/RAL WRF Cloud Framework"
+authors = [
+    {name = "David Hahn", email = "hahnd@ucar.edu"},
+]
+maintainers = [
+    {name = "David Hahn", email = "hahnd@ucar.edu"},
+]
+dependencies = [
+    "boto3",
+    "botocore",
+    "pyyaml",
+    "bcrypt",
+    "PyJWT",
+    "flask",           # pinned to 2.2.3 previously as workaround for pcluster 3.2.1 bug; unpinned pending pcluster upgrade
+    "aws-parallelcluster",
+    "f90nml",
+    "netCDF4",
+    "matplotlib",
+    "numpy",
+    "requests",
+    "pytz",
+    "pygrib",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "coverage"
+]
+
+[project.scripts]
+wrfcloud-imagebuilder = "wrfcloud.aws.imagebuilder:main"
+wrfcloud-cluster      = "wrfcloud.aws.pcluster:main"
+wrfcloud-run          = "wrfcloud.runtime.run:main"
+wrfcloud-geojson      = "wrfcloud.runtime.tools.geojson:main"
+wrfcloud-vectorjson   = "wrfcloud.runtime.tools.vector_json:main"
+wrfcloud-setup        = "wrfcloud.setup:setup"
+
+[tool.setuptools.dynamic]
+version = {file = "wrfcloud/VERSION"}
+
+[tool.setuptools.packages.find]
+include = ["wrfcloud*"]
+
+[tool.setuptools.package-data]
+wrfcloud = [
+    "resources/env_vars.yaml",
+    "resources/logo.jpg",
+    "resources/email_templates/job_complete.html",
+    "resources/email_templates/password_reset.html",
+    "resources/email_templates/welcome_email.html",
+    "imagebuilder/imagebuilder.yaml",
+    "config/table.yaml",
+    "jobs/table.yaml",
+    "user/table.yaml",
+    "subscribers/table.yaml",
+    "aws/resources/cf_imagebuilder_wrf_intel.yaml",
+    "aws/resources/cluster.wrfcloud.yaml",
+    "setup/aws/cf_wrfcloud_data.yaml",
+    "setup/aws/cf_wrfcloud_certificate.yaml",
+    "setup/aws/cf_wrfcloud_webapp.yaml",
+    "setup/resources/caribbean_6km_config.yaml",
+    "setup/aws/wrfcloud_cluster_policy.json",
+    "runtime/configurations/test/namelist.*",
+    "runtime/resources/*.yaml",
+    "api/actions/resources/run_wrf_template.sh",
+    "VERSION",
+    "RELEASE_DATE",
+]
