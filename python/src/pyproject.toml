@@ -7,10 +7,10 @@ name = "wrfcloud"
 dynamic = ["version"]
 description = "NCAR/RAL WRF Cloud Framework"
 authors = [
-    {name = "David Hahn", email = "hahnd@ucar.edu"},
+    {name = "NCAR/RAL", email = "info@wrfcloud.com"},
 ]
 maintainers = [
-    {name = "David Hahn", email = "hahnd@ucar.edu"},
+    {name = "NCAR/RAL", email = "info@wrfcloud.com"},
 ]
 dependencies = [
     "boto3",

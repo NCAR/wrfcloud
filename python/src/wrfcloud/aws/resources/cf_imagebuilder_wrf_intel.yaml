@@ -1,15 +1,18 @@
 ---
 # Description:
-# This template creates an EC2 Image Builder Pipeline for WRF v4.4.0 and dependencies with Intel
+# This template creates an EC2 Image Builder Pipeline for WRF v4.5.2 and dependencies with Intel
 
-Description: EC2 Image Builder Pipeline for WRF v4.4.0 and dependencies with Intel
+Description: EC2 Image Builder Pipeline for WRF v4.5.2 and dependencies with Intel
 AWSTemplateFormatVersion: '2010-09-09'
 
 Parameters:
   GitCloneOpts:
     Description: Options passed to the git clone command for WRF Cloud repo (used if you want to build a specific branch of WRF Cloud in the AMI)
     Type: String
-    Default: '-b main'
+    Default: '-b hotfix/update-dependency-versions'  # TODO: Change this back to main for release
+  LocalUser:
+    Description: Use this username to choose the KeyPair to include on the build instance
+    Type: String
 
 Resources:
   ComponentUpdateOs:
@@ -18,6 +21,7 @@ Resources:
       Name: update-os
       Platform: Linux
       Version: 1.0.0
+      # TODO: previous working version was intel-hpckit-2023.1.0.x86_64 -- pin version again before release
       Data: |
         name: Update OS Packages
         description: 'Update OS Packages'
@@ -32,10 +36,9 @@ Resources:
                   commands:
                     - echo 'H4sIALNR52EAA4vOz0t1DPCM5cpLzE219cwrSc05tE4BIqhQlFqQX5xZkl9UyZWUWJxaWpRjm1FSUlBspa9fWZqrB5bWywTp0UvOz9UH6kosyORKzUtMyklNsTXkSi9IT85ITc4GMkFq45H4QGZ2aiVe48AsXaBCXaDKYn33AHfdgFAnXW/XSF1PvxBXH93gcN2AIH+XUOeQYD2gDBcAamMwicwAAAA=' | base64 -d | gunzip > /etc/yum.repos.d/oneAPI.repo
                     - rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-                    - yum -y update
-                    - yum -y install intel-hpckit-2023.1.0.x86_64
-                    - yum -y install gcc gcc-c++ gcc-gfortran m4 curl-devel git cmake pkgconfig expat-devel libX11-devel libXmu-devel Xaw3d-devel libXaw-devel make openssl-devel bzip2-devel libffi-devel sqlite-devel
-
+                    - dnf -y update
+                    - dnf -y install intel-hpckit
+                    - dnf -y install gcc gcc-c++ gcc-gfortran m4 curl-devel git cmake pkgconfig expat-devel libX11-devel libXmu-devel Xaw3d-devel libXaw-devel make openssl-devel bzip2-devel libffi-devel sqlite-devel python3.12 python3.12-pip
 
   ComponentConfigureBash:
     Type: AWS::ImageBuilder::Component
@@ -55,14 +58,14 @@ Resources:
                 action: ExecuteBash
                 inputs:
                   commands:
-                    - echo 'export MPI="/opt/intel/mpi/latest"' | tee -a /etc/bashrc
+                    - echo 'export MPI="/opt/intel/oneapi/mpi/latest"' | tee -a /etc/bashrc
                     - echo 'export OPENMPI="${MPI}"' | tee -a /etc/bashrc
                     - echo 'export INTEL="/opt/intel/oneapi/compiler/latest"' | tee -a /etc/bashrc
-                    - echo 'export PATH="${INTEL}/bin/intel64:${MPI}/bin:${PATH}"' | tee -a /etc/bashrc
-                    - echo 'export I_MPI_CC="icc"' | tee -a /etc/bashrc
-                    - echo 'export I_MPI_CXX="icpc"' | tee -a /etc/bashrc
-                    - echo 'export I_MPI_FC="ifort"' | tee -a /etc/bashrc
-                    - echo 'export I_MPI_F90="ifort"' | tee -a /etc/bashrc
+                    - echo 'export PATH="${INTEL}/bin:${MPI}/bin:${PATH}"' | tee -a /etc/bashrc
+                    - echo 'export I_MPI_CC="icx"' | tee -a /etc/bashrc
+                    - echo 'export I_MPI_CXX="icpx"' | tee -a /etc/bashrc
+                    - echo 'export I_MPI_FC="ifx"' | tee -a /etc/bashrc
+                    - echo 'export I_MPI_F90="ifx"' | tee -a /etc/bashrc
                     - echo 'export FC="mpifc"' | tee -a /etc/bashrc
                     - echo 'export F90="mpifc"' | tee -a /etc/bashrc
                     - echo 'export F77="mpifc"' | tee -a /etc/bashrc
@@ -406,37 +409,6 @@ Resources:
                     - make -j 4 install 2>&1 | tee build.log
                     - echo 'X11Forwarding yes' | tee -a /etc/ssh/sshd_config
 
-  ComponentPython:
-    Type: AWS::ImageBuilder::Component
-    Properties:
-      Name: python-3-9-13
-      Platform: Linux
-      Version: 3.9.13
-      Data: |
-        name: Python v3.9.13
-        description: 'Python v3.9.13'
-        schemaVersion: 1.0
-
-        phases:
-          - name: build
-            steps:
-              - name: python39
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - source /etc/bashrc
-                    - mkdir -p /opt/src
-                    - cd /opt/src
-                    - wget https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz
-                    - tar -xzf Python-3.9.13.tgz
-                    - cd Python-3.9.13
-                    - unset CPP CC_FOR_BUILD CPP_FOR_BUILD
-                    - export CC=gcc
-                    - ./configure --prefix=/opt/python --enable-optimizations --with-openssl=/usr --enable-loadable-sqlite-extensions
-                    - make -j 4 install
-                    - echo 'export PYTHON39=/opt/python' | tee -a /etc/bashrc
-                    - echo 'export PATH=${PYTHON39}/bin:${PATH}' | tee -a /etc/bashrc
-
   ComponentCMake:
     Type: AWS::ImageBuilder::Component
     Properties:
@@ -556,18 +528,18 @@ Resources:
                     - cd /opt/src
                     - GIT_CLONE_OPTS=$(aws --region us-east-2 ssm get-parameter --name GIT_CLONE_OPTS | jq -r .Parameter.Value)
                     - git clone ${GIT_CLONE_OPTS} https://github.com/NCAR/wrfcloud
-                    - pip3 install wrfcloud/python/src
-                    - pip3 install wrf-python
+                    - python3.12 -m pip install wrfcloud/python/src
+                    - python3.12 -m pip install wrf-python
 
   ComponentWrf:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: wrf-4-4-0
+      Name: wrf-4-5-2
       Platform: Linux
-      Version: 4.4.0
+      Version: 4.5.2
       Data: |
-        name: WRF v4.4.0
-        description: 'WRF v4.4.0'
+        name: WRF v4.5.2
+        description: 'WRF v4.5.2'
         schemaVersion: 1.0
 
         phases:
@@ -581,10 +553,10 @@ Resources:
                     - cd /home/ec2-user
                     - git clone https://github.com/wrf-model/WRF
                     - cd WRF
-                    - git checkout v4.4
+                    - git checkout v4.5.2
                     - ./clean
                     - ./configure << EOF
-                    - 15
+                    - 78
                     - 1
                     - EOF
                     - ./compile em_real 2>&1 | tee build.log
@@ -602,12 +574,12 @@ Resources:
   ComponentWps:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: wps-4-4-0
+      Name: wps-4-6-0
       Platform: Linux
-      Version: 4.4.0
+      Version: 4.6.0
       Data: |
-        name: WPS v4.4.0
-        description: 'WPS v4.4.0'
+        name: WPS v4.6.0
+        description: 'WPS v4.6.0'
         schemaVersion: 1.0
 
         phases:
@@ -621,7 +593,7 @@ Resources:
                     - cd /home/ec2-user
                     - git clone https://github.com/wrf-model/WPS
                     - cd WPS
-                    - git checkout v4.4
+                    - git checkout v4.6.0
                     - export JASPERLIB="-L${SZIP}/lib -L${LIBPNG}/lib -L${ZLIB}/lib -L${JASPER}/lib -L${G2C}/lib -ljasper -lpng -lz -lgrib2c"
                     - export JASPERINC="-I${SZIP}/include -I${LIBPNG}/include -I${ZLIB}/lib -I${JASPER}/include"
                     - export FCFLAGS="${FCFLAGS} ${JASPERINC}"
@@ -686,13 +658,13 @@ Resources:
   WrfImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
     Properties:
-      Name: wrf-4-4-0
-      Version: 4.4.0
+      Name: wrf-4-5-2
+      Version: 4.5.2
       BlockDeviceMappings:
         - DeviceName: /dev/xvda
           Ebs:
             DeleteOnTermination: true
-            VolumeType: gp2
+            VolumeType: gp3
             VolumeSize: 50
       AdditionalInstanceConfiguration:
         SystemsManagerAgent:
@@ -710,7 +682,6 @@ Resources:
         - ComponentArn: !Ref ComponentG2CLib
         - ComponentArn: !Ref ComponentUdUnits
         - ComponentArn: !Ref ComponentNCView
-        - ComponentArn: !Ref ComponentPython
         - ComponentArn: !Ref ComponentCMake
         - ComponentArn: !Ref ComponentLibAec
         - ComponentArn: !Ref ComponentECCodes
@@ -718,22 +689,23 @@ Resources:
         - ComponentArn: !Ref ComponentWrf
         - ComponentArn: !Ref ComponentWps
         - ComponentArn: !Ref ComponentUpp
-      ParentImage: ami-03c70fb2cbb1eb205  # ParallelCluster v3.2.1 - USE2 - Amazon Linux 2 - x86_64
+      ParentImage: ami-0a59b6f86ba6321d4  # ParallelCluster v3.14.2 - USE2 - Amazon Linux 2023 - x86_64
 
   WrfImageBuilderInfrastructure:
     Type: AWS::ImageBuilder::InfrastructureConfiguration
     DependsOn: WrfImageBuilderInstanceProfile
     Properties:
-      Name: wrf-4-4-0
+      Name: wrf-4-5-2
       InstanceTypes:
-        - c5.xlarge
+        - c7i.2xlarge
       InstanceProfileName: WrfCloudImageBuilderInstanceProfile
-      TerminateInstanceOnFailure: true
+      TerminateInstanceOnFailure: false
+      KeyPair: !Sub "${LocalUser}"
 
   WrfImageBuilderPipeline:
     Type: AWS::ImageBuilder::ImagePipeline
     Properties:
-      Name: wrf-4-4-0
+      Name: wrf-4-5-2
       ImageRecipeArn: !Ref WrfImageRecipe
       InfrastructureConfigurationArn: !Ref WrfImageBuilderInfrastructure
 

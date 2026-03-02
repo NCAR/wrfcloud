@@ -398,7 +398,7 @@ class WrfCloudCluster:
         images = res['Images']
         latest_image: dict = {}
         for image in images:
-            if image['Name'].startswith('wrf-4-4-0'):
+            if image['Name'].startswith('wrf-4-5-2'):
                 if not latest_image:
                     latest_image = image
                 elif image['CreationDate'] > latest_image['CreationDate']:

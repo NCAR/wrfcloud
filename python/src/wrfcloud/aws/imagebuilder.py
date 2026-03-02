@@ -20,7 +20,7 @@ class WrfCloudImageBuilder(CloudFormation):
         super().__init__(region)
         self.stack_name = stack_name or 'WrfIntelImageBuilder'
         self.cf_template_resource = cf_file or 'aws/resources/cf_imagebuilder_wrf_intel.yaml'
-        self.image_name = image_name or 'wrf-4-4-0'
+        self.image_name = image_name or 'wrf-4-5-2'
         self.stack_id = None
         self.cf_client = None
         self.ib_client = None
@@ -130,3 +130,7 @@ def main() -> None:
         image_builder.add_ssh_key()
     else:
         _print_usage_and_exit()
+
+
+if __name__ == '__main__':
+    main()

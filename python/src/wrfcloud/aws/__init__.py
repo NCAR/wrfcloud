@@ -1,6 +1,7 @@
 """
 AWS functions for WRF Cloud
 """
+import os
 import pkgutil
 from typing import Union
 from datetime import datetime
@@ -25,7 +26,7 @@ class CloudFormation:
         self.stack_name: str = ''
         self.cf_template_resource: str = ''
         self.cf_client = None
-        self.parameters = []
+        self.parameters = [{'ParameterKey': 'LocalUser', 'ParameterValue': os.environ['USER']}]
 
     def create_stack(self) -> None:
         """
