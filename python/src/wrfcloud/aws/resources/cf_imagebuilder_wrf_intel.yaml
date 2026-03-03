@@ -110,7 +110,7 @@ Resources:
                     - wget https://www.wrfcloud.com/libs/cmake-3.25.0-rc3.tar.gz
                     - wget https://www.wrfcloud.com/libs/eccodes-2.27.0.tar.gz
                     - wget https://www.wrfcloud.com/libs/g2clib-1.6.0-patch.tar.gz
-                    - wget https://www.wrfcloud.com/libs/hdf5-1.10.5.tar.gz
+                    - wget https://www.wrfcloud.com/libs/hdf5-1.14.5.tar.gz
                     - wget https://www.wrfcloud.com/libs/jasper-1.900.1.tar.gz
                     - wget https://www.wrfcloud.com/libs/libaec-v1.0.6.tar.gz
                     - wget https://www.wrfcloud.com/libs/libpng-1.2.50.tar.gz
@@ -119,6 +119,7 @@ Resources:
                     - wget https://www.wrfcloud.com/libs/netcdf-cxx-4.3.1.tar.gz
                     - wget https://www.wrfcloud.com/libs/netcdf-fortran-4.5.2.tar.gz
                     - wget https://www.wrfcloud.com/libs/szip-2.1.1.tar.gz
+                    - wget https://www.wrfcloud.com/libs/udunits-2.2.28.tar.gz
                     - wget https://www.wrfcloud.com/libs/zlib-1.2.11.tar.gz
 
   ComponentZLib:
@@ -180,12 +181,12 @@ Resources:
   ComponentHDF5:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: hdf5-1-10-5
+      Name: hdf5-1-14-5
       Platform: Linux
-      Version: 1.10.5
+      Version: 1.14.5
       Data: |
-        name: HDF5 v1.10.5
-        description: 'HDF5 v1.10.5'
+        name: HDF5 v1.14.5
+        description: 'HDF5 v1.14.5'
         schemaVersion: 1.0
 
         phases:
@@ -198,8 +199,8 @@ Resources:
                     - source /etc/bashrc
                     - mkdir -p /opt/src
                     - cd /opt/src
-                    - tar -xzf hdf5-1.10.5.tar.gz
-                    - cd hdf5-hdf5-1_10_5
+                    - tar -xzf hdf5-1.14.5.tar.gz
+                    - cd hdf5-1.14.5
                     - ./configure --prefix=/opt/hdf5 --enable-parallel --enable-fortran --with-zlib=${ZLIB} --with-szlib=${SZIP} 2>&1 | tee configure.log
                     - make -j 4 install 2>&1 | tee build.log
                     - echo 'export HDF5=/opt/hdf5' | tee -a /etc/bashrc
@@ -317,7 +318,7 @@ Resources:
                     - cd /opt/src
                     - tar -xzf jasper-1.900.1.tar.gz
                     - cd jasper-1.900.1
-                    - ./configure --prefix=/opt/jasper 2>&1 | tee configure.log
+                    - CFLAGS="-Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types" ./configure --prefix=/opt/jasper 2>&1 | tee configure.log
                     - make -j 4 install 2>&1 | tee build.log
                     - echo 'export JASPER=/opt/jasper' | tee -a /etc/bashrc
                     - echo 'export PATH=${JASPER}/bin:${PATH}' | tee -a /etc/bashrc
@@ -405,7 +406,7 @@ Resources:
                     - cd /opt/src
                     - tar -xzf ncview-2.1.7.tar.gz
                     - cd ncview-2.1.7
-                    - ./configure --prefix=/opt/netcdf --with-udunits2_incdir=${UDUNITS}/include  --with-udunits2_libdir=${UDUNITS}/lib --with-png_incdir=${LIBPNG}/include --with-png_libdir=${LIBPNG}/lib 2>&1 | tee configure.log
+                    - CFLAGS="-std=gnu89 -I/opt/libpng/include -I/opt/udunits/include -I/opt/netcdf/include -I/opt/hdf5/include -I/opt/szip/include -I/opt/zlib/include" ./configure --prefix=/opt/netcdf --with-udunits2_incdir=${UDUNITS}/include --with-udunits2_libdir=${UDUNITS}/lib --with-png_incdir=${LIBPNG}/include --with-png_libdir=${LIBPNG}/lib 2>&1 | tee configure.log
                     - make -j 4 install 2>&1 | tee build.log
                     - echo 'X11Forwarding yes' | tee -a /etc/ssh/sshd_config
 
@@ -497,12 +498,12 @@ Resources:
   ComponentWrfCloud:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: wrfcloud-1-0-0
+      Name: wrfcloud-1-1-2
       Platform: Linux
       Version: 1.0.0
       Data: |
-        name: WRF Cloud v1.0.0
-        description: 'WRF Cloud v1.0.0'
+        name: WRF Cloud v1.1.2
+        description: 'WRF Cloud v1.1.2'
         schemaVersion: 1.0
 
         phases:
@@ -529,7 +530,6 @@ Resources:
                     - GIT_CLONE_OPTS=$(aws --region us-east-2 ssm get-parameter --name GIT_CLONE_OPTS | jq -r .Parameter.Value)
                     - git clone ${GIT_CLONE_OPTS} https://github.com/NCAR/wrfcloud
                     - python3.12 -m pip install wrfcloud/python/src
-                    - python3.12 -m pip install wrf-python
 
   ComponentWrf:
     Type: AWS::ImageBuilder::Component
