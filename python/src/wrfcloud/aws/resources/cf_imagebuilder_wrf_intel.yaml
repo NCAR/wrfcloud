@@ -107,7 +107,6 @@ Resources:
                   commands:
                     - mkdir -p /opt/src
                     - cd /opt/src
-                    - wget https://www.wrfcloud.com/libs/cmake-3.25.0-rc3.tar.gz
                     - wget https://www.wrfcloud.com/libs/eccodes-2.27.0.tar.gz
                     - wget https://www.wrfcloud.com/libs/g2clib-1.6.0-patch.tar.gz
                     - wget https://www.wrfcloud.com/libs/hdf5-1.14.5.tar.gz
@@ -410,33 +409,6 @@ Resources:
                     - make -j 4 install 2>&1 | tee build.log
                     - echo 'X11Forwarding yes' | tee -a /etc/ssh/sshd_config
 
-  ComponentCMake:
-    Type: AWS::ImageBuilder::Component
-    Properties:
-      Name: cmake-3-25-0
-      Platform: Linux
-      Version: 3.25.0
-      Data: |
-        name: Cmake v3.25.0
-        description: 'Cmake v3.25.0'
-        schemaVersion: 1.0
-
-        phases:
-          - name: build
-            steps:
-              - name: build-cmake
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - source /etc/bashrc
-                    - cd /opt/src
-                    - tar -xzf cmake-3.25.0-rc3.tar.gz
-                    - cd cmake-3.25.0-rc3
-                    - ./configure --prefix=/opt/cmake 2>&1 | tee configure.log
-                    - gmake install 2>&1 | tee build.log
-                    - echo 'export CMAKE=/opt/cmake' | tee -a /etc/bashrc
-                    - echo 'export PATH=${CMAKE}/bin:${PATH}' | tee -a /etc/bashrc
-
   ComponentLibAec:
     Type: AWS::ImageBuilder::Component
     Properties:
@@ -683,7 +655,6 @@ Resources:
         - ComponentArn: !Ref ComponentG2CLib
         - ComponentArn: !Ref ComponentUdUnits
         - ComponentArn: !Ref ComponentNCView
-        - ComponentArn: !Ref ComponentCMake
         - ComponentArn: !Ref ComponentLibAec
         - ComponentArn: !Ref ComponentECCodes
         - ComponentArn: !Ref ComponentWrfCloud
@@ -698,9 +669,9 @@ Resources:
     Properties:
       Name: wrf-4-5-2
       InstanceTypes:
-        - c7i.2xlarge
+        - c7i.4xlarge  # Need 32GB RAM to compile WRF
       InstanceProfileName: WrfCloudImageBuilderInstanceProfile
-      TerminateInstanceOnFailure: false
+      TerminateInstanceOnFailure: true
       KeyPair: !Sub "${LocalUser}"
 
   WrfImageBuilderPipeline:
