@@ -7,4 +7,4 @@ export API_HOSTNAME="__API_HOSTNAME__"
 export JWT="__JWT__"
 export ADMIN_EMAIL="__ADMIN_EMAIL__"
 su ec2-user -c "mkdir -p /data/__JOB_ID__"
-su ec2-user -c "/opt/python/bin/wrfcloud-run --job-id __JOB_ID__" > /data/__JOB_ID__/wrfcloud-run-__JOB_ID__.log 2>&1 &
+su ec2-user -c "/usr/local/bin/wrfcloud-run --job-id __JOB_ID__" > /data/__JOB_ID__/wrfcloud-run-__JOB_ID__.log 2>&1 &

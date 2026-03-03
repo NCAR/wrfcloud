@@ -2,8 +2,6 @@ import os
 import pkgutil
 
 import numpy as np
-# pylint: disable=E0401
-from wrf import getvar, vinterp
 # pylint: disable=E0401,E0611
 from netCDF4 import Dataset
 import yaml
@@ -18,6 +16,9 @@ def derive_fields(in_file: str, out_dir: str):
     :param in_file: WRF NetCDF file to process
     :param out_dir: Directory to write derived output file
     """
+    # pylint: disable=E0401
+    from wrf import getvar, vinterp
+
     log = Logger()
     os.makedirs(out_dir, exist_ok=True)
     out_file = f"{os.path.basename(in_file).replace('wrfout', 'wrfderive')}.nc"

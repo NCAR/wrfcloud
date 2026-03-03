@@ -422,12 +422,14 @@ class WrfCloudCluster:
             return None
 
         # query subnets
+        target_subnet: str | None = None
         for subnet in res['Subnets']:
             if subnet['AvailabilityZoneId'].endswith('-az2'):
-                return subnet['SubnetId']
+                target_subnet = subnet['SubnetId']
+                break
 
-        # did not find a match
-        return None
+        # return the subnet value
+        return target_subnet
 
     def _get_aws_account_id(self) -> str:
         """

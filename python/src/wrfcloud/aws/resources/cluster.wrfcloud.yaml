@@ -1,14 +1,15 @@
 Region: __REGION__
 Image:
-  Os: alinux2
+  Os: alinux2023
   CustomAmi: __AMI_ID__
 HeadNode:
-  InstanceType: c5.xlarge
+  InstanceType: c7i.2xlarge
   Networking:
+    ElasticIp: true
     SubnetId: __SUBNET_ID__
   Ssh:
     KeyName: __USER__
-    AllowedIps: 128.117.0.0/16
+    AllowedIps: 128.117.0.0/16  # TODO: Remove this prior to release
   LocalStorage:
     RootVolume:
       Size: 50
@@ -24,21 +25,21 @@ Scheduling:
     Dns:
       DisableManagedDns: true
   SlurmQueues:
-  - Name: wrf
-    Image:
-      CustomAmi: __AMI_ID__
-    ComputeResources:
-    - Name: hpc6a
-      InstanceType: hpc6a.48xlarge  # 96-cores 384-gb-memory $2.88/hr us-east-2 only
-      Efa:
-        Enabled: true
-      MinCount: 0
-      MaxCount: 1
-    Networking:
-      SubnetIds:
-      - __SUBNET_ID__
-      PlacementGroup:
-        Enabled: true
+    - Name: wrf
+      Image:
+        CustomAmi: __AMI_ID__
+      ComputeResources:
+        - Name: hpc6a
+          InstanceType: hpc6a.48xlarge  # 96-cores 384-gb-memory $2.88/hr us-east-2 only
+          Efa:
+            Enabled: true
+          MinCount: 0
+          MaxCount: 1
+      Networking:
+        SubnetIds:
+        - __SUBNET_ID__
+        PlacementGroup:
+          Enabled: true
 SharedStorage:
   - MountDir: /data
     Name: ebs

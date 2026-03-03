@@ -38,7 +38,7 @@ Resources:
                     - rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
                     - dnf -y update
                     - dnf -y install intel-hpckit
-                    - dnf -y install gcc gcc-c++ gcc-gfortran m4 curl-devel git cmake pkgconfig expat-devel libX11-devel libXmu-devel Xaw3d-devel libXaw-devel make openssl-devel bzip2-devel libffi-devel sqlite-devel python3.12 python3.12-pip
+                    - dnf -y install gcc gcc-c++ gcc-gfortran m4 curl-devel git cmake pkgconfig expat-devel libX11-devel libXmu-devel Xaw3d-devel libXaw-devel make openssl-devel bzip2-devel libffi-devel sqlite-devel python3.12 python3.12-pip python3.12-devel
 
   ComponentConfigureBash:
     Type: AWS::ImageBuilder::Component
@@ -502,6 +502,8 @@ Resources:
                     - GIT_CLONE_OPTS=$(aws --region us-east-2 ssm get-parameter --name GIT_CLONE_OPTS | jq -r .Parameter.Value)
                     - git clone ${GIT_CLONE_OPTS} https://github.com/NCAR/wrfcloud
                     - python3.12 -m pip install wrfcloud/python/src
+                    - FC=gfortran F90=gfortran python3.12 -m pip install git+https://github.com/NCAR/wrf-python.git@v1.4.2
+                    - /usr/local/bin/wrfcloud-run --help
 
   ComponentWrf:
     Type: AWS::ImageBuilder::Component
