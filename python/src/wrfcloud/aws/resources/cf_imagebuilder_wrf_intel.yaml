@@ -633,6 +633,7 @@ Resources:
                 inputs:
                   commands:
                     - source /etc/bashrc
+                    - ln -s $(which ifx) /usr/local/bin/ifort
                     - cd /home/ec2-user
                     - wget https://dtcenter.org/sites/default/files/code/DTC_upp_v4.0.1.tar.gz
                     - tar zxvf DTC_upp_v4.0.1.tar.gz
