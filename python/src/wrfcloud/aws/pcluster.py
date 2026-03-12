@@ -484,6 +484,12 @@ def main() -> None:
     # library to parse command line parameters
     from argparse import ArgumentParser
 
+    # check for version request
+    if '-v' in sys.argv or '--version' in sys.argv or 'version' in sys.argv:
+        import wrfcloud
+        print(f'WRF Cloud v{wrfcloud.__version__}')
+        return
+
     # check the command line parameter usage
     if len(sys.argv) < 2:
         _print_usage_and_exit()
