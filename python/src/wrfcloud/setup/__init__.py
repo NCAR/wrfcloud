@@ -65,6 +65,7 @@ def setup():
     # Deploy build artifacts (lambda layer, function, web app)
     print(f'Uploading build artifacts to S3 bucket ({s3_bucket}) ...')
     _upload_to_s3(s3_bucket, 'artifacts/lambda_layer.zip', 'lambda_layer.zip', 'Enter the location of the lambda layer zip file: ')
+    _upload_to_s3(s3_bucket, 'artifacts/lambda_layer_extras.zip', 'lambda_layer_extras.zip', 'Enter the location of the lambda layer extras zip file: ')
     _upload_to_s3(s3_bucket, 'artifacts/lambda_function.zip', 'lambda_function.zip', 'Enter the location of the lambda function zip file: ')
     _finalize_and_upload_webapp_to_s3(s3_bucket, 'web', 'web', 'Enter the location of the Angular web application build: ', user_data['api_domain'], user_data['ws_domain'])
 

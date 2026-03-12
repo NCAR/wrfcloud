@@ -2,6 +2,7 @@
 API actions that are responsible for reading WRF data
 """
 import os
+import sys
 import base64
 import gzip
 import pkgutil
@@ -155,6 +156,7 @@ class RunWrf(Action):
         :return: True if the action ran successfully
         """
         try:
+            self._install_aws_cdk()
             # create the run configuration file
             forecast_len_sec = self.request['forecast_length']
             start_date = utc.localize(datetime.utcfromtimestamp(self.request['start_time']))
@@ -166,12 +168,12 @@ class RunWrf(Action):
 
             # create the custom action to start the model
             script_template = pkgutil.get_data('wrfcloud', 'api/actions/resources/run_wrf_template.sh').decode()
-            script = script_template\
-                .replace('__JOB_ID__', self.ref_id)\
-                .replace('__S3_BUCKET__', os.environ['WRFCLOUD_BUCKET'])\
-                .replace('__APP_HOSTNAME__', os.environ['APP_HOSTNAME'])\
-                .replace('__API_HOSTNAME__', os.environ['API_HOSTNAME'])\
-                .replace('__ADMIN_EMAIL__', os.environ['ADMIN_EMAIL'])\
+            script = script_template \
+                .replace('__JOB_ID__', self.ref_id) \
+                .replace('__S3_BUCKET__', os.environ['WRFCLOUD_BUCKET']) \
+                .replace('__APP_HOSTNAME__', os.environ['APP_HOSTNAME']) \
+                .replace('__API_HOSTNAME__', os.environ['API_HOSTNAME']) \
+                .replace('__ADMIN_EMAIL__', os.environ['ADMIN_EMAIL']) \
                 .replace('__JWT__', jwt)
             ca = CustomAction(self.ref_id, script)
 
@@ -210,6 +212,27 @@ class RunWrf(Action):
             return False
 
         return True
+
+    def _install_aws_cdk(self):
+        """
+        Download and install aws_cdk from S3 on cold start -- excluded from Lambda layer due to size constraints.
+        No-op if already installed (warm Lambda instance).
+        """
+        import zipfile
+        import io
+
+        # no-op on warm Lambda instance -- /tmp persists for the lifetime of the instance
+        cdk_lib_dir = '/tmp/python/lib'
+        if cdk_lib_dir in sys.path and os.path.isdir(cdk_lib_dir):
+            return
+
+        # download the extras zip from S3 and extract directly from memory to /tmp
+        zip_data = self._s3_read(os.environ['WRFCLOUD_BUCKET'], 'artifacts/lambda_layer_extras.zip')
+        with zipfile.ZipFile(io.BytesIO(zip_data), 'r') as zf:
+            zf.extractall('/tmp')
+
+        # make the extracted packages importable
+        sys.path.insert(0, cdk_lib_dir)
 
     def _create_cluster_jwt(self) -> str:
         """

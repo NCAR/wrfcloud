@@ -96,9 +96,15 @@ function create_wrfcloud_lambda_layer()
 {
   cd "${build_dir}/wrfcloud/python/src"
   mkdir -p install/python/lib
-  python3.12 -m pip install -t install/python/lib --platform manylinux_2_28_x86_64 --implementation cp --python-version 3.12 --only-binary=:all: .
-  cd install/python/lib
-  rm -Rf pygrib pygrib.libs matplotlib numpy numpy.libs pyproj netCDF4 netCDF4.libs Pillow.libs fontTools kiwisolver setuptools cftime PIL contourpy botocore pyproj.libs mpl_toolkits wrfcloud
+  python3.12 -m pip install -t install/python/lib --no-deps .
+  python3.12 -m pip install -t install/python/lib \
+    --platform manylinux_2_17_x86_64 --implementation cp --python-version 3.12 --only-binary=:all: \
+    boto3==1.42.59 botocore==1.42.59 PyYAML==6.0.3 bcrypt==5.0.0 PyJWT==2.11.0 \
+    Flask==3.1.3 aws-parallelcluster==3.14.2 f90nml==1.5.0 requests==2.32.5 pytz==2026.1.post1
+  cd install
+  zip -r "${build_dir}/lambda_layer_extras.zip" python/lib/aws_cdk python/lib/aws_cdk.* python/lib/jsii python/lib/jsii-*
+  cd python/lib
+  rm -Rf pygrib pygrib.libs matplotlib numpy numpy.libs pyproj netCDF4 netCDF4.libs Pillow.libs fontTools kiwisolver setuptools cftime PIL contourpy botocore pyproj.libs mpl_toolkits wrfcloud* aws_cdk aws_cdk.* jsii jsii-*
   cd ../../
   ln -s "${HOME}/.nvm/versions/node/${node_version}" "$(pwd)/node"
   zip -r "${build_dir}/lambda_layer.zip" python/lib node/bin node/include node/share node/lib/node_modules/corepack node/lib/node_modules/npm
