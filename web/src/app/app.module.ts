@@ -9,7 +9,7 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {FormsModule} from "@angular/forms";
 import {MatRippleModule} from "@angular/material/core";
-import {HttpClientModule} from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatDividerModule} from "@angular/material/divider";
@@ -50,33 +50,30 @@ import {MapAreaSelectorComponent} from './map-area-selector/map-area-selector.co
 import {LogViewerComponent} from './log-viewer/log-viewer.component';
 
 
-@NgModule({
-  declarations: [
-    ActivateComponent,
-    AppComponent,
-    EditUserComponent,
-    ErrorDialogComponent,
-    HomeComponent,
-    LaunchWrfComponent,
-    LayerComponent,
-    LoginComponent,
-    LogoutComponent,
-    ManageUsersComponent,
-    PreferencesComponent,
-    ViewJobsComponent,
-    WrfViewerComponent,
-    ResetPasswordComponent,
-    ModelConfigComponent,
-    EditModelConfigurationComponent,
-    JobDetailsComponent,
-    ContextHelpComponent,
-    MapAreaSelectorComponent,
-    LogViewerComponent
-  ],
-    imports: [
-        BrowserModule,
+@NgModule({ declarations: [
+        ActivateComponent,
+        AppComponent,
+        EditUserComponent,
+        ErrorDialogComponent,
+        HomeComponent,
+        LaunchWrfComponent,
+        LayerComponent,
+        LoginComponent,
+        LogoutComponent,
+        ManageUsersComponent,
+        PreferencesComponent,
+        ViewJobsComponent,
+        WrfViewerComponent,
+        ResetPasswordComponent,
+        ModelConfigComponent,
+        EditModelConfigurationComponent,
+        JobDetailsComponent,
+        ContextHelpComponent,
+        MapAreaSelectorComponent,
+        LogViewerComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
-        HttpClientModule,
         BrowserAnimationsModule,
         MatButtonModule,
         MatGridListModule,
@@ -100,13 +97,10 @@ import {LogViewerComponent} from './log-viewer/log-viewer.component';
         MatMomentDateModule,
         MatRadioModule,
         MatTabsModule,
-        MatTreeModule
-    ],
-  providers: [
-    {provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}
-  ],
-  bootstrap: [AppComponent]
-})
+        MatTreeModule], providers: [
+        { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule
 {
 }

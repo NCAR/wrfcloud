@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {Router} from "@angular/router";
 import {User, WhoAmIResponse, ClientApi, WrfMetaDataConfiguration} from "./client-api";
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "./error-dialog/error-dialog.component";
 import {ContextHelpComponent} from "./context-help/context-help.component";

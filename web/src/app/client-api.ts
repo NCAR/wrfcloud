@@ -1,7 +1,7 @@
 /**
  * Collection of API functions
  */
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import {Layer} from "ol/layer";
 import {HostConfig} from "./host-config";
 
