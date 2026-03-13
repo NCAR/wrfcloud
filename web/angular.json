@@ -28,7 +28,7 @@
               "src/assets"
             ],
             "styles": [
-              "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "./node_modules/ol/ol.css",
               "src/styles.sass"
             ],
@@ -78,10 +78,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "web:build:production"
+              "buildTarget": "web:build:production"
             },
             "development": {
-              "browserTarget": "web:build:development"
+              "buildTarget": "web:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -89,7 +89,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "web:build"
+            "buildTarget": "web:build"
           }
         },
         "test": {
@@ -105,7 +105,7 @@
               "src/assets"
             ],
             "styles": [
-              "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.sass"
             ],
             "scripts": []
