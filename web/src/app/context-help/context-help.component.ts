@@ -7,7 +7,8 @@ import {AppComponent} from "../app.component";
 @Component({
     selector: 'app-context-help',
     templateUrl: './context-help.component.html',
-    styleUrls: ['./context-help.component.sass']
+    styleUrls: ['./context-help.component.sass'],
+    standalone: false
 })
 export class ContextHelpComponent
 {

@@ -14,9 +14,10 @@ import {MatDialog} from "@angular/material/dialog";
 import {JobDetailsComponent} from "../job-details/job-details.component";
 
 @Component({
-  selector: 'app-view-jobs',
-  templateUrl: './view-jobs.component.html',
-  styleUrls: ['./view-jobs.component.sass']
+    selector: 'app-view-jobs',
+    templateUrl: './view-jobs.component.html',
+    styleUrls: ['./view-jobs.component.sass'],
+    standalone: false
 })
 export class ViewJobsComponent implements OnInit, AfterViewInit, OnDestroy, WebsocketListener
 {

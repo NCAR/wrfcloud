@@ -8,9 +8,10 @@ import {MatDialog} from "@angular/material/dialog";
 import {EditUserComponent} from "../edit-user/edit-user.component";
 
 @Component({
-  selector: 'app-manage-users',
-  templateUrl: './manage-users.component.html',
-  styleUrls: ['./manage-users.component.sass']
+    selector: 'app-manage-users',
+    templateUrl: './manage-users.component.html',
+    styleUrls: ['./manage-users.component.sass'],
+    standalone: false
 })
 export class ManageUsersComponent implements OnInit, AfterViewInit
 {

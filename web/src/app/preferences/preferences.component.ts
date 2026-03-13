@@ -3,9 +3,10 @@ import {AppComponent} from "../app.component";
 import {ChangePasswordRequest, ChangePasswordResponse} from "../client-api";
 
 @Component({
-  selector: 'app-preferences',
-  templateUrl: './preferences.component.html',
-  styleUrls: ['./preferences.component.sass']
+    selector: 'app-preferences',
+    templateUrl: './preferences.component.html',
+    styleUrls: ['./preferences.component.sass'],
+    standalone: false
 })
 export class PreferencesComponent implements OnInit
 {

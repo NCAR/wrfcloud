@@ -45,16 +45,13 @@
     </div>
     <div class="viewer-lower-panel">
       <span class="viewer-animate-tool">
-        <mat-grid-list [cols]="animationControls.length" rowHeight="40px">
-          <mat-grid-tile
+          <div
             [id]="button"
             *ngFor="let button of animationControls"
             [class]="'viewer-anim-button viewer-anim-button-' + button"
             (click)="doAnimate($event, button)"
-            matRipple
-          >
-          </mat-grid-tile>
-        </mat-grid-list>
+            matRipple>
+          </div>
         <mat-slider
           invert="true"
           max="3000"

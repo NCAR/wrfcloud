@@ -21,9 +21,10 @@ import Feature from 'ol/Feature.js';
 import Point from 'ol/geom/Point.js';
 
 @Component({
-  selector: 'app-wrf-viewer',
-  templateUrl: './wrf-viewer.component.html',
-  styleUrls: ['./wrf-viewer.component.sass']
+    selector: 'app-wrf-viewer',
+    templateUrl: './wrf-viewer.component.html',
+    styleUrls: ['./wrf-viewer.component.sass'],
+    standalone: false
 })
 export class WrfViewerComponent implements OnInit
 {

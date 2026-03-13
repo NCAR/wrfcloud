@@ -2,20 +2,14 @@
 
   <!-- action panel -->
   <div class="manage-action-panel">
-    <mat-grid-list [cols]="2" rowHeight="75px">
-      <mat-grid-tile>
-        <button mat-stroked-button class="manage-action-button" (click)="loadUserList()">
-          <mat-icon class="manage-action-button-icon">autorenew</mat-icon>
-          Refresh
-        </button>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <button mat-stroked-button class="manage-action-button" (click)="addUser()">
-          <mat-icon class="manage-action-button-icon">person_add</mat-icon>
-          Add User
-        </button>
-      </mat-grid-tile>
-    </mat-grid-list>
+    <button mat-stroked-button class="manage-action-button" (click)="loadUserList()">
+      <mat-icon class="manage-action-button-icon">autorenew</mat-icon>
+      Refresh
+    </button>
+    <button mat-stroked-button class="manage-action-button" (click)="addUser()">
+      <mat-icon class="manage-action-button-icon">person_add</mat-icon>
+      Add User
+    </button>
   </div>
 
   <!-- filter container -->

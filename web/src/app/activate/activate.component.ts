@@ -3,9 +3,10 @@ import {AppComponent} from "../app.component";
 import {ActivateUserRequest, ActivateUserResponse} from "../client-api";
 
 @Component({
-  selector: 'app-activate',
-  templateUrl: './activate.component.html',
-  styleUrls: ['./activate.component.sass']
+    selector: 'app-activate',
+    templateUrl: './activate.component.html',
+    styleUrls: ['./activate.component.sass'],
+    standalone: false
 })
 export class ActivateComponent implements OnInit
 {

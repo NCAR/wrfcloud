@@ -33,13 +33,13 @@
   <div class="launch-shaded-container launch-input-container">
     <mat-label class="launch-input-label">Cycle Hour</mat-label>
     <mat-radio-group [(ngModel)]="cycleHour">
-      <mat-grid-list cols="2" rowHeight="25px">
-        <mat-grid-tile *ngFor="let hour of cycleHourOptions" class="launch-cycle-hour-button">
-          <mat-radio-button color="primary" [value]="hour">
-            {{hour}} UTC
-          </mat-radio-button>
-        </mat-grid-tile>
-      </mat-grid-list>
+        <div class="launch-cycle-hour-button-container">
+            <div *ngFor="let hour of cycleHourOptions" class="launch-cycle-hour-button">
+                <mat-radio-button color="primary" [value]="hour">
+                    {{hour}} UTC
+                </mat-radio-button>
+            </div>
+        </div>
     </mat-radio-group>
   </div>
 

@@ -5,9 +5,10 @@ import {AppComponent} from "../app.component";
 import {LogViewerComponent} from "../log-viewer/log-viewer.component";
 
 @Component({
-  selector: 'app-job-details',
-  templateUrl: './job-details.component.html',
-  styleUrls: ['./job-details.component.sass']
+    selector: 'app-job-details',
+    templateUrl: './job-details.component.html',
+    styleUrls: ['./job-details.component.sass'],
+    standalone: false
 })
 export class JobDetailsComponent implements OnInit
 {

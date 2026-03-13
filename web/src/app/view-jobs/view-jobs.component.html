@@ -2,14 +2,10 @@
 
   <!-- action panel -->
   <div class="job-action-panel">
-    <mat-grid-list [cols]="1" rowHeight="75px">
-      <mat-grid-tile>
-        <button mat-stroked-button class="job-action-button" (click)="refreshJobData()">
-          <mat-icon class="job-action-button-icon">autorenew</mat-icon>
-          Refresh
-        </button>
-      </mat-grid-tile>
-    </mat-grid-list>
+    <button mat-stroked-button class="job-action-button" (click)="refreshJobData()">
+      <mat-icon class="job-action-button-icon">autorenew</mat-icon>
+      Refresh
+    </button>
   </div>
 
   <!-- filter container -->

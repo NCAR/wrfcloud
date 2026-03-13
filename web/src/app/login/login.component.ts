@@ -4,9 +4,10 @@ import {LoginRequest, LoginResponse, PasswordRecoveryTokenRequest, PasswordRecov
 
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.sass']
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.sass'],
+    standalone: false
 })
 export class LoginComponent implements OnInit
 {

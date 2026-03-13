@@ -9,9 +9,10 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {AppComponent} from "../app.component";
 
 @Component({
-  selector: 'app-edit-model-configuration',
-  templateUrl: './edit-model-configuration.component.html',
-  styleUrls: ['./edit-model-configuration.component.sass']
+    selector: 'app-edit-model-configuration',
+    templateUrl: './edit-model-configuration.component.html',
+    styleUrls: ['./edit-model-configuration.component.sass'],
+    standalone: false
 })
 export class EditModelConfigurationComponent implements OnInit
 {

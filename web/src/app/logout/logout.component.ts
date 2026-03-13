@@ -2,9 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import {AppComponent} from "../app.component";
 
 @Component({
-  selector: 'app-logout',
-  templateUrl: './logout.component.html',
-  styleUrls: ['./logout.component.sass']
+    selector: 'app-logout',
+    templateUrl: './logout.component.html',
+    styleUrls: ['./logout.component.sass'],
+    standalone: false
 })
 export class LogoutComponent implements OnInit
 {

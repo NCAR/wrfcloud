@@ -11,9 +11,10 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {AppComponent} from "../app.component";
 
 @Component({
-  selector: 'app-edit-user',
-  templateUrl: './edit-user.component.html',
-  styleUrls: ['./edit-user.component.sass']
+    selector: 'app-edit-user',
+    templateUrl: './edit-user.component.html',
+    styleUrls: ['./edit-user.component.sass'],
+    standalone: false
 })
 export class EditUserComponent implements OnInit
 {

@@ -9,9 +9,10 @@ import {EditModelConfigurationComponent} from "../edit-model-configuration/edit-
 import {defaultWpsNamelist, defaultWrfNamelist} from "./default-namelists";
 
 @Component({
-  selector: 'app-model-config',
-  templateUrl: './model-config.component.html',
-  styleUrls: ['./model-config.component.sass']
+    selector: 'app-model-config',
+    templateUrl: './model-config.component.html',
+    styleUrls: ['./model-config.component.sass'],
+    standalone: false
 })
 export class ModelConfigComponent implements OnInit
 {

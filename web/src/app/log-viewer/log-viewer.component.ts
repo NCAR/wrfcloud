@@ -11,9 +11,10 @@ import {AppComponent} from "../app.component";
 import {KeyValue} from "@angular/common";
 
 @Component({
-  selector: 'app-log-viewer',
-  templateUrl: './log-viewer.component.html',
-  styleUrls: ['./log-viewer.component.sass'],
+    selector: 'app-log-viewer',
+    templateUrl: './log-viewer.component.html',
+    styleUrls: ['./log-viewer.component.sass'],
+    standalone: false
 })
 export class LogViewerComponent implements OnInit
 {

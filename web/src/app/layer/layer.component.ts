@@ -3,9 +3,10 @@ import {WrfLayerGroup} from "../client-api";
 import {WrfViewerComponent} from "../wrf-viewer/wrf-viewer.component";
 
 @Component({
-  selector: 'app-layer',
-  templateUrl: './layer.component.html',
-  styleUrls: ['./layer.component.sass']
+    selector: 'app-layer',
+    templateUrl: './layer.component.html',
+    styleUrls: ['./layer.component.sass'],
+    standalone: false
 })
 export class LayerComponent implements OnInit
 {

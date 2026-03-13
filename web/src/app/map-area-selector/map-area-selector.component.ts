@@ -18,9 +18,10 @@ import {Coordinate} from "ol/coordinate";
 
 
 @Component({
-  selector: 'app-map-area-selector',
-  templateUrl: './map-area-selector.component.html',
-  styleUrls: ['./map-area-selector.component.sass']
+    selector: 'app-map-area-selector',
+    templateUrl: './map-area-selector.component.html',
+    styleUrls: ['./map-area-selector.component.sass'],
+    standalone: false
 })
 export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChanges
 {

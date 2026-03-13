@@ -3,9 +3,10 @@ import {ResetPasswordRequest, ResetPasswordResponse} from "../client-api";
 import {AppComponent} from "../app.component";
 
 @Component({
-  selector: 'app-reset-password',
-  templateUrl: './reset-password.component.html',
-  styleUrls: ['./reset-password.component.sass']
+    selector: 'app-reset-password',
+    templateUrl: './reset-password.component.html',
+    styleUrls: ['./reset-password.component.sass'],
+    standalone: false
 })
 export class ResetPasswordComponent implements OnInit
 {

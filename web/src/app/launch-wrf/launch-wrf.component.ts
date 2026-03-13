@@ -4,9 +4,10 @@ import moment from 'moment';
 import {AppComponent} from "../app.component";
 
 @Component({
-  selector: 'app-launch-wrf',
-  templateUrl: './launch-wrf.component.html',
-  styleUrls: ['./launch-wrf.component.sass']
+    selector: 'app-launch-wrf',
+    templateUrl: './launch-wrf.component.html',
+    styleUrls: ['./launch-wrf.component.sass'],
+    standalone: false
 })
 export class LaunchWrfComponent implements OnInit
 {
