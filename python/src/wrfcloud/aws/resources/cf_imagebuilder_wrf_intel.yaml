@@ -674,7 +674,6 @@ Resources:
         - c7i.4xlarge  # Need 32GB RAM to compile WRF
       InstanceProfileName: WrfCloudImageBuilderInstanceProfile
       TerminateInstanceOnFailure: true
-      KeyPair: !Sub "${LocalUser}"
 
   WrfImageBuilderPipeline:
     Type: AWS::ImageBuilder::ImagePipeline
