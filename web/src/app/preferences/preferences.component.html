@@ -9,22 +9,24 @@
         </mat-panel-title>
         <mat-icon class="help-icon" (click)="app.showContextHelp('prefs-user-info')">info</mat-icon>
       </mat-expansion-panel-header>
-      <div class="prefs-section-container" *ngIf="app.user">
-        <table>
-          <tr>
-            <td class="prefs-user-field">Name:</td>
-            <td class="prefs-user-value">{{app.user.full_name}}</td>
-          </tr>
-          <tr>
-            <td class="prefs-user-field">Email:</td>
-            <td class="prefs-user-value">{{app.user.email}}</td>
-          </tr>
-          <tr>
-            <td class="prefs-user-field">Role:</td>
-            <td class="prefs-user-value">{{app.user.role_id}}</td>
-          </tr>
-        </table>
-      </div>
+      @if (app.user) {
+        <div class="prefs-section-container">
+          <table>
+            <tr>
+              <td class="prefs-user-field">Name:</td>
+              <td class="prefs-user-value">{{app.user.full_name}}</td>
+            </tr>
+            <tr>
+              <td class="prefs-user-field">Email:</td>
+              <td class="prefs-user-value">{{app.user.email}}</td>
+            </tr>
+            <tr>
+              <td class="prefs-user-field">Role:</td>
+              <td class="prefs-user-value">{{app.user.role_id}}</td>
+            </tr>
+          </table>
+        </div>
+      }
     </mat-expansion-panel>
 
     <!-- change password panel -->
@@ -52,18 +54,26 @@
             Change Password
           </button>
         </div>
-        <div class="prefs-error" *ngIf="chpassReq.password1 !== chpassReq.password2">
-          New passwords do not match
-        </div>
-        <div class="prefs-error" *ngIf="chpassReq.password1.length > 0 && chpassReq.password1.length < 10">
-          Minimum length must be 10 characters
-        </div>
-        <div class="prefs-spinner" *ngIf="busy">
-          <mat-icon class="spin">autorenew</mat-icon>
-        </div>
-        <div class="prefs-success" *ngIf="passwordChanged">
-          Password changed successfully
-        </div>
+        @if (chpassReq.password1 !== chpassReq.password2) {
+          <div class="prefs-error">
+            New passwords do not match
+          </div>
+        }
+        @if (chpassReq.password1.length > 0 && chpassReq.password1.length < 10) {
+          <div class="prefs-error">
+            Minimum length must be 10 characters
+          </div>
+        }
+        @if (busy) {
+          <div class="prefs-spinner">
+            <mat-icon class="spin">autorenew</mat-icon>
+          </div>
+        }
+        @if (passwordChanged) {
+          <div class="prefs-success">
+            Password changed successfully
+          </div>
+        }
       </div>
     </mat-expansion-panel>
   </mat-accordion>

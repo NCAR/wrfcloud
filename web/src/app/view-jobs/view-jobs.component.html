@@ -13,9 +13,11 @@
     <mat-form-field class="job-filter-input job-overlay" appearance="fill" [class.job-hide]="busy">
       <mat-label>Filter Results</mat-label>
       <input matInput type="text" [(ngModel)]="filter" (keyup)="filterModified()">
-      <button mat-button matSuffix *ngIf="filter.length > 0" (click)="filter=''; filterModified()">
-        <mat-icon>close</mat-icon>
-      </button>
+      @if (filter.length > 0) {
+        <button mat-button matSuffix (click)="filter=''; filterModified()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
     <div class="job-busy-spinner job-overlay" [class.job-hide]="!busy">
       <mat-icon class="spin">autorenew</mat-icon>
@@ -53,20 +55,24 @@
       <ng-container matColumnDef="status" class="job-table-cell">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
         <td mat-cell *matCellDef="let item">
-          <div *ngIf="item.status_code !== 3">
-            <mat-progress-bar
-              [mode]="item.status_code <= 1 ? 'indeterminate' : 'determinate'"
-              [value]="item.progress * 100">
-            </mat-progress-bar>
-            <span class="job-status-message">{{item.status_message || 'Pending'}}</span>
-          </div>
-          <div *ngIf="item.status_code === 3">
-            <button mat-stroked-button
-                    class="job-open-button"
-                    (click)="app.routeTo('/view/' + item.job_id)">
-              Open Viewer
-            </button>
-          </div>
+          @if (item.status_code !== 3) {
+            <div>
+              <mat-progress-bar
+                [mode]="item.status_code <= 1 ? 'indeterminate' : 'determinate'"
+                [value]="item.progress * 100">
+              </mat-progress-bar>
+              <span class="job-status-message">{{item.status_message || 'Pending'}}</span>
+            </div>
+          }
+          @if (item.status_code === 3) {
+            <div>
+              <button mat-stroked-button
+                class="job-open-button"
+                (click)="app.routeTo('/view/' + item.job_id)">
+                Open Viewer
+              </button>
+            </div>
+          }
         </td>
       </ng-container>
 
@@ -79,10 +85,14 @@
 </div>
 
 <div class="jobs-configuration-container">
-  <div class="jobs-configuration" *ngFor="let configuration of app.wrfMetaData">
-    {{configuration.configuration_name}}
-    <div class="jobs-cycle-time" *ngFor="let cycleTime of configuration.cycle_times">
-      {{cycleTime.cycle_time | date:'yyyy-MM-dd HH:mm:ss O':'UTC'}}
+  @for (configuration of app.wrfMetaData; track configuration) {
+    <div class="jobs-configuration">
+      {{configuration.configuration_name}}
+      @for (cycleTime of configuration.cycle_times; track cycleTime) {
+        <div class="jobs-cycle-time">
+          {{cycleTime.cycle_time | date:'yyyy-MM-dd HH:mm:ss O':'UTC'}}
+        </div>
+      }
     </div>
-  </div>
+  }
 </div>

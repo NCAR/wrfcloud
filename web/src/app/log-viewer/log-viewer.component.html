@@ -1,5 +1,7 @@
 <button mat-stroked-button class="log-viewer-cancel-button" [mat-dialog-close]=""><mat-icon>close</mat-icon></button>
-<mat-icon *ngIf="busy" class="log-viewer-busy spin">autorenew</mat-icon>
+@if (busy) {
+  <mat-icon class="log-viewer-busy spin">autorenew</mat-icon>
+}
 <div class="log-viewer-title">Log Viewer</div>
 <div class="log-viewer-container">
   <div class="log-viewer-desktop-select">
@@ -11,7 +13,7 @@
       <!-- This is the tree node template for expandable nodes -->
       <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
         <button mat-icon-button matTreeNodeToggle
-                [attr.aria-label]="'Toggle ' + node.name">
+          [attr.aria-label]="'Toggle ' + node.name">
           <mat-icon>
             {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
           </mat-icon>
@@ -25,9 +27,11 @@
     <mat-form-field class="log-viewer-show-mobile" appearance="fill">
       <mat-label>Select Log File</mat-label>
       <mat-select [(ngModel)]="selectedLogFile" (ngModelChange)="updateLogContent()">
-        <mat-option *ngFor="let logFile of logFiles | keyvalue: originalOrder" [value]="logFile.key">
-          {{logFile.key}}
-        </mat-option>
+        @for (logFile of logFiles | keyvalue: originalOrder; track logFile) {
+          <mat-option [value]="logFile.key">
+            {{logFile.key}}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
     <mat-form-field class="log-viewer-display" appearance="fill">

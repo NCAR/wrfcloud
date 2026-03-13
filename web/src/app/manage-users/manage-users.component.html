@@ -17,9 +17,11 @@
     <mat-form-field class="manage-filter-input manage-overlay" appearance="fill" [class.manage-hide]="busy">
       <mat-label>Filter Results</mat-label>
       <input matInput type="text" [(ngModel)]="filter" (keyup)="filterModified()">
-      <button mat-button matSuffix *ngIf="filter.length > 0" (click)="filter=''; filterModified()">
-        <mat-icon>close</mat-icon>
-      </button>
+      @if (filter.length > 0) {
+        <button mat-button matSuffix (click)="filter=''; filterModified()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
     <div class="manage-busy-spinner manage-overlay" [class.manage-hide]="!busy">
       <mat-icon class="spin">autorenew</mat-icon>

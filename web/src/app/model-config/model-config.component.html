@@ -6,10 +6,12 @@
       <mat-icon class="model-config-action-button-icon">autorenew</mat-icon>
       Refresh
     </button>
-    <button mat-stroked-button *ngIf="this.app.userHasRole('maintainer')" class="model-config-action-button" (click)="addModelConfig()">
-      <mat-icon class="model-config-action-button-icon">satellite</mat-icon>
-      Add Config
-    </button>
+    @if (this.app.userHasRole('maintainer')) {
+      <button mat-stroked-button class="model-config-action-button" (click)="addModelConfig()">
+        <mat-icon class="model-config-action-button-icon">satellite</mat-icon>
+        Add Config
+      </button>
+    }
   </div>
 
   <!-- filter container -->
@@ -17,9 +19,11 @@
     <mat-form-field class="model-config-filter-input model-config-overlay" appearance="fill" [class.model-config-hide]="busy">
       <mat-label>Filter Results</mat-label>
       <input matInput type="text" [(ngModel)]="filter" (keyup)="filterModified()">
-      <button mat-button matSuffix *ngIf="filter.length > 0" (click)="filter=''; filterModified()">
-        <mat-icon>close</mat-icon>
-      </button>
+      @if (filter.length > 0) {
+        <button mat-button matSuffix (click)="filter=''; filterModified()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
     <div class="model-config-busy-spinner model-config-overlay" [class.model-config-hide]="!busy">
       <mat-icon class="spin">autorenew</mat-icon>

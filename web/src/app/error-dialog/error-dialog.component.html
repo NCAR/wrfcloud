@@ -3,9 +3,11 @@
     Action Failed
   </div>
   <div class="error-messages">
-    <div class="error-message" *ngFor="let message of data">
-      {{message}}
-    </div>
+    @for (message of data; track message) {
+      <div class="error-message">
+        {{message}}
+      </div>
+    }
   </div>
 
   <mat-divider></mat-divider>

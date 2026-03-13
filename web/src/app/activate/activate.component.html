@@ -27,18 +27,26 @@
     </button>
   </div>
 
-  <div class="activate-error" *ngIf="showMatchError">
-    New passwords do not match
-  </div>
-  <div class="activate-error" *ngIf="showLengthError">
-    Minimum length must be 10 characters
-  </div>
-  <div class="activate-spinner" *ngIf="busy">
-    <mat-icon class="spin">autorenew</mat-icon>
-  </div>
-  <div class="activate-success" *ngIf="success">
-    Password changed successfully<br/>
-    Redirecting to login...
-  </div>
+  @if (showMatchError) {
+    <div class="activate-error">
+      New passwords do not match
+    </div>
+  }
+  @if (showLengthError) {
+    <div class="activate-error">
+      Minimum length must be 10 characters
+    </div>
+  }
+  @if (busy) {
+    <div class="activate-spinner">
+      <mat-icon class="spin">autorenew</mat-icon>
+    </div>
+  }
+  @if (success) {
+    <div class="activate-success">
+      Password changed successfully<br/>
+      Redirecting to login...
+    </div>
+  }
 
 </div>

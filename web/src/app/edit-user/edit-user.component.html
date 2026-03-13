@@ -18,39 +18,49 @@
     <mat-form-field class="edit-user-field" appearance="fill">
       <mat-label>Role</mat-label>
       <mat-select [(value)]="user.role_id">
-        <mat-option *ngFor="let option of roles" [value]="option.value">
-          {{option.displayName}}
-        </mat-option>
+        @for (option of roles; track option) {
+          <mat-option [value]="option.value">
+            {{option.displayName}}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
   </div>
 
-  <div class="edit-user-button-panel" mat-dialog-actions *ngIf="edit">
-    <button mat-stroked-button [mat-dialog-close]="">
-      Cancel
-    </button>
-    <button mat-flat-button class="edit-user-button" (click)="updateUserData()">
-      Update
-    </button>
-    <button mat-flat-button class="remove-user-button" (click)="deleteUser()">
-      Remove
-    </button>
-    <div class="edit-user-busy-spinner">
-      <mat-icon class="spin" *ngIf="busy">autorenew</mat-icon>
+  @if (edit) {
+    <div class="edit-user-button-panel" mat-dialog-actions>
+      <button mat-stroked-button [mat-dialog-close]="">
+        Cancel
+      </button>
+      <button mat-flat-button class="edit-user-button" (click)="updateUserData()">
+        Update
+      </button>
+      <button mat-flat-button class="remove-user-button" (click)="deleteUser()">
+        Remove
+      </button>
+      <div class="edit-user-busy-spinner">
+        @if (busy) {
+          <mat-icon class="spin">autorenew</mat-icon>
+        }
+      </div>
     </div>
-  </div>
+  }
 
-  <div class="edit-user-button-panel" mat-dialog-actions *ngIf="create">
-    <button mat-stroked-button [mat-dialog-close]="">
-      Cancel
-    </button>
-    <button mat-flat-button class="edit-user-button" (click)="createUser()">
-      Create
-    </button>
-    <div class="edit-user-busy-spinner">
-      <mat-icon class="spin" *ngIf="busy">autorenew</mat-icon>
+  @if (create) {
+    <div class="edit-user-button-panel" mat-dialog-actions>
+      <button mat-stroked-button [mat-dialog-close]="">
+        Cancel
+      </button>
+      <button mat-flat-button class="edit-user-button" (click)="createUser()">
+        Create
+      </button>
+      <div class="edit-user-busy-spinner">
+        @if (busy) {
+          <mat-icon class="spin">autorenew</mat-icon>
+        }
+      </div>
     </div>
-  </div>
+  }
 
 
 </div>

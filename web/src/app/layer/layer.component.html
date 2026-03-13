@@ -1,35 +1,41 @@
-<div class="layer-container" *ngIf="layerGroup">
-  <div class="layer-visibility">
-    <mat-checkbox class="layer-checkbox" color="primary" [(ngModel)]="layerGroup.visible" (change)="layerGroup.visibilityChange(layerGroup)">
-      {{layerGroup.display_name}}
-    </mat-checkbox>
+@if (layerGroup) {
+  <div class="layer-container">
+    <div class="layer-visibility">
+      <mat-checkbox class="layer-checkbox" color="primary" [(ngModel)]="layerGroup.visible" (change)="layerGroup.visibilityChange(layerGroup)">
+        {{layerGroup.display_name}}
+      </mat-checkbox>
+    </div>
+    <div [class]="layerGroup.visible ? 'layer-details-open' : 'layer-details-closed'">
+      <div>
+        @if (layerGroup.progress < 100) {
+          <mat-progress-bar
+            class="layer-loading-progress"
+            color="primary"
+            [mode]="layerGroup.loaded > 0 ? 'determinate' : 'indeterminate'"
+            [value]="layerGroup.progress">
+          </mat-progress-bar>
+        }
+      </div>
+      @if (layerGroup.progress >= 100) {
+        <div class="layer-opacity">
+          <mat-slider color="primary" class="layer-opacity-slider"
+            [min]="0"
+            [max]="1"
+            [step]="0.1"
+            discrete
+            [displayWith]="percentLabel"
+            >
+            <input matSliderThumb [(ngModel)]="layerGroup.opacity" (change)="layerGroup.opacityChange(layerGroup)">
+          </mat-slider>
+        </div>
+      }
+      <div [class]="'layer-color-legend palette-' + layerGroup.palette.palette_name">
+      </div>
+      <div class="layer-color-legend">
+        <span class="layer-color-legend-min">{{layerGroup.palette.min_value}}</span>
+        <span class="layer-color-legend-units">{{layerGroup.units}}</span>
+        <span class="layer-color-legend-max">{{layerGroup.palette.max_value}}</span>
+      </div>
+    </div>
   </div>
-  <div [class]="layerGroup.visible ? 'layer-details-open' : 'layer-details-closed'">
-    <div>
-      <mat-progress-bar *ngIf="layerGroup.progress < 100"
-        class="layer-loading-progress"
-        color="primary"
-        [mode]="layerGroup.loaded > 0 ? 'determinate' : 'indeterminate'"
-        [value]="layerGroup.progress">
-      </mat-progress-bar>
-    </div>
-    <div class="layer-opacity" *ngIf="layerGroup.progress >= 100">
-      <mat-slider color="primary" class="layer-opacity-slider"
-        [min]="0"
-        [max]="1"
-        [step]="0.1"
-        discrete
-        [displayWith]="percentLabel"
-      >
-        <input matSliderThumb [(ngModel)]="layerGroup.opacity" (change)="layerGroup.opacityChange(layerGroup)">
-      </mat-slider>
-    </div>
-    <div [class]="'layer-color-legend palette-' + layerGroup.palette.palette_name">
-    </div>
-    <div class="layer-color-legend">
-      <span class="layer-color-legend-min">{{layerGroup.palette.min_value}}</span>
-      <span class="layer-color-legend-units">{{layerGroup.units}}</span>
-      <span class="layer-color-legend-max">{{layerGroup.palette.max_value}}</span>
-    </div>
-  </div>
-</div>
+}

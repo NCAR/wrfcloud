@@ -28,9 +28,11 @@
           <mat-form-field appearance="fill">
             <mat-label>Physics Suite</mat-label>
             <mat-select [(ngModel)]="physicsSuite" (valueChange)="updatePhysicsSuite($event)">
-              <mat-option *ngFor="let preset of PhysicsSuite.PRESETS" [value]="preset">
-                {{preset}}
-              </mat-option>
+              @for (preset of PhysicsSuite.PRESETS; track preset) {
+                <mat-option [value]="preset">
+                  {{preset}}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
@@ -41,12 +43,12 @@
           <mat-form-field class="edit-model-config-field" appearance="fill">
             <mat-label>WPS Namelist</mat-label>
             <textarea
-                    matInput
-                    class="monospaced-text"
-                    [rows]="modelConfig.wps_namelist?6:1"
-                    [(ngModel)]="modelConfig.wps_namelist"
-                    [disabled]="!this.app.userHasRole('maintainer')"
-                    (focusout)="this.wpsNamelist = parseNamelist(this.modelConfig.wps_namelist)">
+              matInput
+              class="monospaced-text"
+              [rows]="modelConfig.wps_namelist?6:1"
+              [(ngModel)]="modelConfig.wps_namelist"
+              [disabled]="!this.app.userHasRole('maintainer')"
+              (focusout)="this.wpsNamelist = parseNamelist(this.modelConfig.wps_namelist)">
             </textarea>
             <button mat-stroked-button [disabled]="!this.app.userHasRole('maintainer')" (click)="loadNamelistFile('wps')">Load File</button>
           </mat-form-field>
@@ -56,12 +58,12 @@
           <mat-form-field class="edit-model-config-field" appearance="fill">
             <mat-label>WRF Namelist</mat-label>
             <textarea
-                    matInput
-                    class='monospaced-text'
-                    [rows]="modelConfig.wrf_namelist?6:1"
-                    [(ngModel)]="modelConfig.wrf_namelist"
-                    [disabled]="!this.app.userHasRole('maintainer')"
-                    (focusout)="this.wrfNamelist = parseNamelist(this.modelConfig.wrf_namelist)">
+              matInput
+              class='monospaced-text'
+              [rows]="modelConfig.wrf_namelist?6:1"
+              [(ngModel)]="modelConfig.wrf_namelist"
+              [disabled]="!this.app.userHasRole('maintainer')"
+              (focusout)="this.wrfNamelist = parseNamelist(this.modelConfig.wrf_namelist)">
             </textarea>
             <button mat-stroked-button [disabled]="!this.app.userHasRole('maintainer')" (click)="loadNamelistFile('wrf')">Load File</button>
           </mat-form-field>
@@ -71,15 +73,16 @@
   </div>
   <div class="edit-model-config-field-container edit-model-config-shaded">
     <div class="edit-model-config-slider-label">Core Count: {{autoCoreCount ? 'auto' : modelConfig.cores}}</div>
-    <mat-slider
-      *ngIf="!autoCoreCount"
-      class="edit-model-config-slider"
-      min="1"
-      max="96"
-      step="1"
-      thumbLabel
-      [(ngModel)]="modelConfig.cores">
-    </mat-slider>
+    @if (!autoCoreCount) {
+      <mat-slider
+        class="edit-model-config-slider"
+        min="1"
+        max="96"
+        step="1"
+        thumbLabel
+        [(ngModel)]="modelConfig.cores">
+      </mat-slider>
+    }
     <mat-checkbox
       class="edit-model-config-checkbox"
       color="primary"
@@ -90,37 +93,52 @@
   </div>
 </div>
 
-<div class="edit-model-config-button-panel" mat-dialog-actions *ngIf="edit">
-  <button mat-stroked-button class="edit-model-config-cancel-button" [mat-dialog-close]="">
-    Cancel
-  </button>
-  <button mat-flat-button class="edit-model-config-button" *ngIf="this.app.userHasRole('maintainer')" [disabled]="busy" (click)="updateModelConfiguration()">
-    Update
-  </button>
-  <button mat-flat-button class="edit-model-config-button" *ngIf="this.app.userHasRole('maintainer')" [disabled]="busy" (click)="duplicateModelConfiguration()">
-    Duplicate
-  </button>
-  <button mat-flat-button class="remove-model-config-button" *ngIf="this.app.userHasRole('maintainer')" [disabled]="busy" (click)="deleteModelConfiguration()">
-    Remove
-  </button>
-  <div class="edit-model-config-busy-spinner">
-    <mat-icon class="spin" *ngIf="busy">autorenew</mat-icon>
+@if (edit) {
+  <div class="edit-model-config-button-panel" mat-dialog-actions>
+    <button mat-stroked-button class="edit-model-config-cancel-button" [mat-dialog-close]="">
+      Cancel
+    </button>
+    @if (this.app.userHasRole('maintainer')) {
+      <button mat-flat-button class="edit-model-config-button" [disabled]="busy" (click)="updateModelConfiguration()">
+        Update
+      </button>
+    }
+    @if (this.app.userHasRole('maintainer')) {
+      <button mat-flat-button class="edit-model-config-button" [disabled]="busy" (click)="duplicateModelConfiguration()">
+        Duplicate
+      </button>
+    }
+    @if (this.app.userHasRole('maintainer')) {
+      <button mat-flat-button class="remove-model-config-button" [disabled]="busy" (click)="deleteModelConfiguration()">
+        Remove
+      </button>
+    }
+    <div class="edit-model-config-busy-spinner">
+      @if (busy) {
+        <mat-icon class="spin">autorenew</mat-icon>
+      }
+    </div>
   </div>
-</div>
+}
 
-<div class="edit-model-config-button-panel" mat-dialog-actions *ngIf="create">
-  <button mat-stroked-button [disabled]="busy" [mat-dialog-close]="">
-    Cancel
-  </button>
-  <button
-    mat-flat-button
-    class="edit-model-config-button"
-    *ngIf="this.app.userHasRole('maintainer')"
-    [disabled]="busy || showNameHint"
-    (click)="createModelConfiguration()">
-    Save
-  </button>
-  <div class="edit-model-config-busy-spinner">
-    <mat-icon class="spin" *ngIf="busy">autorenew</mat-icon>
+@if (create) {
+  <div class="edit-model-config-button-panel" mat-dialog-actions>
+    <button mat-stroked-button [disabled]="busy" [mat-dialog-close]="">
+      Cancel
+    </button>
+    @if (this.app.userHasRole('maintainer')) {
+      <button
+        mat-flat-button
+        class="edit-model-config-button"
+        [disabled]="busy || showNameHint"
+        (click)="createModelConfiguration()">
+        Save
+      </button>
+    }
+    <div class="edit-model-config-busy-spinner">
+      @if (busy) {
+        <mat-icon class="spin">autorenew</mat-icon>
+      }
+    </div>
   </div>
-</div>
+}

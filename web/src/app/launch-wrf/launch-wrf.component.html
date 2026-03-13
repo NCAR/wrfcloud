@@ -7,9 +7,11 @@
     <mat-form-field appearance="fill">
       <mat-label>Model Configuration</mat-label>
       <mat-select [(ngModel)]="req.configuration_name">
-        <mat-option *ngFor="let option of modelConfigOptions" [value]="option">
-          {{option}}
-        </mat-option>
+        @for (option of modelConfigOptions; track option) {
+          <mat-option [value]="option">
+            {{option}}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
   </div>
@@ -33,13 +35,15 @@
   <div class="launch-shaded-container launch-input-container">
     <mat-label class="launch-input-label">Cycle Hour</mat-label>
     <mat-radio-group [(ngModel)]="cycleHour">
-        <div class="launch-cycle-hour-button-container">
-            <div *ngFor="let hour of cycleHourOptions" class="launch-cycle-hour-button">
-                <mat-radio-button color="primary" [value]="hour">
-                    {{hour}} UTC
-                </mat-radio-button>
-            </div>
-        </div>
+      <div class="launch-cycle-hour-button-container">
+        @for (hour of cycleHourOptions; track hour) {
+          <div class="launch-cycle-hour-button">
+            <mat-radio-button color="primary" [value]="hour">
+              {{hour}} UTC
+            </mat-radio-button>
+          </div>
+        }
+      </div>
     </mat-radio-group>
   </div>
 
@@ -63,19 +67,25 @@
     </mat-checkbox>
   </div>
 
-  <div class="launch-input-container" *ngIf="!success">
-    <mat-progress-bar *ngIf="busy" class="launch-progress" mode="determinate" [value]="submitProgress">
-    </mat-progress-bar>
-  </div>
+  @if (!success) {
+    <div class="launch-input-container">
+      @if (busy) {
+        <mat-progress-bar class="launch-progress" mode="determinate" [value]="submitProgress">
+        </mat-progress-bar>
+      }
+    </div>
+  }
   <div class="launch-input-container">
     <button mat-raised-button class="launch-button" color="primary" (click)="startWrf()" [disabled]="busy || success">
       Launch
     </button>
   </div>
 
-  <div class="launch-input-container" *ngIf="success">
-    <div class="launch-success-text">
-      Success.  Forwarding to status page.
+  @if (success) {
+    <div class="launch-input-container">
+      <div class="launch-success-text">
+        Success.  Forwarding to status page.
+      </div>
     </div>
-  </div>
+  }
 </div>
