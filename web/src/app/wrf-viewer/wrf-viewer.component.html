@@ -18,15 +18,12 @@
         <mat-slider
           class="viewer-height-selector-widget"
           color="primary"
-          [(ngModel)]="req.height"
           [min]="validHeights[0]"
           [max]="validHeights[validHeights.length - 1]"
           [step]="1"
-          [invert]="true"
-          [thumbLabel]="true"
-          [vertical]="true"
-          [displayWith]="pressureLabel.bind(this)"
-          (change)="heightChanged($event)">
+          discrete
+          [displayWith]="pressureLabel.bind(this)">
+          <input matSliderThumb [(ngModel)]="req.height" (change)="heightChanged($event)">
         </mat-slider>
         <span class="viewer-height-selector-label">Pressure Level (mb)</span>
       </span>

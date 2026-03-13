@@ -22,7 +22,7 @@
   </div>
 
   <div class="launch-input-container">
-    <mat-form-field appearance="fill">
+    <mat-form-field appearance="outline">
       <mat-label>Cycle Date</mat-label>
       <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" [(ngModel)]="start_time">
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -45,31 +45,15 @@
 
   <div class="launch-shaded-container launch-input-container">
     <mat-label class="launch-input-label">Forecast Length: {{secondsToHoursLabel(req.forecast_length, true)}}</mat-label>
-    <mat-slider
-      thumbLabel
-      class="launch-time-slider"
-      [(ngModel)]="req.forecast_length"
-      [displayWith]="secondsToHoursLabel"
-      tickInterval="6"
-      step="21600"
-      min="21600"
-      max="604800"
-      aria-label="seconds">
+    <mat-slider class="launch-time-slider" step="21600" min="21600" max="604800" discrete [displayWith]="secondsToHoursLabel">
+      <input matSliderThumb [(ngModel)]="req.forecast_length" aria-label="seconds">
     </mat-slider>
   </div>
 
   <div class="launch-shaded-container launch-input-container">
     <mat-label class="launch-input-label">Output Frequency: {{secondsToHoursLabelOutFreq(outputFrequencyIndex, true)}}</mat-label>
-    <mat-slider
-      thumbLabel
-      class="launch-time-slider"
-      [(ngModel)]="outputFrequencyIndex"
-      [displayWith]="secondsToHoursLabelOutFreq.bind(this)"
-      tickInterval="auto"
-      step="1"
-      min="0"
-      [max]="outputFrequencyOptions.length - 1"
-      aria-label="seconds">
+    <mat-slider class="launch-time-slider" step="1" min="0" [max]="outputFrequencyOptions.length - 1" discrete [displayWith]="secondsToHoursLabelOutFreq.bind(this)">
+      <input matSliderThumb [(ngModel)]="outputFrequencyIndex" aria-label="seconds">
     </mat-slider>
   </div>
 

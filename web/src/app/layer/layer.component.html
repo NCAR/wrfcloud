@@ -18,13 +18,10 @@
         [min]="0"
         [max]="1"
         [step]="0.1"
-        [tickInterval]="0.1"
-        [thumbLabel]="true"
-        [(ngModel)]="layerGroup.opacity"
-        (change)="layerGroup.opacityChange(layerGroup)"
+        discrete
         [displayWith]="percentLabel"
       >
-        <input matSliderThumb>
+        <input matSliderThumb [(ngModel)]="layerGroup.opacity" (change)="layerGroup.opacityChange(layerGroup)">
       </mat-slider>
     </div>
     <div [class]="'layer-color-legend palette-' + layerGroup.palette.palette_name">

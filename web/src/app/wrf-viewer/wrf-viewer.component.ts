@@ -10,7 +10,6 @@ import {
 import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import {OSM, TileWMS} from 'ol/source';
-import {MatSliderChange} from "@angular/material/slider";
 import {useGeographic, fromLonLat} from "ol/proj";
 import VectorSource from "ol/source/Vector";
 import {GeoJSON} from "ol/format";
@@ -682,10 +681,10 @@ export class WrfViewerComponent implements OnInit
    * Handle an event from the height selector changing
    * @param event
    */
-  public heightChanged(event: MatSliderChange): void
+  public heightChanged(_event: any): void
   {
     /* ignore changes with no value */
-    if (event.value === null)
+    if (this.req.height === null)
       return;
 
     /* find the visible layer group */
@@ -698,7 +697,7 @@ export class WrfViewerComponent implements OnInit
     if (visibleLG) this.setLayerVisibility(visibleLG, false);
 
     /* set the z-level in the request */
-    this.req.height = this.getClosestValidHeight(event.value);
+    this.req.height = this.getClosestValidHeight(this.req.height);
 
     /* return if there is nothing else to do */
     if (visibleLG === undefined) return;

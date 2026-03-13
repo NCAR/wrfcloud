@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ListModelConfigurationsResponse, RunWrfRequest, RunWrfResponse} from "../client-api";
-import * as moment from 'moment';
+import moment from 'moment';
 import {AppComponent} from "../app.component";
 
 @Component({
