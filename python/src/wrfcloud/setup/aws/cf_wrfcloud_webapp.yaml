@@ -189,6 +189,10 @@ Resources:
                   - cloudwatch:ListDashboards
                   - cloudwatch:GetDashboard
                   - cloudwatch:DeleteDashboards
+                  - cloudwatch:PutMetricAlarm
+                  - cloudwatch:PutCompositeAlarm
+                  - cloudwatch:DeleteAlarms
+                  - cloudwatch:DescribeAlarms
                   - ec2:AllocateAddress
                   - ec2:AssociateAddress
                   - ec2:AuthorizeSecurityGroupEgress
@@ -230,6 +234,9 @@ Resources:
                   - logs:DescribeLogGroups
                   - logs:DeleteLogGroup
                   - logs:PutRetentionPolicy
+                  - logs:DescribeMetricFilters
+                  - logs:PutMetricFilter
+                  - logs:DeleteMetricFilter
                   - resource-groups:ListGroupResources
                   - route53:GetHostedZone
                   - route53:ListResourceRecordSets
@@ -259,7 +266,7 @@ Resources:
       Description: Python dependencies
       LayerName: !Sub '${DeploymentType}_python_deps'
       CompatibleRuntimes:
-        - python3.9
+        - python3.12
       Content:
         S3Bucket: !Sub '${WrfCloudBucket}'
         S3Key: artifacts/lambda_layer.zip
@@ -269,9 +276,9 @@ Resources:
       FunctionName: !Sub '${DeploymentType}_${AppName}_handler'
       Handler: lambda_wrapper.lambda_handler
       MemorySize: 1024
-      Timeout: 30
+      Timeout: 300
       Role: !GetAtt LambdaRole.Arn
-      Runtime: python3.9
+      Runtime: python3.12
       Layers:
         - !Ref LambdaLayerPythonDeps
       CodeUri:
