@@ -59,16 +59,11 @@
               matRipple>
             </div>
           }
-          <mat-slider
-            invert="true"
-            max="3000"
-            min="100"
-            step="100"
-            [(ngModel)]="animationDelayMs"
-            aria-labelledby="Animation speed">
+          <mat-slider max="3000" min="100" step="100">
+            <input matSliderThumb [(ngModel)]="animationDelayMs" aria-label="Animation speed">
           </mat-slider>
-          <span class="viewer-anim-speed-label viewer-left">SLOW</span>
-          <span class="viewer-anim-speed-label viewer-right">FAST</span>
+          <span class="viewer-anim-speed-label viewer-left">FAST</span>
+          <span class="viewer-anim-speed-label viewer-right">SLOW</span>
         </span>
         <span class="viewer-anim-time-slider">
           <div>{{selectedFrameMs | date:'yyyy-MM-dd HH:mm:ss O':'UTC'}}</div>
@@ -77,10 +72,8 @@
               class="viewer-wide-center"
               [min]="animationFrames[0].getTime()"
               [max]="animationFrames[animationFrames.length - 1].getTime()"
-              step="100"
-              [(ngModel)]="selectedFrameMs"
-              (change)="doSelectNearestFrame()"
-              aria-labelledby="Animation speed">
+              step="100">
+              <input matSliderThumb [(ngModel)]="selectedFrameMs" (change)="doSelectNearestFrame()" aria-label="Animation time">
             </mat-slider>
           }
         </span>
