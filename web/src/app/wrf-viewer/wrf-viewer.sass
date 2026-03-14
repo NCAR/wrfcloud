@@ -1,0 +1,175 @@
+@use 'sass:color'
+@import ../../globals
+
+
+table
+  border-spacing: 0
+
+.viewer-mobile-container
+  font-size: 1.2rem
+  width: 90vw
+  margin: calc(30vh - 100px) auto 0 auto
+
+.viewer-mobile-text
+  line-height: 1.4
+  text-align: justify
+  padding: 15px
+  border-radius: 8px
+  border: 1px solid $background-contrast
+  background: $background-default
+  color: $text-color
+
+.viewer-mobile-button-container
+  margin-top: 20px
+  display: grid
+
+.viewer-mobile-button
+  background-color: $background-edit
+  color: $text-contrast
+  font-size: 1.2rem
+
+.viewer-container
+  margin-top: 0
+  width: 100vw
+  overflow: hidden
+  background-color: $background-plain
+
+.viewer-title
+  font-size: 2.0rem
+  width: 50%
+  display: inline-block
+  text-align: right
+
+.viewer-init-time-select
+  margin-left: 40px
+  font-size: 1.2rem
+  display: inline-grid
+  min-width: 300px
+
+.viewer-init-time-select-mat
+  min-width: 225px
+
+.viewer-mid-panel
+  width: 98vw
+  margin-left: 1vw
+  display: inline-flex
+
+.viewer-height-selector
+  max-width: 70px
+  display: inline-block
+  background: $background-plain
+  border-top-left-radius: 12px
+
+.viewer-height-selector-label
+  font-size: 1.0rem
+  text-orientation: sideways
+  writing-mode: vertical-lr
+  position: relative
+  top: -60%
+
+::ng-deep .mat-slider-thumb-label-text
+  color: $text-contrast !important
+  background: $background-edit !important
+
+.viewer-height-selector-widget
+  color: $text-contrast
+  margin-top: 0
+  min-height: 100%
+
+.viewer-height-selector-value-label-container
+  display: inline
+  margin: 8px 5px 8px -15px
+  min-width: 20px
+  text-align: right
+
+.viewer-height-selector-value-label
+  position: relative
+  top: 5%
+
+.map
+  width: calc(98vw - 400px)
+  min-height: calc(100vh - 250px)
+  float: top
+
+.viewer-layers
+  min-width: 350px
+  background-color: $background-plain
+  border-top-right-radius: 12px
+  height: calc(100vh - 250px)
+  overflow-y: auto
+
+.viewer-lower-panel
+  width: 98vw
+  margin-left: 1vw
+  display: inline-flex
+  border-bottom-left-radius: 12px
+  border-bottom-right-radius: 12px
+  background-color: $background-plain
+
+.viewer-animate-tool
+  margin-left: 70px
+  width: 120px
+  min-height: 90px
+  text-align: center
+  display: grid
+  grid-template-columns: 33% 33% 33%
+  grid-column-gap: 0.5%
+
+.viewer-timeline
+  width: calc(100% - 370px)
+  min-height: 90px
+  text-align: center
+
+.viewer-anim-button
+  width: 40px
+  height: 40px
+  padding: 0
+  margin: 0
+
+.viewer-hide
+  display: none
+
+.viewer-anim-button-play
+  background-image: url('../../assets/play.png')
+  background-repeat: no-repeat
+
+.viewer-anim-button-pause
+  background-image: url('../../assets/pause.png')
+  background-repeat: no-repeat
+
+.viewer-anim-button-forward
+  background-image: url('../../assets/step_forward.png')
+  background-repeat: no-repeat
+
+.viewer-anim-button-back
+  background-image: url('../../assets/step_back.png')
+  background-repeat: no-repeat
+
+.viewer-anim-speed-label
+  font-size: 0.6rem
+  margin-top: -20px
+
+.viewer-left
+  float: left
+
+.viewer-right
+  float: right
+
+.viewer-wide-center
+  width: 90%
+  margin: auto
+
+.viewer-anim-time-slider
+  width: 80%
+  margin: 22px auto auto 100px
+
+.viewer-political-layer
+  padding: 10px
+  font-size: .875rem
+
+::ng-deep .mat-primary .mat-slider-track-fill
+  background-color: rgba(0,0,0,0.25) !important
+
+::ng-deep .mat-slider-thumb-label-text
+  color: $text-emphasize !important
+  margin-left: 0 !important

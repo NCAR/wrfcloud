@@ -1,0 +1,95 @@
+@import ../../globals
+
+
+.model-config-container
+  width: 100vw
+  margin: auto
+  font-size: 1.25rem
+
+.model-config-filter-container
+  display: grid
+  width: 90vw
+  max-width: 800px
+  margin: auto
+
+.model-config-hide
+  visibility: hidden
+
+.model-config-overlay
+  grid-column: 1
+  grid-row: 1
+
+.model-config-filter-input
+  width: 100%
+  margin: 15px auto 0 auto
+
+.model-config-busy-spinner
+  width: 100%
+  text-align: center
+  margin-top: 30px
+
+.model-config-table-container
+  width: 100%
+  max-width: calc(800px - 8px * 2)
+  margin: auto
+
+.model-config-user-table
+  font-size: 1.25rem
+  width: 100%
+
+.model-config-user-table-cell
+  max-width: 30%
+
+.model-config-inactive-icon
+  color: $background-warn
+
+.model-config-active-icon
+  color: $text-success
+
+.model-config-hover-highlight :hover
+  background-color: $text-highlight
+
+.model-config-action-panel
+  width: 100%
+  max-width: 800px
+  margin: auto
+  display: grid
+  grid-column-gap: 4%
+
+.model-config-action-button
+  font-size: 1.1rem
+  width: 85%
+  border: 1px solid $background-contrast
+  margin: 10px auto auto auto
+
+.model-config-action-button-icon
+  font-size: 1.0rem
+  position: relative
+  top: 3px
+
+.mat-header-cell
+  font-size: 1.25rem
+  font-weight: bold
+
+.mat-cell
+  font-size: 1.25rem
+
+@media screen and (min-width: 840px)
+
+  .model-config-action-button
+    font-size: 1.0rem
+
+  .model-config-table-container
+    background: $background-plain
+    padding: 0 8px
+    border-radius: 8px
+    border: 1px solid $background-contrast
+
+  .model-config-action-button-icon
+    font-size: 1.0rem
+
+  .mat-header-cell
+    font-size: 1.0rem
+
+  .mat-cell
+    font-size: 1.0rem

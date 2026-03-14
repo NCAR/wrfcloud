@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 
 import {AppRoutingModule} from './app-routing.module';
-import {AppComponent} from './app.component';
+import {AppComponent} from './app';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatMenuModule} from "@angular/material/menu";
 import {MatIconModule} from "@angular/material/icon";
@@ -23,31 +23,31 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatBadgeModule} from "@angular/material/badge";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MatMomentDateModule} from "@angular/material-moment-adapter";
-import {MatRadioModule} from "@angular/material/radio";
+import {MAT_RADIO_DEFAULT_OPTIONS, MatRadioModule} from "@angular/material/radio";
 import {MatTreeModule} from '@angular/material/tree';
 
-import {HomeComponent} from './home/home.component';
-import {LoginComponent} from './login/login.component';
+import {HomeComponent} from './home/home';
+import {LoginComponent} from './login/login';
 import {MatButtonModule} from "@angular/material/button";
 import {MatGridListModule} from "@angular/material/grid-list";
-import {ManageUsersComponent} from './manage-users/manage-users.component';
-import {LaunchWrfComponent} from './launch-wrf/launch-wrf.component';
-import {ViewJobsComponent} from './view-jobs/view-jobs.component';
-import {ErrorDialogComponent} from './error-dialog/error-dialog.component';
-import {EditUserComponent} from './edit-user/edit-user.component';
-import {WrfViewerComponent} from './wrf-viewer/wrf-viewer.component';
-import {ActivateComponent} from "./activate/activate.component";
-import {ResetPasswordComponent} from './reset-password/reset-password.component';
-import {LayerComponent} from './layer/layer.component';
-import {PreferencesComponent} from './preferences/preferences.component';
-import {LogoutComponent} from './logout/logout.component';
-import {ModelConfigComponent} from './model-config/model-config.component';
-import {EditModelConfigurationComponent} from './edit-model-configuration/edit-model-configuration.component';
-import {JobDetailsComponent} from './job-details/job-details.component';
-import {ContextHelpComponent} from './context-help/context-help.component';
+import {ManageUsersComponent} from './manage-users/manage-users';
+import {LaunchWrfComponent} from './launch-wrf/launch-wrf';
+import {ViewJobsComponent} from './view-jobs/view-jobs';
+import {ErrorDialogComponent} from './error-dialog/error-dialog';
+import {EditUserComponent} from './edit-user/edit-user';
+import {WrfViewerComponent} from './wrf-viewer/wrf-viewer';
+import {ActivateComponent} from "./activate/activate";
+import {ResetPasswordComponent} from './reset-password/reset-password';
+import {LayerComponent} from './layer/layer';
+import {PreferencesComponent} from './preferences/preferences';
+import {LogoutComponent} from './logout/logout';
+import {ModelConfigComponent} from './model-config/model-config';
+import {EditModelConfigurationComponent} from './edit-model-configuration/edit-model-configuration';
+import {JobDetailsComponent} from './job-details/job-details';
+import {ContextHelpComponent} from './context-help/context-help';
 import {MatTabsModule} from "@angular/material/tabs";
-import {MapAreaSelectorComponent} from './map-area-selector/map-area-selector.component';
-import {LogViewerComponent} from './log-viewer/log-viewer.component';
+import {MapAreaSelectorComponent} from './map-area-selector/map-area-selector';
+import {LogViewerComponent} from './log-viewer/log-viewer';
 
 
 @NgModule({ declarations: [
@@ -99,6 +99,7 @@ import {LogViewerComponent} from './log-viewer/log-viewer.component';
         MatTabsModule,
         MatTreeModule], providers: [
         { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } },
+        { provide: MAT_RADIO_DEFAULT_OPTIONS, useValue: { color: 'primary' } },
         provideHttpClient(withInterceptorsFromDi())
     ] })
 export class AppModule

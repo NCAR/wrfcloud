@@ -1,16 +1,16 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-import {HomeComponent} from './home/home.component';
-import {LoginComponent} from './login/login.component';
-import {LogoutComponent} from './logout/logout.component';
-import {LaunchWrfComponent} from './launch-wrf/launch-wrf.component';
-import {ManageUsersComponent} from './manage-users/manage-users.component';
-import {PreferencesComponent} from './preferences/preferences.component';
-import {ViewJobsComponent} from "./view-jobs/view-jobs.component";
-import {WrfViewerComponent} from "./wrf-viewer/wrf-viewer.component";
-import {ActivateComponent} from './activate/activate.component';
-import {ResetPasswordComponent} from './reset-password/reset-password.component';
-import {ModelConfigComponent} from "./model-config/model-config.component";
+import {HomeComponent} from './home/home';
+import {LoginComponent} from './login/login';
+import {LogoutComponent} from './logout/logout';
+import {LaunchWrfComponent} from './launch-wrf/launch-wrf';
+import {ManageUsersComponent} from './manage-users/manage-users';
+import {PreferencesComponent} from './preferences/preferences';
+import {ViewJobsComponent} from "./view-jobs/view-jobs";
+import {WrfViewerComponent} from "./wrf-viewer/wrf-viewer";
+import {ActivateComponent} from './activate/activate';
+import {ResetPasswordComponent} from './reset-password/reset-password';
+import {ModelConfigComponent} from "./model-config/model-config";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},

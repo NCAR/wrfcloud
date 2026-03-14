@@ -1,4 +1,5 @@
-@import globals
+@use '@angular/material' as mat
+@use 'globals' as *
 
 
 body
@@ -10,38 +11,35 @@ a
   text-decoration: none
 
 // Material Design overrides
-.mat-checkbox-indeterminate.mat-primary .mat-checkbox-background, .mat-checkbox-checked.mat-primary .mat-checkbox-background
-  background-color: $background-edit
 
-.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background, .mat-checkbox-checked.mat-accent .mat-checkbox-background
-  background-color: $background-edit
+:root
+  @include mat.checkbox-overrides((
+    selected-icon-color: $background-edit,
+    selected-hover-icon-color: $background-edit,
+    selected-focus-icon-color: $background-edit,
+    selected-pressed-icon-color: $background-edit,
+    selected-checkmark-color: $background-plain,
+  ))
 
-.mat-slider.mat-primary .mat-slider-track-fill, .mat-slider.mat-primary .mat-slider-thumb, .mat-slider.mat-primary .mat-slider-thumb-label
-  background-color: $background-edit
+:root
+  @include mat.slider-overrides((
+    handle-color: $background-contrast,
+    focus-handle-color: $background-contrast,
+    active-track-color: $background-contrast,
+    active-track-shape: 16px,
+    inactive-track-color: $background-contrast,
+    inactive-track-shape: 16px,
+  ))
 
-.mat-slider.mat-accent .mat-slider-track-fill, .mat-slider.mat-accent .mat-slider-thumb, .mat-slider.mat-accent .mat-slider-thumb-label
-  background-color: $background-edit
+.mat-mdc-radio-button.mat-primary
+  @include mat.radio-overrides((
+    selected-icon-color: $background-edit,
+    selected-hover-icon-color: $background-edit,
+    selected-focus-icon-color: $background-edit,
+    selected-pressed-icon-color: $background-edit,
+    checked-ripple-color: $background-edit,
+  ))
 
-.mat-slider-thumb
-  background-color: $background-edit !important
-
-.mat-radio-button.mat-primary.mat-radio-checked .mat-radio-outer-circle
-  border-color: $background-edit
-
-.mat-radio-button.mat-primary.mat-radio-checked .mat-radio-inner-circle
-  background-color: $background-edit
-
-.mat-form-field-appearance-fill .mat-form-field-flex
-  background-color: $background-default
-
-.mat-primary .mat-option.mat-selected:not(.mat-option-disabled)
-  color: $text-menu-select
-
-.mat-dialog-container
-  padding: 24px 8px !important
-
-.mat-tree-node
-  min-height: unset
 
 // OpenLayers overrides
 .ol-attribution.ol-uncollapsible
