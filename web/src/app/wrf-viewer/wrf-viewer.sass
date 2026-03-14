@@ -72,9 +72,12 @@ table
   background: $background-edit !important
 
 .viewer-height-selector-widget
-  color: $text-contrast
-  margin-top: 0
-  min-height: 100%
+  width: calc(100vh - 277px)
+  transform: rotate(90deg) translateX(-45%)
+  transform-origin: center left
+  margin-bottom: calc(70px - (100vh - 300px))
+  border: 1px solid peru
+  z-index: 9999
 
 .viewer-height-selector-value-label-container
   display: inline
