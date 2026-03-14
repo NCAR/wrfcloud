@@ -61,7 +61,7 @@ export class WrfViewerComponent implements OnInit
   /**
    * Delay in milliseconds between
    */
-  public animationDelayMs: number = 100;
+  public animationDelayMs: number = 3000;
 
 
   /**
