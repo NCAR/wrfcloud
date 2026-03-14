@@ -939,7 +939,7 @@ export class WrfViewerComponent implements OnInit
     if (this.playing)
     {
       this.doStepAnimation();
-      setTimeout(this.runAnimation.bind(this), this.animationDelayMs);
+      setTimeout(this.runAnimation.bind(this), 3100 - this.animationDelayMs);
     }
   }
 
