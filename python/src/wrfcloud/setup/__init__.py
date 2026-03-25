@@ -364,8 +364,7 @@ def _upload_to_s3(bucket: str, key: str, default_file: str, not_found_prompt: Un
         print(e)
 
 
-def _finalize_and_upload_webapp_to_s3(bucket: str, prefix: str, default_dir: str, not_found_prompt: str, api: str,
-                                      ws: str) -> None:
+def _finalize_and_upload_webapp_to_s3(bucket: str, prefix: str, default_dir: str, not_found_prompt: str, api: str, ws: str) -> None:
     """
     Sync the directory to the S3 bucket
     :param bucket: S3 bucket name

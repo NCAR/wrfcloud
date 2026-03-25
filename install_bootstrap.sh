@@ -128,12 +128,13 @@ function create_wrfcloud_web_application()
   cd "${build_dir}/wrfcloud/web"
   npm install
   ng build
-  if [[ -e "dist/web/browser" ]]; then
-    mv dist/web/browser "${build_dir}"/web
+  if [[ -e "dist/web" ]]; then
+    mv dist/web "${build_dir}"/web
   else
     echo "Failed to build the web application."
     echo "  - Check the ng-cli installation"
     echo "  - Check for errors in the web application build"
+    exit 1
   fi
 }
 
