@@ -25,6 +25,7 @@ class WrfCloudImageBuilder(CloudFormation):
         self.cf_client = None
         self.ib_client = None
         self.ec2_client = None
+        self.parameters.append({'ParameterKey': 'LocalUser', 'ParameterValue': os.environ['USER']})
 
         # maybe add the GIT_CLONE_OPTS parameter
         if 'GIT_CLONE_OPTS' in os.environ:

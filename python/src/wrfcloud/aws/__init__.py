@@ -26,7 +26,7 @@ class CloudFormation:
         self.stack_name: str = ''
         self.cf_template_resource: str = ''
         self.cf_client = None
-        self.parameters = [{'ParameterKey': 'LocalUser', 'ParameterValue': os.environ['USER']}]
+        self.parameters = []
 
     def create_stack(self) -> None:
         """
