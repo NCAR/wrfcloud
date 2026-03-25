@@ -117,6 +117,8 @@ Resources:
                 Resource:
                   - !Sub 'arn:aws:s3:::${WrfCloudBucket}'
                   - !Sub 'arn:aws:s3:::${WrfCloudBucket}/*'
+              # Note: AWS-Managed Policy for ParallelCluster is not available, but here is some documentation on required permissions for reference:
+              # https://docs.aws.amazon.com/parallelcluster/latest/ug/iam-roles-in-parallelcluster-v3.html
               - Effect: Allow
                 Action: iam:PassRole
                 Condition:
@@ -167,6 +169,12 @@ Resources:
                   - iam:GetRolePolicy
                   - iam:PutRolePolicy
                   - iam:SimulatePrincipalPolicy
+                  - iam:TagRole
+                  - iam:UntagRole
+                  - iam:TagInstanceProfile
+                  - iam:ListAttachedRolePolicies
+                  - iam:ListRolePolicies
+                  - iam:ListInstanceProfilesForRole
                   - secretsmanager:DescribeSecret
                 Resource:
                   - !Sub 'arn:aws:dynamodb:*:${AWS::AccountId}:table/parallelcluster-*'
@@ -260,6 +268,34 @@ Resources:
               - Effect: Allow
                 Action: elasticfilesystem:*
                 Resource: !Sub 'arn:aws:elasticfilesystem:*:${AWS::AccountId}:*'
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:PutParameter
+                  - ssm:DeleteParameter
+                  - ssm:AddTagsToResource
+                  - ssm:ListTagsForResource
+                Resource: !Sub 'arn:aws:ssm:*:${AWS::AccountId}:parameter/parallelcluster/*'
+              - Effect: Allow
+                Action:
+                  - sns:CreateTopic
+                  - sns:DeleteTopic
+                  - sns:Subscribe
+                  - sns:Unsubscribe
+                  - sns:GetTopicAttributes
+                  - sns:SetTopicAttributes
+                  - sns:TagResource
+                  - sns:ListTagsForResource
+                Resource: !Sub 'arn:aws:sns:*:${AWS::AccountId}:parallelcluster-*'
+              - Effect: Allow
+                Action:
+                  - sqs:CreateQueue
+                  - sqs:DeleteQueue
+                  - sqs:GetQueueAttributes
+                  - sqs:SetQueueAttributes
+                  - sqs:TagQueue
+                  - sqs:ListQueueTags
+                Resource: !Sub 'arn:aws:sqs:*:${AWS::AccountId}:parallelcluster-*'
   LambdaLayerPythonDeps:
     Type: AWS::Lambda::LayerVersion
     Properties:

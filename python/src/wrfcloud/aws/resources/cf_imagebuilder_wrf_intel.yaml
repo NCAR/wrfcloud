@@ -499,7 +499,6 @@ Resources:
                     - git clone ${GIT_CLONE_OPTS} https://github.com/NCAR/wrfcloud
                     - python3.12 -m pip install wrfcloud/python/src
                     - FC=gfortran F90=gfortran python3.12 -m pip install git+https://github.com/NCAR/wrf-python.git@v1.4.2
-                    - su - ec2-user -c "/usr/local/bin/wrfcloud-run --help
 
   ComponentWrf:
     Type: AWS::ImageBuilder::Component
