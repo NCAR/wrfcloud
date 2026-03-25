@@ -9,7 +9,7 @@ HeadNode:
     SubnetId: __SUBNET_ID__
   Ssh:
     KeyName: __USER__
-    AllowedIps: 128.117.0.0/16  # TODO: Remove this prior to release
+    AllowedIps: 127.0.0.1/32  # closed by default; overridden at runtime with the user's IP
   LocalStorage:
     RootVolume:
       Size: 50

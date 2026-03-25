@@ -9,7 +9,7 @@ Parameters:
   GitCloneOpts:
     Description: Options passed to the git clone command for WRF Cloud repo (used if you want to build a specific branch of WRF Cloud in the AMI)
     Type: String
-    Default: '-b hotfix/update-dependency-versions'  # TODO: Change this back to main for release
+    Default: '-b main'
 
 Resources:
   ComponentUpdateOs:
@@ -18,7 +18,6 @@ Resources:
       Name: update-os
       Platform: Linux
       Version: 1.0.0
-      # TODO: previous working version was intel-hpckit-2023.1.0.x86_64 -- pin version again before release
       Data: |
         name: Update OS Packages
         description: 'Update OS Packages'
