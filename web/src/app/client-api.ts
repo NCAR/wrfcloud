@@ -544,18 +544,22 @@ export class ClientApi
 
 
   /**
-   * Launch a WRF run
+   * Launch a WRF run -- this has to go through a websocket now, because ParallelCluster takes more than 30 seconds
+   * to launch a cluster and the API Gateway times out after 30 seconds (not configurable in AWS).  ParallelCluster
+   * v3.2.1 took less than 30 seconds, so before switching to v3.14.2, we were able to use REST, but now we are
+   * forced to switch to calling the Websocket.  Probably not a big deal, just no longer get a response handler
+   * callback, and we have to wait for an incoming websocket message.
    */
-  public sendLaunchWrf(requestData: RunWrfRequest, responseHandler: Function): void
+  public sendLaunchWrf(requestData: RunWrfRequest): void
   {
-    /* create the API request */
+    /* create the websocket request */
     const request: ApiRequest = {
       action: 'RunWrf',
       data: requestData
     };
 
-    /* send the API request */
-    this.sendRequest(request, responseHandler, true);
+    /* send the websocket request */
+    this.sendWebsocketMessage(request, true);
   }
 
 

@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ListModelConfigurationsResponse, RunWrfRequest, RunWrfResponse} from "../client-api";
+import {ListModelConfigurationsResponse, RunWrfRequest, RunWrfResponse, WebsocketListener} from "../client-api";
 import moment from 'moment';
 import {AppComponent} from "../app";
 
@@ -9,7 +9,7 @@ import {AppComponent} from "../app";
     styleUrls: ['./launch-wrf.sass'],
     standalone: false
 })
-export class LaunchWrfComponent implements OnInit
+export class LaunchWrfComponent implements OnInit, WebsocketListener
 {
   /* reference to the app singleton */
   public app: AppComponent = AppComponent.singleton;
@@ -76,8 +76,13 @@ export class LaunchWrfComponent implements OnInit
     /* latest date to select is today */
     this.maxDate = moment().utc().toDate();
 
+    /* set the latest date/time as defaults */
     this.refreshDateRange();
+
+    /* connect up the websocket */
+    this.app.api.connectWebsocket(this);
   }
+
 
   /**
    * Update the valid date range of the cycle date
@@ -109,7 +114,7 @@ export class LaunchWrfComponent implements OnInit
   }
 
   /**
-   *
+   * Launch the WRF job
    */
   public startWrf(): void
   {
@@ -130,25 +135,20 @@ export class LaunchWrfComponent implements OnInit
     this.req.output_frequency = this.outputFrequencyOptions[this.outputFrequencyIndex];
 
     /* send the API request */
-    this.app.api.sendLaunchWrf(this.req, this.handleStartWrfResponse.bind(this));
+    this.app.api.sendLaunchWrf(this.req);
+
+    /* this request goes through a websocket, so after 1.25 seconds, just route to the job status page */
+    setTimeout(this.handleStartWrfResponse.bind(this), 9000);
   }
 
 
   /**
    * Handle a launch WRF response
-   * @param response
    */
-  public handleStartWrfResponse(response: RunWrfResponse): void
+  public handleStartWrfResponse(): void
   {
     /* stop the busy spinner */
     this.busy = false;
-
-    /* show any errors */
-    if (!response.ok)
-    {
-      this.app.showErrorDialog(response.errors);
-      return;
-    }
 
     /* show success message and route to the job status page */
     this.success = true;
@@ -198,7 +198,7 @@ export class LaunchWrfComponent implements OnInit
    * Start the progress bar for N seconds
    * @param seconds
    */
-  private startSubmitProgress(seconds: number = 30): void
+  private startSubmitProgress(seconds: number = 10): void
   {
     this.submitProgress = 0;
     this.runSubmitProgress(seconds);
@@ -210,7 +210,7 @@ export class LaunchWrfComponent implements OnInit
    * @param seconds Complete in this many seconds
    * @private
    */
-  private runSubmitProgress(seconds: number = 30): void
+  private runSubmitProgress(seconds: number = 10): void
   {
     const increment: number = 100 / (seconds * 2);
     this.submitProgress += increment;
@@ -243,5 +243,19 @@ export class LaunchWrfComponent implements OnInit
     /* select the first one in the list */
     if (this.modelConfigOptions.length > 0)
       this.req.configuration_name = this.modelConfigOptions[0];
+  }
+
+  public websocketOpen(event: Event)
+  {
+  }
+  public websocketClose(event: CloseEvent)
+  {
+    this.app.api.connectWebsocket(this);
+  }
+  public websocketMessage(event: MessageEvent)
+  {
+    console.log('Websocket message received by LaunchWrfComponent --------');
+    console.log(event);
+    console.log('---------------------------');
   }
 }

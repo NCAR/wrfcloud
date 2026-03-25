@@ -1,5 +1,8 @@
-<button mat-stroked-button class="job-details-cancel-button" (click)="closeDialog()"><mat-icon>close</mat-icon></button>
-
+<div class="job-details-button-container">
+    <button mat-icon-button class="job-details-cancel-button" (click)="closeDialog()">
+        <mat-icon>close</mat-icon>
+    </button>
+</div>
 
 <div class="job-details-title">
   {{data.job.job_id}}

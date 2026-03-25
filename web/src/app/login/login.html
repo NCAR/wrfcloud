@@ -7,13 +7,13 @@
   @if (!showRecoveryInstructions) {
     <div>
       <div class="login-input-container">
-        <mat-form-field appearance="fill">
+        <mat-form-field appearance="outline">
           <mat-label>Email Address</mat-label>
           <input matInput type="email" [(ngModel)]="req.email" autofocus>
         </mat-form-field>
       </div>
       <div [class]="'login-input-container' + (iForgot ? ' login-hidden' : '')" >
-        <mat-form-field appearance="fill">
+        <mat-form-field appearance="outline">
           <mat-label>Password</mat-label>
           <input id="password" matInput type="password" [(ngModel)]="req.password" (keyup)="app.onEnter($event, doLogin.bind(this))">
           @if (req.password) {

@@ -10,7 +10,7 @@
 
   <!-- filter container -->
   <div class="job-filter-container">
-    <mat-form-field class="job-filter-input job-overlay" appearance="fill" [class.job-hide]="busy">
+    <mat-form-field class="job-filter-input job-overlay" appearance="outline" [class.job-hide]="busy">
       <mat-label>Filter Results</mat-label>
       <input matInput type="text" [(ngModel)]="filter" (keyup)="filterModified()">
       @if (filter.length > 0) {

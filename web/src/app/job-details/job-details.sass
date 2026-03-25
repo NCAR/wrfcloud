@@ -1,6 +1,9 @@
 @import '../../globals'
 
 
+.job-details-button-container
+  padding: 5px
+
 .job-details-container
   display: grid
   font-size: 1rem
@@ -12,20 +15,23 @@
 .job-details-title
   font-size: 1.1rem
   font-weight: bold
-  margin-bottom: 12px
+  margin: 0 0 12px 12px
 
 .job-details-title-status
   color: $dark-gray
   font-style: italic
 
 .job-details-progress-bar
-  margin-bottom: 8px
+  margin: 0 15px 8px 15px
 
 .job-details-busy
   text-align: center
 
 .job-details-buttons
-  margin-bottom: 16px
+  margin: 0 15px 16px 15px
+  display: grid
+  grid-template-columns: 30% 30% 30%
+  grid-column-gap: 5%
 
 .job-details-action-button
   background-color: $background-warn
