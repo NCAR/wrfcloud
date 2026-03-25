@@ -21,7 +21,6 @@
     "@angular/platform-browser": "^21.2.4",
     "@angular/platform-browser-dynamic": "^21.2.4",
     "@angular/router": "^21.2.4",
-    "@rollup/rollup-darwin-arm64": "^4.59.0",
     "ol": "^6.15.1",
     "proj4": "^2.9.0",
     "rxjs": "~7.5.0",
