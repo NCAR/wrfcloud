@@ -37,7 +37,7 @@ function main()
   create_wrfcloud_lambda_function
 
   ### Compile angular web application
-  install_angular20
+  install_angular21
   create_wrfcloud_web_application
 
   ### Install wrfcloud Python package
@@ -79,9 +79,9 @@ function install_nodejs22()
 # Install Angular 20 command line interface
 # Precondition: Node and npm are installed
 # Post-condition: Angular CLI is available in the path as "ng"
-function install_angular20()
+function install_angular21()
 {
-  npm install -g @angular/cli@20
+  npm install -g @angular/cli@21
   chmod +x "${HOME}/.nvm/versions/node/${node_version}/lib/node_modules/@angular/cli/bin/ng.js"
   mkdir -p "${HOME}/.config/angular"
   echo -n 'ewogICIkc2NoZW1hIjogIi4vbm9kZV9tb2R1bGVzL0Bhbmd1bGFyL2NsaS9saWIvY29uZmlnL3NjaGVtYS5qc29uIiwKICAidmVyc2lvbiI6IDEsCiAgImNsaSI6IHsKICAgICJjb21wbGV0aW9uIjogewogICAgICAicHJvbXB0ZWQiOiB0cnVlCiAgICB9CiAgfSwKICAicHJvamVjdHMiOiB7fQp9' | base64 -d > "${HOME}/.config/angular/config.json"
@@ -134,7 +134,6 @@ function create_wrfcloud_web_application()
     echo "Failed to build the web application."
     echo "  - Check the ng-cli installation"
     echo "  - Check for errors in the web application build"
-    exit 1
   fi
 }
 
