@@ -12,6 +12,7 @@
 .edit-model-config-title
   font-size: 1.75rem
   margin-bottom: 20px
+  padding: 16px 0 0 16px
 
 .edit-model-config-busy-spinner
   width: 100%
@@ -20,8 +21,7 @@
   margin-top: 8px
 
 .edit-model-config-field-container
-  width: 100%
-  max-width: 376px
+  width: 95%
   margin: auto
   display: grid
 
@@ -93,8 +93,13 @@
 
 @media screen and (min-width: 840px)
 
+  .edit-model-config-dialog-container
+    display: grid
+
   .edit-model-config-container
-    max-width: min(800px, 68vw)
+    max-width: unset
+    max-height: unset
+    width: 100%
 
   .edit-model-config-field-container
     max-width: 800px

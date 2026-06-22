@@ -1,12 +1,12 @@
 .map-area-container
-  margin-top: 8px
   width: 100%
-  max-width: 800px
+  margin: 8px auto 0 auto
   min-height: 200px
   display: grid
 
 .map-area-input
-  width: 100%
+  margin: auto
+  width: 95%
   max-width: 320px
   display: grid
 
@@ -19,7 +19,11 @@
 @media screen and (min-width: 840px)
 
   .map-area-container
-    display: inline-flex
+    grid-template-columns: auto 320px
+
+  .map-area-map
+    width: 100%
+    max-width: unset
 
   .map-area-input
     margin: 0 8px
