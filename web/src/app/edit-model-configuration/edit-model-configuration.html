@@ -4,7 +4,7 @@
     </div>
     <div class="edit-model-config-container">
         <div class="edit-model-config-field-container edit-model-width-30">
-            <mat-form-field class="edit-model-config-field" appearance="fill">
+            <mat-form-field class="edit-model-config-field" appearance="outline">
                 <mat-label>
                     Name
                     <span class="edit-model-config-hint">
@@ -15,7 +15,7 @@
             </mat-form-field>
         </div>
         <div class="edit-model-config-field-container edit-model-width-60">
-            <mat-form-field class="edit-model-config-field" appearance="fill">
+            <mat-form-field class="edit-model-config-field" appearance="outline">
                 <mat-label>Description</mat-label>
                 <input matInput type="text" [(ngModel)]="modelConfig.description">
             </mat-form-field>
@@ -41,7 +41,7 @@
                 <mat-tab label="Advanced">
                     <div class="edit-model-config-field-container">
                         <input class="edit-model-config-hidden-file-input" type="file" id="wps-namelist-file" (change)="fileSelected($event, 'wps')">
-                        <mat-form-field class="edit-model-config-field" appearance="fill">
+                        <mat-form-field class="edit-model-config-field" appearance="outline">
                             <mat-label>WPS Namelist</mat-label>
                             <textarea
                                     matInput
@@ -56,7 +56,7 @@
                     </div>
                     <div class="edit-model-config-field-container">
                         <input class="edit-model-config-hidden-file-input" type="file" id="wrf-namelist-file" (change)="fileSelected($event, 'wrf')">
-                        <mat-form-field class="edit-model-config-field" appearance="fill">
+                        <mat-form-field class="edit-model-config-field" appearance="outline">
                             <mat-label>WRF Namelist</mat-label>
                             <textarea
                                     matInput

@@ -212,11 +212,12 @@ export class LaunchWrfComponent implements OnInit, WebsocketListener
    */
   private runSubmitProgress(seconds: number = 10): void
   {
-    const increment: number = 100 / (seconds * 2);
+    const updateFreqInHz: number = 4;
+    const increment: number = 100 / (seconds * updateFreqInHz);
     this.submitProgress += increment;
 
     if (this.submitProgress < 100 && this.busy)
-      setTimeout(this.runSubmitProgress.bind(this), 1000, seconds);
+      setTimeout(this.runSubmitProgress.bind(this), 1000 / updateFreqInHz, seconds);
   }
 
 

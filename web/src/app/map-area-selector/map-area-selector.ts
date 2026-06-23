@@ -97,6 +97,12 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
 
 
   /**
+   * Tells us if the domain spans the International Date Line
+   */
+  public spansIdl: boolean = false;
+
+
+  /**
    * Current raw grid resolution
    */
   public gridResolution: number = 4000;
@@ -190,7 +196,7 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
   {
     /* calculate the center lat/lon */
     const refLat: number = (this.north + this.south) / 2;
-    const refLon: number = (this.west + 180 + this.east + 180) / 2 - 180;
+    let refLon: number = (this.west + 180 + this.east + 180) / 2 - (this.spansIdl ? 0 : 180);
 
     const distX: number = MapAreaSelectorComponent.haversine([this.west, refLat], [this.east, refLat]);
     const distY: number = MapAreaSelectorComponent.haversine([refLon, this.south], [refLon, this.north]);
@@ -315,6 +321,9 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
     if (this.map === undefined || this.domainLayer === undefined || this.boxStartCoords === undefined || this.boxEndCoords === undefined)
       return;
 
+    /* flag to tell us if the domain spans the International Date Line */
+    this.spansIdl = false;
+
     /* maybe swap the north/south and east/west values */
     this.north = Math.max(this.boxStartCoords![1], this.boxEndCoords![1]);
     this.south = Math.min(this.boxStartCoords![1], this.boxEndCoords![1]);
@@ -326,6 +335,10 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
     while (this.east < -180) this.east += 360;
     while (this.west > 180) this.west -= 360;
     while (this.west < -180) this.west += 360;
+
+    /* determine if this domain spans the International Date Line */
+    if (this.east - this.west && this.west > 90 && this.east < -90)
+      this.spansIdl = true;
 
     /* round precision to 4 decimal places, which is on the order of a few meters */
     this.north = Number.parseFloat(this.north.toFixed(4));
@@ -364,23 +377,15 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
 
     /* Estimate nx,ny from user selected lat/lon corners and dx,dy */
     const dx: number = this.gridResolution;
-    const nx: number = 1 + Math.round(MapAreaSelectorComponent.haversine([this.west, this.south], [this.east, this.south]) / dx);
-    const ny: number = 1 + Math.round(MapAreaSelectorComponent.haversine([this.east, this.north], [this.east, this.south]) / dx);
-
-    /* Convert new corners back to lat/lon values */
-    let sw: Coordinate = [this.west, this.south];
-    let se: Coordinate = MapAreaSelectorComponent.haversineInverse(sw, [dx*nx, 0]);
-    let ne: Coordinate = MapAreaSelectorComponent.haversineInverse(se, [0, dx*ny]);
-    let nw: Coordinate = MapAreaSelectorComponent.haversineInverse(ne, [-dx*nx, 0]);
 
     /* put simple back in */
-    sw = [this.west, this.south];
-    se = [this.east, this.south];
-    nw = [this.west, this.north];
-    ne = [this.east, this.north];
+    let sw: Coordinate = !this.spansIdl ? [this.west, this.south] : [this.east, this.south];
+    let se: Coordinate = !this.spansIdl ? [this.east, this.south] : [this.west, this.south];
+    let nw: Coordinate = !this.spansIdl ? [this.west, this.north] : [this.east, this.north];
+    let ne: Coordinate = !this.spansIdl ? [this.east, this.north] : [this.west, this.north];
 
     /* Draw the grid boundary on the map */
-    this.drawBox(sw, se, nw, ne);
+    this.drawBox(sw, se, nw, ne, this.spansIdl);
 
     /* maybe emit an event */
     if (emit)
@@ -395,10 +400,24 @@ export class MapAreaSelectorComponent implements OnInit, AfterViewInit, OnChange
    * @param se South-east corner
    * @param nw North-west corner
    * @param ne North-east corner
+   * @param spansIdl Indicate if this box spans the international date line
    * @private
    */
-  private drawBox(sw: Coordinate, se: Coordinate, nw: Coordinate, ne: Coordinate): void
+  private drawBox(sw: Coordinate, se: Coordinate, nw: Coordinate, ne: Coordinate, spansIdl: boolean): void
   {
+    if (spansIdl)
+    {
+      console.log('Spans IDL');
+      while (sw[0] < 0) sw[0] += 360;
+      while (se[0] < 0) se[0] += 360;
+      while (nw[0] < 0) nw[0] += 360;
+      while (ne[0] < 0) ne[0] += 360;
+    }
+    console.log(sw);
+    console.log(se);
+    console.log(nw);
+    console.log(ne);
+
     /* make sure the map is ready */
     if (this.map === undefined || this.domainLayer === undefined)
       return;

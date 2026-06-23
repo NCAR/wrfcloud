@@ -24,7 +24,7 @@
   </div>
 
   <div class="log-viewer-log-content">
-    <mat-form-field class="log-viewer-show-mobile" appearance="fill">
+    <mat-form-field class="log-viewer-show-mobile" appearance="outline">
       <mat-label>Select Log File</mat-label>
       <mat-select [(ngModel)]="selectedLogFile" (ngModelChange)="updateLogContent()">
         @for (logFile of logFiles | keyvalue: originalOrder; track logFile) {
@@ -34,7 +34,7 @@
         }
       </mat-select>
     </mat-form-field>
-    <mat-form-field class="log-viewer-display" appearance="fill">
+    <mat-form-field class="log-viewer-display" appearance="outline">
       <mat-label>{{selectedLogFile}}</mat-label>
       <textarea matInput type="text" disabled="true" class="log-viewer-textarea monospaced-text">{{logContent}}</textarea>
     </mat-form-field>

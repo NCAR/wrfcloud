@@ -4,7 +4,7 @@ Module to convert WRF output to GeoJSON
 import os
 import pkgutil
 from concurrent.futures import ProcessPoolExecutor, wait
-from typing import Union, List
+from typing import Union, List, Any
 from gzip import compress
 import json
 from argparse import ArgumentParser
@@ -94,11 +94,11 @@ class GeoJson:
                 file.flush()
                 file.close()
         except Exception as e:
-            self.log.error(f'Exception occurred trying to create {out_file}: {e}')
+            self.log.error(f'Exception occurred trying to create {out_file}', e)
 
         return None
 
-    def _read_from_netcdf(self) -> (MaskedArray, MaskedArray, MaskedArray):
+    def _read_from_netcdf(self) -> tuple[MaskedArray, MaskedArray, MaskedArray]:
         """
         Read the variable data, latitude, and longitude grids from a NetCDF file
         :return: data, latitude, longitude
@@ -124,7 +124,7 @@ class GeoJson:
 
         return grid, grid_lat, grid_lon
 
-    def _read_from_grib(self) -> (MaskedArray, MaskedArray, MaskedArray):
+    def _read_from_grib(self) -> tuple[MaskedArray, MaskedArray, MaskedArray]:
         """
         Read the variable data, latitude, and longitude grids from a GRIB2 file
         :return: data, latitude, longitude
@@ -141,7 +141,7 @@ class GeoJson:
 
         return grid, grid_lat, grid_lon
 
-    def _read_2d_from_grib(self, wrf: any) -> MaskedArray:
+    def _read_2d_from_grib(self, wrf: Any) -> MaskedArray:
         """
         Read the 2D variable data from a GRIB2 file
         :param wrf: pygrib.open object to read the GRIB2 file
@@ -154,7 +154,7 @@ class GeoJson:
 
         return grid
 
-    def _read_3d_from_grib(self, wrf: any) -> MaskedArray:
+    def _read_3d_from_grib(self, wrf: Any) -> MaskedArray:
         """
         Read the 3D variable data from a GRIB2 file
         :param wrf: pygrib.open object to read the GRIB2 file
@@ -181,7 +181,7 @@ class GeoJson:
 
         return MaskedArray(data2d, ndmin=2)
 
-    def _grid_to_lonlat(self, x: float, y: float) -> (float, float):
+    def _grid_to_lonlat(self, x: float, y: float) -> tuple[float, float]:
         """
         Convert grid XY coordinates to longitude and latitude
         :param x: The X position on the grid
@@ -210,19 +210,39 @@ class GeoJson:
 
         return round(lon, 5), round(lat, 5)
 
-    def _polygon_to_coord_array(self, polygon: numpy.ndarray) -> list[(float, float)]:
+    def _polygon_to_coord_array(self, polygon: numpy.ndarray) -> list[tuple[float, float]]:
         """
         Convert a polygon contour path to a coordinate array
         """
+        # flags to track if any point is contained in which hemisphere
+        in_east_hemi: bool = False
+        in_west_hemi: bool = False
+
         points = []
         for point in polygon:
+            # convert the grid point to lon/lat values
             lonlat_point = self._grid_to_lonlat(point[0], point[1])
             points.append(lonlat_point)
 
-        return points
+            # check which hemisphere this polygon has points in
+            if lonlat_point[0] > 160:
+                in_east_hemi = True
+            if lonlat_point[0] < -160:
+                in_west_hemi = True
+
+        # correct the IDL wrapping by adding 360&deg; to each longitude value if it is negative
+        final_points = []
+        if in_east_hemi and in_west_hemi:
+            for point in points:
+                if point[0] < 0:
+                    final_points.append((point[0] + 360, point[1]))
+                else:
+                    final_points.append(point)
+
+        return final_points
 
     @staticmethod
-    def _polygon_and_holes_to_multi_polygon(polygon: list[list[float]], holes: list[list[list[float]]]) -> str:
+    def _polygon_and_holes_to_multi_polygon(polygon: list[tuple[float, float]], holes: list[list[tuple[float, float]]]) -> str:
         """
         Convert a polygon and zero or more holes to a GeoJSON multi-polygon coordinate string
         :param polygon: List of polygon coordinates
@@ -255,7 +275,8 @@ class GeoJson:
 
             # skip if there are no polygons
             if len(path_polygons) == 0:
-                self.log.warn('No polygons found')
+                if i < len(levels):
+                    self.log.warn(f'No polygons found for level: {levels[i]}')
                 continue
 
             # the first polygon in the list is the outer polygon

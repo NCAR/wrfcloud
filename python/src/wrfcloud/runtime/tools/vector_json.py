@@ -85,7 +85,7 @@ class VectorJson:
             with open(out_file, 'wb') as file_handle:
                 file_handle.write(compress(json.dumps(doc).encode()))
         except Exception as e:
-            self.log.error(f'Exception occurred trying to create {out_file}: {e}')
+            self.log.error(f'Exception occurred trying to create {out_file}', e)
 
         return None
 

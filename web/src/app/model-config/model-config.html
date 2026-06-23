@@ -15,7 +15,7 @@
 
   <!-- filter container -->
   <div class="model-config-filter-container">
-    <mat-form-field class="model-config-filter-input model-config-overlay" appearance="fill" [class.model-config-hide]="busy">
+    <mat-form-field class="model-config-filter-input model-config-overlay" appearance="outline" [class.model-config-hide]="busy">
       <mat-label>Filter Results</mat-label>
       <input matInput type="text" [(ngModel)]="filter" (keyup)="filterModified()">
       @if (filter.length > 0) {

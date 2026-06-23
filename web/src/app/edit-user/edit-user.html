@@ -3,19 +3,19 @@
 </div>
 <div class="edit-user-container">
   <div class="edit-user-field-container">
-    <mat-form-field class="edit-user-field" appearance="fill">
+    <mat-form-field class="edit-user-field" appearance="outline">
       <mat-label>Email</mat-label>
       <input matInput type="text" [(ngModel)]="user.email" [disabled]="edit">
     </mat-form-field>
   </div>
   <div class="edit-user-field-container">
-    <mat-form-field class="edit-user-field" appearance="fill">
+    <mat-form-field class="edit-user-field" appearance="outline">
       <mat-label>Name</mat-label>
       <input matInput type="text" [(ngModel)]="user.full_name">
     </mat-form-field>
   </div>
   <div class="edit-user-field-container">
-    <mat-form-field class="edit-user-field" appearance="fill">
+    <mat-form-field class="edit-user-field" appearance="outline">
       <mat-label>Role</mat-label>
       <mat-select [(value)]="user.role_id">
         @for (option of roles; track option) {
