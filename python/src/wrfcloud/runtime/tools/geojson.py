@@ -75,6 +75,11 @@ class GeoJson:
                                f'Valid types are "netcdf" and "grib2".')
                 return None
 
+            # inject longitude correction if this domain spans the International Date Line
+            spans_idl: bool = self.grid_lon[0][0] > self.grid_lon[-1][-1]
+            if spans_idl:
+                self.grid_lon[self.grid_lon < 0] += 360
+
             # create a set of features for the GeoJSON file
             features = self._create_features(grid)
 
@@ -214,32 +219,12 @@ class GeoJson:
         """
         Convert a polygon contour path to a coordinate array
         """
-        # flags to track if any point is contained in which hemisphere
-        in_east_hemi: bool = False
-        in_west_hemi: bool = False
-
+        # lookup lon/lat values for each grid point
         points = []
         for point in polygon:
-            # convert the grid point to lon/lat values
             lonlat_point = self._grid_to_lonlat(point[0], point[1])
             points.append(lonlat_point)
-
-            # check which hemisphere this polygon has points in
-            if lonlat_point[0] > 160:
-                in_east_hemi = True
-            if lonlat_point[0] < -160:
-                in_west_hemi = True
-
-        # correct the IDL wrapping by adding 360&deg; to each longitude value if it is negative
-        final_points = []
-        if in_east_hemi and in_west_hemi:
-            for point in points:
-                if point[0] < 0:
-                    final_points.append((point[0] + 360, point[1]))
-                else:
-                    final_points.append(point)
-
-        return final_points
+        return points
 
     @staticmethod
     def _polygon_and_holes_to_multi_polygon(polygon: list[tuple[float, float]], holes: list[list[tuple[float, float]]]) -> str:
