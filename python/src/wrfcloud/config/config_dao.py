@@ -97,7 +97,7 @@ class ConfigDao(DynamoDao):
         configs: List[WrfConfig] = [WrfConfig(item) for item in super().get_all_items()]
 
         # Load namelists from S3
-        tpe = ThreadPoolExecutor(max_workers=16)
+        tpe = ThreadPoolExecutor(max_workers=min(200, 2*len(configs)))
         futures: List[Future] = [tpe.submit(self._load_namelist, config, config.s3_key_wrf_namelist) for config in configs]
         futures += [tpe.submit(self._load_namelist, config, config.s3_key_wps_namelist) for config in configs]
         for future in futures:
@@ -188,6 +188,7 @@ class ConfigDao(DynamoDao):
                 config.wrf_namelist = data
             elif namelist_key.endswith('namelist.wps'):
                 config.wps_namelist = data
+
         except Exception as e:
             self.log.error(f'Failed to read namelist from S3. s3://{bucket}/{namelist_key}', e)
             return False

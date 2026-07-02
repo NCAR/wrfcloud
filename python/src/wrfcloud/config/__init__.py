@@ -90,5 +90,7 @@ def delete_config_from_system(del_config: WrfConfig) -> bool:
     if del_config is not None:
         return dao.delete_config(del_config)
 
+    # TODO: #240 delete namelists and geo_em from S3 -- a new configuration with the same name will pick up the geo_em file and will likely cause a failure
+
     log.error('Value for config to remove was set as None', ValueError('del_config cannot be None'))
     return False
