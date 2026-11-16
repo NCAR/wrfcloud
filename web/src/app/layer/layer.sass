@@ -5,6 +5,18 @@
 .layer-container
   padding: 10px
 
+.layer-legend-under-map
+  flex: 1 1 0
+  min-width: 320px
+  padding: 6px 24px 0 24px
+
+.layer-legend-under-map .layer-color-legend
+  width: 100%
+
+.layer-legend-name
+  font-size: 0.8rem
+  margin-bottom: 4px
+
 .layer-visibility
   display: grid
 
@@ -34,6 +46,44 @@
   min-width: 33%
   text-align: center
 
+.layer-color-legend-ticks
+  position: relative
+  height: 24px
+  min-height: 24px
+
+.layer-color-legend-tick
+  position: absolute
+  top: 0
+  font-size: 11px
+  line-height: 1.2
+
+.layer-color-legend-tick-mark
+  position: absolute
+  top: 0
+  left: 0
+  width: 1px
+  height: 4px
+  background: currentColor
+
+.layer-color-legend-tick-label
+  position: absolute
+  top: 5px
+  left: 0
+  transform: translateX(-50%)
+  white-space: nowrap
+  font-variant-numeric: tabular-nums
+
+.tick-first .layer-color-legend-tick-label
+  transform: none
+
+.tick-last .layer-color-legend-tick-label
+  transform: translateX(-100%)
+
+.layer-color-legend-units-row
+  text-align: center
+  font-size: 11px
+  min-height: 0
+
 
 .layer-details-closed
   animation-timing-function: linear
@@ -56,7 +106,7 @@
 
 @keyframes layer-collapse
   from
-    max-height: 95px
+    max-height: 130px
   to
     max-height: 0
 
@@ -64,4 +114,4 @@
   from
     max-height: 0
   to
-    max-height: 95px
+    max-height: 130px

@@ -910,6 +910,8 @@ export interface Palette
   palette_name: string;
   min_value: number;
   max_value: number;
+  contour_interval?: number;
+  levels?: number[];
 }
 
 export interface WrfLayerGroup

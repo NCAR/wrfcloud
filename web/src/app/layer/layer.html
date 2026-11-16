@@ -1,4 +1,4 @@
-@if (layerGroup) {
+@if (layerGroup && mode !== 'legend') {
   <div class="layer-container">
     <div class="layer-visibility">
       <mat-checkbox class="layer-checkbox" [(ngModel)]="layerGroup.visible" (change)="layerGroup.visibilityChange(layerGroup)">
@@ -28,13 +28,31 @@
           </mat-slider>
         </div>
       }
-      <div [class]="'layer-color-legend palette-' + layerGroup.palette.palette_name">
+    </div>
+  </div>
+}
+@if (layerGroup && mode === 'legend' && layerGroup.visible && layerGroup.progress >= 100) {
+  <div class="layer-legend-under-map">
+    <div class="layer-legend-name">{{layerGroup.display_name}}</div>
+    <div [class]="'layer-color-legend palette-' + layerGroup.palette.palette_name" [style.background-image]="legendBackground()">
+    </div>
+    @if (legendTickList().length > 0) {
+      <div class="layer-color-legend layer-color-legend-ticks">
+        @for (tick of legendTickList(); track tick.pos) {
+          <span class="layer-color-legend-tick" [style.left.%]="tick.pos"
+                [class.tick-first]="$first" [class.tick-last]="$last">
+            <span class="layer-color-legend-tick-mark"></span>
+            <span class="layer-color-legend-tick-label">{{tick.label}}</span>
+          </span>
+        }
       </div>
+      <div class="layer-color-legend layer-color-legend-units-row">{{layerGroup.units}}</div>
+    } @else {
       <div class="layer-color-legend">
         <span class="layer-color-legend-min">{{layerGroup.palette.min_value}}</span>
         <span class="layer-color-legend-units">{{layerGroup.units}}</span>
-        <span class="layer-color-legend-max">{{layerGroup.palette.max_value}}</span>
+        <span class="layer-color-legend-max">{{legendMaxValue()}}</span>
       </div>
-    </div>
+    }
   </div>
 }

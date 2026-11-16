@@ -36,7 +36,15 @@
             </div>
           }
         </span>
-        <div id="map" class="map"></div>
+        <div class="viewer-map-column">
+          <div id="map" class="map"></div>
+          <div class="viewer-legend-strip">
+            @for (layerGroup of layerGroups; track layerGroup) {
+              <app-layer [layerGroup]="layerGroup" mode="legend">
+              </app-layer>
+            }
+          </div>
+        </div>
         <span class="viewer-layers">
           <div class="viewer-political-layer">
             <mat-checkbox class="layer-checkbox" [(ngModel)]="politicalBoundariesVisible" (change)="togglePoliticalBoundaries()">

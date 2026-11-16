@@ -19,8 +19,9 @@ import numpy
 from numpy.ma.core import MaskedArray
 # pylint: disable=E0401
 import pygrib
+from colors import Palette as ColorsPalette
 
-from wrfcloud.jobs.job import WrfLayer, Palette
+from wrfcloud.jobs.job import WrfLayer, PaletteData
 from wrfcloud.log import Logger
 from wrfcloud.system import init_environment
 
@@ -30,7 +31,8 @@ class GeoJson:
     Class to convert WRF output to GeoJSON MultiPolygon format
     """
     def __init__(self, wrf_file: str, file_type: str, variable: str, value_range: List[float],
-                 contour_interval: float, palette: str, z_level: Union[int, None] = None):
+                 contour_interval: Union[float, None], palette: str, z_level: Union[int, None] = None,
+                 levels: Union[List[float], None] = None, skip_under: bool = False):
         """
         Construct a WRF to GeoJSON converter
         :param wrf_file: Full path to the WRF output file
@@ -40,6 +42,8 @@ class GeoJson:
         :param contour_interval: Value difference between contour levels
         :param palette: Name of the color palette
         :param z_level: Height level in the to convert
+        :param levels: Explicit contour levels, for unevenly spaced levels (replaces value_range and contour_interval)
+        :param skip_under: Do not draw the region below the lowest level, so it is transparent (e.g. reflectivity)
         """
         self.log = Logger(self.__class__.__name__)
         self.wrf_file = wrf_file
@@ -52,6 +56,8 @@ class GeoJson:
         self.min = value_range[0]
         self.max = value_range[1]
         self.contour_interval = contour_interval
+        self.levels = levels
+        self.skip_under = skip_under
         self.palette = palette
         self.time_step = 0
 
@@ -239,21 +245,48 @@ class GeoJson:
             mp_str += ',' + str([[point[0], point[1]] for point in hole])
         return '[' + mp_str + ']'
 
+    def _get_fill_colors(self, n_colors: int) -> list[str]:
+        """
+        Get evenly spaced colors from the palette in the NCAR colors package
+        :param n_colors: Number of colors needed
+        :return: List of hex colors, empty if the palette is not in the colors package
+        """
+        palette = ColorsPalette(self.palette)
+        if palette.n_colors < 1:
+            return []
+        return palette.interpolate(n_colors).hex_colors
+
     def _create_features(self, grid: MaskedArray):
         features = []
 
-        # create a set of contours from the data grid
-        range_min = int(self.min * 10)
-        range_max = int(self.max * 10)
-        contour_interval = int(self.contour_interval*10)
-        levels = [i/10 for i in range(range_min, range_max, contour_interval)]
-        contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette, extend='both')
+        # create a set of contours from the data grid, using explicit levels if there are any
+        if self.levels:
+            levels = list(self.levels)
+        else:
+            range_min = int(self.min * 10)
+            range_max = int(self.max * 10)
+            contour_interval = int(self.contour_interval*10)
+            levels = [i/10 for i in range(range_min, range_max, contour_interval)]
+
+        # one fill color per level, plus one each for the regions below and above the range
+        fill_colors = self._get_fill_colors(len(levels) + 1)
+        if fill_colors:
+            contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, colors=fill_colors, extend='both')
+        else:
+            contours: contour.QuadContourSet = pyplot.contourf(grid, levels=levels, cmap=self.palette, extend='both')
 
         # loop over each contour level
         for i, path in enumerate(contours.get_paths()):
+            # leave the region below the lowest level undrawn (transparent) if requested
+            if i == 0 and self.skip_under:
+                continue
+
             # get the hex color for this level
-            level_val = contours.levels[min(i, len(contours.levels) - 1)]
-            level_color = colors.rgb2hex(contours.cmap(contours.norm(level_val))[:3])
+            if fill_colors:
+                level_color = fill_colors[i]
+            else:
+                level_val = contours.levels[min(i, len(contours.levels) - 1)]
+                level_color = colors.rgb2hex(contours.cmap(contours.norm(level_val))[:3])
 
             # get the list of polygons for this set
             path_polygons = path.to_polygons()
@@ -310,6 +343,8 @@ def main():
     parser.add_argument('--max', type=float, help='Color palette\'s max value range, required if auto not set', required=False)
     parser.add_argument('--palette', type=str, help='Color palette name https://matplotlib.org/stable/gallery/color/colormap_reference.html', required=False)
     parser.add_argument('--contour-interval', type=float, help='Value difference between contour levels, required if auto not set', required=False)
+    parser.add_argument('--levels', type=str, help='Comma-separated contour levels for unevenly spaced levels, replaces min, max, and contour interval', required=False)
+    parser.add_argument('--skip-under', help='Do not draw the region below the lowest level (transparent)', required=False, action='store_true')
     parser.add_argument('--z-level', type=int, help='Z-level if a 3D field', required=False)
     parser.add_argument('--auto', help='Automatically creates full output set', required=False, action='store_true')
     args = parser.parse_args()
@@ -320,20 +355,22 @@ def main():
     out_file = args.out_file or None
     variable = args.variable
     z_level = args.z_level or None
-    value_range = [args.min, args.max]
+    levels = [float(level) for level in args.levels.split(',')] if args.levels else None
+    value_range = [levels[0], levels[-1]] if levels else [args.min, args.max]
     contour_interval = args.contour_interval
     palette = args.palette
     auto = args.auto
 
     # select mode and convert the WRF data to GeoJSON
     if not auto:
-        _manual_product(wrf_file, file_type, out_file, variable, value_range, contour_interval, palette, z_level)
+        _manual_product(wrf_file, file_type, out_file, variable, value_range, contour_interval, palette, z_level, levels, args.skip_under)
     else:
         automate_geojson_products(wrf_file, file_type)
 
 
 def _manual_product(wrf_file: str, file_type: str, out_file: Union[str, None], variable: str, value_range: List[float],
-                    contour_interval: float, palette: str, z_level: Union[int, None]) -> None:
+                    contour_interval: Union[float, None], palette: str, z_level: Union[int, None],
+                    levels: Union[List[float], None] = None, skip_under: bool = False) -> None:
     """
     Generate a single product defined by manual CLI inputs
     :param wrf_file: Input file name
@@ -341,9 +378,11 @@ def _manual_product(wrf_file: str, file_type: str, out_file: Union[str, None], v
     :param out_file: Output file name or None if stdout is desired
     :param variable: Variable name in the file
     :param z_level: Vertical level to export, or None if a 2D variable
+    :param levels: Explicit contour levels, or None to use value_range and contour_interval
+    :param skip_under: Do not draw the region below the lowest level
     """
     # convert the WRF data to GeoJSON
-    converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette, z_level)
+    converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette, z_level, levels, skip_under)
     output = converter.convert(out_file)
 
     # print the output to stdout if we do not have an output file
@@ -374,9 +413,11 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
         if file_type not in product:
             continue
         variable = product[file_type]['variable']
-        value_range = [product['range']['min'], product['range']['max']]
-        contour_interval = product['contour_interval']
+        levels = product['levels'] if 'levels' in product else None
+        value_range = [levels[0], levels[-1]] if levels else [product['range']['min'], product['range']['max']]
+        contour_interval = product['contour_interval'] if 'contour_interval' in product else None
         palette_name = product['palette']
+        skip_under = bool(product.get('skip_under', False))
         z_levels = product['z_levels'] if 'z_levels' in product else [None]
         for z_level in z_levels:
             # create the output file name
@@ -388,10 +429,12 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
             wrf_layer.plot_type = 'contour'
             wrf_layer.variable_name = variable
             wrf_layer.display_name = product['display_name']
-            wrf_layer.palette = Palette({
+            wrf_layer.palette = PaletteData({
                 'palette_name': palette_name,
                 'min_value': value_range[0],
-                'max_value': value_range[1]
+                'max_value': value_range[1],
+                'contour_interval': contour_interval,
+                'levels': levels
             })
             wrf_layer.units = product['units']
             wrf_layer.layer_data = out_file
@@ -411,7 +454,7 @@ def automate_geojson_products(wrf_file: str, file_type: str) -> List[WrfLayer]:
 
             # convert the file if it does not already exist
             if not os.path.exists(out_file):
-                converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette_name, z_level)
+                converter = GeoJson(wrf_file, file_type, variable, value_range, contour_interval, palette_name, z_level, levels, skip_under)
                 future = ppe.submit(converter.convert, out_file)
                 futures.append(future)
 

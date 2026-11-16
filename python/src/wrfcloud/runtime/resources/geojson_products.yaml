@@ -8,6 +8,8 @@
 #   min: Lowest value for the color scale (grib file units)
 #   max: Highest value for the color scale (grib file units)
 # contour_interval: Value difference between contour levels (grib file units)
+# levels: Optional list of contour levels for unevenly spaced levels (replaces range and contour_interval)
+# skip_under: Optional, true leaves the region below the lowest level undrawn (transparent), e.g. reflectivity
 # palette: Name of the color palette to use: https://matplotlib.org/stable/gallery/color/colormap_reference.html
 # z_levels: Optional, vertical level to plot for 3D variables
 ---
@@ -16,19 +18,19 @@ products:
   - netcdf:
       variable: temp_2m
     range:
-      min: -15
-      max: 45
-    contour_interval: 2
-    palette: viridis
+      min: -37.5
+      max: 49.6
+    contour_interval: 1.5
+    palette: t2_colorbar
     display_name: 'Temperature 2m'
     units: 'ºC'
   - netcdf:
       variable: dewpt_2m
     range:
-      min: -25
-      max: 35
-    contour_interval: 2
-    palette: BrBG_r
+      min: -28.6
+      max: 28.7
+    contour_interval: 1.1
+    palette: td2_colorbar
     display_name: 'Dew Point Temperature'
     units: 'ºC'
   - netcdf:
@@ -42,47 +44,34 @@ products:
     units: 'mb'
   - netcdf:
       variable: rh_2m
-    range:
-      min: 0
-      max: 101
-    contour_interval: 5
-    palette: BrBG
+    levels: [0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 75, 80, 85, 90, 95, 100]
+    palette: rh_sfc
     display_name: 'Relative Humidity 2m'
     units: '%'
   - grib2:
       variable: cape
-    range:
-      min: 0
-      max: 6000
-    contour_interval: 500
-    palette: BrBG
+    levels: [1, 250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 2750, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000]
+    skip_under: true
+    palette: cape
     display_name: 'CAPE'
     units: 'J/kg'
   - grib2:
       variable: cin
-    range:
-      min: -600
-      max: 0
-    contour_interval: 10
-    palette: viridis
+    levels: [-900, -500, -400, -300, -200, -150, -100, -90, -80, -70, -60, -50, -40, -30, -20, -10, -5, 0]
+    palette: cin
     display_name: 'CIN'
     units: 'J/kg'
   - netcdf:
       variable: max_refl
-    range:
-      min: 10
-      max: 70
-    contour_interval: 5
-    palette: viridis
+    levels: [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75]
+    skip_under: true
+    palette: composite_refl
     display_name: 'Composite Reflectivity'
     units: 'dBz'
   - netcdf:
       variable: total_precip
-    range:
-      min: 1
-      max: 101
-    contour_interval: 5
-    palette: viridis
+    levels: [1, 3, 5, 6, 13, 19, 25, 32, 38, 44, 51, 57, 64, 70, 76, 83, 89, 95, 102, 114, 127, 140, 152, 165, 178, 195, 212, 229, 254, 279, 305]
+    palette: precip_accum
     display_name: 'Precipitation Accumulation'
     units: 'mm'
   - grib2:
@@ -91,7 +80,7 @@ products:
       min: 0
       max: 101
     contour_interval: 5
-    palette: Blues_r
+    palette: cloud_cover
     display_name: 'Low-Level Cloud Cover'
     units: '%'
   - grib2:
@@ -100,7 +89,7 @@ products:
       min: 0
       max: 101
     contour_interval: 5
-    palette: Blues_r
+    palette: cloud_cover
     display_name: 'Medium-Level Cloud Cover'
     units: '%'
   - grib2:
@@ -109,16 +98,13 @@ products:
       min: 0
       max: 101
     contour_interval: 5
-    palette: Blues_r
+    palette: cloud_cover
     display_name: 'High-Level Cloud Cover'
     units: '%'
   - netcdf:
       variable: pwat
-    range:
-      min: 0
-      max: 100
-    contour_interval: 5
-    palette: viridis
+    levels: [0, 3, 5, 8, 10, 13, 15, 18, 20, 23, 25, 28, 30, 33, 36, 38, 41, 43, 46, 48, 51, 53, 56, 58, 61, 64, 66, 69, 71, 74, 76]
+    palette: precip_water
     display_name: 'Precipitable Water'
     units: 'mm'
 
@@ -126,10 +112,10 @@ products:
   - netcdf:
       variable: temp_pres
     range:
-      min: -30
-      max: 42
-    contour_interval: 2
-    palette: viridis
+      min: -37.5
+      max: 49.6
+    contour_interval: 1.5
+    palette: t2_colorbar
     display_name: 'Temperature (3D)'
     units: 'ºC'
     z_levels:
@@ -138,32 +124,22 @@ products:
       variable: temp_pres
     range:
       min: -30
-      max: 42
+      max: 42.1
     contour_interval: 2
-    palette: viridis
+    palette: t2_lowmid
     display_name: 'Temperature (3D)'
     units: 'ºC'
     z_levels:
       - 925
-  - netcdf:
-      variable: temp_pres
-    range:
-      min: -30
-      max: 40
-    contour_interval: 2
-    palette: viridis
-    display_name: 'Temperature (3D)'
-    units: 'ºC'
-    z_levels:
       - 850
       - 700
   - netcdf:
       variable: temp_pres
     range:
-      min: -50
-      max: 10
+      min: -44
+      max: 0.1
     contour_interval: 2
-    palette: viridis
+    palette: t2_colorbar_lt700
     display_name: 'Temperature (3D)'
     units: 'ºC'
     z_levels:
@@ -171,10 +147,10 @@ products:
   - netcdf:
       variable: temp_pres
     range:
-      min: -50
-      max: -30
+      min: -64
+      max: -19.9
     contour_interval: 2
-    palette: viridis
+    palette: t2_colorbar_lt700
     display_name: 'Temperature (3D)'
     units: 'ºC'
     z_levels:
@@ -182,10 +158,10 @@ products:
   - netcdf:
       variable: temp_pres
     range:
-      min: -70
-      max: -30
+      min: -72
+      max: -27.9
     contour_interval: 2
-    palette: viridis
+    palette: t2_colorbar_lt700
     display_name: 'Temperature (3D)'
     units: 'ºC'
     z_levels:
@@ -193,10 +169,10 @@ products:
   - netcdf:
       variable: temp_pres
     range:
-      min: -80
-      max: -40
+      min: -90
+      max: -45.9
     contour_interval: 2
-    palette: viridis
+    palette: t2_colorbar_lt700
     display_name: 'Temperature (3D)'
     units: 'ºC'
     z_levels:
@@ -204,15 +180,22 @@ products:
 
   - netcdf:
       variable: rh_pres
-    range:
-      min: 0
-      max: 101
-    contour_interval: 5
-    palette: BrBG
+    levels: [0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 75, 80, 85, 90, 95, 100]
+    palette: rh_sfc
     display_name: 'Relative Humidity (3D)'
     units: '%'
     z_levels:
       - 1000
+  - netcdf:
+      variable: rh_pres
+    range:
+      min: 0
+      max: 95.1
+    contour_interval: 2.5
+    palette: rh_aloft
+    display_name: 'Relative Humidity (3D)'
+    units: '%'
+    z_levels:
       - 925
       - 850
       - 700
@@ -223,13 +206,10 @@ products:
 
   - netcdf:
       variable: vvel_pres
-    range:
-      min: -60
-      max: 20
-    contour_interval: 2
-    palette: viridis
+    levels: [-3.3, -3.0, -2.7, -2.4, -2.1, -1.8, -1.5, -1.2, -0.9, -0.6, -0.3, 0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.1, 2.4, 2.7, 3.0, 3.3, 3.6, 3.9, 4.5, 5.1, 5.7, 6.3]
+    palette: vert_vel
     display_name: 'Vertical Velocity (3D)'
-    units: 'Pa/s'
+    units: 'm/s'
     z_levels:
       - 1000
       - 925
@@ -243,28 +223,63 @@ products:
   - netcdf:
       variable: wind_speed_10
     range:
-      min: 0
-      max: 120
-    contour_interval: 2
-    palette: PuOr
+      min: 10
+      max: 121
+    contour_interval: 5
+    skip_under: true
+    palette: ws_lt700
     display_name: 'Wind Speed 10m'
     units: 'kt'
 
   - netcdf:
       variable: wind_speed_pres
     range:
-      min: 0
-      max: 120
-    contour_interval: 2
-    palette: PuOr
+      min: 10
+      max: 121
+    contour_interval: 5
+    skip_under: true
+    palette: ws_lt700
     display_name: 'Wind Speed (3D)'
     units: 'kt'
     z_levels:
       - 1000
       - 925
       - 850
+  - netcdf:
+      variable: wind_speed_pres
+    range:
+      min: 20
+      max: 161
+    contour_interval: 5
+    skip_under: true
+    palette: ws_700
+    display_name: 'Wind Speed (3D)'
+    units: 'kt'
+    z_levels:
       - 700
+  - netcdf:
+      variable: wind_speed_pres
+    range:
+      min: 30
+      max: 171
+    contour_interval: 5
+    skip_under: true
+    palette: ws_500
+    display_name: 'Wind Speed (3D)'
+    units: 'kt'
+    z_levels:
       - 500
+  - netcdf:
+      variable: wind_speed_pres
+    range:
+      min: 50
+      max: 231
+    contour_interval: 5
+    skip_under: true
+    palette: ws_250
+    display_name: 'Wind Speed (3D)'
+    units: 'kt'
+    z_levels:
       - 300
       - 250
       - 100

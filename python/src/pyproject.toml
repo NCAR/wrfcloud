@@ -27,6 +27,7 @@ dependencies = [
     "requests==2.32.5",
     "pytz==2026.1.post1",
     "pygrib==2.1.8",
+    "colors @ git+https://github.com/NCAR/colors.git@ea61ea7047d5535a53742a460c7dd39dc204169e#subdirectory=python/src",
 ]
 
 [project.optional-dependencies]

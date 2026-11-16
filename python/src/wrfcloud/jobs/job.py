@@ -542,7 +542,7 @@ class WrfLayer:
         # initialize the properties
         self.variable_name: str = ''
         self.display_name: str = ''
-        self.palette: Union[Palette, None] = None
+        self.palette: Union[PaletteData, None] = None
         self.units: str = ''
         self.visible: bool = False
         self.opacity: float = 1
@@ -592,7 +592,7 @@ class WrfLayer:
         """
         self.variable_name = data['variable_name'] if 'variable_name' in data else ''
         self.display_name = data['display_name'] if 'display_name' in data else ''
-        self.palette = Palette(data['palette']) if 'palette' in data else None
+        self.palette = PaletteData(data['palette']) if 'palette' in data else None
         self.units = data['units'] if 'units' in data else ''
         self.visible = data['visible'] if 'visible' in data else False
         self.opacity = data['opacity'] if 'opacity' in data else 1
@@ -603,7 +603,7 @@ class WrfLayer:
         self.plot_type = data['plot_type'] if 'plot_type' in data else 'contour'
 
 
-class Palette:
+class PaletteData:
     """
     Details of a color palette
     """
@@ -615,6 +615,8 @@ class Palette:
         self.palette_name: str = ''
         self.min_value: float = 0
         self.max_value: float = 100
+        self.contour_interval: Union[float, None] = None
+        self.levels: Union[List[float], None] = None
 
         # initialize from data if provided
         if data is not None:
@@ -626,11 +628,17 @@ class Palette:
         Get the data dictionary
         :return: A dictionary with all attributes
         """
-        return {
+        data = {
             'palette_name': self.palette_name,
             'min_value': self.min_value,
             'max_value': self.max_value
         }
+        # only included when set, so layers saved before this field existed are unchanged
+        if self.contour_interval is not None:
+            data['contour_interval'] = self.contour_interval
+        if self.levels is not None:
+            data['levels'] = self.levels
+        return data
 
     @data.setter
     def data(self, data: dict):
@@ -641,3 +649,5 @@ class Palette:
         self.palette_name = data['palette_name'] if 'palette_name' in data else ''
         self.min_value = data['min_value'] if 'min_value' in data else 0
         self.max_value = data['max_value'] if 'max_value' in data else 100
+        self.contour_interval = data['contour_interval'] if 'contour_interval' in data else None
+        self.levels = data['levels'] if 'levels' in data else None
