@@ -9,7 +9,7 @@ rm -Rf dist/
 ng build
 cd dist/web/
 aws --profile ${profile} --region ${region} \
-    s3 sync . s3://${bucket}/web/
+    s3 sync --delete . s3://${bucket}/web/
 invalidation_id=$(aws --profile ${profile} --region ${region} cloudfront create-invalidation --distribution-id ${distribution_id} --paths '/*' | jq -r .Invalidation.Id)
 for i in $(seq 1 20); do
     aws --profile ${profile} --region ${region} \

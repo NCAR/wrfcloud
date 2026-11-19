@@ -34,7 +34,7 @@
 @if (layerGroup && mode === 'legend' && layerGroup.visible && layerGroup.progress >= 100) {
   <div class="layer-legend-under-map">
     <div class="layer-legend-name">{{layerGroup.display_name}}</div>
-    <div [class]="'layer-color-legend palette-' + layerGroup.palette.palette_name" [style.background-image]="legendBackground()">
+    <div class="layer-color-legend" [style.background-image]="legendBackground()">
     </div>
     @if (legendTickList().length > 0) {
       <div class="layer-color-legend layer-color-legend-ticks">

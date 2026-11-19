@@ -20,6 +20,7 @@ import {Size} from "ol/size";
 import Feature from 'ol/Feature.js';
 import Point from 'ol/geom/Point.js';
 
+
 @Component({
     selector: 'app-wrf-viewer',
     templateUrl: './wrf-viewer.html',

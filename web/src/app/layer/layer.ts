@@ -2,6 +2,8 @@ import {Component, Input, OnInit} from '@angular/core';
 import {WrfLayerGroup} from "../client-api";
 import {WrfViewerComponent} from "../wrf-viewer/wrf-viewer";
 import {legendGradient, legendMax, legendTicks, LegendTick} from "./legend-gradient";
+import {Palette} from '@ncar/colors';
+
 
 @Component({
     selector: 'app-layer',
@@ -53,7 +55,7 @@ export class LayerComponent implements OnInit
    */
   public legendBackground(): string|null
   {
-    return this.layerGroup ? legendGradient(this.layerGroup.palette) : null;
+    return this.layerGroup ? new Palette(this.layerGroup.palette.palette_name).getLinearGradient() : null;
   }
 
 
